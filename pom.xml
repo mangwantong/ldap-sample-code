@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>samplecode</groupId>
+  <artifactId>sample-code</artifactId>
+  <name>Sample code</name>
+  <version position="left">1.7</version>
+  <packaging>jar</packaging>
+  <properties>
+    <junit.version>4.10</junit.version>
+    <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
+    <maven.compiler.plugin.version>2.3.2</maven.compiler.plugin.version>
+    <maven.javadoc.plugin.version>2.8</maven.javadoc.plugin.version>
+    <maven.source.plugin.version>2.1.2</maven.source.plugin.version>
+    <maven.surefire.plugin.version>2.11</maven.surefire.plugin.version>
+  </properties>
+  <description>
+    A collection of sample code used in the blog at
+    http://ff1959.wordpress.com. Notable are demonstrations of the
+    UnboundID LDAP SDK.
+  </description> 
+  <url>http://ldapMaven.org</url>
+  <issueManagement>
+    <url>https://code.google.com/p/ldap-sample-code/issues/list</url>
+  </issueManagement>
+  <inceptionYear>2010</inceptionYear>
+  <developers>
+    <developer>
+      <name>Terry J. Gardner</name>
+      <email>terry.gardner@unboundid.com</email>
+      <url>http://ldapmaven.org</url>
+      <organization>UnboundID Corp.</organization>
+      <organizationUrl>http://unboundid.com</organizationUrl>
+    </developer>
+  </developers>
+  <organization>
+    <name>UnboundID Corp.</name>
+    <url>http://www.unboundid.com</url>
+  </organization>
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+	<version>${maven.source.plugin.version}</version>
+	<executions>
+	  <execution>
+	    <id>attach-sources</id>
+	    <goals>
+	      <goal>jar</goal>
+	    </goals>
+	  </execution>
+	</executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>${maven.surefire.plugin.version}</version>
+        <configuration>
+	  <parallel>methods</parallel>
+	  <threadCount>2</threadCount>
+          <perCoreThreadCount>true</perCoreThreadCount>
+          <skipTests>false</skipTests>
+        </configuration>
+      </plugin>
+      <plugin>
+      	<artifactId>maven-compiler-plugin</artifactId>
+        <version>${maven.compiler.plugin.version}</version>
+        <configuration>
+          <source>1.6</source>
+          <target>1.6</target>
+          <debug>true</debug>
+          <debuglevel>lines,vars,source</debuglevel>
+          <fork>true</fork>
+          <meminitial>128m</meminitial>
+          <maxmem>256m</maxmem>
+          <optimize>true</optimize>
+          <showDeprecation>true</showDeprecation>
+          <showWarnings>true</showWarnings>
+          <verbose>true</verbose>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>${maven.javadoc.plugin.version}</version>
+        <configuration>
+          <author>true</author>
+          <failOnError>true</failOnError>
+          <show>public</show>
+          <serialwarn>true</serialwarn>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+  <reporting>
+    <outputDirectory>target/site</outputDirectory>
+    <plugins>
+      <plugin>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>${maven.javadoc.plugin.version}</version>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+	<version>2.8</version>
+        <configuration>
+          <configLocation>config/sun_checks.xml</configLocation>
+        </configuration>
+      </plugin>
+    </plugins>
+  </reporting>
+</project>

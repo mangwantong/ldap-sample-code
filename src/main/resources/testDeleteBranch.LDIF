@@ -1,0 +1,14 @@
+dn: cn=deleteme,dc=example,dc=com
+objectClass: top
+objectClass: person
+cn: deleteme
+sn: deleteme-sn
+
+dn: uid=abc,cn=deleteme,dc=example,dc=com
+objectClass: top
+objectClass: inetOrgPerson
+cn: uid-sn
+sn: uid-sn
+uid: abc
+userPassword: lKCABIA(*#ND
+

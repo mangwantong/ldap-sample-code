@@ -1,0 +1,47 @@
+dn: uid=abc.0,ou=People,dc=example,dc=com
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+givenName: Aaren
+sn: Atp
+cn: Aaren Atp
+initials: AWA
+employeeNumber: 0
+uid: abc.0
+mail: abc.0@example.com
+userPassword: password
+telephoneNumber: +1 089 907 9947
+homePhone: +1 457 787 9183
+pager: +1 214 214 4195
+mobile: +1 947 007 3231
+street: 91327 Broadway Street
+l: Las Vegas
+st: UT
+postalCode: 08103
+postalAddress: Aaren Atp$91327 Broadway Street$Las Vegas, UT  08103
+description: This is the description for Aaren Atp.
+
+dn: uid=abc.1,ou=People,dc=example,dc=com
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+givenName: Aarika
+sn: Atpco
+cn: Aarika Atpco
+initials: ALA
+employeeNumber: 1
+uid: abc.1
+mail: abc.1@example.com
+userPassword: password
+telephoneNumber: +1 660 706 1787
+homePhone: +1 866 243 0253
+pager: +1 199 010 1031
+mobile: +1 714 548 1671
+street: 58402 Ninth Street
+l: Boston
+st: DC
+postalCode: 50450
+postalAddress: Aarika Atpco$58402 Ninth Street$Boston, DC  50450
+description: This is the description for Aarika Atpco.
