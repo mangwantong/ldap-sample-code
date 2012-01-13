@@ -34,6 +34,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+import samplecode.tools.AbstractTool;
+
+
 /**
  * Provides a demonstration of the use of the modify-increment extension
  * defined in RFC4525. This extension lets LDAP clients increment an
@@ -158,7 +161,7 @@ import java.util.List;
 @Since("Dec 1, 2011")
 @CodeVersion("1.1")
 public final class ModifyIncrementDemo
-    extends LDAPCommandLineTool
+    extends AbstractTool
 {
 
 
@@ -529,7 +532,7 @@ public final class ModifyIncrementDemo
   @Override
   public ResultCode doToolProcessing()
   {
-
+    introduction();
 
     /*
      * Retrieve the distinguished name parameter of the command line

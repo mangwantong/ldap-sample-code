@@ -16,6 +16,17 @@
 package samplecode;
 
 
+import com.unboundid.ldap.sdk.DN;
+import com.unboundid.ldap.sdk.LDAPConnection;
+import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.MinimalLogFormatter;
+import com.unboundid.util.Validator;
+import com.unboundid.util.args.ArgumentException;
+import com.unboundid.util.args.ArgumentParser;
+import com.unboundid.util.args.StringArgument;
+
+
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Vector;
@@ -24,22 +35,11 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
 
-import com.unboundid.ldap.sdk.DN;
-import com.unboundid.ldap.sdk.LDAPConnection;
-import com.unboundid.ldap.sdk.LDAPException;
-import com.unboundid.ldap.sdk.ResultCode;
-import com.unboundid.util.LDAPCommandLineTool;
-import com.unboundid.util.MinimalLogFormatter;
-import com.unboundid.util.Validator;
-import com.unboundid.util.args.ArgumentException;
-import com.unboundid.util.args.ArgumentParser;
-import com.unboundid.util.args.StringArgument;
-
-
 import samplecode.listener.LdapExceptionEvent;
 import samplecode.listener.LdapExceptionListener;
 import samplecode.listener.ObservedByLdapExceptionListener;
 import samplecode.password.ChangePassword;
+import samplecode.tools.AbstractTool;
 
 
 /**
@@ -61,6 +61,7 @@ import samplecode.password.ChangePassword;
  *  --bindPassword existingPassword \
  *  --newPassword newPassword
  * </pre>
+ * 
  * </blockquote> Alternatively, to have the server generate a
  * password:<blockquote>
  * 
@@ -72,13 +73,14 @@ import samplecode.password.ChangePassword;
  *  --bindDn DN \
  *  --bindPassword existingPassword
  * </pre>
+ * 
  * </blockquote>
  */
 @Author("terry.gardner@unboundid.com")
 @Since("12-Nov-2011")
 @CodeVersion("1.25")
 public final class PasswordModifyExtendedOperationDemo
-    extends LDAPCommandLineTool
+    extends AbstractTool
     implements ObservedByLdapExceptionListener,LdapExceptionListener
 
 {
@@ -373,7 +375,7 @@ public final class PasswordModifyExtendedOperationDemo
   @Override
   public ResultCode doToolProcessing()
   {
-
+    introduction();
 
     /*
      * Retrieve the user-specified bind DN from the command line
@@ -395,7 +397,7 @@ public final class PasswordModifyExtendedOperationDemo
     {
       ldapConnection = getConnection();
     }
-    catch (final LDAPException ldapException)
+    catch(final LDAPException ldapException)
     {
       fireLdapExceptionListener(null,ldapException);
       return ldapException.getResultCode();
@@ -426,7 +428,7 @@ public final class PasswordModifyExtendedOperationDemo
           responseTimeMillis);
       resultCode = ResultCode.SUCCESS;
     }
-    catch (final LDAPException ldapException)
+    catch(final LDAPException ldapException)
     {
       fireLdapExceptionListener(ldapConnection,ldapException);
       resultCode = ldapException.getResultCode();
@@ -439,11 +441,11 @@ public final class PasswordModifyExtendedOperationDemo
       builder.append(String.format("; result from server was %s.",resultCode));
       err(builder.toString());
     }
-    catch (final SupportedFeatureException e)
+    catch(final SupportedFeatureException e)
     {
       resultCode = ResultCode.UNWILLING_TO_PERFORM;
     }
-    catch (final PasswordModifyExtendedOperationFailedException passwordModifyExtendedOperationFailedException)
+    catch(final PasswordModifyExtendedOperationFailedException passwordModifyExtendedOperationFailedException)
     {
       resultCode =
           passwordModifyExtendedOperationFailedException.getResultCode();
@@ -462,7 +464,7 @@ public final class PasswordModifyExtendedOperationDemo
   {
     Validator.ensureNotNull(ldapException);
     Vector<LdapExceptionListener> copy;
-    synchronized (this)
+    synchronized(this)
     {
       copy = (Vector<LdapExceptionListener>)ldapExceptionListeners.clone();
     }

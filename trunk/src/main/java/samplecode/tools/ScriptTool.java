@@ -16,18 +16,17 @@
 package samplecode.tools;
 
 
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.LogRecord;
-
-
 import com.unboundid.ldap.sdk.ResultCode;
-import com.unboundid.util.LDAPCommandLineTool;
 import com.unboundid.util.MinimalLogFormatter;
 import com.unboundid.util.Validator;
 import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
 import com.unboundid.util.args.StringArgument;
+
+
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
 
 
 import samplecode.Author;
@@ -48,7 +47,7 @@ import samplecode.ToolCompletedProcessing;
 @Since("Jan 1, 2012")
 @CodeVersion("1.1")
 public final class ScriptTool
-    extends LDAPCommandLineTool
+    extends AbstractTool
 {
 
 
@@ -251,6 +250,7 @@ public final class ScriptTool
   @Override
   public ResultCode doToolProcessing()
   {
+    introduction();
     final String className = commandLineOptions.getClassName();
     final String classPath = commandLineOptions.getClassPath();
     final String spaceSeparatedJVMOptions = commandLineOptions.getJvmOptions();
@@ -266,7 +266,7 @@ public final class ScriptTool
       final LogRecord record = new LogRecord(Level.INFO,helpfulMessage);
       out(new MinimalLogFormatter().format(record));
     }
-    catch (final IOException exception)
+    catch(final IOException exception)
     {
       return ResultCode.OPERATIONS_ERROR;
     }
@@ -335,6 +335,12 @@ public final class ScriptTool
  * 
  * 
  * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
  * public void addNonLDAPArguments(final ArgumentParser argumentParser)
  *     throws ArgumentException
  * {
@@ -343,6 +349,7 @@ public final class ScriptTool
  *   commandLineOptions = new ScriptToolCommandLineOptions(argumentParser);
  * }
  * </pre>
+ * 
  * </blockquote>
  */
 class ScriptToolCommandLineOptions

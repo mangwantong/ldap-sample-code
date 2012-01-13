@@ -16,17 +16,18 @@
 package samplecode;
 
 
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.util.Vector;
-import java.util.logging.Level;
-import java.util.logging.LogRecord;
-
-
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.matchingrules.MatchingRule;
-import com.unboundid.ldap.sdk.*;
-import com.unboundid.util.LDAPCommandLineTool;
+import com.unboundid.ldap.sdk.Attribute;
+import com.unboundid.ldap.sdk.DN;
+import com.unboundid.ldap.sdk.Entry;
+import com.unboundid.ldap.sdk.Filter;
+import com.unboundid.ldap.sdk.LDAPConnection;
+import com.unboundid.ldap.sdk.LDAPConnectionPool;
+import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.SearchRequest;
+import com.unboundid.ldap.sdk.SearchScope;
 import com.unboundid.util.MinimalLogFormatter;
 import com.unboundid.util.Validator;
 import com.unboundid.util.args.ArgumentException;
@@ -34,9 +35,17 @@ import com.unboundid.util.args.ArgumentParser;
 import com.unboundid.util.args.DNArgument;
 
 
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
+
+
 import samplecode.listener.LdapExceptionEvent;
 import samplecode.listener.LdapExceptionListener;
 import samplecode.listener.ObservedByLdapExceptionListener;
+import samplecode.tools.AbstractTool;
 
 
 /**
@@ -52,7 +61,7 @@ import samplecode.listener.ObservedByLdapExceptionListener;
 @Since("Nov 22, 2011")
 @CodeVersion("1.7")
 public final class MatchingRuleDemo
-    extends LDAPCommandLineTool
+    extends AbstractTool
     implements LdapExceptionListener,ObservedByLdapExceptionListener
 {
 
@@ -196,15 +205,15 @@ public final class MatchingRuleDemo
    * <p/>
    * 
    * <pre>
-	 * java samplecode.MatchingRuleDemo \
-	 *         --filter '(&)' \
-	 *         --scope SUB \
-	 *         --entryDn1 uid=user.0,ou=people, dc=example,dc=com \
-	 *         --entryDn2 uid=user.1,ou=people,dc=example,dc=com \
-	 *         --attribute description \
-	 *         --hostname localhost \
-	 *         --port 1389
-	 * </pre>
+   * java samplecode.MatchingRuleDemo \
+   *         --filter '(&)' \
+   *         --scope SUB \
+   *         --entryDn1 uid=user.0,ou=people, dc=example,dc=com \
+   *         --entryDn2 uid=user.1,ou=people,dc=example,dc=com \
+   *         --attribute description \
+   *         --hostname localhost \
+   *         --port 1389
+   * </pre>
    * <p/>
    * </blockquote>
    * <p/>
@@ -215,98 +224,99 @@ public final class MatchingRuleDemo
    * arguments is reproduced below:<blockquote>
    * 
    * <pre>
-	 * Provides a demonstration of the use of matching rules by comparing a specified
-	 * attribute between two entries. The attribute to be compared is specified by
-	 * --attribute, and the entries are specified by --entryDn1 and --entryDn2
-	 * 
-	 * Usage:  MatchingRuleDemo {options}
-	 * 
-	 * Available options include:
-	 * -h, --hostname {host}
-	 *     The IP address or resolvable name to use to connect to the directory
-	 *     server.  If this is not provided, then a default value of 'localhost' will
-	 *     be used.
-	 * -p, --port {port}
-	 *     The port to use to connect to the directory server.  If this is not
-	 *     provided, then a default value of 389 will be used.
-	 * -D, --bindDN {dn}
-	 *     The DN to use to bind to the directory server when performing simple
-	 *     authentication.
-	 * -w, --bindPassword {password}
-	 *     The password to use to bind to the directory server when performing simple
-	 *     authentication or a password-based SASL mechanism.
-	 * -j, --bindPasswordFile {path}
-	 *     The path to the file containing the password to use to bind to the
-	 *     directory server when performing simple authentication or a password-based
-	 *     SASL mechanism.
-	 * -Z, --useSSL
-	 *     Use SSL when communicating with the directory server.
-	 * -q, --useStartTLS
-	 *     Use StartTLS when communicating with the directory server.
-	 * -X, --trustAll
-	 *     Trust any certificate presented by the directory server.
-	 * -K, --keyStorePath {path}
-	 *     The path to the file to use as the key store for obtaining client
-	 *     certificates when communicating securely with the directory server.
-	 * -W, --keyStorePassword {password}
-	 *     The password to use to access the key store contents.
-	 * -u, --keyStorePasswordFile {path}
-	 *     The path to the file containing the password to use to access the key store
-	 *     contents.
-	 * --keyStoreFormat {format}
-	 *     The format (e.g., jks, jceks, pkcs12, etc.) for the key store file.
-	 * -P, --trustStorePath {path}
-	 *     The path to the file to use as trust store when determining whether to
-	 *     trust a certificate presented by the directory server.
-	 * -T, --trustStorePassword {password}
-	 *     The password to use to access the trust store contents.
-	 * -U, --trustStorePasswordFile {path}
-	 *     The path to the file containing the password to use to access the trust
-	 *     store contents.
-	 * --trustStoreFormat {format}
-	 *     The format (e.g., jks, jceks, pkcs12, etc.) for the trust store file.
-	 * -N, --certNickname {nickname}
-	 *     The nickname (alias) of the client certificate in the key store to present
-	 *     to the directory server for SSL client authentication.
-	 * -o, --saslOption {name=value}
-	 *     A name-value pair providing information to use when performing SASL
-	 *     authentication.
-	 * -b, --baseObject {distinguishedName}
-	 *     The base object used in the search request.
-	 * --reportInterval {positive-integer}
-	 *     The report interval in milliseconds.
-	 * --reportCount {positive-integer}
-	 *     Specifies the maximum number of reports. This command line argument is
-	 *     applicable to tools that display repeated reports. The time between
-	 *     repeated reports is specified by the --reportInterval command line
-	 *     argument.
-	 * -a, --attribute {attribute name or type}
-	 *     The attribute used in the search request or other request. This command
-	 *     line argument is not required, and can be specified multiple times. If this
-	 *     command line argument is not specified, the value '*' is used.
-	 * -f, --filter {filter}
-	 *     The search filter used in the search request.
-	 * -i, --initialConnections {positiveInteger}
-	 *     The number of initial connections to establish to directory server when
-	 *     creating the connection pool.
-	 * -m, --maxConnections {positiveInteger}
-	 *     The maximum number of connections to establish to directory server when
-	 *     creating the connection pool.
-	 * -s, --scope {searchScope}
-	 *     The scope of the search request; allowed values are BASE, ONE, and SUB
-	 * --sizeLimit {positiveInteger}
-	 *     The search size limit
-	 * --timeLimit {positiveInteger}
-	 *     The search time limit
-	 * --pageSize {positiveInteger}
-	 *     The search page size
-	 * --entryDn1 {DN}
-	 *     The distinguished name to be compared with entry2
-	 * --entryDn2 {DN}
-	 *     The distinguished name to be compared with entry1
-	 * -H, -?, --help
-	 *     Display usage information for this program.
-	 * </pre>
+   * Provides a demonstration of the use of matching rules by comparing a specified
+   * attribute between two entries. The attribute to be compared is specified by
+   * --attribute, and the entries are specified by --entryDn1 and --entryDn2
+   * 
+   * Usage:  MatchingRuleDemo {options}
+   * 
+   * Available options include:
+   * -h, --hostname {host}
+   *     The IP address or resolvable name to use to connect to the directory
+   *     server.  If this is not provided, then a default value of 'localhost' will
+   *     be used.
+   * -p, --port {port}
+   *     The port to use to connect to the directory server.  If this is not
+   *     provided, then a default value of 389 will be used.
+   * -D, --bindDN {dn}
+   *     The DN to use to bind to the directory server when performing simple
+   *     authentication.
+   * -w, --bindPassword {password}
+   *     The password to use to bind to the directory server when performing simple
+   *     authentication or a password-based SASL mechanism.
+   * -j, --bindPasswordFile {path}
+   *     The path to the file containing the password to use to bind to the
+   *     directory server when performing simple authentication or a password-based
+   *     SASL mechanism.
+   * -Z, --useSSL
+   *     Use SSL when communicating with the directory server.
+   * -q, --useStartTLS
+   *     Use StartTLS when communicating with the directory server.
+   * -X, --trustAll
+   *     Trust any certificate presented by the directory server.
+   * -K, --keyStorePath {path}
+   *     The path to the file to use as the key store for obtaining client
+   *     certificates when communicating securely with the directory server.
+   * -W, --keyStorePassword {password}
+   *     The password to use to access the key store contents.
+   * -u, --keyStorePasswordFile {path}
+   *     The path to the file containing the password to use to access the key store
+   *     contents.
+   * --keyStoreFormat {format}
+   *     The format (e.g., jks, jceks, pkcs12, etc.) for the key store file.
+   * -P, --trustStorePath {path}
+   *     The path to the file to use as trust store when determining whether to
+   *     trust a certificate presented by the directory server.
+   * -T, --trustStorePassword {password}
+   *     The password to use to access the trust store contents.
+   * -U, --trustStorePasswordFile {path}
+   *     The path to the file containing the password to use to access the trust
+   *     store contents.
+   * --trustStoreFormat {format}
+   *     The format (e.g., jks, jceks, pkcs12, etc.) for the trust store file.
+   * -N, --certNickname {nickname}
+   *     The nickname (alias) of the client certificate in the key store to present
+   *     to the directory server for SSL client authentication.
+   * -o, --saslOption {name=value}
+   *     A name-value pair providing information to use when performing SASL
+   *     authentication.
+   * -b, --baseObject {distinguishedName}
+   *     The base object used in the search request.
+   * --reportInterval {positive-integer}
+   *     The report interval in milliseconds.
+   * --reportCount {positive-integer}
+   *     Specifies the maximum number of reports. This command line argument is
+   *     applicable to tools that display repeated reports. The time between
+   *     repeated reports is specified by the --reportInterval command line
+   *     argument.
+   * -a, --attribute {attribute name or type}
+   *     The attribute used in the search request or other request. This command
+   *     line argument is not required, and can be specified multiple times. If this
+   *     command line argument is not specified, the value '*' is used.
+   * -f, --filter {filter}
+   *     The search filter used in the search request.
+   * -i, --initialConnections {positiveInteger}
+   *     The number of initial connections to establish to directory server when
+   *     creating the connection pool.
+   * -m, --maxConnections {positiveInteger}
+   *     The maximum number of connections to establish to directory server when
+   *     creating the connection pool.
+   * -s, --scope {searchScope}
+   *     The scope of the search request; allowed values are BASE, ONE, and SUB
+   * --sizeLimit {positiveInteger}
+   *     The search size limit
+   * --timeLimit {positiveInteger}
+   *     The search time limit
+   * --pageSize {positiveInteger}
+   *     The search page size
+   * --entryDn1 {DN}
+   *     The distinguished name to be compared with entry2
+   * --entryDn2 {DN}
+   *     The distinguished name to be compared with entry1
+   * -H, -?, --help
+   *     Display usage information for this program.
+   * </pre>
+   * 
    * </blockquote>
    * 
    * @param args
@@ -398,7 +408,7 @@ public final class MatchingRuleDemo
   @Override
   public ResultCode doToolProcessing()
   {
-
+    introduction();
     /*
      * Retrieve the parameters provided to the entryDn1, entryDn2, and
      * attribute arguments:
@@ -435,7 +445,7 @@ public final class MatchingRuleDemo
           new LDAPConnectionPool(ldapConnection,initialConnections,
               maxConnections);
     }
-    catch (final LDAPException ldapException)
+    catch(final LDAPException ldapException)
     {
       fireLdapExceptionListener(null,ldapException);
       return ldapException.getResultCode();
@@ -450,12 +460,12 @@ public final class MatchingRuleDemo
       final LDAPConnection connection = ldapConnectionPool.getConnection();
       SupportedUserAttribute.getInstance().supported(connection,attributeName);
     }
-    catch (final LDAPException ldapException)
+    catch(final LDAPException ldapException)
     {
       fireLdapExceptionListener(ldapConnection,ldapException);
       return ldapException.getResultCode();
     }
-    catch (final AttributeNotSupportedException e)
+    catch(final AttributeNotSupportedException e)
     {
       final StringBuilder builder = new StringBuilder();
       builder.append(String.format("attribute '%s' is not supported "
@@ -534,12 +544,12 @@ public final class MatchingRuleDemo
             "no entries were returned")));
       }
     }
-    catch (final LDAPException ldapException)
+    catch(final LDAPException ldapException)
     {
       fireLdapExceptionListener(ldapConnection,ldapException);
       return ldapException.getResultCode();
     }
-    catch (final AttributeValueMatchException attributeValueMatchException)
+    catch(final AttributeValueMatchException attributeValueMatchException)
     {
       final StringBuilder builder = new StringBuilder();
       builder.append("Attribute values did not match.\n");
@@ -565,7 +575,7 @@ public final class MatchingRuleDemo
       final LDAPException ldapException)
   {
     Vector<LdapExceptionListener> copy;
-    synchronized (this)
+    synchronized(this)
     {
       copy = (Vector<LdapExceptionListener>)ldapExceptionListeners.clone();
     }

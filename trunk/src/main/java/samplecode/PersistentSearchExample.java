@@ -16,11 +16,6 @@
 package samplecode;
 
 
-import java.io.OutputStream;
-import java.util.logging.Level;
-import java.util.logging.LogRecord;
-
-
 import com.unboundid.ldap.sdk.AsyncRequestID;
 import com.unboundid.ldap.sdk.AsyncSearchResultListener;
 import com.unboundid.ldap.sdk.LDAPConnection;
@@ -34,11 +29,18 @@ import com.unboundid.ldap.sdk.SearchResultReference;
 import com.unboundid.ldap.sdk.UnsolicitedNotificationHandler;
 import com.unboundid.ldap.sdk.controls.PersistentSearchChangeType;
 import com.unboundid.ldap.sdk.controls.PersistentSearchRequestControl;
-import com.unboundid.util.LDAPCommandLineTool;
 import com.unboundid.util.MinimalLogFormatter;
 import com.unboundid.util.Validator;
 import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
+
+
+import java.io.OutputStream;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
+
+
+import samplecode.tools.AbstractTool;
 
 
 /**
@@ -49,7 +51,8 @@ import com.unboundid.util.args.ArgumentParser;
 @Since("Oct 13, 2011")
 @CodeVersion("1.27")
 public final class PersistentSearchExample
-  extends LDAPCommandLineTool {
+    extends AbstractTool
+{
 
 
   /**
@@ -74,13 +77,15 @@ public final class PersistentSearchExample
    *          {@code LDAPCommandLineTool} with help from
    *          {@code CommandLineOptions}.
    */
-  public static void main(final String... args) {
+  public static void main(final String... args)
+  {
     final OutputStream outStream = System.out;
     final OutputStream errStream = System.err;
     final PersistentSearchExample persistentSearchExample =
         new PersistentSearchExample(outStream,errStream);
     final ResultCode resultCode = persistentSearchExample.runTool(args);
-    if(resultCode != null) {
+    if(resultCode != null)
+    {
       final StringBuilder builder =
           new StringBuilder(persistentSearchExample.getToolName());
       builder.append(" has completed processing. The result code was: ");
@@ -92,12 +97,14 @@ public final class PersistentSearchExample
 
   @SuppressWarnings("serial")
   private final AsyncSearchResultListener asyncSearchListener =
-      new AsyncSearchResultListener() {
+      new AsyncSearchResultListener()
+      {
 
 
         @Override
         public void searchEntryReturned(
-            final SearchResultEntry searchResultEntry) {
+            final SearchResultEntry searchResultEntry)
+        {
           final StringBuilder builder =
               new StringBuilder(">>>>\nsearch entry returned\n");
           builder.append(String.format("%-12s %s\n","DN:",
@@ -110,7 +117,8 @@ public final class PersistentSearchExample
 
         @Override
         public void searchReferenceReturned(
-            final SearchResultReference searchReferenceReturned) {
+            final SearchResultReference searchReferenceReturned)
+        {
           final String msg = "searchReferenceReturned not yet supported.";
           throw new UnsupportedOperationException(msg);
         }
@@ -118,7 +126,8 @@ public final class PersistentSearchExample
 
         @Override
         public void searchResultReceived(final AsyncRequestID requestId,
-            final SearchResult searchResult) {
+            final SearchResult searchResult)
+        {
           final StringBuilder builder =
               new StringBuilder("search result received\n");
           builder.append(String.format("%-12s %s\n","requestId:",requestId));
@@ -142,11 +151,29 @@ public final class PersistentSearchExample
 
 
   /**
+   * Prepares {@code PersistentSearchExample} for use by a client - the
+   * {@code System.out} and {@code System.err OutputStreams} are used.
+   */
+  public PersistentSearchExample()
+  {
+    this(System.out,System.err);
+  }
+
+
+  private PersistentSearchExample(
+      final OutputStream outStream,final OutputStream errStream)
+  {
+    super(outStream,errStream);
+  }
+
+
+  /**
    * {@inheritDoc}
    */
   @Override
   public void addNonLDAPArguments(final ArgumentParser argumentParser)
-      throws ArgumentException {
+      throws ArgumentException
+  {
     Validator.ensureNotNull(argumentParser);
     commandLineOptions =
         CommandLineOptions.newCommandLineOptions(argumentParser);
@@ -157,10 +184,15 @@ public final class PersistentSearchExample
    * {@inheritDoc}
    */
   @Override
-  public ResultCode doToolProcessing() {
-    try {
+  public ResultCode doToolProcessing()
+  {
+    introduction();
+    try
+    {
       demonstratePersistentSearch();
-    } catch (final LDAPException ldapException) {
+    }
+    catch(final LDAPException ldapException)
+    {
       final LdapLogRecord ldapLogRecord =
           ExceptionLdapLogRecord.newExceptionLdapLogRecord(ldapException);
       final Level level = Level.SEVERE;
@@ -178,8 +210,9 @@ public final class PersistentSearchExample
    * {@inheritDoc}
    */
   @Override
-  public String getToolDescription() {
-    return TOOL_DESCRIPTION;
+  public String getToolDescription()
+  {
+    return PersistentSearchExample.TOOL_DESCRIPTION;
   }
 
 
@@ -187,8 +220,9 @@ public final class PersistentSearchExample
    * {@inheritDoc}
    */
   @Override
-  public String getToolName() {
-    return TOOL_NAME;
+  public String getToolName()
+  {
+    return PersistentSearchExample.TOOL_NAME;
   }
 
 
@@ -196,7 +230,8 @@ public final class PersistentSearchExample
    * Issues a persistent search request and displays results as they are
    * returned from the server.
    */
-  private ResultCode demonstratePersistentSearch() throws LDAPException {
+  private ResultCode demonstratePersistentSearch() throws LDAPException
+  {
 
 
     /*
@@ -225,9 +260,12 @@ public final class PersistentSearchExample
         PersistentSearchRequestControl.PERSISTENT_SEARCH_REQUEST_OID;
     final SupportedFeature supported =
         SupportedFeature.newSupportedFeature(ldapConnection);
-    try {
+    try
+    {
       supported.isControlSupported(controlOID);
-    } catch (final SupportedFeatureException ex) {
+    }
+    catch(final SupportedFeatureException ex)
+    {
       final LdapLogRecord ldapLogRecord =
           SupportedFeatureLdapLogRecord.newSupportedFeatureLdapLogRecord(ex);
       final LogRecord record = ldapLogRecord.getLogRecord(Level.SEVERE);
@@ -270,21 +308,6 @@ public final class PersistentSearchExample
 
 
     return searchResult.getResultCode();
-  }
-
-
-  /**
-   * Prepares {@code PersistentSearchExample} for use by a client - the
-   * {@code System.out} and {@code System.err OutputStreams} are used.
-   */
-  public PersistentSearchExample() {
-    this(System.out,System.err);
-  }
-
-
-  private PersistentSearchExample(final OutputStream outStream,
-                                  final OutputStream errStream) {
-    super(outStream,errStream);
   }
 
 

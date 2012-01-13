@@ -22,7 +22,6 @@ import com.unboundid.ldap.sdk.LDAPConnectionOptions;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.UnsolicitedNotificationHandler;
-import com.unboundid.util.LDAPCommandLineTool;
 import com.unboundid.util.MinimalLogFormatter;
 import com.unboundid.util.Validator;
 import com.unboundid.util.args.ArgumentException;
@@ -36,6 +35,7 @@ import java.util.logging.LogRecord;
 
 
 import samplecode.listener.DefaultLdapExceptionListener;
+import samplecode.tools.AbstractTool;
 
 
 /**
@@ -73,7 +73,7 @@ import samplecode.listener.DefaultLdapExceptionListener;
 @Since("27-Nov-2011")
 @CodeVersion("2.0")
 public final class AuthDemo
-    extends LDAPCommandLineTool
+    extends AbstractTool
 {
 
 
@@ -168,6 +168,7 @@ public final class AuthDemo
   @Override
   public ResultCode doToolProcessing()
   {
+    introduction();
     responseTimeoutMillis = commandLineOptions.getMaxResponseTimeMillis();
     ResultCode resultCode = ResultCode.SUCCESS;
     try
