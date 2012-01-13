@@ -17,12 +17,12 @@ package samplecode;
 
 
 import com.unboundid.ldap.sdk.DN;
-import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.LDAPSearchException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchRequest;
-import com.unboundid.ldap.sdk.SearchScope;
+import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.ldap.sdk.unboundidds.controls.AttributeRight;
 import com.unboundid.ldap.sdk.unboundidds.controls.EffectiveRightsEntry;
 import com.unboundid.ldap.sdk.unboundidds.controls.GetEffectiveRightsRequestControl;
@@ -174,9 +174,16 @@ public class EffectiveRightsEntryDemo
    */
   public static final String TOOL_DESCRIPTION =
       "Provides a demonstration of the GetEffectiveRightsRequestControl. "
-          + "Command line options --entry, --authZid, --right specify the "
+          + "Command line options --entry, --authZid, and --right specify the "
           + "entry for which to test, the authorization ID, and a set of "
-          + "rights. --right can be specified multiple times.";
+          + "rights. The command line argument --right can be specified multiple times.";
+
+
+  /**
+   * The name of this tool; it used for help and diagnostic output and
+   * for other purposes.
+   */
+  public static final String TOOL_NAME = "EffectiveRightsEntryDemo";
 
 
   /**
@@ -219,10 +226,6 @@ public class EffectiveRightsEntryDemo
 
   // Handles command line arguments for EffectiveRightsEntryDemo
   private EffectiveRightsEntryDemoCommandLineOptions commandLineOptions;
-
-
-  // Formats text in a standardized way
-  private final Formatter formatter = new MinimalLogFormatter();
 
 
   // The map of rights keyed by a string
@@ -337,42 +340,56 @@ public class EffectiveRightsEntryDemo
     {
       return ldapException.getResultCode();
     }
-    final SearchScope scope = commandLineOptions.getSearchScope();
-    final Filter filter = commandLineOptions.getFilter();
+
+
+    /*
+     * check to see that entry specified by the --authZid command line
+     * arguments.
+     */
+    if(!entryExists())
+    {
+      final String msg =
+          String.format("the DN specified for authZid '%s' does not exist.",
+              authZid);
+      final LogRecord record = new LogRecord(Level.INFO,msg);
+      err(getFormatter().format(record));
+      return ResultCode.NO_SUCH_OBJECT;
+    }
+
+
+    CheckEffectiveRights effectiveRights;
+    effectiveRights = new CheckEffectiveRights(ldapConnection);
+    effectiveRights
+        .addLdapExceptionListener(new EffectiveRightsEntryDemoLdapExceptionListener(
+            System.err));
+    effectiveRights
+        .addLdapSearchExceptionListener(new EffectiveRightsEntryDemoLdapSearchExceptionListener(
+            System.err));
+
+
     for(final String a : attributes)
     {
       for(final String right : rights)
       {
-        CheckEffectiveRights effectiveRights;
-        effectiveRights = new CheckEffectiveRights(ldapConnection);
-        effectiveRights
-            .addLdapExceptionListener(new EffectiveRightsEntryDemoLdapExceptionListener(
-                System.err));
-        effectiveRights
-            .addLdapSearchExceptionListener(new EffectiveRightsEntryDemoLdapSearchExceptionListener(
-                System.err));
         try
         {
           final SearchRequest searchRequest =
-              new SearchRequest(baseObject,scope,filter,a);
+              new SearchRequest(baseObject,commandLineOptions.getSearchScope(),
+                  commandLineOptions.getFilter(),a);
           final AttributeRight attributeRight =
               rightsMap.get(right.toLowerCase());
           effectiveRights.hasRight(searchRequest,a,attributeRight,"dn:" +
               authZid.toString());
-          final String msg =
-              String.format("'%s' does have '%s' right for attribute %s",
-                  entryDn.toString(),attributeRight,a);
-          final LogRecord record = new LogRecord(Level.INFO,msg);
-          out(formatter.format(record));
+          reportDoesHaveRight(String.format(
+              "'%s' does have '%s' right for attribute %s",entryDn.toString(),
+              attributeRight,a));
         }
         catch(final CheckEffectiveRightsException effectiveRightsException)
         {
-          final String msg =
-              String.format("'%s' does not have '%s' right for attribute %s",
-                  entryDn.toString(),effectiveRightsException.attributeRight(),
-                  effectiveRightsException.attributeName());
-          final LogRecord record = new LogRecord(Level.INFO,msg);
-          err(formatter.format(record));
+          reportDoesNotHaveRight(String.format(
+              "'%s' does not have '%s' right for attribute %s",
+              entryDn.toString(),effectiveRightsException.attributeRight(),
+              effectiveRightsException.attributeName()));
         }
         catch(final SupportedFeatureException exception)
         {
@@ -402,7 +419,7 @@ public class EffectiveRightsEntryDemo
   @Override
   public String getToolName()
   {
-    return "EffectiveRightsEntryDemo";
+    return EffectiveRightsEntryDemo.TOOL_NAME;
   }
 
 
@@ -418,6 +435,58 @@ public class EffectiveRightsEntryDemo
             this.toString(rightsMap.entrySet(),maxLen) + ", " : "") +
         (validRightsSet != null ? "validRightsSet=" +
             this.toString(validRightsSet,maxLen) : "") + "]";
+  }
+
+
+  @Override
+  protected int getIntroductionColumnWidth()
+  {
+    return 80;
+  }
+
+
+  private boolean entryExists()
+  {
+    boolean entryExists;
+    SearchResult searchResult;
+    try
+    {
+      searchResult =
+          getConnection().search(commandLineOptions.getBaseObject(),
+              commandLineOptions.getSearchScope(),
+              commandLineOptions.getFilter(),SearchRequest.NO_ATTRIBUTES);
+      entryExists = searchResult.getEntryCount() > 0;
+    }
+    catch(final LDAPSearchException exception)
+    {
+      exception.printStackTrace();
+      entryExists = false;
+    }
+    catch(final LDAPException exception)
+    {
+      exception.printStackTrace();
+      entryExists = false;
+    }
+    return entryExists;
+  }
+
+
+  private void report(final PrintStream printStream,final String msg)
+  {
+    final LogRecord record = new LogRecord(Level.INFO,msg);
+    printStream.println(getFormatter().format(record));
+  }
+
+
+  private void reportDoesHaveRight(final String msg)
+  {
+    report(System.err,msg);
+  }
+
+
+  private void reportDoesNotHaveRight(final String msg)
+  {
+    report(System.err,msg);
   }
 
 
