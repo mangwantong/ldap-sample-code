@@ -16,6 +16,28 @@
 package samplecode;
 
 
+import com.unboundid.asn1.ASN1OctetString;
+import com.unboundid.ldap.sdk.Control;
+import com.unboundid.ldap.sdk.Filter;
+import com.unboundid.ldap.sdk.LDAPConnection;
+import com.unboundid.ldap.sdk.LDAPConnectionOptions;
+import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.SearchRequest;
+import com.unboundid.ldap.sdk.SearchResult;
+import com.unboundid.ldap.sdk.SearchResultEntry;
+import com.unboundid.ldap.sdk.SearchScope;
+import com.unboundid.ldap.sdk.UnsolicitedNotificationHandler;
+import com.unboundid.ldap.sdk.controls.ServerSideSortRequestControl;
+import com.unboundid.ldap.sdk.controls.SortKey;
+import com.unboundid.ldap.sdk.controls.VirtualListViewRequestControl;
+import com.unboundid.ldap.sdk.controls.VirtualListViewResponseControl;
+import com.unboundid.util.MinimalLogFormatter;
+import com.unboundid.util.Validator;
+import com.unboundid.util.args.ArgumentException;
+import com.unboundid.util.args.ArgumentParser;
+
+
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Vector;
@@ -23,22 +45,10 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
 
-import com.unboundid.asn1.ASN1OctetString;
-import com.unboundid.ldap.sdk.*;
-import com.unboundid.ldap.sdk.controls.ServerSideSortRequestControl;
-import com.unboundid.ldap.sdk.controls.SortKey;
-import com.unboundid.ldap.sdk.controls.VirtualListViewRequestControl;
-import com.unboundid.ldap.sdk.controls.VirtualListViewResponseControl;
-import com.unboundid.util.LDAPCommandLineTool;
-import com.unboundid.util.MinimalLogFormatter;
-import com.unboundid.util.Validator;
-import com.unboundid.util.args.ArgumentException;
-import com.unboundid.util.args.ArgumentParser;
-
-
 import samplecode.listener.LdapExceptionEvent;
 import samplecode.listener.LdapExceptionListener;
 import samplecode.listener.ObservedByLdapExceptionListener;
+import samplecode.tools.AbstractTool;
 
 
 /**
@@ -50,7 +60,7 @@ import samplecode.listener.ObservedByLdapExceptionListener;
 @Since("Dec 4, 2011")
 @CodeVersion("1.1")
 public final class VirtualListViewDemo
-    extends LDAPCommandLineTool
+    extends AbstractTool
     implements LdapExceptionListener,ObservedByLdapExceptionListener
 {
 
@@ -256,6 +266,8 @@ public final class VirtualListViewDemo
   {
     ResultCode resultCode = ResultCode.SUCCESS;
 
+    introduction();
+
 
     /*
      * Obtain a connection to the directory server. The connection
@@ -267,7 +279,7 @@ public final class VirtualListViewDemo
     {
       ldapConnection = getConnection();
     }
-    catch (final LDAPException exception)
+    catch(final LDAPException exception)
     {
       err(new MinimalLogFormatter().format(new LogRecord(Level.SEVERE,exception
           .getExceptionMessage())));
@@ -393,12 +405,12 @@ public final class VirtualListViewDemo
 
       ldapConnection.close();
     }
-    catch (final LDAPException ldapException)
+    catch(final LDAPException ldapException)
     {
       fireLdapExceptionListener(ldapConnection,ldapException);
       resultCode = ldapException.getResultCode();
     }
-    catch (final SupportedFeatureException supportedFeatureException)
+    catch(final SupportedFeatureException supportedFeatureException)
     {
       // a request control is not supported by this server.
       final LdapLogRecord ldapLogRecord =
@@ -408,7 +420,7 @@ public final class VirtualListViewDemo
       err(new MinimalLogFormatter().format(record));
       resultCode = ResultCode.UNWILLING_TO_PERFORM;
     }
-    catch (final AttributeNotSupportedException attributeNotSupportedException)
+    catch(final AttributeNotSupportedException attributeNotSupportedException)
     {
       // An attribute was not defined
       final String msg =
@@ -433,7 +445,7 @@ public final class VirtualListViewDemo
   {
     Validator.ensureNotNull(ldapConnection,ldapException);
     Vector<LdapExceptionListener> copy;
-    synchronized (this)
+    synchronized(this)
     {
       copy = (Vector<LdapExceptionListener>)ldapExceptionListeners.clone();
     }

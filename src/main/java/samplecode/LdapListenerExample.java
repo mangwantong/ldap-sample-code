@@ -19,7 +19,16 @@ package samplecode;
 import com.unboundid.ldap.listener.InMemoryDirectoryServer;
 import com.unboundid.ldap.listener.InMemoryDirectoryServerConfig;
 import com.unboundid.ldap.listener.InMemoryListenerConfig;
-import com.unboundid.ldap.sdk.*;
+import com.unboundid.ldap.sdk.DN;
+import com.unboundid.ldap.sdk.Entry;
+import com.unboundid.ldap.sdk.Filter;
+import com.unboundid.ldap.sdk.LDAPConnectionPool;
+import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.SearchRequest;
+import com.unboundid.ldap.sdk.SearchResult;
+import com.unboundid.ldap.sdk.SearchResultEntry;
+import com.unboundid.ldap.sdk.SearchScope;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.ldif.LDIFException;
 import com.unboundid.ldif.LDIFReader;
@@ -43,6 +52,9 @@ import java.util.List;
 import java.util.logging.Formatter;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
+
+
+import samplecode.tools.AbstractTool;
 
 
 /**
@@ -172,7 +184,7 @@ import java.util.logging.LogRecord;
 @Since("01-Nov-2011")
 @CodeVersion("1.8")
 public final class LdapListenerExample
-    extends LDAPCommandLineTool
+    extends AbstractTool
 {
 
 
@@ -1004,6 +1016,7 @@ public final class LdapListenerExample
   @Override
   public ResultCode doToolProcessing()
   {
+    introduction();
 
     /*
      * Retrieve from the argument parser the parameter to the --ldifFile

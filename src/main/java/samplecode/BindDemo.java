@@ -16,6 +16,19 @@
 package samplecode;
 
 
+import com.unboundid.ldap.sdk.*;
+import com.unboundid.ldap.sdk.controls.PasswordExpiredControl;
+import com.unboundid.ldap.sdk.controls.PasswordExpiringControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.AccountUsableRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.AccountUsableResponseControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.OperationPurposeRequestControl;
+import com.unboundid.util.CommandLineTool;
+import com.unboundid.util.MinimalLogFormatter;
+import com.unboundid.util.Validator;
+import com.unboundid.util.args.ArgumentException;
+import com.unboundid.util.args.ArgumentParser;
+
+
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -26,26 +39,13 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
 
-import com.unboundid.ldap.sdk.*;
-import com.unboundid.ldap.sdk.controls.PasswordExpiredControl;
-import com.unboundid.ldap.sdk.controls.PasswordExpiringControl;
-import com.unboundid.ldap.sdk.unboundidds.controls.AccountUsableRequestControl;
-import com.unboundid.ldap.sdk.unboundidds.controls.AccountUsableResponseControl;
-import com.unboundid.ldap.sdk.unboundidds.controls.OperationPurposeRequestControl;
-import com.unboundid.util.CommandLineTool;
-import com.unboundid.util.LDAPCommandLineTool;
-import com.unboundid.util.MinimalLogFormatter;
-import com.unboundid.util.Validator;
-import com.unboundid.util.args.ArgumentException;
-import com.unboundid.util.args.ArgumentParser;
-
-
 import samplecode.listener.LdapExceptionEvent;
 import samplecode.listener.LdapExceptionListener;
 import samplecode.listener.LdapSearchExceptionEvent;
 import samplecode.listener.LdapSearchExceptionListener;
 import samplecode.listener.ObservedByLdapExceptionListener;
 import samplecode.listener.ObservedByLdapSearchExceptionListener;
+import samplecode.tools.AbstractTool;
 
 
 /**
@@ -61,7 +61,7 @@ import samplecode.listener.ObservedByLdapSearchExceptionListener;
 @Since("01-Sep-2011")
 @CodeVersion("1.20")
 public final class BindDemo
-    extends LDAPCommandLineTool
+    extends AbstractTool
     implements LdapExceptionListener,ObservedByLdapExceptionListener,
     ObservedByLdapSearchExceptionListener,LdapSearchExceptionListener
 {
@@ -563,6 +563,7 @@ public final class BindDemo
   @Override
   public ResultCode doToolProcessing()
   {
+    introduction();
 
     /*
      * The tool requires a valid distinguished name with which to bind

@@ -16,6 +16,24 @@
 package samplecode;
 
 
+import com.unboundid.ldap.sdk.DN;
+import com.unboundid.ldap.sdk.Filter;
+import com.unboundid.ldap.sdk.LDAPConnection;
+import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.SearchRequest;
+import com.unboundid.ldap.sdk.SearchScope;
+import com.unboundid.ldap.sdk.unboundidds.controls.AttributeRight;
+import com.unboundid.ldap.sdk.unboundidds.controls.EffectiveRightsEntry;
+import com.unboundid.ldap.sdk.unboundidds.controls.GetEffectiveRightsRequestControl;
+import com.unboundid.util.MinimalLogFormatter;
+import com.unboundid.util.Validator;
+import com.unboundid.util.args.ArgumentException;
+import com.unboundid.util.args.ArgumentParser;
+import com.unboundid.util.args.DNArgument;
+import com.unboundid.util.args.StringArgument;
+
+
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Arrays;
@@ -31,29 +49,11 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
 
-import com.unboundid.ldap.sdk.DN;
-import com.unboundid.ldap.sdk.Filter;
-import com.unboundid.ldap.sdk.LDAPConnection;
-import com.unboundid.ldap.sdk.LDAPException;
-import com.unboundid.ldap.sdk.ResultCode;
-import com.unboundid.ldap.sdk.SearchRequest;
-import com.unboundid.ldap.sdk.SearchScope;
-import com.unboundid.ldap.sdk.unboundidds.controls.AttributeRight;
-import com.unboundid.ldap.sdk.unboundidds.controls.EffectiveRightsEntry;
-import com.unboundid.ldap.sdk.unboundidds.controls.GetEffectiveRightsRequestControl;
-import com.unboundid.util.LDAPCommandLineTool;
-import com.unboundid.util.MinimalLogFormatter;
-import com.unboundid.util.Validator;
-import com.unboundid.util.args.ArgumentException;
-import com.unboundid.util.args.ArgumentParser;
-import com.unboundid.util.args.DNArgument;
-import com.unboundid.util.args.StringArgument;
-
-
 import samplecode.listener.LdapExceptionEvent;
 import samplecode.listener.LdapExceptionListener;
 import samplecode.listener.LdapSearchExceptionEvent;
 import samplecode.listener.LdapSearchExceptionListener;
+import samplecode.tools.AbstractTool;
 
 
 /**
@@ -164,7 +164,7 @@ import samplecode.listener.LdapSearchExceptionListener;
 @Since("Nov 23, 2011")
 @CodeVersion("1.28")
 public class EffectiveRightsEntryDemo
-    extends LDAPCommandLineTool
+    extends AbstractTool
 {
 
 
@@ -285,6 +285,7 @@ public class EffectiveRightsEntryDemo
   @Override
   public ResultCode doToolProcessing()
   {
+    introduction();
 
     /*
      * Get the command line option from the parser whose parameter is
@@ -317,7 +318,7 @@ public class EffectiveRightsEntryDemo
     {
       ldapConnection = getConnection();
     }
-    catch (final LDAPException ldapException)
+    catch(final LDAPException ldapException)
     {
       return ldapException.getResultCode();
     }
@@ -332,7 +333,7 @@ public class EffectiveRightsEntryDemo
     {
       baseObject = commandLineOptions.getBaseObject();
     }
-    catch (final LDAPException ldapException)
+    catch(final LDAPException ldapException)
     {
       return ldapException.getResultCode();
     }
@@ -364,7 +365,7 @@ public class EffectiveRightsEntryDemo
           final LogRecord record = new LogRecord(Level.INFO,msg);
           out(formatter.format(record));
         }
-        catch (final CheckEffectiveRightsException effectiveRightsException)
+        catch(final CheckEffectiveRightsException effectiveRightsException)
         {
           final String msg =
               String.format("'%s' does not have '%s' right for attribute %s",
@@ -373,7 +374,7 @@ public class EffectiveRightsEntryDemo
           final LogRecord record = new LogRecord(Level.INFO,msg);
           err(formatter.format(record));
         }
-        catch (final SupportedFeatureException exception)
+        catch(final SupportedFeatureException exception)
         {
           ldapConnection.close();
           return ResultCode.OPERATIONS_ERROR;

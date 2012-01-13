@@ -41,6 +41,7 @@ import java.util.logging.LogRecord;
 import samplecode.listener.LdapExceptionEvent;
 import samplecode.listener.LdapExceptionListener;
 import samplecode.listener.ObservedByLdapExceptionListener;
+import samplecode.tools.AbstractTool;
 
 
 /**
@@ -57,7 +58,7 @@ import samplecode.listener.ObservedByLdapExceptionListener;
 @CodeVersion("1.1")
 @Launchable
 public final class OperationPurposeRequestControlExample
-    extends LDAPCommandLineTool
+    extends AbstractTool
     implements LdapExceptionListener
 {
 
@@ -467,13 +468,10 @@ public final class OperationPurposeRequestControlExample
   @Override
   public ResultCode doToolProcessing()
   {
-
-
+    introduction();
     final OperationPurposeRequestControlDemo demo =
         new OperationPurposeRequestControlDemo(this,commandLineOptions);
     demo.execute();
-
-
     return ResultCode.SUCCESS;
   }
 
