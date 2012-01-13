@@ -804,7 +804,7 @@ public final class BindDemo
 
     ldapConnectionPool.close();
 
-    return null;
+    return ResultCode.SUCCESS;
   }
 
 
