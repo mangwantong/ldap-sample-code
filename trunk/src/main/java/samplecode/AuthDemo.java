@@ -122,13 +122,6 @@ public final class AuthDemo extends
 
 
   /**
-   * Manages command line arguments
-   */
-  private CommandLineOptions commandLineOptions;
-
-
-
-  /**
    * Provides logging services.
    */
   private final Formatter formatter = new MinimalLogFormatter();
@@ -140,10 +133,6 @@ public final class AuthDemo extends
    * instructional messages.
    */
   private String msg;
-
-
-
-  private long responseTimeoutMillis;
 
 
 
@@ -180,8 +169,8 @@ public final class AuthDemo extends
   @Override
   public ResultCode doToolProcessing()
   {
+    setFieldsFromCommandLineOptions();
     introduction();
-    responseTimeoutMillis = commandLineOptions.getMaxResponseTimeMillis();
     ResultCode resultCode = ResultCode.SUCCESS;
     try
     {

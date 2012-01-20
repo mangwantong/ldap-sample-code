@@ -27,18 +27,41 @@ import java.io.OutputStream;
 import java.util.logging.Formatter;
 
 
+import samplecode.CommandLineOptions;
+
+
 /**
  * A minimal implementation of the {@code LDAPCommandLineTool} class.
  */
-public abstract class AbstractTool
-    extends LDAPCommandLineTool
+public abstract class AbstractTool extends
+    LDAPCommandLineTool
 {
+
+  /**
+   * Manages command line arguments
+   */
+  protected CommandLineOptions commandLineOptions;
+
+
+
+  /**
+   * maximum amount of time to spend waiting for a response from the
+   * server
+   */
+  protected long responseTimeoutMillis;
+
+
+
+  /** Whether the tool is verbose during execution */
+  protected boolean verbose;
+
 
 
   /**
    * Formats {@code LogRecord} for display.
    */
   private final Formatter formatter = new MinimalLogFormatter();
+
 
 
   /**
@@ -52,15 +75,16 @@ public abstract class AbstractTool
   }
 
 
+
   /**
    * {@inheritDoc}
    */
   @Override
-  public void addNonLDAPArguments(final ArgumentParser arg0)
-      throws ArgumentException
+  public void addNonLDAPArguments(final ArgumentParser arg0) throws ArgumentException
   {
     throw new UnsupportedOperationException();
   }
+
 
 
   /**
@@ -73,6 +97,7 @@ public abstract class AbstractTool
   }
 
 
+
   /**
    * {@inheritDoc}
    */
@@ -81,6 +106,7 @@ public abstract class AbstractTool
   {
     throw new UnsupportedOperationException();
   }
+
 
 
   /**
@@ -93,6 +119,7 @@ public abstract class AbstractTool
   }
 
 
+
   /**
    * @return the formatter
    */
@@ -100,6 +127,7 @@ public abstract class AbstractTool
   {
     return formatter;
   }
+
 
 
   /**
@@ -111,6 +139,7 @@ public abstract class AbstractTool
   }
 
 
+
   /**
    * @return the indentation of the introduction text.
    */
@@ -118,6 +147,7 @@ public abstract class AbstractTool
   {
     return 0;
   }
+
 
 
   /**
@@ -129,14 +159,23 @@ public abstract class AbstractTool
   }
 
 
+
   /**
    * Display introductory matter. This implementation display the name
    * of the tool and the tool description.
    */
   protected void introduction()
   {
-    wrapOut(getIntroductionIndentation(),getIntroductionColumnWidth(),
-        getToolName() + ": " + getToolDescription());
+    wrapOut(getIntroductionIndentation(),getIntroductionColumnWidth(),getToolName() + ": " +
+                                                                      getToolDescription());
     out();
+  }
+
+
+
+  protected void setFieldsFromCommandLineOptions()
+  {
+    responseTimeoutMillis = commandLineOptions.getMaxResponseTimeMillis();
+    verbose = commandLineOptions.isVerbose();
   }
 }
