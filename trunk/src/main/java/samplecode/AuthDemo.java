@@ -227,6 +227,7 @@ public final class AuthDemo extends
     LDAPConnection ldapConnection;
     try
     {
+      verbose("connecting to LDAP server.");
       ldapConnection = getConnection();
       final LDAPConnectionOptions connectionOptions =
           commandLineOptions.newLDAPConnectionOptions();
