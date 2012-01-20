@@ -72,8 +72,8 @@ import samplecode.tools.AbstractTool;
 @Author("terry.gardner@unboundid.com")
 @Since("27-Nov-2011")
 @CodeVersion("2.0")
-public final class AuthDemo
-    extends AbstractTool
+public final class AuthDemo extends
+    AbstractTool
 {
 
 
@@ -82,10 +82,15 @@ public final class AuthDemo
    * other purposes.
    */
   public static final String TOOL_DESCRIPTION =
-      "Provides a demonstration of the use of the account usable request "
-          + "and the Who am I? extended operation. The account usable request "
+      "Provides a demonstration of the use of the account usable request " + "and the Who Am I? extended operation. The account "
+          + "usable request control and the Who Am I? extended "
+          + "request use the authentication state of the connection "
+          + "to the LDAP server, that is, the connection authentication "
+          + "state as set by the --bindDn|-D command line argument "
+          + "and the --bindPassword|-w command line argument. The account usable request "
           + "control was designed by Sun Microsystems and is not based on any "
           + "RFC or draft.";
+
 
 
   /**
@@ -93,6 +98,7 @@ public final class AuthDemo
    * purposes.
    */
   public static final String TOOL_NAME = "AuthDemo";
+
 
 
   /**
@@ -114,16 +120,19 @@ public final class AuthDemo
   }
 
 
+
   /**
    * Manages command line arguments
    */
   private CommandLineOptions commandLineOptions;
 
 
+
   /**
    * Provides logging services.
    */
   private final Formatter formatter = new MinimalLogFormatter();
+
 
 
   /**
@@ -133,7 +142,9 @@ public final class AuthDemo
   private String msg;
 
 
+
   private long responseTimeoutMillis;
+
 
 
   /**
@@ -146,6 +157,7 @@ public final class AuthDemo
   }
 
 
+
   /**
    * {@inheritDoc}
    * <p>
@@ -153,13 +165,13 @@ public final class AuthDemo
    * standard ones supported by the {@code CommandLineOptions} class.
    */
   @Override
-  public void addNonLDAPArguments(final ArgumentParser argumentParser)
-      throws ArgumentException
+  public void
+      addNonLDAPArguments(final ArgumentParser argumentParser) throws ArgumentException
   {
     Validator.ensureNotNull(argumentParser);
-    commandLineOptions =
-        CommandLineOptions.newCommandLineOptions(argumentParser);
+    commandLineOptions = CommandLineOptions.newCommandLineOptions(argumentParser);
   }
+
 
 
   /**
@@ -177,12 +189,12 @@ public final class AuthDemo
     }
     catch(final SupportedFeatureException exception)
     {
-      err(formatter.format(new LogRecord(Level.SEVERE,
-          "feature or control not supported.")));
+      err(formatter.format(new LogRecord(Level.SEVERE,"feature or control not supported.")));
       resultCode = ResultCode.UNWILLING_TO_PERFORM;
     }
     return resultCode;
   }
+
 
 
   /**
@@ -195,6 +207,7 @@ public final class AuthDemo
   }
 
 
+
   /**
    * {@inheritDoc}
    */
@@ -203,6 +216,7 @@ public final class AuthDemo
   {
     return AuthDemo.TOOL_NAME;
   }
+
 
 
   private ResultCode authDemo() throws SupportedFeatureException
@@ -228,15 +242,13 @@ public final class AuthDemo
       final LDAPConnectionOptions connectionOptions =
           commandLineOptions.newLDAPConnectionOptions();
       connectionOptions.setResponseTimeoutMillis(responseTimeoutMillis);
-      connectionOptions
-          .setUnsolicitedNotificationHandler(unsolicitedNotificationHandler);
+      connectionOptions.setUnsolicitedNotificationHandler(unsolicitedNotificationHandler);
       ldapConnection.setConnectionOptions(connectionOptions);
     }
     catch(final LDAPException ldapException)
     {
       // ldapConnection is not initialized here
-      err(formatter.format(new LogRecord(Level.SEVERE,ldapException
-          .getExceptionMessage())));
+      err(formatter.format(new LogRecord(Level.SEVERE,ldapException.getExceptionMessage())));
       return ldapException.getResultCode();
     }
 
@@ -245,10 +257,8 @@ public final class AuthDemo
      * Instantiate the object which provides methods to get the
      * authorization identity.
      */
-    final AuthorizedIdentity authorizedIdentity =
-        new AuthorizedIdentity(ldapConnection);
-    authorizedIdentity
-        .addLdapExceptionListener(new DefaultLdapExceptionListener());
+    final AuthorizedIdentity authorizedIdentity = new AuthorizedIdentity(ldapConnection);
+    authorizedIdentity.addLdapExceptionListener(new DefaultLdapExceptionListener());
 
 
     /*
@@ -258,14 +268,11 @@ public final class AuthDemo
      */
     String authId;
     authId =
-        authorizedIdentity
-            .getAuthorizationIdentityWhoAmIExtendedOperation(getResponseTimeout());
+        authorizedIdentity.getAuthorizationIdentityWhoAmIExtendedOperation(getResponseTimeout());
     if(authId != null)
     {
       msg =
-          String.format(
-              "AuthorizationID from the Who am I? extended request: '%s'",
-              authId);
+          String.format("AuthorizationID from the Who am I? extended request: '%s'",authId);
       out(formatter.format(new LogRecord(Level.INFO,msg)));
     }
 
@@ -276,8 +283,7 @@ public final class AuthDemo
     if(bindDnAsDn == null)
     {
       final String helpfulMessage =
-          "Please specify a --bindDN argument to test the "
-              + "AuthorizationidentityRequestControl.";
+          "Please specify a --bindDN argument to test the " + "AuthorizationidentityRequestControl.";
       final LogRecord record = new LogRecord(Level.SEVERE,helpfulMessage);
       err(formatter.format(record));
       return ResultCode.PARAM_ERROR;
@@ -286,17 +292,19 @@ public final class AuthDemo
     final String bindPassword = commandLineOptions.getBindPassword();
     authId =
         authorizedIdentity.getAuthorizationIdentityFromBindRequest(bindDn,
-            bindPassword,getResponseTimeout());
+            bindPassword,
+            getResponseTimeout());
     if(authId != null)
     {
       msg =
-          String.format("AuthorizationID from the "
-              + "AuthorizationIdentityResponseControl: '%s'",authId);
+          String.format("AuthorizationID from the " + "AuthorizationIdentityResponseControl: '%s'",
+              authId);
       out(formatter.format(new LogRecord(Level.INFO,msg)));
     }
     ldapConnection.close();
     return ResultCode.SUCCESS;
   }
+
 
 
   private long getResponseTimeout()
