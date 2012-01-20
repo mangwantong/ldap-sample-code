@@ -24,7 +24,10 @@ import com.unboundid.util.args.ArgumentParser;
 
 
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.logging.Formatter;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
 
 
 import samplecode.CommandLineOptions;
@@ -177,5 +180,30 @@ public abstract class AbstractTool extends
   {
     responseTimeoutMillis = commandLineOptions.getMaxResponseTimeMillis();
     verbose = commandLineOptions.isVerbose();
+  }
+
+
+
+  /**
+   * @param printStream
+   *          a non-null print stream to which the message is
+   *          transmitted.
+   * @param msg
+   *          a non-null message to transmit
+   */
+  protected void verbose(final PrintStream printStream,final String msg)
+  {
+    out(formatter.format(new LogRecord(Level.FINE,msg)));
+  }
+
+
+
+  /**
+   * @param msg
+   *          a non-null message to transmit to the standard output.
+   */
+  protected void verbose(final String msg)
+  {
+    verbose(System.out,msg);
   }
 }
