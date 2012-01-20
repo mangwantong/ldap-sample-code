@@ -225,9 +225,12 @@ public final class AuthDemo extends
 
 
     LDAPConnection ldapConnection;
-    try
+    if(verbose)
     {
       verbose("connecting to LDAP server.");
+    }
+    try
+    {
       ldapConnection = getConnection();
       final LDAPConnectionOptions connectionOptions =
           commandLineOptions.newLDAPConnectionOptions();
@@ -247,6 +250,10 @@ public final class AuthDemo extends
      * Instantiate the object which provides methods to get the
      * authorization identity.
      */
+    if(verbose)
+    {
+      verbose("Creating the authorized identity object.");
+    }
     final AuthorizedIdentity authorizedIdentity = new AuthorizedIdentity(ldapConnection);
     authorizedIdentity.addLdapExceptionListener(new DefaultLdapExceptionListener());
 
@@ -256,6 +263,10 @@ public final class AuthDemo extends
      * procedure requires creating a WhoAmIExtendedRequest object and
      * using processExtendedOperation to transmit it.
      */
+    if(verbose)
+    {
+      verbose("Getting the authorization identity using the Who Am I? extended request.");
+    }
     String authId;
     authId =
         authorizedIdentity.getAuthorizationIdentityWhoAmIExtendedOperation(getResponseTimeout());
@@ -277,6 +288,10 @@ public final class AuthDemo extends
       final LogRecord record = new LogRecord(Level.SEVERE,helpfulMessage);
       err(formatter.format(record));
       return ResultCode.PARAM_ERROR;
+    }
+    if(verbose)
+    {
+      verbose("Getting the authorization identity using the authorization identity request.");
     }
     final String bindDn = bindDnAsDn.toString();
     final String bindPassword = commandLineOptions.getBindPassword();
