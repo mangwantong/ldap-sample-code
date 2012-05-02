@@ -1,9 +1,9 @@
-dn: uid=user.0,ou=people,dc=example,dc=com
+dn: uid=user.0,ou=people,o=training
 changetype: modify
 add: description
 description: description 1
 
-dn: uid=user.0,ou=people,dc=example,dc=com
+dn: uid=user.0,ou=people,o=training
 changetype: modify
 add: description
 description: description 2
