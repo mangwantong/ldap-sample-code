@@ -1,8 +1,8 @@
 /*
- * Copyright 2008-2011 UnboundID Corp. All Rights Reserved.
+ * Copyright 2008-2012 UnboundID Corp. All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2011 UnboundID Corp. This program is free
+ * Copyright (C) 2008-2012 UnboundID Corp. This program is free
  * software; you can redistribute it and/or modify it under the terms of
  * the GNU General Public License (GPLv2 only) or the terms of the GNU
  * Lesser General Public License (LGPLv2.1 only) as published by the
@@ -39,11 +39,10 @@ import samplecode.SupportedFeatureException;
  */
 @Author("terry.gardner@unboundid.com")
 @Since("Dec 28, 2011")
-@CodeVersion("1.0")
+@CodeVersion("1.1")
 @NotMutable
 public class ChangePassword
 {
-
 
   /**
    * Gets a new and distinct instance of the {@code ChangePassword}
@@ -53,18 +52,16 @@ public class ChangePassword
    * @param ldapConnection
    *          connection to LDAP server, {@code null} object not
    *          permitted.
+   * 
    * @return a new and distinct instance of the {@code ChangePassword}
    *         object.
    */
-  public static ChangePassword newChangePassword(
-      final LDAPConnection ldapConnection)
+  public static ChangePassword newChangePassword(final LDAPConnection ldapConnection)
   {
     Validator.ensureNotNull(ldapConnection);
     return new ChangePassword(ldapConnection);
   }
 
-
-  private final LDAPConnection ldapConnection;
 
 
   /**
@@ -87,22 +84,19 @@ public class ChangePassword
    * @throws SupportedFeatureException
    * @throws PasswordModifyExtendedOperationFailedException
    */
-  public void changePassword(final DN distinguishedName,
-      final String existingPassword,final String newPassword,
-      final int responseTimeoutMillis) throws LDAPException,
-      SupportedFeatureException,PasswordModifyExtendedOperationFailedException
+  public void changePassword(final DN distinguishedName,final String existingPassword,
+          final String newPassword,final int responseTimeoutMillis) throws LDAPException,
+          SupportedFeatureException,PasswordModifyExtendedOperationFailedException
   {
     Validator.ensureNotNull(distinguishedName,existingPassword);
-
 
     /*
      * Check the the server supports the password modify extended
      * request.
      */
-    final String oid =
-        PasswordModifyExtendedRequest.PASSWORD_MODIFY_REQUEST_OID;
     final SupportedFeature supportedControl =
-        SupportedFeature.newSupportedFeature(this.ldapConnection);
+            SupportedFeature.newSupportedFeature(ldapConnection);
+    final String oid = PasswordModifyExtendedRequest.PASSWORD_MODIFY_REQUEST_OID;
     supportedControl.isExtendedOperationSupported(oid);
 
     /*
@@ -111,18 +105,15 @@ public class ChangePassword
      * connection.
      */
     final PasswordModifyExtendedRequest passwordModifyExtendedRequest =
-        new PasswordModifyExtendedRequest(existingPassword,newPassword);
-    passwordModifyExtendedRequest
-        .setResponseTimeoutMillis(responseTimeoutMillis);
-
+            new PasswordModifyExtendedRequest(existingPassword,newPassword);
+    passwordModifyExtendedRequest.setResponseTimeoutMillis(responseTimeoutMillis);
 
     /*
      * Send the request to the server:
      */
     final PasswordModifyExtendedResult extendedResult =
-        (PasswordModifyExtendedResult)this.ldapConnection
-            .processExtendedOperation(passwordModifyExtendedRequest);
-
+            (PasswordModifyExtendedResult)ldapConnection
+                    .processExtendedOperation(passwordModifyExtendedRequest);
 
     /*
      * Examine the results:
@@ -136,9 +127,17 @@ public class ChangePassword
   }
 
 
-  private ChangePassword(final LDAPConnection ldapConnection)
+
+  private ChangePassword(
+          final LDAPConnection ldapConnection)
   {
     this.ldapConnection = ldapConnection;
   }
 
+
+
+  /**
+   * The LDAP connection supplied by the client
+   */
+  private final LDAPConnection ldapConnection;
 }
