@@ -30,6 +30,11 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
 
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
+
+
 /**
  * TODO
  */
@@ -37,9 +42,8 @@ import java.util.logging.LogRecord;
 @Since("Dec 23, 2011")
 @CodeVersion("1.0")
 public final class SkeletonTool
-    extends LDAPCommandLineTool
+        extends LDAPCommandLineTool
 {
-
 
   /**
    * The description of this tool; used in help and diagnostic output
@@ -48,11 +52,13 @@ public final class SkeletonTool
   public static final String TOOL_DESCRIPTION = "";
 
 
+
   /**
    * The name of this tool; used in help and diagnostic output and for
    * other purposes.
    */
   public static final String TOOL_NAME = "";
+
 
 
   /**
@@ -65,20 +71,19 @@ public final class SkeletonTool
     final OutputStream outStream = System.out;
     final OutputStream errStream = System.err;
     final Formatter formatter = new MinimalLogFormatter();
-    final SkeletonTool tool =
-        SkeletonTool.newSkeletonTool(outStream,errStream,formatter);
+    final SkeletonTool tool = SkeletonTool.newSkeletonTool(outStream,errStream,formatter);
     final ResultCode resultCode = tool.runTool(args);
     if(resultCode != null)
     {
       final String msg =
-          String.format(
-              "%s has completed processing. The result code was: %s.",
-              tool.getToolName(),resultCode.toString());
+              String.format("%s has completed processing. The result code was: %s.",
+                      tool.getToolName(),resultCode.toString());
       final LogRecord logRecord = new LogRecord(Level.INFO,msg);
       final String text = formatter.format(logRecord);
       tool.out(text);
     }
   }
+
 
 
   /**
@@ -94,21 +99,56 @@ public final class SkeletonTool
    * @return a new SkeletonTool
    */
   public static SkeletonTool newSkeletonTool(final OutputStream outStream,
-      final OutputStream errStream,final Formatter formatter)
+          final OutputStream errStream,final Formatter formatter)
   {
     Validator.ensureNotNull(outStream,errStream,formatter);
     return new SkeletonTool(outStream,errStream,formatter);
   }
 
 
-  // Handles command line argument processing for this tool.
-  @SuppressWarnings("unused")
-  private SkeletonToolCommandLineOptions commandLineOptions;
+
+  @Override
+  public void addNonLDAPArguments(final ArgumentParser argumentParser) throws ArgumentException
+  {
+    Validator.ensureNotNull(argumentParser);
+    commandLineOptions =
+            SkeletonToolCommandLineOptions.newSkeletonToolCommandLineOptions(argumentParser);
+  }
 
 
-  // The formatter used to format information and error output.
-  @SuppressWarnings("unused")
-  private final Formatter formatter;
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public ResultCode doToolProcessing()
+  {
+    final ResultCode resultCode = ResultCode.SUCCESS;
+    return resultCode;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String getToolDescription()
+  {
+    return SkeletonTool.TOOL_DESCRIPTION;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String getToolName()
+  {
+    return SkeletonTool.TOOL_NAME;
+  }
+
 
 
   /**
@@ -120,6 +160,7 @@ public final class SkeletonTool
   {
     this(System.out,System.err,new MinimalLogFormatter());
   }
+
 
 
   /**
@@ -134,54 +175,23 @@ public final class SkeletonTool
    *          The formatter used to format information and error output.
    */
   public SkeletonTool(
-      final OutputStream outStream,final OutputStream errStream,
-      final Formatter formatter)
+          final OutputStream outStream,final OutputStream errStream,final Formatter formatter)
   {
     super(outStream,errStream);
     this.formatter = formatter;
   }
 
 
-  @Override
-  public void addNonLDAPArguments(final ArgumentParser argumentParser)
-      throws ArgumentException
-  {
-    Validator.ensureNotNull(argumentParser);
-    commandLineOptions =
-        SkeletonToolCommandLineOptions
-            .newSkeletonToolCommandLineOptions(argumentParser);
-  }
+
+  // Handles command line argument processing for this tool.
+  @SuppressWarnings("unused")
+  private SkeletonToolCommandLineOptions commandLineOptions;
 
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public ResultCode doToolProcessing()
-  {
-    final ResultCode resultCode = ResultCode.SUCCESS;
-    return resultCode;
-  }
 
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public String getToolDescription()
-  {
-    return SkeletonTool.TOOL_DESCRIPTION;
-  }
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public String getToolName()
-  {
-    return SkeletonTool.TOOL_NAME;
-  }
+  // The formatter used to format information and error output.
+  @SuppressWarnings("unused")
+  private final Formatter formatter;
 }
 
 
@@ -189,22 +199,21 @@ public final class SkeletonTool
  * Provides support for command line arguments required by this tool.
  */
 final class SkeletonToolCommandLineOptions
-    extends CommandLineOptions
+        extends CommandLineOptions
 {
 
-
-  public static SkeletonToolCommandLineOptions
-      newSkeletonToolCommandLineOptions(final ArgumentParser argumentParser)
-          throws ArgumentException
+  public static SkeletonToolCommandLineOptions newSkeletonToolCommandLineOptions(
+          final ArgumentParser argumentParser) throws ArgumentException
   {
     Validator.ensureNotNull(argumentParser);
     return new SkeletonToolCommandLineOptions(argumentParser);
   }
 
 
+
   private SkeletonToolCommandLineOptions(
-      final ArgumentParser argumentParser)
-      throws ArgumentException
+          final ArgumentParser argumentParser)
+          throws ArgumentException
   {
     super(argumentParser);
   }

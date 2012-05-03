@@ -19,14 +19,19 @@ package samplecode;
 import java.lang.reflect.InvocationTargetException;
 
 
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
+
+
 /**
  * Provides a method to control a new instance of a class.
  */
 @Author("terry.gardner@unboundid.com")
 @Since("Dec 10, 2011")
 @CodeVersion("1.0")
-interface SupportedClass {
-
+interface SupportedClass
+{
 
   /**
    * Creates a new instance of a class.
@@ -39,7 +44,6 @@ interface SupportedClass {
    * @throws IllegalArgumentException
    * @throws InvocationTargetException
    */
-  Object newInstance() throws InstantiationException,IllegalAccessException,
-      SecurityException,NoSuchMethodException,IllegalArgumentException,
-      InvocationTargetException;
+  Object newInstance() throws InstantiationException,IllegalAccessException,SecurityException,
+          NoSuchMethodException,IllegalArgumentException,InvocationTargetException;
 }

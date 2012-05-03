@@ -19,6 +19,11 @@ package samplecode;
 import com.unboundid.util.Validator;
 
 
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
+
+
 /**
  * Provides services used in validating whether an attribute is a valid
  * attribute.
@@ -28,16 +33,8 @@ import com.unboundid.util.Validator;
 @Since("Dec 4, 2011")
 @CodeVersion("1.3")
 public final class AttributeNotSupportedException
-  extends Exception
+        extends Exception
 {
-
-
-  /**
-   * The attribute name that was found to be not supported in the
-   * directory server to which the LDAP client is connected.
-   */
-  private final String attributeName;
-
 
   /**
    * Retrieve The attribute name that was found to be not supported in
@@ -51,12 +48,14 @@ public final class AttributeNotSupportedException
   }
 
 
+
   @Override
   public String toString()
   {
     return "AttributeNotSupportedException [" +
-        (attributeName != null ? "attributeName=" + attributeName : "") + "]";
+            (attributeName != null ? "attributeName=" + attributeName : "") + "]";
   }
+
 
 
   /**
@@ -69,9 +68,18 @@ public final class AttributeNotSupportedException
    *          The attribute name that is not supported by the directory
    *          server to which the LDAP client is connected.
    */
-  public AttributeNotSupportedException(final String attributeName)
+  public AttributeNotSupportedException(
+          final String attributeName)
   {
     Validator.ensureNotNull(attributeName);
     this.attributeName = attributeName;
   }
+
+
+
+  /**
+   * The attribute name that was found to be not supported in the
+   * directory server to which the LDAP client is connected.
+   */
+  private final String attributeName;
 }

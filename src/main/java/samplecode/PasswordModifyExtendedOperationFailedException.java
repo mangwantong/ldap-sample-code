@@ -15,8 +15,15 @@
  */
 package samplecode;
 
+
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Validator;
+
+
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
+
 
 /**
  * thrown when the password modify extended operation failed.
@@ -25,31 +32,39 @@ import com.unboundid.util.Validator;
 @Since("Dec 28, 2011")
 @CodeVersion("1.0")
 @SuppressWarnings("serial")
-public class PasswordModifyExtendedOperationFailedException extends Exception {
+public class PasswordModifyExtendedOperationFailedException
+        extends Exception
+{
 
-    private final ResultCode resultCode;
+  /**
+   * retrieves the result code associated with the exception.
+   * 
+   * @return result code from the exception.
+   */
+  public ResultCode getResultCode()
+  {
+    return resultCode;
+  }
 
-    /**
-     * retrieves the result code associated with the exception.
-     * 
-     * @return result code from the exception.
-     */
-    public ResultCode getResultCode() {
-	return this.resultCode;
-    }
 
-    /**
-     * Constructs the object and sets its state with the {@code resultCode}
-     * parameter.
-     * 
-     * @param resultCode
-     *            The result code from a failed password modify extended
-     *            operation failed exception.
-     */
-    public PasswordModifyExtendedOperationFailedException(
-	    final ResultCode resultCode) {
-	Validator.ensureNotNull(resultCode);
-	this.resultCode = resultCode;
-    }
+
+  /**
+   * Constructs the object and sets its state with the
+   * {@code resultCode} parameter.
+   * 
+   * @param resultCode
+   *          The result code from a failed password modify extended
+   *          operation failed exception.
+   */
+  public PasswordModifyExtendedOperationFailedException(
+          final ResultCode resultCode)
+  {
+    Validator.ensureNotNull(resultCode);
+    this.resultCode = resultCode;
+  }
+
+
+
+  private final ResultCode resultCode;
 
 }

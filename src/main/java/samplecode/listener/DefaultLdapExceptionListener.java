@@ -15,34 +15,28 @@
  */
 package samplecode.listener;
 
-
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
-
 import com.unboundid.util.MinimalLogFormatter;
 
-
 /**
- * A minimal {@code LdapExceptionListener} that prints messages on the
- * standard output stream.
+ * A minimal {@code LdapExceptionListener} that prints messages on the standard
+ * output stream.
  */
-public class DefaultLdapExceptionListener
-    implements LdapExceptionListener
-{
+public class DefaultLdapExceptionListener implements LdapExceptionListener {
 
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void ldapRequestFailed(final LdapExceptionEvent ldapExceptionEvent)
-  {
-    final String helpfulMessage =
-        String.format("An LDAPException has occurred" + ": %s",
-            ldapExceptionEvent.getLdapException().getExceptionMessage());
-    final LogRecord record = new LogRecord(Level.SEVERE,helpfulMessage);
-    System.err.println(new MinimalLogFormatter().format(record));
-  }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void ldapRequestFailed(final LdapExceptionEvent ldapExceptionEvent) {
+	final String helpfulMessage =
+		String.format("An LDAPException has occurred" + ": %s",
+			ldapExceptionEvent.getLdapException()
+				.getExceptionMessage());
+	final LogRecord record = new LogRecord(Level.SEVERE, helpfulMessage);
+	System.err.println(new MinimalLogFormatter().format(record));
+    }
 
 }

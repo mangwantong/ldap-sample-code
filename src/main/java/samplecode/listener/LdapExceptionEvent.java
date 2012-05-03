@@ -16,16 +16,16 @@
 package samplecode.listener;
 
 
-import java.util.EventObject;
-
-
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
 
 
-import samplecode.Author;
-import samplecode.CodeVersion;
-import samplecode.Since;
+import java.util.EventObject;
+
+
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
 
 
 /**
@@ -35,23 +35,32 @@ import samplecode.Since;
 @Author("terry.gardner@unboundid.com")
 @Since("Dec 31, 2011")
 @CodeVersion("1.0")
-public class LdapExceptionEvent extends EventObject
+public class LdapExceptionEvent
+        extends EventObject
 {
-
 
   private static final long serialVersionUID = -1429895347237817307L;
 
 
-  /**
-   * The connection associated with the event.
-   */
-  private final LDAPConnection ldapConnection;
-
 
   /**
-   * The exception that caused this event.
+   * @return the ldapConnection
    */
-  private final LDAPException ldapException;
+  public final LDAPConnection getLdapConnection()
+  {
+    return ldapConnection;
+  }
+
+
+
+  /**
+   * @return the ldapException
+   */
+  public final LDAPException getLdapException()
+  {
+    return ldapException;
+  }
+
 
 
   /**
@@ -66,9 +75,9 @@ public class LdapExceptionEvent extends EventObject
    * @param ldapException
    *          the exception which caused this event.
    */
-  public LdapExceptionEvent(final Object source,
-                            final LDAPConnection ldapConnection,
-                            final LDAPException ldapException)
+  public LdapExceptionEvent(
+          final Object source,final LDAPConnection ldapConnection,
+          final LDAPException ldapException)
   {
     super(source);
     this.ldapConnection = ldapConnection;
@@ -76,21 +85,17 @@ public class LdapExceptionEvent extends EventObject
   }
 
 
-  /**
-   * @return the ldapConnection
-   */
-  public final LDAPConnection getLdapConnection()
-  {
-    return ldapConnection;
-  }
-
 
   /**
-   * @return the ldapException
+   * The connection associated with the event.
    */
-  public final LDAPException getLdapException()
-  {
-    return ldapException;
-  }
+  private final LDAPConnection ldapConnection;
+
+
+
+  /**
+   * The exception that caused this event.
+   */
+  private final LDAPException ldapException;
 
 }

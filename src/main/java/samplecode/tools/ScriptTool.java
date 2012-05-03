@@ -30,13 +30,13 @@ import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 
-import samplecode.Author;
 import samplecode.BasicToolCompletedProcessing;
-import samplecode.CodeVersion;
 import samplecode.CommandLineOptions;
 import samplecode.ScriptGenerator;
-import samplecode.Since;
 import samplecode.ToolCompletedProcessing;
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
 
 
 /**
@@ -336,6 +336,7 @@ public final class ScriptTool
  * <blockquote>
  * 
  * <pre>
+ * 
  * 
  * 
  * public void addNonLDAPArguments(final ArgumentParser argumentParser) throws ArgumentException

@@ -15,9 +15,10 @@
  */
 package samplecode.listener;
 
-import samplecode.Author;
-import samplecode.CodeVersion;
-import samplecode.Since;
+
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
 
 
 /**
@@ -32,7 +33,6 @@ import samplecode.Since;
 @CodeVersion("1.0")
 public interface ProgressListener<T extends ProgressEvent<?>>
 {
-
 
   /**
    * Invoked by methods when progress has been made.

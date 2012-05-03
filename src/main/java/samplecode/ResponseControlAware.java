@@ -20,6 +20,11 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPResult;
 
 
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
+
+
 /**
  * Defines the services that must be provided by classes that aware of
  * response controls that are included in the response to LDAP requests.
@@ -27,8 +32,8 @@ import com.unboundid.ldap.sdk.LDAPResult;
 @Author("terry.gardner@unboundid.com")
 @Since("Dec 6, 2011")
 @CodeVersion("1.0")
-interface ResponseControlAware {
-
+interface ResponseControlAware
+{
 
   /**
    * Whether to invoke the {@code processResponseControl} method. LDAP
@@ -40,6 +45,7 @@ interface ResponseControlAware {
    *         {@code processResponseControl} method.
    */
   boolean invoke();
+
 
 
   /**
@@ -59,6 +65,5 @@ interface ResponseControlAware {
    *           When an exception occurs in the course of handling the
    *           control.
    */
-  <T extends LDAPResult> void processResponseControl(T ldapResult)
-      throws LDAPException;
+  <T extends LDAPResult> void processResponseControl(T ldapResult) throws LDAPException;
 }

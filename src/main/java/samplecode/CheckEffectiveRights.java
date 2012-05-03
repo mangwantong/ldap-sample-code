@@ -16,9 +16,6 @@
 package samplecode;
 
 
-import java.util.Vector;
-
-
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPSearchException;
@@ -31,6 +28,12 @@ import com.unboundid.ldap.sdk.unboundidds.controls.GetEffectiveRightsRequestCont
 import com.unboundid.util.Validator;
 
 
+import java.util.Vector;
+
+
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
 import samplecode.listener.LdapExceptionEvent;
 import samplecode.listener.LdapExceptionListener;
 import samplecode.listener.LdapSearchExceptionEvent;
@@ -46,59 +49,29 @@ import samplecode.listener.ObservedByLdapSearchExceptionListener;
  * <b>Usage Example</b> <blockquote>
  * 
  * <pre>
- * public void check() throws CheckEffectiveRightsException,
- *     SupportedFeatureException
+ * 
+ * public void check() throws CheckEffectiveRightsException,SupportedFeatureException
  * {
  *   CheckEffectiveRights ch = new CheckEffectiveRights(ldapConnection);
  *   ch.hasRight(searchRequest,attributeName,attributeRight,authZid);
  * }
  * </pre>
+ * 
  * </blockquote>
  */
 @Author("terry.gardner@unboundid.com")
 @Since("Dec 25, 2011")
 @CodeVersion("1.1")
 public final class CheckEffectiveRights
-    implements ObservedByLdapExceptionListener,
-    ObservedByLdapSearchExceptionListener
+        implements ObservedByLdapExceptionListener,ObservedByLdapSearchExceptionListener
 {
-
-
-  private final LDAPConnection ldapConnection;
-
-
-  /**
-   * interested parties to {@code LdapExceptionEvents}
-   */
-  private volatile Vector<LdapExceptionListener> ldapExceptionListeners =
-      new Vector<LdapExceptionListener>();
-
-
-  /**
-   * interested parties to {@code LdapExceptionEvents}
-   */
-  private volatile Vector<LdapSearchExceptionListener> ldapSearchExceptionListeners =
-      new Vector<LdapSearchExceptionListener>();
-
-
-  /**
-   * Creates a {@code CheckEffectiveRights} with default state.
-   * 
-   * @param ldapConnection
-   */
-  public CheckEffectiveRights(final LDAPConnection ldapConnection)
-  {
-    this.ldapConnection = ldapConnection;
-
-  }
-
 
   /**
    * {@inheritDoc}
    */
   @Override
   public synchronized void addLdapExceptionListener(
-      final LdapExceptionListener ldapExceptionListener)
+          final LdapExceptionListener ldapExceptionListener)
   {
     if(ldapExceptionListener != null)
     {
@@ -107,12 +80,13 @@ public final class CheckEffectiveRights
   }
 
 
+
   /**
    * {@inheritDoc}
    */
   @Override
   public synchronized void addLdapSearchExceptionListener(
-      final LdapSearchExceptionListener ldapSearchExceptionListener)
+          final LdapSearchExceptionListener ldapSearchExceptionListener)
   {
     if(ldapSearchExceptionListener != null)
     {
@@ -121,16 +95,17 @@ public final class CheckEffectiveRights
   }
 
 
+
   /**
    * {@inheritDoc}
    */
   @SuppressWarnings("unchecked")
   @Override
   public void fireLdapExceptionListener(final LDAPConnection ldapConnection,
-      final LDAPException ldapException)
+          final LDAPException ldapException)
   {
     Vector<LdapExceptionListener> copy;
-    synchronized (this)
+    synchronized(this)
     {
       copy = (Vector<LdapExceptionListener>)ldapExceptionListeners.clone();
     }
@@ -138,8 +113,7 @@ public final class CheckEffectiveRights
     {
       return;
     }
-    final LdapExceptionEvent ev =
-        new LdapExceptionEvent(this,ldapConnection,ldapException);
+    final LdapExceptionEvent ev = new LdapExceptionEvent(this,ldapConnection,ldapException);
     for(final LdapExceptionListener l : copy)
     {
       l.ldapRequestFailed(ev);
@@ -147,33 +121,32 @@ public final class CheckEffectiveRights
   }
 
 
+
   /**
    * {@inheritDoc}
    */
   @SuppressWarnings("unchecked")
   @Override
-  public void fireLdapSearchExceptionListener(
-      final LDAPConnection ldapConnection,
-      final LDAPSearchException ldapSearchException)
+  public void fireLdapSearchExceptionListener(final LDAPConnection ldapConnection,
+          final LDAPSearchException ldapSearchException)
   {
     Vector<LdapSearchExceptionListener> copy;
-    synchronized (this)
+    synchronized(this)
     {
-      copy =
-          (Vector<LdapSearchExceptionListener>)ldapSearchExceptionListeners
-              .clone();
+      copy = (Vector<LdapSearchExceptionListener>)ldapSearchExceptionListeners.clone();
     }
     if(copy.size() == 0)
     {
       return;
     }
     final LdapSearchExceptionEvent ev =
-        new LdapSearchExceptionEvent(this,ldapConnection,ldapSearchException);
+            new LdapSearchExceptionEvent(this,ldapConnection,ldapSearchException);
     for(final LdapSearchExceptionListener l : copy)
     {
       l.searchRequestFailed(ev);
     }
   }
+
 
 
   /**
@@ -194,13 +167,11 @@ public final class CheckEffectiveRights
    *           if the attribute name does not have the specified right.
    * @throws SupportedFeatureException
    */
-  public void hasRight(final SearchRequest searchRequest,
-      final String attributeName,final AttributeRight attributeRight,
-      final String authZid) throws CheckEffectiveRightsException,
-      SupportedFeatureException
+  public void hasRight(final SearchRequest searchRequest,final String attributeName,
+          final AttributeRight attributeRight,final String authZid)
+          throws CheckEffectiveRightsException,SupportedFeatureException
   {
     Validator.ensureNotNull(searchRequest,attributeName,attributeRight);
-
 
     /*
      * Determine whether the GetEffectiveRightsRequestControl is
@@ -211,23 +182,21 @@ public final class CheckEffectiveRights
     {
       supportedFeature = SupportedFeature.newSupportedFeature(ldapConnection);
     }
-    catch (final LDAPException exception)
+    catch(final LDAPException exception)
     {
       fireLdapExceptionListener(ldapConnection,exception);
       return;
     }
     supportedFeature
-        .isControlSupported(GetEffectiveRightsRequestControl.GET_EFFECTIVE_RIGHTS_REQUEST_OID);
-
+            .isControlSupported(GetEffectiveRightsRequestControl.GET_EFFECTIVE_RIGHTS_REQUEST_OID);
 
     /*
      * Create the GetEffectiveRightsRequestControl using the authZid and
      * the attributeName.
      */
     final GetEffectiveRightsRequestControl getEffectiveRightsRequestControl =
-        new GetEffectiveRightsRequestControl(authZid,attributeName);
+            new GetEffectiveRightsRequestControl(authZid,attributeName);
     searchRequest.addControl(getEffectiveRightsRequestControl);
-
 
     /*
      * Transmit the search with the request control attached to the
@@ -238,12 +207,11 @@ public final class CheckEffectiveRights
     {
       searchResult = ldapConnection.search(searchRequest);
     }
-    catch (final LDAPSearchException exception)
+    catch(final LDAPSearchException exception)
     {
       fireLdapSearchExceptionListener(ldapConnection,exception);
       return;
     }
-
 
     /*
      * Check each entry.
@@ -252,15 +220,12 @@ public final class CheckEffectiveRights
     {
       for(final SearchResultEntry entry : searchResult.getSearchEntries())
       {
-        final EffectiveRightsEntry effectiveRightsEntry =
-            new EffectiveRightsEntry(entry);
+        final EffectiveRightsEntry effectiveRightsEntry = new EffectiveRightsEntry(entry);
         if(effectiveRightsEntry.rightsInformationAvailable())
         {
-          if(!effectiveRightsEntry.hasAttributeRight(attributeRight,
-              attributeName))
+          if(!effectiveRightsEntry.hasAttributeRight(attributeRight,attributeName))
           {
-            throw new CheckEffectiveRightsException(attributeName,
-                attributeRight);
+            throw new CheckEffectiveRightsException(attributeName,attributeRight);
           }
         }
       }
@@ -268,12 +233,13 @@ public final class CheckEffectiveRights
   }
 
 
+
   /**
    * {@inheritDoc}
    */
   @Override
   public synchronized void removeLdapExceptionListener(
-      final LdapExceptionListener ldapExceptionListener)
+          final LdapExceptionListener ldapExceptionListener)
   {
     if(ldapExceptionListener != null)
     {
@@ -282,12 +248,13 @@ public final class CheckEffectiveRights
   }
 
 
+
   /**
    * {@inheritDoc}
    */
   @Override
   public synchronized void removeLdapSearchExceptionListener(
-      final LdapSearchExceptionListener ldapSearchExceptionListener)
+          final LdapSearchExceptionListener ldapSearchExceptionListener)
   {
     if(ldapSearchExceptionListener != null)
     {
@@ -295,5 +262,38 @@ public final class CheckEffectiveRights
     }
   }
 
+
+
+  /**
+   * Creates a {@code CheckEffectiveRights} with default state.
+   * 
+   * @param ldapConnection
+   */
+  public CheckEffectiveRights(
+          final LDAPConnection ldapConnection)
+  {
+    this.ldapConnection = ldapConnection;
+
+  }
+
+
+
+  private final LDAPConnection ldapConnection;
+
+
+
+  /**
+   * interested parties to {@code LdapExceptionEvents}
+   */
+  private volatile Vector<LdapExceptionListener> ldapExceptionListeners =
+          new Vector<LdapExceptionListener>();
+
+
+
+  /**
+   * interested parties to {@code LdapExceptionEvents}
+   */
+  private volatile Vector<LdapSearchExceptionListener> ldapSearchExceptionListeners =
+          new Vector<LdapSearchExceptionListener>();
 
 }

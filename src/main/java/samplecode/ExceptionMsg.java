@@ -16,17 +16,31 @@
 package samplecode;
 
 
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
+
+
 /**
- * Clients should use this interface when an exception (or error) has occurred, and a de-coupled way to construct an
- * error message is required. <p>example usage:</p>
+ * Clients should use this interface when an exception (or error) has
+ * occurred, and a de-coupled way to construct an error message is
+ * required.
+ * <p>
+ * example usage:
+ * </p>
+ * 
  * <pre>
- *   public final class NumberFormatExceptionMsg implements ExceptionMsg
+ * 
+ * public final class NumberFormatExceptionMsg
+ *         implements ExceptionMsg
+ * {
+ * 
+ *   &#064;Override
+ *   public String msg()
  *   {
- *     @Override public String msg()
- *     {
- *       return String.format("There was an error trying to convert a string into an integer.");
- *     }
+ *     return String.format(&quot;There was an error trying to convert a string into an integer.&quot;);
  *   }
+ * }
  * </pre>
  */
 @Author("terry.gardner@unboundid.com")
@@ -35,10 +49,9 @@ package samplecode;
 public interface ExceptionMsg
 {
 
-
   /**
    * Retrieve the message associated with the error.
-   *
+   * 
    * @return A helpful message.
    */
   String msg();

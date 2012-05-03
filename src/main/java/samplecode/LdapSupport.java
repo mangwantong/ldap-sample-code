@@ -15,22 +15,18 @@
  */
 package samplecode;
 
-
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
-
 
 /**
  * defines service for classes that use LDAP
  */
-public interface LdapSupport
-{
+public interface LdapSupport {
 
-
-  /**
-   * @return get a connection to a server.
-   * @throws LDAPException
-   *           if the connect operation fails
-   */
-  LDAPConnection getLdapConnection() throws LDAPException;
+    /**
+     * @return get a connection to a server.
+     * @throws LDAPException
+     *             if the connect operation fails
+     */
+    LDAPConnection getLdapConnection() throws LDAPException;
 }

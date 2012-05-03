@@ -16,9 +16,6 @@
 package samplecode;
 
 
-import java.util.Vector;
-
-
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.DeleteRequest;
@@ -30,6 +27,12 @@ import com.unboundid.util.NotMutable;
 import com.unboundid.util.Validator;
 
 
+import java.util.Vector;
+
+
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
 import samplecode.listener.LdapExceptionEvent;
 import samplecode.listener.LdapExceptionListener;
 import samplecode.listener.ObservedByLdapExceptionListener;
@@ -51,12 +54,12 @@ import samplecode.listener.ObservedByLdapExceptionListener;
 @NotMutable
 @Singleton
 public final class LdapDeleteBranch
-    implements ObservedByLdapExceptionListener
+        implements ObservedByLdapExceptionListener
 {
-
 
   // singleton instance
   private static LdapDeleteBranch instance = null;
+
 
 
   /**
@@ -74,25 +77,20 @@ public final class LdapDeleteBranch
   }
 
 
-  /**
-   * interested parties to {@code LdapExceptionEvents}
-   */
-  private volatile Vector<LdapExceptionListener> ldapExceptionListeners =
-      new Vector<LdapExceptionListener>();
-
 
   /**
    * {@inheritDoc}
    */
   @Override
   public synchronized void addLdapExceptionListener(
-      final LdapExceptionListener ldapExceptionListener)
+          final LdapExceptionListener ldapExceptionListener)
   {
     if(ldapExceptionListener != null)
     {
       ldapExceptionListeners.add(ldapExceptionListener);
     }
   }
+
 
 
   /**
@@ -115,19 +113,18 @@ public final class LdapDeleteBranch
    *           if the OID of the subtree delete request control is not
    *           supported by this server.
    */
-  public void deleteTree(final LDAPConnection ldapConnection,
-      final DN dnToDelete,final int responseTimeout,
-      final ControlHandler[] controlHandlers) throws SupportedFeatureException
+  public void deleteTree(final LDAPConnection ldapConnection,final DN dnToDelete,
+          final int responseTimeout,final ControlHandler[] controlHandlers)
+          throws SupportedFeatureException
   {
 
     Validator.ensureNotNull(ldapConnection,dnToDelete);
 
     try
     {
-      validateControls(ldapConnection,
-          SubtreeDeleteRequestControl.SUBTREE_DELETE_REQUEST_OID);
+      validateControls(ldapConnection,SubtreeDeleteRequestControl.SUBTREE_DELETE_REQUEST_OID);
     }
-    catch (final LDAPException exception)
+    catch(final LDAPException exception)
     {
       fireLdapExceptionListener(ldapConnection,exception);
       return;
@@ -139,16 +136,14 @@ public final class LdapDeleteBranch
     SupportedFeature supportedControlOrExtension;
     try
     {
-      supportedControlOrExtension =
-          SupportedFeature.newSupportedFeature(ldapConnection);
+      supportedControlOrExtension = SupportedFeature.newSupportedFeature(ldapConnection);
     }
-    catch (final LDAPException exception)
+    catch(final LDAPException exception)
     {
       fireLdapExceptionListener(ldapConnection,exception);
       return;
     }
-    final String controlOID =
-        SubtreeDeleteRequestControl.SUBTREE_DELETE_REQUEST_OID;
+    final String controlOID = SubtreeDeleteRequestControl.SUBTREE_DELETE_REQUEST_OID;
     supportedControlOrExtension.isControlSupported(controlOID);
 
     /*
@@ -156,8 +151,7 @@ public final class LdapDeleteBranch
      * control to the request.
      */
     final DeleteRequest deleteRequest = new DeleteRequest(dnToDelete);
-    final SubtreeDeleteRequestControl control =
-        new SubtreeDeleteRequestControl();
+    final SubtreeDeleteRequestControl control = new SubtreeDeleteRequestControl();
     deleteRequest.addControl(control);
     deleteRequest.setResponseTimeoutMillis(responseTimeout);
 
@@ -170,7 +164,7 @@ public final class LdapDeleteBranch
     {
       ldapResult = ldapConnection.delete(deleteRequest);
     }
-    catch (final LDAPException exception)
+    catch(final LDAPException exception)
     {
       fireLdapExceptionListener(ldapConnection,exception);
       return;
@@ -188,17 +182,18 @@ public final class LdapDeleteBranch
   }
 
 
+
   /**
    * {@inheritDoc}
    */
   @SuppressWarnings("unchecked")
   @Override
   public void fireLdapExceptionListener(final LDAPConnection ldapConnection,
-      final LDAPException ldapException)
+          final LDAPException ldapException)
   {
     Validator.ensureNotNull(ldapConnection,ldapException);
     Vector<LdapExceptionListener> copy;
-    synchronized (this)
+    synchronized(this)
     {
       copy = (Vector<LdapExceptionListener>)ldapExceptionListeners.clone();
     }
@@ -206,8 +201,7 @@ public final class LdapDeleteBranch
     {
       return;
     }
-    final LdapExceptionEvent ev =
-        new LdapExceptionEvent(this,ldapConnection,ldapException);
+    final LdapExceptionEvent ev = new LdapExceptionEvent(this,ldapConnection,ldapException);
     for(final LdapExceptionListener l : copy)
     {
       l.ldapRequestFailed(ev);
@@ -215,12 +209,13 @@ public final class LdapDeleteBranch
   }
 
 
+
   /**
    * {@inheritDoc}
    */
   @Override
   public synchronized void removeLdapExceptionListener(
-      final LdapExceptionListener ldapExceptionListener)
+          final LdapExceptionListener ldapExceptionListener)
   {
     if(ldapExceptionListener != null)
     {
@@ -229,18 +224,26 @@ public final class LdapDeleteBranch
   }
 
 
+
   private void validateControls(final LDAPConnection ldapConnection,
-      final String... subtreeDeleteRequestOids) throws LDAPException,
-      SupportedFeatureException
+          final String... subtreeDeleteRequestOids) throws LDAPException,
+          SupportedFeatureException
   {
     Validator.ensureNotNull(ldapConnection,subtreeDeleteRequestOids);
     for(final String controlOID : subtreeDeleteRequestOids)
     {
       final SupportedFeature supportedFeature =
-          SupportedFeature.newSupportedFeature(ldapConnection);
+              SupportedFeature.newSupportedFeature(ldapConnection);
       supportedFeature.isControlSupported(controlOID);
     }
   }
 
+
+
+  /**
+   * interested parties to {@code LdapExceptionEvents}
+   */
+  private volatile Vector<LdapExceptionListener> ldapExceptionListeners =
+          new Vector<LdapExceptionListener>();
 
 }

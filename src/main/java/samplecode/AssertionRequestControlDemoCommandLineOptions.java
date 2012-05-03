@@ -21,6 +21,11 @@ import com.unboundid.util.args.ArgumentParser;
 import com.unboundid.util.args.StringArgument;
 
 
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
+
+
 /**
  * Provides command line options services.
  */
@@ -28,9 +33,8 @@ import com.unboundid.util.args.StringArgument;
 @Since("Dec 25, 2011")
 @CodeVersion("1.0")
 class AssertionRequestControlDemoCommandLineOptions
-  extends CommandLineOptions
+        extends CommandLineOptions
 {
-
 
   /**
    * Retrieves the value specified by command line argument for the
@@ -41,10 +45,11 @@ class AssertionRequestControlDemoCommandLineOptions
   String getNewAttributeValue()
   {
     final StringArgument stringArgument =
-        (StringArgument)getArgumentParser().getNamedArgument(
-            AssertionRequestControlDemo.ARG_NAME_NEW_ATTRIBUTE_VALUE);
+            (StringArgument)getArgumentParser().getNamedArgument(
+                    AssertionRequestControlDemo.ARG_NAME_NEW_ATTRIBUTE_VALUE);
     return stringArgument.getValue();
   }
+
 
 
   /**
@@ -58,32 +63,29 @@ class AssertionRequestControlDemoCommandLineOptions
    *           If an error occurs constructing or adding an argument to
    *           the argument parser.
    */
-  AssertionRequestControlDemoCommandLineOptions(final ArgumentParser argumentParser)
-      throws ArgumentException
+  AssertionRequestControlDemoCommandLineOptions(
+          final ArgumentParser argumentParser)
+          throws ArgumentException
   {
 
-
     super(argumentParser);
-
 
     /*
      * Add to the command line argument parser the command line argument
      * that specifies a new value the attribute that is named by the
      * --attribute command line argument.
      */
-    final Character shortIdentifier =
-        AssertionRequestControlDemo.SHORT_ID_NEW_ATTRIBUTE_VALUE;
-    final String longIdentifier =
-        AssertionRequestControlDemo.ARG_NAME_NEW_ATTRIBUTE_VALUE;
+    final Character shortIdentifier = AssertionRequestControlDemo.SHORT_ID_NEW_ATTRIBUTE_VALUE;
+    final String longIdentifier = AssertionRequestControlDemo.ARG_NAME_NEW_ATTRIBUTE_VALUE;
     final boolean isRequired = true;
     final int maxOccurrences = 1;
     final String valuePlaceholder = "{attribute-value}";
     final String description =
-        "The value to which the attribute specified by "
-            + "--attribute final command line argument final is set.";
+            "The value to which the attribute specified by "
+                    + "--attribute final command line argument final is set.";
     final StringArgument stringArgument =
-        new StringArgument(shortIdentifier,longIdentifier,isRequired,
-            maxOccurrences,valuePlaceholder,description);
+            new StringArgument(shortIdentifier,longIdentifier,isRequired,maxOccurrences,
+                    valuePlaceholder,description);
     argumentParser.addArgument(stringArgument);
   }
 }

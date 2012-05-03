@@ -16,6 +16,11 @@
 package samplecode;
 
 
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
+
+
 /**
  * Represents a value associated with a key (a property).
  * 
@@ -28,7 +33,6 @@ package samplecode;
 public interface PropertyValue<T>
 {
 
-
   /**
    * Retrieves the value from the properties map, if present.
    * 
@@ -37,6 +41,7 @@ public interface PropertyValue<T>
    *           when a property cannot be found
    */
   T getValue() throws PropertyNotFoundException;
+
 
 
   /**

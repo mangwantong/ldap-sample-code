@@ -16,9 +16,9 @@
 package samplecode.listener;
 
 
-import samplecode.Author;
-import samplecode.CodeVersion;
-import samplecode.Since;
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
 
 
 /**
@@ -33,7 +33,6 @@ import samplecode.Since;
 public interface ExceptionListener<T extends Exception>
 {
 
-
   /**
    * Whether to invoke
    * {@link ExceptionListener#processException(Exception)}.
@@ -41,6 +40,7 @@ public interface ExceptionListener<T extends Exception>
    * @return Whether the processException method should be invoked.
    */
   boolean invoke();
+
 
 
   /**

@@ -26,12 +26,12 @@ import com.unboundid.util.NotMutable;
 import com.unboundid.util.Validator;
 
 
-import samplecode.Author;
-import samplecode.CodeVersion;
 import samplecode.PasswordModifyExtendedOperationFailedException;
-import samplecode.Since;
 import samplecode.SupportedFeature;
 import samplecode.SupportedFeatureException;
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
 
 
 /**

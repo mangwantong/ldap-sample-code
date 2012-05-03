@@ -24,6 +24,11 @@ import java.util.List;
 import java.util.Map;
 
 
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
+
+
 /**
  * TODO
  * 
@@ -34,11 +39,24 @@ import java.util.Map;
 class MapArgMsgr<T>
 {
 
+  /**
+   * @return The name.
+   */
+  public String name()
+  {
+    return name;
+  }
 
-  private final String name;
 
 
-  private final T value;
+  /**
+   * @return The value
+   */
+  public T value()
+  {
+    return value;
+  }
+
 
 
   /**
@@ -46,7 +64,7 @@ class MapArgMsgr<T>
    * @param value
    */
   public MapArgMsgr(
-      final String name,final T value)
+          final String name,final T value)
   {
     if(name == null)
     {
@@ -57,28 +75,17 @@ class MapArgMsgr<T>
       throw new NullPointerException(); // TODO
     }
 
-
     this.name = name;
     this.value = value;
   }
 
 
-  /**
-   * @return The name.
-   */
-  public String name()
-  {
-    return name;
-  }
+
+  private final String name;
 
 
-  /**
-   * @return The value
-   */
-  public T value()
-  {
-    return value;
-  }
+
+  private final T value;
 }
 
 
@@ -93,12 +100,11 @@ class MapArgMsgr<T>
 final class SampleCodeClassUtils
 {
 
-
   /**
    * A mapped new line.
    */
-  public static final Map<String,Object> NEW_LINE = SampleCodeClassUtils
-      .mapArg("","\n");
+  public static final Map<String,Object> NEW_LINE = SampleCodeClassUtils.mapArg("","\n");
+
 
 
   /**
@@ -108,10 +114,12 @@ final class SampleCodeClassUtils
   final static String DEFAULT_FORMAT = "%1$-48s %2$s\n";
 
 
+
   /**
    * The map key to the object's name
    */
   static final String KEY_FORMAT_OBJECT_NAME = "objectName";
+
 
 
   /**
@@ -120,15 +128,16 @@ final class SampleCodeClassUtils
   static final String KEY_FORMAT_OBJECT_VALUE = "objectValue";
 
 
+
   /**
    * @param builder
    * @param o
    */
-  public static void appendHashCodeString(final StringBuilder builder,
-      final Object o)
+  public static void appendHashCodeString(final StringBuilder builder,final Object o)
   {
     SampleCodeClassUtils.appendHashCodeString(builder,o,null);
   }
+
 
 
   /**
@@ -137,8 +146,8 @@ final class SampleCodeClassUtils
    * @param format
    *          defaults to "%-32s 0x%x\n"
    */
-  public static void appendHashCodeString(final StringBuilder builder,
-      final Object o,String format)
+  public static void appendHashCodeString(final StringBuilder builder,final Object o,
+          String format)
   {
     if(builder == null)
     {
@@ -153,10 +162,9 @@ final class SampleCodeClassUtils
       format = "%-32s 0x%x\n";
     }
 
-
-    builder.append(String.format(format,"hashCode",
-        Integer.valueOf(o.hashCode())));
+    builder.append(String.format(format,"hashCode",Integer.valueOf(o.hashCode())));
   }
+
 
 
   /**
@@ -168,8 +176,7 @@ final class SampleCodeClassUtils
    * 
    * @return a mapped object.
    */
-  public static <T> Map<String,Object> mapArg(final String fieldName,
-      final T value)
+  public static <T> Map<String,Object> mapArg(final String fieldName,final T value)
   {
     final Map<String,Object> m = SampleCodeCollectionUtils.newHashMap();
     m.put(SampleCodeClassUtils.KEY_FORMAT_OBJECT_NAME,fieldName);
@@ -178,26 +185,25 @@ final class SampleCodeClassUtils
   }
 
 
+
   /**
    * @param msgrs
    * 
    * @return A list of the msgr objects
    */
-  public static List<Map<String,Object>>
-      mapArgs(final List<MapArgMsgr<?>> msgrs)
+  public static List<Map<String,Object>> mapArgs(final List<MapArgMsgr<?>> msgrs)
   {
 
     Validator.ensureNotNull(msgrs);
 
-
-    final List<Map<String,Object>> mapArgs =
-        SampleCodeCollectionUtils.newArrayList();
+    final List<Map<String,Object>> mapArgs = SampleCodeCollectionUtils.newArrayList();
     for(final MapArgMsgr<?> m : msgrs)
     {
       mapArgs.add(SampleCodeClassUtils.mapArg(m.name(),m.value()));
     }
     return mapArgs;
   }
+
 
 
   private SampleCodeClassUtils()

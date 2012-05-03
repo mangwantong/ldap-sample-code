@@ -16,6 +16,11 @@
 package samplecode;
 
 
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
+
+
 /**
  * Calculates elapsed time from the time it is instantiated and reports
  * a upper-bounded elapsed time upon request.
@@ -25,10 +30,6 @@ package samplecode;
 @CodeVersion("1.0")
 public final class BoundedElapsedTime
 {
-
-
-  private final long timeBeforeSearchInMillis = System.currentTimeMillis();
-
 
   /**
    * Reports the elapsed time since this object was instantiated bounded
@@ -43,10 +44,9 @@ public final class BoundedElapsedTime
   {
     final long timeAfterSearchInMillis = System.currentTimeMillis();
     long boundedElapsedTime;
-    if(timeAfterSearchInMillis >= this.timeBeforeSearchInMillis)
+    if(timeAfterSearchInMillis >= timeBeforeSearchInMillis)
     {
-      long elapsedTime =
-          timeAfterSearchInMillis - this.timeBeforeSearchInMillis;
+      long elapsedTime = timeAfterSearchInMillis - timeBeforeSearchInMillis;
       if(elapsedTime > upperBound)
       {
         elapsedTime = 0;
@@ -61,10 +61,14 @@ public final class BoundedElapsedTime
   }
 
 
+
   @Override
   public String toString()
   {
-    return "BoundedElapsedTime [timeBeforeSearchInMillis=" +
-        this.timeBeforeSearchInMillis + "]";
+    return "BoundedElapsedTime [timeBeforeSearchInMillis=" + timeBeforeSearchInMillis + "]";
   }
+
+
+
+  private final long timeBeforeSearchInMillis = System.currentTimeMillis();
 }

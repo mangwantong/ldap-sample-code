@@ -22,6 +22,11 @@ import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.util.Validator;
 
 
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
+
+
 /**
  * Provides services used to determine whether an attribute is supported
  * by the directory server to which an LDAP client is connected.
@@ -30,12 +35,12 @@ import com.unboundid.util.Validator;
 @Since("Dec 4, 2011")
 @CodeVersion("1.1")
 public final class SupportedUserAttribute
-  extends AbstractSupportedAttribute
+        extends AbstractSupportedAttribute
 {
-
 
   // the singleton instance of SupportedAttribute
   private static SupportedUserAttribute instance = null;
+
 
 
   /**
@@ -53,21 +58,19 @@ public final class SupportedUserAttribute
   }
 
 
+
   /**
    * {@inheritDoc}
    */
   @Override
-  public void supported(final LDAPConnection ldapConnection,
-      final String attributeName) throws AttributeNotSupportedException,
-      LDAPException
+  public void supported(final LDAPConnection ldapConnection,final String attributeName)
+          throws AttributeNotSupportedException,LDAPException
   {
     Validator.ensureNotNullWithMessage(ldapConnection,
-        "SupportedAttribute requires a valid connection to an LDAP server.");
-
+            "SupportedAttribute requires a valid connection to an LDAP server.");
 
     Validator.ensureNotNullWithMessage(attributeName,
-        "The attributeName to be checked cannot be null.");
-
+            "The attributeName to be checked cannot be null.");
 
     /**
      * Directory server subschema sub-entry. This includes information
@@ -81,6 +84,5 @@ public final class SupportedUserAttribute
       throw new AttributeNotSupportedException(attributeName);
     }
   }
-
 
 }

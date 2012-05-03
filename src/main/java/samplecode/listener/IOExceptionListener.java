@@ -19,9 +19,9 @@ package samplecode.listener;
 import java.util.EventListener;
 
 
-import samplecode.Author;
-import samplecode.CodeVersion;
-import samplecode.Since;
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
 
 
 /**
@@ -31,9 +31,8 @@ import samplecode.Since;
 @Since("Dec 31, 2011")
 @CodeVersion("1.0")
 public interface IOExceptionListener
-    extends EventListener
+        extends EventListener
 {
-
 
   /**
    * An event has transpired that has resulted in an IOException.

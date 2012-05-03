@@ -16,6 +16,11 @@
 package samplecode;
 
 
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
+
+
 /**
  * Defines services which must be provided by the descriptive name
  * builder, which is a realization of the Builder design pattern.
@@ -39,6 +44,7 @@ package samplecode;
  *   }
  * }
  * </pre>
+ * 
  * </blockquote>
  * 
  * @param <T>
@@ -47,8 +53,8 @@ package samplecode;
 @Author("terry.gardner@unboundid.com")
 @Since("Jan 01, 2008")
 @CodeVersion("1.2")
-interface DescriptiveNameBuilder<T> {
-
+interface DescriptiveNameBuilder<T>
+{
 
   /**
    * Build a new instance of type {@code T}.

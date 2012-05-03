@@ -16,6 +16,11 @@
 package samplecode;
 
 
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
+
+
 /**
  * Thrown when a property is not found.
  */
@@ -24,9 +29,8 @@ package samplecode;
 @Since("Dec 23, 2011")
 @CodeVersion("1.0")
 public class PropertyNotFoundException
-  extends Exception
+        extends Exception
 {
-
 
   /**
    * Creates a {@code PropertyNotFoundException} with default state and
@@ -35,7 +39,8 @@ public class PropertyNotFoundException
    * @param reason
    *          why the property was not found.
    */
-  public PropertyNotFoundException(final String reason)
+  public PropertyNotFoundException(
+          final String reason)
   {
     super(reason);
   }

@@ -19,6 +19,11 @@ package samplecode;
 import com.unboundid.ldap.sdk.Entry;
 
 
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
+
+
 /**
  * Minimal implementation of {@code LdapEntryDisplay}. All output is
  * sent to the {@code stdout}
@@ -27,30 +32,36 @@ import com.unboundid.ldap.sdk.Entry;
 @Since("Nov 29, 2011")
 @CodeVersion("1.2")
 class BasicLdapEntryDisplay
-  implements LdapEntryDisplay {
-
-
-  private final Entry entry;
-
+        implements LdapEntryDisplay
+{
 
   @Override
-  public void display() {
+  public void display()
+  {
     System.out.println(toString());
   }
 
 
+
   @Override
-  public String toString() {
-    return "BasicLdapEntryDisplay [" + (entry != null ? "entry=" + entry : "") +
-        "]";
+  public String toString()
+  {
+    return "BasicLdapEntryDisplay [" + (entry != null ? "entry=" + entry : "") + "]";
   }
 
 
+
   BasicLdapEntryDisplay(
-      final Entry entry) {
-    if(entry == null) {
+          final Entry entry)
+  {
+    if(entry == null)
+    {
       throw new NullPointerException("Entry cannot be null.");
     }
     this.entry = entry;
   }
+
+
+
+  private final Entry entry;
 }

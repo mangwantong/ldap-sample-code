@@ -28,6 +28,9 @@ import com.unboundid.util.Validator;
 import java.util.Vector;
 
 
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
 import samplecode.listener.LdapExceptionEvent;
 import samplecode.listener.LdapExceptionListener;
 import samplecode.listener.LdapSearchExceptionEvent;
@@ -43,98 +46,17 @@ import samplecode.listener.ObservedByLdapSearchExceptionListener;
 @Since("Dec 29, 2011")
 @CodeVersion("1.2")
 public class GetEntryCount
-    extends AbstractLdapSearchSupport
-    implements Comparable<GetEntryCount>,ObservedByLdapSearchExceptionListener,
-    ObservedByLdapExceptionListener
+        extends AbstractLdapSearchSupport
+        implements Comparable<GetEntryCount>,ObservedByLdapSearchExceptionListener,
+        ObservedByLdapExceptionListener
 {
-
-
-  // the attribute name (type), i.e., 'cn'
-  private final String attributeType;
-
-
-  // value of the attribute, used in the filter
-  private final String attributeValue;
-
-
-  // the base object to use in the search
-  private final String baseObject;
-
-
-  private int count;
-
-
-  // the index type, i.e., 'substring'
-  private final String indexType;
-
-
-  /**
-   * interested parties to {@code LdapExceptionEvents}
-   */
-  private volatile Vector<LdapExceptionListener> ldapExceptionListeners =
-      new Vector<LdapExceptionListener>();
-
-
-  /**
-   * interested parties to {@code LdapExceptionEvents}
-   */
-  private volatile Vector<LdapSearchExceptionListener> ldapSearchExceptionListeners =
-      new Vector<LdapSearchExceptionListener>();
-
-
-  private final SearchScope scope;
-
-
-  /**
-   * @param baseObject
-   * @param scope
-   * @param attributeType
-   * @param indexType
-   * @param attributeValue
-   */
-  public GetEntryCount(
-      final String baseObject,final SearchScope scope,
-      final String attributeType,final String indexType,
-      final String attributeValue)
-  {
-
-
-    Validator.ensureNotNullWithMessage(baseObject,
-        "GetEntryCount requires a non-null base object, "
-            + "for example, 'dc=example,dc=com'");
-
-
-    Validator.ensureNotNullWithMessage(scope,
-        "GetEntryCount requires a non-null scope");
-
-
-    Validator.ensureNotNullWithMessage(attributeType,
-        "GetEntryCount requires a non-null indexed attribute type/name");
-
-
-    Validator.ensureNotNullWithMessage(indexType,
-        "GetEntryCount requires a non-null indexed index type, "
-            + "for example, 'substring'");
-
-
-    Validator.ensureNotNullWithMessage(attributeValue,
-        "GetEntryCount requires a non-null attribute value.");
-
-
-    this.baseObject = baseObject;
-    this.scope = scope;
-    this.attributeType = attributeType;
-    this.indexType = indexType;
-    this.attributeValue = attributeValue;
-  }
-
 
   /**
    * {@inheritDoc}
    */
   @Override
   public synchronized void addLdapExceptionListener(
-      final LdapExceptionListener ldapExceptionListener)
+          final LdapExceptionListener ldapExceptionListener)
   {
     if(ldapExceptionListener != null)
     {
@@ -143,18 +65,20 @@ public class GetEntryCount
   }
 
 
+
   /**
    * {@inheritDoc}
    */
   @Override
   public synchronized void addLdapSearchExceptionListener(
-      final LdapSearchExceptionListener ldapSearchExceptionListener)
+          final LdapSearchExceptionListener ldapSearchExceptionListener)
   {
     if(ldapSearchExceptionListener != null)
     {
       ldapSearchExceptionListeners.add(ldapSearchExceptionListener);
     }
   }
+
 
 
   /**
@@ -165,13 +89,11 @@ public class GetEntryCount
   {
     int diff;
 
-
     diff = attributeType.compareTo(o.attributeType);
     if(diff != 0)
     {
       return diff;
     }
-
 
     diff = attributeValue.compareTo(o.attributeValue);
     if(diff != 0)
@@ -179,13 +101,11 @@ public class GetEntryCount
       return diff;
     }
 
-
     diff = baseObject.compareTo(o.baseObject);
     if(diff != 0)
     {
       return diff;
     }
-
 
     diff = indexType.compareTo(o.indexType);
     if(diff != 0)
@@ -193,16 +113,15 @@ public class GetEntryCount
       return diff;
     }
 
-
     diff = scope.intValue() - o.scope.intValue();
     if(diff != 0)
     {
       return diff;
     }
 
-
     return 0;
   }
+
 
 
   /**
@@ -211,7 +130,7 @@ public class GetEntryCount
   @SuppressWarnings("unchecked")
   @Override
   public void fireLdapExceptionListener(final LDAPConnection ldapConnection,
-      final LDAPException ldapException)
+          final LDAPException ldapException)
   {
     Vector<LdapExceptionListener> copy;
     synchronized(this)
@@ -222,8 +141,7 @@ public class GetEntryCount
     {
       return;
     }
-    final LdapExceptionEvent ev =
-        new LdapExceptionEvent(this,ldapConnection,ldapException);
+    final LdapExceptionEvent ev = new LdapExceptionEvent(this,ldapConnection,ldapException);
     for(final LdapExceptionListener l : copy)
     {
       l.ldapRequestFailed(ev);
@@ -231,33 +149,32 @@ public class GetEntryCount
   }
 
 
+
   /**
    * {@inheritDoc}
    */
   @SuppressWarnings("unchecked")
   @Override
-  public void fireLdapSearchExceptionListener(
-      final LDAPConnection ldapConnection,
-      final LDAPSearchException ldapSearchException)
+  public void fireLdapSearchExceptionListener(final LDAPConnection ldapConnection,
+          final LDAPSearchException ldapSearchException)
   {
     Vector<LdapSearchExceptionListener> copy;
     synchronized(this)
     {
-      copy =
-          (Vector<LdapSearchExceptionListener>)ldapSearchExceptionListeners
-              .clone();
+      copy = (Vector<LdapSearchExceptionListener>)ldapSearchExceptionListeners.clone();
     }
     if(copy.size() == 0)
     {
       return;
     }
     final LdapSearchExceptionEvent ev =
-        new LdapSearchExceptionEvent(this,ldapConnection,ldapSearchException);
+            new LdapSearchExceptionEvent(this,ldapConnection,ldapSearchException);
     for(final LdapSearchExceptionListener l : copy)
     {
       l.searchRequestFailed(ev);
     }
   }
+
 
 
   /**
@@ -269,6 +186,7 @@ public class GetEntryCount
   }
 
 
+
   /**
    * @return the attributeValue
    */
@@ -276,6 +194,7 @@ public class GetEntryCount
   {
     return attributeValue;
   }
+
 
 
   /**
@@ -286,6 +205,7 @@ public class GetEntryCount
   {
     return baseObject;
   }
+
 
 
   /**
@@ -299,6 +219,7 @@ public class GetEntryCount
   }
 
 
+
   /**
    * retrieves a count of entries
    * 
@@ -310,8 +231,8 @@ public class GetEntryCount
   public int getEntryCount(final LDAPConnection ldapConnection)
   {
     Validator.ensureNotNullWithMessage(ldapConnection,
-        "the object referencing a connection to the "
-            + "LDAP server is not permitted to be null.");
+            "the object referencing a connection to the "
+                    + "LDAP server is not permitted to be null.");
     try
     {
       return ldapConnection.search(newSearchRequest()).getEntryCount();
@@ -326,6 +247,7 @@ public class GetEntryCount
     }
     return 0;
   }
+
 
 
   /**
@@ -356,6 +278,7 @@ public class GetEntryCount
   }
 
 
+
   /**
    * @return the indexType
    */
@@ -365,6 +288,7 @@ public class GetEntryCount
   }
 
 
+
   @Override
   public LDAPConnection getLdapConnection() throws LDAPException
   {
@@ -372,6 +296,7 @@ public class GetEntryCount
     return null;
 
   }
+
 
 
   /**
@@ -387,6 +312,7 @@ public class GetEntryCount
   }
 
 
+
   /**
    * {@inheritDoc}
    */
@@ -397,6 +323,7 @@ public class GetEntryCount
   }
 
 
+
   /**
    * {@inheritDoc}
    */
@@ -404,10 +331,10 @@ public class GetEntryCount
   public SearchRequest newSearchRequest() throws LDAPException
   {
     final SearchRequest req =
-        new SearchRequest(getBaseObject(),getScope(),getFilter(),
-            getRequestedAttributes());
+            new SearchRequest(getBaseObject(),getScope(),getFilter(),getRequestedAttributes());
     return req;
   }
+
 
 
   /**
@@ -415,7 +342,7 @@ public class GetEntryCount
    */
   @Override
   public synchronized void removeLdapExceptionListener(
-      final LdapExceptionListener ldapExceptionListener)
+          final LdapExceptionListener ldapExceptionListener)
   {
     if(ldapExceptionListener != null)
     {
@@ -424,18 +351,20 @@ public class GetEntryCount
   }
 
 
+
   /**
    * {@inheritDoc}
    */
   @Override
   public synchronized void removeLdapSearchExceptionListener(
-      final LdapSearchExceptionListener ldapSearchExceptionListener)
+          final LdapSearchExceptionListener ldapSearchExceptionListener)
   {
     if(ldapSearchExceptionListener != null)
     {
       ldapSearchExceptionListeners.remove(ldapSearchExceptionListener);
     }
   }
+
 
 
   /**
@@ -448,6 +377,7 @@ public class GetEntryCount
   }
 
 
+
   /**
    * {@inheritDoc}
    */
@@ -455,12 +385,92 @@ public class GetEntryCount
   public String toString()
   {
     return "GetEntryCount [" +
-        (attributeType != null ? "attributeType=" + attributeType + ", " : "") +
-        (attributeValue != null ? "attributeValue=" + attributeValue + ", "
-            : "") +
-        (baseObject != null ? "baseObject=" + baseObject + ", " : "") +
-        (indexType != null ? "indexType=" + indexType + ", " : "") +
-        (scope != null ? "scope=" + scope : "") + "]";
+            (attributeType != null ? "attributeType=" + attributeType + ", " : "") +
+            (attributeValue != null ? "attributeValue=" + attributeValue + ", " : "") +
+            (baseObject != null ? "baseObject=" + baseObject + ", " : "") +
+            (indexType != null ? "indexType=" + indexType + ", " : "") +
+            (scope != null ? "scope=" + scope : "") + "]";
   }
+
+
+
+  /**
+   * @param baseObject
+   * @param scope
+   * @param attributeType
+   * @param indexType
+   * @param attributeValue
+   */
+  public GetEntryCount(
+          final String baseObject,final SearchScope scope,final String attributeType,
+          final String indexType,final String attributeValue)
+  {
+
+    Validator.ensureNotNullWithMessage(baseObject,
+            "GetEntryCount requires a non-null base object, "
+                    + "for example, 'dc=example,dc=com'");
+
+    Validator.ensureNotNullWithMessage(scope,"GetEntryCount requires a non-null scope");
+
+    Validator.ensureNotNullWithMessage(attributeType,
+            "GetEntryCount requires a non-null indexed attribute type/name");
+
+    Validator.ensureNotNullWithMessage(indexType,
+            "GetEntryCount requires a non-null indexed index type, "
+                    + "for example, 'substring'");
+
+    Validator.ensureNotNullWithMessage(attributeValue,
+            "GetEntryCount requires a non-null attribute value.");
+
+    this.baseObject = baseObject;
+    this.scope = scope;
+    this.attributeType = attributeType;
+    this.indexType = indexType;
+    this.attributeValue = attributeValue;
+  }
+
+
+
+  // the attribute name (type), i.e., 'cn'
+  private final String attributeType;
+
+
+
+  // value of the attribute, used in the filter
+  private final String attributeValue;
+
+
+
+  // the base object to use in the search
+  private final String baseObject;
+
+
+
+  private int count;
+
+
+
+  // the index type, i.e., 'substring'
+  private final String indexType;
+
+
+
+  /**
+   * interested parties to {@code LdapExceptionEvents}
+   */
+  private volatile Vector<LdapExceptionListener> ldapExceptionListeners =
+          new Vector<LdapExceptionListener>();
+
+
+
+  /**
+   * interested parties to {@code LdapExceptionEvents}
+   */
+  private volatile Vector<LdapSearchExceptionListener> ldapSearchExceptionListeners =
+          new Vector<LdapSearchExceptionListener>();
+
+
+
+  private final SearchScope scope;
 
 }

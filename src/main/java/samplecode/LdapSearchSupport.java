@@ -15,61 +15,52 @@
  */
 package samplecode;
 
-
 import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.SearchRequest;
 import com.unboundid.ldap.sdk.SearchScope;
 
-
 /**
  * defines methods that retrieve data requred for a search.
  */
-public interface LdapSearchSupport
-{
+public interface LdapSearchSupport {
 
+    /**
+     * Get the base object for creating a search request.
+     * 
+     * @return the base object in the form of a {@code String}.
+     */
+    String getBaseObject();
 
-  /**
-   * Get the base object for creating a search request.
-   * 
-   * @return the base object in the form of a {@code String}.
-   */
-  String getBaseObject();
+    /**
+     * Get the filter for creating a search request.
+     * 
+     * @return the filter.
+     * @throws LDAPException
+     */
+    Filter getFilter() throws LDAPException;
 
+    /**
+     * Get the the list of requested attributes used for creating a search
+     * request.
+     * 
+     * @return the filter.
+     */
+    String[] getRequestedAttributes();
 
-  /**
-   * Get the filter for creating a search request.
-   * 
-   * @return the filter.
-   * @throws LDAPException
-   */
-  Filter getFilter() throws LDAPException;
+    /**
+     * Get the scope for creating a search request.
+     * 
+     * @return the scope.
+     */
+    SearchScope getScope();
 
-
-  /**
-   * Get the the list of requested attributes used for creating a search
-   * request.
-   * 
-   * @return the filter.
-   */
-  String[] getRequestedAttributes();
-
-
-  /**
-   * Get the scope for creating a search request.
-   * 
-   * @return the scope.
-   */
-  SearchScope getScope();
-
-
-  /**
-   * Creates a new {@code SerachRequest} at the discretion of the
-   * implementor.
-   * 
-   * @return a new {@code SerachRequest}.
-   * @throws LDAPException
-   *           if the search fails
-   */
-  SearchRequest newSearchRequest() throws LDAPException;
+    /**
+     * Creates a new {@code SerachRequest} at the discretion of the implementor.
+     * 
+     * @return a new {@code SerachRequest}.
+     * @throws LDAPException
+     *             if the search fails
+     */
+    SearchRequest newSearchRequest() throws LDAPException;
 }

@@ -16,6 +16,9 @@
 package samplecode;
 
 
+import com.unboundid.util.Validator;
+
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,9 +27,9 @@ import java.util.Properties;
 import java.util.Vector;
 
 
-import com.unboundid.util.Validator;
-
-
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
 import samplecode.listener.FileNotFoundExceptionEvent;
 import samplecode.listener.FileNotFoundExceptionListener;
 import samplecode.listener.IOExceptionEvent;
@@ -43,12 +46,10 @@ import samplecode.listener.ObservedByIOExceptionListener;
  */
 @Author("terry.gardner@unboundid.com")
 @Since("Dec 21, 2011")
-@CodeVersion("1.2")
+@CodeVersion("1.3")
 public final class PropertiesFile
-    implements ObservedByIOExceptionListener,
-    ObservedByFileNotFoundExceptionListener
+        implements ObservedByIOExceptionListener,ObservedByFileNotFoundExceptionListener
 {
-
 
   /**
    * Creates a new and distinct {@code PropertiesFile} object using the
@@ -64,6 +65,7 @@ public final class PropertiesFile
     return new PropertiesFile(propertiesFileName);
 
   }
+
 
 
   /**
@@ -82,8 +84,7 @@ public final class PropertiesFile
    * @throws IOException
    *           if an error occurred when reading from the input stream.
    */
-  private static Properties loadPropertiesFile(final InputStream inStream)
-      throws IOException
+  private static Properties loadPropertiesFile(final InputStream inStream) throws IOException
   {
     Validator.ensureNotNull(inStream);
     final Properties properties = new Properties();
@@ -93,47 +94,13 @@ public final class PropertiesFile
   }
 
 
-  private final Vector<FileNotFoundExceptionListener> fileNotFoundExceptionListeners =
-      new Vector<FileNotFoundExceptionListener>();
-
-
-  private final Vector<IOExceptionListener> ioExceptionListeners =
-      new Vector<IOExceptionListener>();
-
-
-  private final String name;
-
-
-  /**
-   * Initializes the {@code PropertiesFile} using the resource
-   * {@code name}. The {@code name} must be located on the
-   * {@code CLASSPATH}.
-   * <p>
-   * Postcondition: throws {@code PropertiesFileNotFoundException} if
-   * {@code name} cannot be found.
-   * 
-   * @param name
-   *          the resource name on the {@code CLASSPATH}. {@code name}
-   *          is not permitted to be {@code null}.
-   */
-  public PropertiesFile(
-      final String name)
-  {
-
-    Validator.ensureNotNullWithMessage(name,
-        "The name of the resource must not be null.");
-
-
-    this.name = name;
-  }
-
 
   /**
    * {@inheritDoc}
    */
   @Override
   public void addFileNotFoundExceptionListener(
-      final FileNotFoundExceptionListener fileNotFoundExceptionListener)
+          final FileNotFoundExceptionListener fileNotFoundExceptionListener)
   {
     if(fileNotFoundExceptionListener != null)
     {
@@ -142,9 +109,9 @@ public final class PropertiesFile
   }
 
 
+
   @Override
-  public void addIOExceptionListener(
-      final IOExceptionListener ioExceptionListener)
+  public void addIOExceptionListener(final IOExceptionListener ioExceptionListener)
   {
     if(ioExceptionListener != null)
     {
@@ -153,32 +120,32 @@ public final class PropertiesFile
   }
 
 
+
   /**
    * {@inheritDoc}
    */
   @SuppressWarnings("unchecked")
   @Override
   public void fireFileNotFoundExceptionListener(
-      final FileNotFoundException fileNotFoundException)
+          final FileNotFoundException fileNotFoundException)
   {
     Vector<FileNotFoundExceptionListener> copy;
-    synchronized (this)
+    synchronized(this)
     {
-      copy =
-          (Vector<FileNotFoundExceptionListener>)fileNotFoundExceptionListeners
-              .clone();
+      copy = (Vector<FileNotFoundExceptionListener>)fileNotFoundExceptionListeners.clone();
     }
     if(copy.size() == 0)
     {
       return;
     }
     final FileNotFoundExceptionEvent ev =
-        new FileNotFoundExceptionEvent(this,getName(),fileNotFoundException);
+            new FileNotFoundExceptionEvent(this,getName(),fileNotFoundException);
     for(final FileNotFoundExceptionListener l : copy)
     {
       l.fileNotFound(ev);
     }
   }
+
 
 
   /**
@@ -189,7 +156,7 @@ public final class PropertiesFile
   public void fireIOExceptionListener(final IOException ioException)
   {
     Vector<IOExceptionListener> copy;
-    synchronized (this)
+    synchronized(this)
     {
       copy = (Vector<IOExceptionListener>)ioExceptionListeners.clone();
     }
@@ -205,6 +172,7 @@ public final class PropertiesFile
   }
 
 
+
   /**
    * @return the name
    */
@@ -212,6 +180,7 @@ public final class PropertiesFile
   {
     return name;
   }
+
 
 
   /**
@@ -222,15 +191,14 @@ public final class PropertiesFile
     final InputStream inputStream = getInputStreamFromResource(getName());
     if(inputStream == null)
     {
-      fireFileNotFoundExceptionListener(new FileNotFoundException(getName() +
-          " was not found."));
+      fireFileNotFoundExceptionListener(new FileNotFoundException(getName() + " was not found."));
       return null;
     }
     try
     {
       return PropertiesFile.loadPropertiesFile(inputStream);
     }
-    catch (final IOException iox)
+    catch(final IOException iox)
     {
       fireIOExceptionListener(iox);
       return null;
@@ -238,12 +206,13 @@ public final class PropertiesFile
   }
 
 
+
   /**
    * {@inheritDoc}
    */
   @Override
   public void removeFileNotFoundExceptionListener(
-      final FileNotFoundExceptionListener fileNotFoundExceptionListener)
+          final FileNotFoundExceptionListener fileNotFoundExceptionListener)
   {
     if(fileNotFoundExceptionListener != null)
     {
@@ -252,18 +221,19 @@ public final class PropertiesFile
   }
 
 
+
   /**
    * {@inheritDoc}
    */
   @Override
-  public void removeIOExceptionListener(
-      final IOExceptionListener ioExceptionListener)
+  public void removeIOExceptionListener(final IOExceptionListener ioExceptionListener)
   {
     if(ioExceptionListener != null)
     {
       ioExceptionListeners.remove(ioExceptionListener);
     }
   }
+
 
 
   /**
@@ -282,5 +252,40 @@ public final class PropertiesFile
     return getClass().getClassLoader().getResourceAsStream(name);
   }
 
+
+
+  /**
+   * Initializes the {@code PropertiesFile} using the resource
+   * {@code name}. The {@code name} must be located on the
+   * {@code CLASSPATH}.
+   * <p>
+   * Postcondition: throws {@code PropertiesFileNotFoundException} if
+   * {@code name} cannot be found.
+   * 
+   * @param name
+   *          the resource name on the {@code CLASSPATH}. {@code name}
+   *          is not permitted to be {@code null}.
+   */
+  public PropertiesFile(
+          final String name)
+  {
+
+    Validator.ensureNotNullWithMessage(name,"The name of the resource must not be null.");
+    this.name = name;
+  }
+
+
+
+  private final Vector<FileNotFoundExceptionListener> fileNotFoundExceptionListeners =
+          new Vector<FileNotFoundExceptionListener>();
+
+
+
+  private final Vector<IOExceptionListener> ioExceptionListeners =
+          new Vector<IOExceptionListener>();
+
+
+
+  private final String name;
 
 }

@@ -16,15 +16,15 @@
 package samplecode.listener;
 
 
-import java.util.EventObject;
-
-
 import com.unboundid.ldap.sdk.Entry;
 
 
-import samplecode.Author;
-import samplecode.CodeVersion;
-import samplecode.Since;
+import java.util.EventObject;
+
+
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
 
 
 /**
@@ -35,29 +35,11 @@ import samplecode.Since;
 @Since("Jan 5, 2012")
 @CodeVersion("1.0")
 public class LdifEntryEvent
-    extends EventObject
+        extends EventObject
 {
-
 
   private static final long serialVersionUID = -6982646541468330652L;
 
-
-  // an entry read from a file or stream containing LDIF.
-  private final Entry entry;
-
-
-  /**
-   * Creates a {@code LdifEvent} with default state.
-   * 
-   * @param source
-   * @param entry
-   */
-  public LdifEntryEvent(
-      final Object source,final Entry entry)
-  {
-    super(source);
-    this.entry = entry;
-  }
 
 
   /**
@@ -94,6 +76,7 @@ public class LdifEntryEvent
   }
 
 
+
   /**
    * @return the entry
    */
@@ -101,6 +84,7 @@ public class LdifEntryEvent
   {
     return entry;
   }
+
 
 
   /**
@@ -111,9 +95,10 @@ public class LdifEntryEvent
   {
     final int prime = 31;
     int result = 1;
-    result = prime * result + (entry == null ? 0 : entry.hashCode());
+    result = (prime * result) + (entry == null ? 0 : entry.hashCode());
     return result;
   }
+
 
 
   /**
@@ -125,5 +110,24 @@ public class LdifEntryEvent
     return String.format("LdifEvent [entry=%s]",entry);
   }
 
+
+
+  /**
+   * Creates a {@code LdifEvent} with default state.
+   * 
+   * @param source
+   * @param entry
+   */
+  public LdifEntryEvent(
+          final Object source,final Entry entry)
+  {
+    super(source);
+    this.entry = entry;
+  }
+
+
+
+  // an entry read from a file or stream containing LDIF.
+  private final Entry entry;
 
 }

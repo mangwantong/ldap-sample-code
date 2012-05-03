@@ -16,7 +16,16 @@
 package samplecode;
 
 
-import com.unboundid.ldap.sdk.*;
+import com.unboundid.ldap.sdk.Filter;
+import com.unboundid.ldap.sdk.LDAPConnection;
+import com.unboundid.ldap.sdk.LDAPConnectionOptions;
+import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.LDAPSearchException;
+import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.SearchRequest;
+import com.unboundid.ldap.sdk.SearchResult;
+import com.unboundid.ldap.sdk.SearchResultListener;
+import com.unboundid.ldap.sdk.SearchScope;
 import com.unboundid.util.LDAPCommandLineTool;
 import com.unboundid.util.MinimalLogFormatter;
 import com.unboundid.util.NotMutable;
@@ -36,6 +45,9 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
 
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
 import samplecode.listener.ErrorListener;
 import samplecode.listener.LdapExceptionEvent;
 import samplecode.listener.LdapExceptionListener;
@@ -86,19 +98,19 @@ import samplecode.listener.ObservedByLdapExceptionListener;
 @Since("Dec 18, 2011")
 @CodeVersion("1.3")
 public final class EveryEntry
-    extends LDAPCommandLineTool
+        extends LDAPCommandLineTool
 {
-
 
   /**
    * The description of this tool; used for help, diagnostic, and other
    * purposes.
    */
   private static final String TOOL_DESCRIPTION =
-      "Provides a way to invoke the  searchEntryReturned and  "
-          + "searchReferenceReturned methods of a SearchResultListener "
-          + "for each entry returned from a search based on the "
-          + "standard command line options.";
+          "Provides a way to invoke the  searchEntryReturned and  "
+                  + "searchReferenceReturned methods of a SearchResultListener "
+                  + "for each entry returned from a search based on the "
+                  + "standard command line options.";
+
 
 
   /**
@@ -106,6 +118,7 @@ public final class EveryEntry
    * purposes.
    */
   private static final String TOOL_NAME = "EveryEntry";
+
 
 
   /**
@@ -244,8 +257,8 @@ public final class EveryEntry
     if(resultCode != null)
     {
       final String message =
-          String.format("%s has completed processing. The result code was: %s",
-              everyEntry.getToolName(),resultCode);
+              String.format("%s has completed processing. The result code was: %s",
+                      everyEntry.getToolName(),resultCode);
       final LogRecord logRecord = new LogRecord(Level.INFO,message);
       final String msg = new MinimalLogFormatter().format(logRecord);
       everyEntry.out(msg);
@@ -253,42 +266,18 @@ public final class EveryEntry
   }
 
 
-  /**
-   * The command line arguments processor.
-   */
-  private EveryEntryCommandLineOptions commandLineOptions;
-
-
-  /**
-   * Provides services for clients that require messages to be formatted
-   * in a standardized way.
-   */
-  private final MinimalLogFormatter formatter;
-
-
-  /**
-   * Constructs a new {@code EveryEntry} object that will use the
-   * System.out and System.err output streams.
-   */
-  public EveryEntry()
-  {
-    super(System.out,System.err);
-    formatter = new MinimalLogFormatter();
-  }
-
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public void addNonLDAPArguments(final ArgumentParser argumentParser)
-      throws ArgumentException
+  public void addNonLDAPArguments(final ArgumentParser argumentParser) throws ArgumentException
   {
     Validator.ensureNotNull(argumentParser);
     commandLineOptions =
-        EveryEntryCommandLineOptions
-            .newEveryEntryCommandLineOptions(argumentParser);
+            EveryEntryCommandLineOptions.newEveryEntryCommandLineOptions(argumentParser);
   }
+
 
 
   /**
@@ -307,8 +296,7 @@ public final class EveryEntry
      * Set up an executor service with a fixed thread pool.
      */
     final int numThreads = commandLineOptions.getNumThreads();
-    final ExecutorService executorService =
-        Executors.newFixedThreadPool(numThreads);
+    final ExecutorService executorService = Executors.newFixedThreadPool(numThreads);
 
     /*
      * Start searches, one per thread.
@@ -318,6 +306,7 @@ public final class EveryEntry
     executorService.shutdown();
     return resultCode;
   }
+
 
 
   /**
@@ -330,6 +319,7 @@ public final class EveryEntry
   }
 
 
+
   /**
    * {@inheritDoc}
    */
@@ -340,6 +330,7 @@ public final class EveryEntry
   }
 
 
+
   /**
    * {@inheritDoc}
    */
@@ -347,10 +338,10 @@ public final class EveryEntry
   public String toString()
   {
     return "EveryEntry [" +
-        (commandLineOptions != null ? "commandLineOptions=" +
-            commandLineOptions + ", " : "") +
-        (formatter != null ? "formatter=" + formatter : "") + "]";
+            (commandLineOptions != null ? "commandLineOptions=" + commandLineOptions + ", "
+                    : "") + (formatter != null ? "formatter=" + formatter : "") + "]";
   }
+
 
 
   /**
@@ -364,15 +355,14 @@ public final class EveryEntry
    *          per thread).
    * @return a single result code.
    */
-  private ResultCode startSearches(final ExecutorService executorService,
-      final int numThreads)
+  private ResultCode startSearches(final ExecutorService executorService,final int numThreads)
   {
     Validator.ensureNotNull(executorService);
     ResultCode resultCode = ResultCode.SUCCESS;
     for(int t = 0; t < numThreads; ++t)
     {
       final String searchListenerClassname =
-          commandLineOptions.getSearchResultListenerClassname();
+              commandLineOptions.getSearchResultListenerClassname();
       EveryEntryImpl impl;
       try
       {
@@ -383,12 +373,12 @@ public final class EveryEntry
          */
         final LDAPConnection ldapConnection = getConnection();
         final List<ErrorListener<ResultCode>> errorListeners =
-            SampleCodeCollectionUtils.newArrayList();
+                SampleCodeCollectionUtils.newArrayList();
         final ErrorListener<ResultCode> l = new ResultCodeErrorListener();
         errorListeners.add(l);
         impl =
-            new EveryEntryImpl(searchListenerClassname,commandLineOptions,
-                ldapConnection,getErr(),errorListeners);
+                new EveryEntryImpl(searchListenerClassname,commandLineOptions,ldapConnection,
+                        getErr(),errorListeners);
         impl.addLdapExceptionListener(new EveryEntryLdapExceptionListener());
         executorService.submit(impl);
       }
@@ -399,7 +389,7 @@ public final class EveryEntry
       catch(final InstantiationException instantiationException)
       {
         err(formatter.format(new LogRecord(Level.SEVERE,"Cannot instantiate " +
-            instantiationException.getLocalizedMessage())));
+                instantiationException.getLocalizedMessage())));
         resultCode = ResultCode.PARAM_ERROR;
       }
       catch(final IllegalAccessException e)
@@ -408,16 +398,41 @@ public final class EveryEntry
       }
       catch(final ClassNotFoundException classNotFoundException)
       {
-        err(formatter.format(new LogRecord(Level.SEVERE,
-            String
-                .format("The class '%s' specified as the search "
-                    + "result listener could not be found.",
-                    searchListenerClassname))));
+        err(formatter.format(new LogRecord(Level.SEVERE,String.format(
+                "The class '%s' specified as the search "
+                        + "result listener could not be found.",searchListenerClassname))));
         resultCode = ResultCode.PARAM_ERROR;
       }
     }
     return resultCode;
   }
+
+
+
+  /**
+   * Constructs a new {@code EveryEntry} object that will use the
+   * System.out and System.err output streams.
+   */
+  public EveryEntry()
+  {
+    super(System.out,System.err);
+    formatter = new MinimalLogFormatter();
+  }
+
+
+
+  /**
+   * The command line arguments processor.
+   */
+  private EveryEntryCommandLineOptions commandLineOptions;
+
+
+
+  /**
+   * Provides services for clients that require messages to be formatted
+   * in a standardized way.
+   */
+  private final MinimalLogFormatter formatter;
 }
 
 
@@ -426,18 +441,18 @@ public final class EveryEntry
  * including any command line arguments that used by {@code EveryEntry}.
  */
 final class EveryEntryCommandLineOptions
-    extends CommandLineOptions
+        extends CommandLineOptions
 {
-
 
   /**
    * The description of the search result listener command line
    * argument.
    */
   private static final String DESCRIPTION_SEARCH_RESULT_LISTENER =
-      "The name of class which extends the AbstractSearchResultListener class. "
-          + "The searchEntryReturned method of this class is invoked when "
-          + "an entry is returned from a search.";
+          "The name of class which extends the AbstractSearchResultListener class. "
+                  + "The searchEntryReturned method of this class is invoked when "
+                  + "an entry is returned from a search.";
+
 
 
   /**
@@ -448,12 +463,13 @@ final class EveryEntryCommandLineOptions
   private static final boolean IS_REQUIRED_SEARCH_RESULT_LISTENER = true;
 
 
+
   /**
    * The long identifier of the command line argument whose parameter is
    * the name of a class that extends {@code SearchResultListener}.
    */
-  private static final String LONG_ID_SEARCH_RESULT_LISTENER =
-      "searchResultListener";
+  private static final String LONG_ID_SEARCH_RESULT_LISTENER = "searchResultListener";
+
 
 
   /**
@@ -464,6 +480,7 @@ final class EveryEntryCommandLineOptions
   private static final int MAX_OCCURRENCES_SEARCH_RESULT_LISTENER = 0;
 
 
+
   /**
    * The short identifier of the command line argument whose parameter
    * indicates whether the search result listener command line argument
@@ -472,13 +489,14 @@ final class EveryEntryCommandLineOptions
   private static final Character SHORT_ID_SEARCH_RESULT_LISTENER = null;
 
 
+
   /**
    * The value place-holder of the command line argument whose parameter
    * is the value place-holder of the search result listener command
    * line argument.
    */
-  private static final String VALUE_PLACEHOLDER_SEARCH_RESULT_LISTENER =
-      "{class-name}";
+  private static final String VALUE_PLACEHOLDER_SEARCH_RESULT_LISTENER = "{class-name}";
+
 
 
   /**
@@ -494,22 +512,12 @@ final class EveryEntryCommandLineOptions
    *           {@code Argument}.
    */
   public static EveryEntryCommandLineOptions newEveryEntryCommandLineOptions(
-      final ArgumentParser argumentParser) throws ArgumentException
+          final ArgumentParser argumentParser) throws ArgumentException
   {
     Validator.ensureNotNull(argumentParser);
     return new EveryEntryCommandLineOptions(argumentParser);
   }
 
-
-  private EveryEntryCommandLineOptions(
-      final ArgumentParser argumentParser)
-      throws ArgumentException
-  {
-    super(argumentParser);
-    final Argument searchResultListenerArgument =
-        newSearchResultListenerArgument();
-    addArguments(searchResultListenerArgument);
-  }
 
 
   /**
@@ -521,10 +529,11 @@ final class EveryEntryCommandLineOptions
   public String getSearchResultListenerClassname()
   {
     final StringArgument searchResultListenerArg =
-        (StringArgument)getArgumentParser().getNamedArgument(
-            EveryEntryCommandLineOptions.LONG_ID_SEARCH_RESULT_LISTENER);
+            (StringArgument)getArgumentParser().getNamedArgument(
+                    EveryEntryCommandLineOptions.LONG_ID_SEARCH_RESULT_LISTENER);
     return searchResultListenerArg.getValue();
   }
+
 
 
   /**
@@ -538,19 +547,27 @@ final class EveryEntryCommandLineOptions
   private Argument newSearchResultListenerArgument() throws ArgumentException
   {
     final Character shortIdentifier =
-        EveryEntryCommandLineOptions.SHORT_ID_SEARCH_RESULT_LISTENER;
-    final String longIdentifier =
-        EveryEntryCommandLineOptions.LONG_ID_SEARCH_RESULT_LISTENER;
-    final boolean isRequired =
-        EveryEntryCommandLineOptions.IS_REQUIRED_SEARCH_RESULT_LISTENER;
+            EveryEntryCommandLineOptions.SHORT_ID_SEARCH_RESULT_LISTENER;
+    final String longIdentifier = EveryEntryCommandLineOptions.LONG_ID_SEARCH_RESULT_LISTENER;
+    final boolean isRequired = EveryEntryCommandLineOptions.IS_REQUIRED_SEARCH_RESULT_LISTENER;
     final int maxOccurrences =
-        EveryEntryCommandLineOptions.MAX_OCCURRENCES_SEARCH_RESULT_LISTENER;
+            EveryEntryCommandLineOptions.MAX_OCCURRENCES_SEARCH_RESULT_LISTENER;
     final String valuePlaceholder =
-        EveryEntryCommandLineOptions.VALUE_PLACEHOLDER_SEARCH_RESULT_LISTENER;
-    final String description =
-        EveryEntryCommandLineOptions.DESCRIPTION_SEARCH_RESULT_LISTENER;
-    return new StringArgument(shortIdentifier,longIdentifier,isRequired,
-        maxOccurrences,valuePlaceholder,description);
+            EveryEntryCommandLineOptions.VALUE_PLACEHOLDER_SEARCH_RESULT_LISTENER;
+    final String description = EveryEntryCommandLineOptions.DESCRIPTION_SEARCH_RESULT_LISTENER;
+    return new StringArgument(shortIdentifier,longIdentifier,isRequired,maxOccurrences,
+            valuePlaceholder,description);
+  }
+
+
+
+  private EveryEntryCommandLineOptions(
+          final ArgumentParser argumentParser)
+          throws ArgumentException
+  {
+    super(argumentParser);
+    final Argument searchResultListenerArgument = newSearchResultListenerArgument();
+    addArguments(searchResultListenerArgument);
   }
 }
 
@@ -561,89 +578,15 @@ final class EveryEntryCommandLineOptions
  * notified when an error or exception occurs.
  */
 final class EveryEntryImpl
-    implements Runnable,ObservedByLdapExceptionListener
+        implements Runnable,ObservedByLdapExceptionListener
 {
-
-
-  private final EveryEntryCommandLineOptions commandLineOptions;
-
-
-  private final List<ErrorListener<ResultCode>> errorListeners;
-
-
-  private final PrintStream errStream;
-
-
-  private final LDAPConnection ldapConnection;
-
-
-  /**
-   * interested parties to {@code LdapExceptionEvents}
-   */
-  private volatile Vector<LdapExceptionListener> ldapExceptionListeners =
-      new Vector<LdapExceptionListener>();
-
-
-  private final String searchListenerClassname;
-
-
-  private final SearchRequest searchRequest;
-
-
-  /**
-   * Get a new instance of {@code EveryEntryImpl}. None of the
-   * parameters are permitted to be {@code null}.
-   * 
-   * @param searchListenerClassname
-   *          the name of the class to be used as the search result
-   *          listener.
-   * @param commandLineOptions
-   *          user-provided command line options.
-   * @param ldapConnection
-   *          a connection to an LDAP server.
-   * @param errStream
-   *          a stream to which error output is transmitted.
-   * @param errorListeners
-   *          they are notified when an error or exception transpires.
-   * @throws LDAPException
-   *           if a {@code SearchRequest} cannot be created using
-   *           parameters from the command line arguments.
-   * @throws InstantiationException
-   *           if the class named by {@code searchListenerClassname}
-   *           cannot be instantiated.
-   * @throws IllegalAccessException
-   *           if the class named by {@code searchListenerClassname}
-   *           cannot be instantiated.
-   * @throws ClassNotFoundException
-   *           if the class named by {@code searchListenerClassname}
-   *           cannot be found.
-   */
-  public EveryEntryImpl(
-      final String searchListenerClassname,
-      final EveryEntryCommandLineOptions commandLineOptions,
-      final LDAPConnection ldapConnection,final PrintStream errStream,
-      final List<ErrorListener<ResultCode>> errorListeners)
-      throws LDAPException,InstantiationException,IllegalAccessException,
-      ClassNotFoundException
-  {
-    Validator.ensureNotNull(searchListenerClassname,commandLineOptions,
-        ldapConnection,errStream,errorListeners);
-    this.errStream = errStream;
-    this.errorListeners = errorListeners;
-    this.searchListenerClassname = searchListenerClassname;
-    this.commandLineOptions = commandLineOptions;
-    this.ldapConnection = ldapConnection;
-    setConnectionOptions();
-    searchRequest = createSearchRequest(newSearchResultListener());
-  }
-
 
   /**
    * {@inheritDoc}
    */
   @Override
   public synchronized void addLdapExceptionListener(
-      final LdapExceptionListener ldapExceptionListener)
+          final LdapExceptionListener ldapExceptionListener)
   {
     if(ldapExceptionListener != null)
     {
@@ -652,13 +595,14 @@ final class EveryEntryImpl
   }
 
 
+
   /**
    * {@inheritDoc}
    */
   @SuppressWarnings("unchecked")
   @Override
   public void fireLdapExceptionListener(final LDAPConnection ldapConnection,
-      final LDAPException ldapException)
+          final LDAPException ldapException)
   {
     Validator.ensureNotNull(ldapConnection,ldapException);
     Vector<LdapExceptionListener> copy;
@@ -670,8 +614,7 @@ final class EveryEntryImpl
     {
       return;
     }
-    final LdapExceptionEvent ev =
-        new LdapExceptionEvent(this,ldapConnection,ldapException);
+    final LdapExceptionEvent ev = new LdapExceptionEvent(this,ldapConnection,ldapException);
     for(final LdapExceptionListener l : copy)
     {
       l.ldapRequestFailed(ev);
@@ -679,18 +622,20 @@ final class EveryEntryImpl
   }
 
 
+
   /**
    * {@inheritDoc}
    */
   @Override
   public synchronized void removeLdapExceptionListener(
-      final LdapExceptionListener ldapExceptionListener)
+          final LdapExceptionListener ldapExceptionListener)
   {
     if(ldapExceptionListener != null)
     {
       ldapExceptionListeners.remove(ldapExceptionListener);
     }
   }
+
 
 
   /**
@@ -722,23 +667,24 @@ final class EveryEntryImpl
   }
 
 
+
   @Override
   public String toString()
   {
     final int maxLen = 10;
     return "EveryEntryImpl [" +
-        (commandLineOptions != null ? "commandLineOptions=" +
-            commandLineOptions + ", " : "") +
-        (errorListeners != null ? "errorListeners=" +
-            errorListeners.subList(0,Math.min(errorListeners.size(),maxLen)) +
-            ", " : "") +
-        (errStream != null ? "errStream=" + errStream + ", " : "") +
-        (ldapConnection != null ? "ldapConnection=" + ldapConnection + ", "
-            : "") +
-        (searchListenerClassname != null ? "searchListenerClassname=" +
-            searchListenerClassname + ", " : "") +
-        (searchRequest != null ? "searchRequest=" + searchRequest : "") + "]";
+            (commandLineOptions != null ? "commandLineOptions=" + commandLineOptions + ", "
+                    : "") +
+            (errorListeners != null ? "errorListeners=" +
+                    errorListeners.subList(0,Math.min(errorListeners.size(),maxLen)) + ", "
+                    : "") +
+            (errStream != null ? "errStream=" + errStream + ", " : "") +
+            (ldapConnection != null ? "ldapConnection=" + ldapConnection + ", " : "") +
+            (searchListenerClassname != null ? "searchListenerClassname=" +
+                    searchListenerClassname + ", " : "") +
+            (searchRequest != null ? "searchRequest=" + searchRequest : "") + "]";
   }
+
 
 
   /**
@@ -751,19 +697,15 @@ final class EveryEntryImpl
    * @see CommandLineOptions
    */
   private SearchRequest createSearchRequest(
-      final AbstractSearchResultListener searchResultListener)
-      throws LDAPException
+          final AbstractSearchResultListener searchResultListener) throws LDAPException
   {
     Validator.ensureNotNull(searchResultListener);
     SearchRequest sr;
     final String baseObject = commandLineOptions.getBaseObject();
     final SearchScope scope = commandLineOptions.getSearchScope();
     final Filter filter = commandLineOptions.getFilter();
-    final String[] requestedAttributes =
-        commandLineOptions.getRequestedAttributes();
-    sr =
-        new SearchRequest(searchResultListener,baseObject,scope,filter,
-            requestedAttributes);
+    final String[] requestedAttributes = commandLineOptions.getRequestedAttributes();
+    sr = new SearchRequest(searchResultListener,baseObject,scope,filter,requestedAttributes);
     final int sizeLimit = commandLineOptions.getSizeLimit();
     sr.setSizeLimit(sizeLimit);
     final int timeLimit = commandLineOptions.getTimeLimit();
@@ -772,23 +714,24 @@ final class EveryEntryImpl
   }
 
 
+
   /**
    * Create the search result listener specified by the
    * {@code --searchResultListener} command line arguments.
    */
-  private AbstractSearchResultListener newSearchResultListener()
-      throws ClassNotFoundException,InstantiationException,
-      IllegalAccessException
+  private AbstractSearchResultListener newSearchResultListener() throws ClassNotFoundException,
+          InstantiationException,IllegalAccessException
   {
     @SuppressWarnings("unchecked")
     final Class<? extends AbstractSearchResultListener> cl =
-        (Class<? extends AbstractSearchResultListener>)Class
-            .forName(searchListenerClassname);
+            (Class<? extends AbstractSearchResultListener>)Class
+                    .forName(searchListenerClassname);
     final AbstractSearchResultListener searchResultListener = cl.newInstance();
     searchResultListener.setCommandLineOptions(commandLineOptions);
     searchResultListener.setLDAPConnection(ldapConnection);
     return searchResultListener;
   }
+
 
 
   /**
@@ -806,6 +749,7 @@ final class EveryEntryImpl
       l.displayError(errStream,resultCode);
     }
   }
+
 
 
   /**
@@ -826,6 +770,7 @@ final class EveryEntryImpl
   }
 
 
+
   /**
    * Set options on the connection to the server. The options are taken
    * from the parameters of the command line arguments.
@@ -835,17 +780,106 @@ final class EveryEntryImpl
   private void setConnectionOptions()
   {
     final LDAPConnectionOptions connectionOptions =
-        commandLineOptions.newLDAPConnectionOptions();
+            commandLineOptions.newLDAPConnectionOptions();
     ldapConnection.setConnectionOptions(connectionOptions);
   }
+
+
+
+  /**
+   * Get a new instance of {@code EveryEntryImpl}. None of the
+   * parameters are permitted to be {@code null}.
+   * 
+   * @param searchListenerClassname
+   *          the name of the class to be used as the search result
+   *          listener.
+   * @param commandLineOptions
+   *          user-provided command line options.
+   * @param ldapConnection
+   *          a connection to an LDAP server.
+   * @param errStream
+   *          a stream to which error output is transmitted.
+   * @param errorListeners
+   *          they are notified when an error or exception transpires.
+   * @throws LDAPException
+   *           if a {@code SearchRequest} cannot be created using
+   *           parameters from the command line arguments.
+   * @throws InstantiationException
+   *           if the class named by {@code searchListenerClassname}
+   *           cannot be instantiated.
+   * @throws IllegalAccessException
+   *           if the class named by {@code searchListenerClassname}
+   *           cannot be instantiated.
+   * @throws ClassNotFoundException
+   *           if the class named by {@code searchListenerClassname}
+   *           cannot be found.
+   */
+  public EveryEntryImpl(
+          final String searchListenerClassname,
+          final EveryEntryCommandLineOptions commandLineOptions,
+          final LDAPConnection ldapConnection,final PrintStream errStream,
+          final List<ErrorListener<ResultCode>> errorListeners)
+          throws LDAPException,InstantiationException,IllegalAccessException,
+          ClassNotFoundException
+  {
+    Validator.ensureNotNull(searchListenerClassname,commandLineOptions,ldapConnection,
+            errStream,errorListeners);
+    this.errStream = errStream;
+    this.errorListeners = errorListeners;
+    this.searchListenerClassname = searchListenerClassname;
+    this.commandLineOptions = commandLineOptions;
+    this.ldapConnection = ldapConnection;
+    setConnectionOptions();
+    searchRequest = createSearchRequest(newSearchResultListener());
+  }
+
+
+
+  private final EveryEntryCommandLineOptions commandLineOptions;
+
+
+
+  private final List<ErrorListener<ResultCode>> errorListeners;
+
+
+
+  private final PrintStream errStream;
+
+
+
+  private final LDAPConnection ldapConnection;
+
+
+
+  /**
+   * interested parties to {@code LdapExceptionEvents}
+   */
+  private volatile Vector<LdapExceptionListener> ldapExceptionListeners =
+          new Vector<LdapExceptionListener>();
+
+
+
+  private final String searchListenerClassname;
+
+
+
+  private final SearchRequest searchRequest;
 
 }
 
 
 @NotMutable
 final class EveryEntryLdapExceptionListener
-    implements LdapExceptionListener
+        implements LdapExceptionListener
 {
+
+  @Override
+  public void ldapRequestFailed(final LdapExceptionEvent ldapExceptionEvent)
+  {
+    System.err.println(formatter.format(new LogRecord(Level.SEVERE,ldapExceptionEvent
+            .getLdapException().getExceptionMessage())));
+  }
+
 
 
   /**
@@ -853,14 +887,6 @@ final class EveryEntryLdapExceptionListener
    * in a standardized way.
    */
   private final MinimalLogFormatter formatter = new MinimalLogFormatter();
-
-
-  @Override
-  public void ldapRequestFailed(final LdapExceptionEvent ldapExceptionEvent)
-  {
-    System.err.println(formatter.format(new LogRecord(Level.SEVERE,
-        ldapExceptionEvent.getLdapException().getExceptionMessage())));
-  }
 }
 
 
@@ -870,9 +896,8 @@ final class EveryEntryLdapExceptionListener
  */
 @NotMutable
 final class ResultCodeErrorListener
-    implements ErrorListener<ResultCode>
+        implements ErrorListener<ResultCode>
 {
-
 
   /**
    * {@inheritDoc}
@@ -881,12 +906,10 @@ final class ResultCodeErrorListener
    * {@code resultCode}.
    */
   @Override
-  public void displayError(final PrintStream errStream,
-      final ResultCode resultCode)
+  public void displayError(final PrintStream errStream,final ResultCode resultCode)
   {
     Validator.ensureNotNull(resultCode);
-    final String msg =
-        String.format("An error condition occurred: %s",resultCode);
+    final String msg = String.format("An error condition occurred: %s",resultCode);
     final LogRecord record = new LogRecord(Level.SEVERE,msg);
     errStream.println(new MinimalLogFormatter().format(record));
   }

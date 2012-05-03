@@ -19,9 +19,9 @@ package samplecode.listener;
 import java.io.FileNotFoundException;
 
 
-import samplecode.Author;
-import samplecode.CodeVersion;
-import samplecode.Since;
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
 
 
 /**
@@ -30,39 +30,13 @@ import samplecode.Since;
  */
 @Author("terry.gardner@unboundid.com")
 @Since("Dec 31, 2011")
-@CodeVersion("1.0")
-public class FileNotFoundExceptionEvent extends IOExceptionEvent
+@CodeVersion("1.1")
+public class FileNotFoundExceptionEvent
+        extends IOExceptionEvent
 {
-
 
   private static final long serialVersionUID = -7869888523368680001L;
 
-
-  private final String filename;
-
-
-  /**
-   * The exception that caused this event.
-   */
-  private final FileNotFoundException fileNotFoundException;
-
-
-  /**
-   * @param source
-   *          The object on which the Event initially occurred.
-   * @param filename
-   *          the name of the file that was not found.
-   * @param fileNotFoundException
-   *          the exception which caused this event.
-   */
-  public FileNotFoundExceptionEvent(final Object source,
-                                    final String filename,
-                                    final FileNotFoundException fileNotFoundException)
-  {
-    super(source);
-    this.filename = filename;
-    this.fileNotFoundException = fileNotFoundException;
-  }
 
 
   /**
@@ -74,6 +48,7 @@ public class FileNotFoundExceptionEvent extends IOExceptionEvent
   }
 
 
+
   /**
    * @return the ioException
    */
@@ -81,5 +56,35 @@ public class FileNotFoundExceptionEvent extends IOExceptionEvent
   {
     return fileNotFoundException;
   }
+
+
+
+  /**
+   * @param source
+   *          The object on which the Event initially occurred.
+   * @param filename
+   *          the name of the file that was not found.
+   * @param fileNotFoundException
+   *          the exception which caused this event.
+   */
+  public FileNotFoundExceptionEvent(
+          final Object source,final String filename,
+          final FileNotFoundException fileNotFoundException)
+  {
+    super(source);
+    this.filename = filename;
+    this.fileNotFoundException = fileNotFoundException;
+  }
+
+
+
+  private final String filename;
+
+
+
+  /**
+   * The exception that caused this event.
+   */
+  private final FileNotFoundException fileNotFoundException;
 
 }

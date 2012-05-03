@@ -16,10 +16,15 @@
 package samplecode;
 
 
+import com.unboundid.util.CommandLineTool;
+
+
 import java.io.PrintStream;
 
 
-import com.unboundid.util.CommandLineTool;
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
 
 
 /**
@@ -33,7 +38,6 @@ import com.unboundid.util.CommandLineTool;
 @CodeVersion("1.0")
 public interface ToolCompletedProcessing
 {
-
 
   /**
    * Transmits a message created at the discretion of the implementing

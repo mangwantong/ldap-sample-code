@@ -16,9 +16,9 @@
 package samplecode.listener;
 
 
-import samplecode.Author;
-import samplecode.CodeVersion;
-import samplecode.Since;
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
 
 
 /**
@@ -26,11 +26,10 @@ import samplecode.Since;
  */
 @Author("terry.gardner@unboundid.com")
 @Since("Dec 31, 2011")
-@CodeVersion("1.0")
+@CodeVersion("1.1")
 public interface FileNotFoundExceptionListener
-    extends IOExceptionListener
+        extends IOExceptionListener
 {
-
 
   /**
    * a file was not found.

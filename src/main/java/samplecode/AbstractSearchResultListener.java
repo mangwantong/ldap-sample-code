@@ -21,6 +21,11 @@ import com.unboundid.ldap.sdk.SearchResultListener;
 import com.unboundid.util.Validator;
 
 
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
+
+
 /**
  * An implementation of {@code SearchResultListener} that provides
  * methods to associate an LDAPConnection and command line arguments
@@ -29,33 +34,39 @@ import com.unboundid.util.Validator;
  * example usage: <blockquote>
  * 
  * <pre>
- * class LocalSearchResultListener
- *   extends AbstractSearchResultListener {
  * 
+ * class LocalSearchResultListener
+ *         extends AbstractSearchResultListener
+ * {
  * 
  *   LocalSearchResultListener(
- *       LDAPConnection ldapConnection,CommandLineOptions commandLineOptions) {
+ *           LDAPConnection ldapConnection,CommandLineOptions commandLineOptions)
+ *   {
  *     Validator.ensureNotNull(ldapConnection,commandLineOptions);
  *     setLDAPConnection(ldapConnection);
  *     setCommandLineOptions(commandLineOptions);
  *   }
  * 
  * 
+ * 
  *   &#064;Override
- *   public void searchReferenceReturned(
- *       final SearchResultReference searchResultReference) {
+ *   public void searchReferenceReturned(final SearchResultReference searchResultReference)
+ *   {
  *     Validator.ensureNotNull(searchResultReference);
  *     System.out.println(searchResultReference);
  *   }
  * 
  * 
+ * 
  *   &#064;Override
- *   public void searchEntryReturned(final SearchResultEntry searchResultEntry) {
+ *   public void searchEntryReturned(final SearchResultEntry searchResultEntry)
+ *   {
  *     Validator.ensureNotNull(searchResultEntry);
  *     System.out.println(searchResultEntry);
  *   }
  * }
  * </pre>
+ * 
  * </blockquote>
  * 
  * @see CommandLineOptions
@@ -66,14 +77,8 @@ import com.unboundid.util.Validator;
 @Since("Dec 18, 2011")
 @CodeVersion("1.1")
 abstract class AbstractSearchResultListener
-  implements SearchResultListener {
-
-
-  private CommandLineOptions commandLineOptions;
-
-
-  private LDAPConnection ldapConnection;
-
+        implements SearchResultListener
+{
 
   /**
    * Retrieves the command line arguments processor object associated
@@ -81,9 +86,11 @@ abstract class AbstractSearchResultListener
    * 
    * @return The command line arguments processor.
    */
-  public CommandLineOptions getCommandLineOptions() {
+  public CommandLineOptions getCommandLineOptions()
+  {
     return commandLineOptions;
   }
+
 
 
   /**
@@ -92,9 +99,11 @@ abstract class AbstractSearchResultListener
    * 
    * @return The connection to the directory server.
    */
-  public LDAPConnection getLDAPConnection() {
+  public LDAPConnection getLDAPConnection()
+  {
     return ldapConnection;
   }
+
 
 
   /**
@@ -107,11 +116,13 @@ abstract class AbstractSearchResultListener
    * @return The resulting {@code AbstractSearchResultListener} object.
    */
   public AbstractSearchResultListener setCommandLineOptions(
-      final CommandLineOptions commandLineOptions) {
+          final CommandLineOptions commandLineOptions)
+  {
     Validator.ensureNotNull(commandLineOptions);
     this.commandLineOptions = commandLineOptions;
     return this;
   }
+
 
 
   /**
@@ -120,13 +131,21 @@ abstract class AbstractSearchResultListener
    * 
    * @param ldapConnection
    *          The connection to the directory server, cannot be
-   *          {@code null}.
+   *          {@code null} .
    * @return The resulting {@code AbstractSearchResultListener} object.
    */
-  public AbstractSearchResultListener setLDAPConnection(
-      final LDAPConnection ldapConnection) {
+  public AbstractSearchResultListener setLDAPConnection(final LDAPConnection ldapConnection)
+  {
     Validator.ensureNotNull(ldapConnection);
     this.ldapConnection = ldapConnection;
     return this;
   }
+
+
+
+  private CommandLineOptions commandLineOptions;
+
+
+
+  private LDAPConnection ldapConnection;
 }

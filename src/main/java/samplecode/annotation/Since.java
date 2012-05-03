@@ -13,7 +13,7 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
-package samplecode;
+package samplecode.annotation;
 
 
 import java.lang.annotation.Retention;
@@ -28,7 +28,6 @@ import java.lang.annotation.RetentionPolicy;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Since
 {
-
 
   /**
    * The first appearance of the component.
