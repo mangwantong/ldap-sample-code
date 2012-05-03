@@ -75,7 +75,7 @@ import samplecode.tools.AbstractTool;
  */
 @Author("terry.gardner@unboundid.com")
 @Since("27-Nov-2011")
-@CodeVersion("2.0")
+@CodeVersion("2.1")
 public final class AuthDemo
         extends AbstractTool
 {
