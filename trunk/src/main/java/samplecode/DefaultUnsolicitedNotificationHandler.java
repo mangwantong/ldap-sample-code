@@ -42,7 +42,7 @@ import samplecode.annotation.Since;
 @Author("terry.gardner@unboundid.com")
 @Since("Dec 10, 2011")
 @CodeVersion("1.0")
-class DefaultUnsolicitedNotificationHandler
+public class DefaultUnsolicitedNotificationHandler
         implements UnsolicitedNotificationHandler
 {
 
@@ -77,7 +77,7 @@ class DefaultUnsolicitedNotificationHandler
    *          unsolicited extended results. {@code ldapCommandLineTool}
    *          may not be {@code null}.
    */
-  DefaultUnsolicitedNotificationHandler(
+  public DefaultUnsolicitedNotificationHandler(
           final LDAPCommandLineTool ldapCommandLineTool)
   {
     loggingFormatter = new MinimalLogFormatter();

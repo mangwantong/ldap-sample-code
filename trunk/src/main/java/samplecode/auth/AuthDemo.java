@@ -13,7 +13,7 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
-package samplecode;
+package samplecode.auth;
 
 
 import com.unboundid.ldap.sdk.DN;
@@ -35,6 +35,12 @@ import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 
+import samplecode.AuthorizedIdentity;
+import samplecode.BasicToolCompletedProcessing;
+import samplecode.CommandLineOptions;
+import samplecode.DefaultUnsolicitedNotificationHandler;
+import samplecode.SupportedFeatureException;
+import samplecode.ToolCompletedProcessing;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
