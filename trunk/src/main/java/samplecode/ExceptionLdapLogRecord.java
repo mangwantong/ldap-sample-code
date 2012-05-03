@@ -16,18 +16,23 @@
 package samplecode;
 
 
-import java.util.logging.Level;
-import java.util.logging.LogRecord;
-
-
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.util.Validator;
 
 
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
+
+
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
+
+
 /**
  * Provides LogRecord objects for clients that catch
- * {@code LDAPException} objects. Clients should create
- * a new {@code LdapLogRecord} object using the
+ * {@code LDAPException} objects. Clients should create a new
+ * {@code LdapLogRecord} object using the
  * {@code ExceptionLdapLogRecord.newExceptionLdapLogRecord(exception)}
  * and call get {@code getLogRecord} method on the {@code LdapLogRecord}
  * .
@@ -35,9 +40,12 @@ import com.unboundid.util.Validator;
  * Usage Example:<blockquote>
  * 
  * <pre>
- * try {
+ * try
+ * {
  *   LDAPConnection ldapConnection = getConnection();
- * } catch (LDAPException ldapException) {
+ * }
+ * catch(LDAPException ldapException)
+ * {
  *   LdapLogRecord ldapLogRecord = new ExceptionLdapLogRecord(ldapException);
  *   LogRecord record = ldapLogRecord.getLogRecord(Level.SEVERE);
  *   displayErrorMsg(new MinimalLogFormatter().format(record));
@@ -50,17 +58,15 @@ import com.unboundid.util.Validator;
 @Since("Dec 6, 2011")
 @CodeVersion("1.0")
 class ExceptionLdapLogRecord
-  implements LdapLogRecord {
+        implements LdapLogRecord
+{
 
-
-  static ExceptionLdapLogRecord newExceptionLdapLogRecord(
-      final LDAPException ldapException) {
+  static ExceptionLdapLogRecord newExceptionLdapLogRecord(final LDAPException ldapException)
+  {
     Validator.ensureNotNull(ldapException);
     return new ExceptionLdapLogRecord(ldapException);
   }
 
-
-  private final LDAPException ldapException;
 
 
   /**
@@ -70,15 +76,22 @@ class ExceptionLdapLogRecord
    * provided by an {@code LDAPException}.
    */
   @Override
-  public LogRecord getLogRecord(final Level level) {
+  public LogRecord getLogRecord(final Level level)
+  {
     final StringBuilder builder = new StringBuilder();
-    builder.append(String.format("LDAPException: %s",
-        ldapException.getExceptionMessage()));
+    builder.append(String.format("LDAPException: %s",ldapException.getExceptionMessage()));
     return new LogRecord(level,builder.toString());
   }
 
 
-  private ExceptionLdapLogRecord(final LDAPException ldapException) {
+
+  private ExceptionLdapLogRecord(
+          final LDAPException ldapException)
+  {
     this.ldapException = ldapException;
   }
+
+
+
+  private final LDAPException ldapException;
 }

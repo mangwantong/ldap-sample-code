@@ -16,9 +16,23 @@
 package samplecode;
 
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
+
+
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
 
 
 /**
@@ -39,7 +53,6 @@ import java.util.concurrent.ConcurrentSkipListSet;
 @CodeVersion("1.2")
 public final class SampleCodeCollectionUtils
 {
-
 
   /**
    * Given a {@link String} that consists of strings delimited by a
@@ -72,6 +85,7 @@ public final class SampleCodeCollectionUtils
   }
 
 
+
   /**
    * Returns a new {@link ArrayList} in a type-safe way.
    * 
@@ -84,6 +98,7 @@ public final class SampleCodeCollectionUtils
 
     return new ArrayList<T>();
   }
+
 
 
   /**
@@ -102,6 +117,7 @@ public final class SampleCodeCollectionUtils
   }
 
 
+
   /**
    * Returns a new {@link ConcurrentHashMap} in a type-safe way.
    * 
@@ -118,6 +134,7 @@ public final class SampleCodeCollectionUtils
   }
 
 
+
   /**
    * Returns a new {@link EnumMap} in a type-safe way.
    * 
@@ -129,11 +146,11 @@ public final class SampleCodeCollectionUtils
    *          the class object of the key type for this enum map.
    * @return A new enum map.
    */
-  public static <K extends Enum<K>,V> Map<K,V> newEnumMap(
-      final Class<K> keyClass)
+  public static <K extends Enum<K>,V> Map<K,V> newEnumMap(final Class<K> keyClass)
   {
     return new EnumMap<K,V>(keyClass);
   }
+
 
 
   /**
@@ -152,6 +169,7 @@ public final class SampleCodeCollectionUtils
   }
 
 
+
   /**
    * Returns a new {@link HashSet} in a type-safe way.
    * 
@@ -163,6 +181,7 @@ public final class SampleCodeCollectionUtils
   {
     return new HashSet<E>();
   }
+
 
 
   /**
@@ -181,6 +200,7 @@ public final class SampleCodeCollectionUtils
   }
 
 
+
   /**
    * Returns a new {@link HashSet} in a type-safe way.
    * 
@@ -192,6 +212,7 @@ public final class SampleCodeCollectionUtils
   {
     return new ConcurrentSkipListSet<E>();
   }
+
 
 
   private SampleCodeCollectionUtils()

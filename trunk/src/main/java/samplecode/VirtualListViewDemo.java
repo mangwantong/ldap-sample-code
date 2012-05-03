@@ -32,7 +32,6 @@ import com.unboundid.ldap.sdk.controls.ServerSideSortRequestControl;
 import com.unboundid.ldap.sdk.controls.SortKey;
 import com.unboundid.ldap.sdk.controls.VirtualListViewRequestControl;
 import com.unboundid.ldap.sdk.controls.VirtualListViewResponseControl;
-import com.unboundid.util.MinimalLogFormatter;
 import com.unboundid.util.Validator;
 import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
@@ -42,9 +41,12 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Vector;
 import java.util.logging.Level;
-import java.util.logging.LogRecord;
+import java.util.logging.Logger;
 
 
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
 import samplecode.listener.LdapExceptionEvent;
 import samplecode.listener.LdapExceptionListener;
 import samplecode.listener.ObservedByLdapExceptionListener;
@@ -58,23 +60,22 @@ import samplecode.tools.AbstractTool;
  */
 @Author("terry.gardner@unboundid.com")
 @Since("Dec 4, 2011")
-@CodeVersion("1.1")
+@CodeVersion("1.2")
 public final class VirtualListViewDemo
-    extends AbstractTool
-    implements LdapExceptionListener,ObservedByLdapExceptionListener
+        extends AbstractTool
+        implements LdapExceptionListener,ObservedByLdapExceptionListener
 {
-
 
   /**
    * The description of the tool; this is used in self-documentation and
    * help text.
    */
-  private static final String TOOL_DESCRIPTION =
-      "Provides a demonstration of the use of the "
+  private static final String TOOL_DESCRIPTION = "Provides a demonstration of the use of the "
           + "virtual list view request and response controls. "
           + "The VLV request and response controls are similar to "
           + "the simple paged results request control except "
           + "LDAP clients may access arbitrary pages of data.";
+
 
 
   /**
@@ -82,6 +83,7 @@ public final class VirtualListViewDemo
    * text.
    */
   private static final String TOOL_NAME = "VirtualListViewDemo";
+
 
 
   /**
@@ -187,48 +189,27 @@ public final class VirtualListViewDemo
   {
     final PrintStream outStream = System.out;
     final PrintStream errStream = System.err;
-    final VirtualListViewDemo demo =
-        new VirtualListViewDemo(outStream,errStream);
+    final VirtualListViewDemo demo = new VirtualListViewDemo(outStream,errStream);
     final ResultCode resultCode = demo.runTool(args);
     if(resultCode != null)
     {
-      final ToolCompletedProcessing c =
-          new BasicToolCompletedProcessing(demo,resultCode);
+      final ToolCompletedProcessing c = new BasicToolCompletedProcessing(demo,resultCode);
       c.displayMessage(outStream,errStream);
     }
   }
 
 
-  /**
-   * Provides services for use with command line parameters and
-   * arguments. Handles adding a fairly standard set of arguments to the
-   * argument parser and retrieving their parameters.
-   */
-  private CommandLineOptions commandLineOptions;
-
 
   /**
-   * interested parties to {@code LdapExceptionEvents}
+   * {@inheritDoc}
    */
-  private volatile Vector<LdapExceptionListener> ldapExceptionListeners =
-      new Vector<LdapExceptionListener>();
-
-
-  /**
-   * Prepares {@code VirtualListViewDemo} for use by a client - the
-   * {@code System.out} and {@code System.err OutputStreams} are used.
-   */
-  public VirtualListViewDemo()
+  @Override
+  public void addArguments(final ArgumentParser argumentParser) throws ArgumentException
   {
-    this(System.out,System.err);
+    Validator.ensureNotNull(argumentParser);
+    commandLineOptions = CommandLineOptions.newCommandLineOptions(argumentParser);
   }
 
-
-  private VirtualListViewDemo(
-      final OutputStream outStream,final OutputStream errStream)
-  {
-    super(outStream,errStream);
-  }
 
 
   /**
@@ -236,7 +217,7 @@ public final class VirtualListViewDemo
    */
   @Override
   public synchronized void addLdapExceptionListener(
-      final LdapExceptionListener ldapExceptionListener)
+          final LdapExceptionListener ldapExceptionListener)
   {
     if(ldapExceptionListener != null)
     {
@@ -245,29 +226,16 @@ public final class VirtualListViewDemo
   }
 
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void addNonLDAPArguments(final ArgumentParser argumentParser)
-      throws ArgumentException
-  {
-    Validator.ensureNotNull(argumentParser);
-    commandLineOptions =
-        CommandLineOptions.newCommandLineOptions(argumentParser);
-  }
-
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public ResultCode doToolProcessing()
+  public ResultCode executeToolTasks()
   {
     ResultCode resultCode = ResultCode.SUCCESS;
 
     introduction();
-
 
     /*
      * Obtain a connection to the directory server. The connection
@@ -281,28 +249,23 @@ public final class VirtualListViewDemo
     }
     catch(final LDAPException exception)
     {
-      err(new MinimalLogFormatter().format(new LogRecord(Level.SEVERE,exception
-          .getExceptionMessage())));
+      logger.log(Level.SEVERE,exception.getMessage());
       return exception.getResultCode();
     }
 
-
     try
     {
-
 
       /*
        * Handles unsolicited notifications from the directory server.
        */
       final UnsolicitedNotificationHandler unsolicitedNotificationHandler =
-          new DefaultUnsolicitedNotificationHandler(this);
+              new DefaultUnsolicitedNotificationHandler(this);
 
       final LDAPConnectionOptions ldapConnectionOptions =
-          commandLineOptions.newLDAPConnectionOptions();
-      ldapConnectionOptions
-          .setUnsolicitedNotificationHandler(unsolicitedNotificationHandler);
+              commandLineOptions.newLDAPConnectionOptions();
+      ldapConnectionOptions.setUnsolicitedNotificationHandler(unsolicitedNotificationHandler);
       ldapConnection.setConnectionOptions(ldapConnectionOptions);
-
 
       /*
        * Determine whether the VirtualListViewRequestControl and the
@@ -310,13 +273,11 @@ public final class VirtualListViewDemo
        * which this LDAP client is connected.
        */
       final SupportedFeature supportedFeature =
-          SupportedFeature.newSupportedFeature(ldapConnection);
-      String controlOID =
-          ServerSideSortRequestControl.SERVER_SIDE_SORT_REQUEST_OID;
+              SupportedFeature.newSupportedFeature(ldapConnection);
+      String controlOID = ServerSideSortRequestControl.SERVER_SIDE_SORT_REQUEST_OID;
       supportedFeature.isControlSupported(controlOID);
       controlOID = VirtualListViewRequestControl.VIRTUAL_LIST_VIEW_REQUEST_OID;
       supportedFeature.isControlSupported(controlOID);
-
 
       /*
        * Use the attribute specified by the --attribute command line
@@ -325,8 +286,7 @@ public final class VirtualListViewDemo
        * the new sort key, check that the attribute is supported by the
        * server schema.
        */
-      final String[] requestedAttributes =
-          commandLineOptions.getRequestedAttributes();
+      final String[] requestedAttributes = commandLineOptions.getRequestedAttributes();
       final SortKey[] sortKeys = new SortKey[requestedAttributes.length];
       int i = 0;
       for(final String a : requestedAttributes)
@@ -336,8 +296,7 @@ public final class VirtualListViewDemo
         ++i;
       }
       final ServerSideSortRequestControl sortRequest =
-          new ServerSideSortRequestControl(sortKeys);
-
+              new ServerSideSortRequestControl(sortKeys);
 
       /*
        * Construct a search request from the parameter to the
@@ -350,12 +309,11 @@ public final class VirtualListViewDemo
       final SearchScope scope = commandLineOptions.getSearchScope();
       final Filter filter = commandLineOptions.getFilter();
       final SearchRequest searchRequest =
-          new SearchRequest(baseObject,scope,filter,requestedAttributes);
+              new SearchRequest(baseObject,scope,filter,requestedAttributes);
       final int sizeLimit = commandLineOptions.getSizeLimit();
       searchRequest.setSizeLimit(sizeLimit);
       final int timeLimit = commandLineOptions.getTimeLimit();
       searchRequest.setTimeLimitSeconds(timeLimit);
-
 
       int targetOffset = 1;
       int contentCount = 0;
@@ -365,34 +323,30 @@ public final class VirtualListViewDemo
       do
       {
         final VirtualListViewRequestControl vlvRequest =
-            new VirtualListViewRequestControl(targetOffset,beforeCount,
-                afterCount,contentCount,contextID);
+                new VirtualListViewRequestControl(targetOffset,beforeCount,afterCount,
+                        contentCount,contextID);
         searchRequest.setControls(new Control[]
         {
-            sortRequest,
-            vlvRequest
+                sortRequest, vlvRequest
         });
         final SearchResult searchResult = ldapConnection.search(searchRequest);
-
 
         /*
          * Display the results of the search.
          */
         if(searchResult.getResultCode().equals(ResultCode.SUCCESS) &&
-            searchResult.getEntryCount() > 0)
+                (searchResult.getEntryCount() > 0))
         {
           for(final SearchResultEntry entry : searchResult.getSearchEntries())
           {
-            final LdapEntryDisplay ldapEntryDisplay =
-                new BasicLdapEntryDisplay(entry);
+            final LdapEntryDisplay ldapEntryDisplay = new BasicLdapEntryDisplay(entry);
             ldapEntryDisplay.display();
           }
         }
 
-
         contentCount = -1;
         final VirtualListViewResponseControl c =
-            VirtualListViewResponseControl.get(searchResult);
+                VirtualListViewResponseControl.get(searchResult);
         if(c != null)
         {
           contentCount = c.getContentCount();
@@ -401,7 +355,6 @@ public final class VirtualListViewDemo
         targetOffset += 10;
       }
       while(targetOffset <= contentCount);
-
 
       ldapConnection.close();
     }
@@ -413,26 +366,22 @@ public final class VirtualListViewDemo
     catch(final SupportedFeatureException supportedFeatureException)
     {
       // a request control is not supported by this server.
-      final LdapLogRecord ldapLogRecord =
-          SupportedFeatureLdapLogRecord
-              .newSupportedFeatureLdapLogRecord(supportedFeatureException);
-      final LogRecord record = ldapLogRecord.getLogRecord(Level.SEVERE);
-      err(new MinimalLogFormatter().format(record));
+      logger.log(Level.SEVERE,supportedFeatureException.getMessage());
       resultCode = ResultCode.UNWILLING_TO_PERFORM;
     }
     catch(final AttributeNotSupportedException attributeNotSupportedException)
     {
       // An attribute was not defined
       final String msg =
-          String.format("attribute '%s' is not supported, "
-              + "that is, is not defined in the server schema.",
-              attributeNotSupportedException.getAttributeName());
-      final LogRecord record = new LogRecord(Level.SEVERE,msg);
-      err(new MinimalLogFormatter().format(record));
+              String.format("attribute '%s' is not supported, "
+                      + "that is, is not defined in the server schema.",
+                      attributeNotSupportedException.getAttributeName());
+      logger.log(Level.SEVERE,msg);
       resultCode = ResultCode.PROTOCOL_ERROR;
     }
     return resultCode;
   }
+
 
 
   /**
@@ -441,7 +390,7 @@ public final class VirtualListViewDemo
   @SuppressWarnings("unchecked")
   @Override
   public void fireLdapExceptionListener(final LDAPConnection ldapConnection,
-      final LDAPException ldapException)
+          final LDAPException ldapException)
   {
     Validator.ensureNotNull(ldapConnection,ldapException);
     Vector<LdapExceptionListener> copy;
@@ -453,13 +402,21 @@ public final class VirtualListViewDemo
     {
       return;
     }
-    final LdapExceptionEvent ev =
-        new LdapExceptionEvent(this,ldapConnection,ldapException);
+    final LdapExceptionEvent ev = new LdapExceptionEvent(this,ldapConnection,ldapException);
     for(final LdapExceptionListener l : copy)
     {
       l.ldapRequestFailed(ev);
     }
   }
+
+
+
+  @Override
+  public Logger getLogger()
+  {
+    return Logger.getLogger(getClass().getName());
+  }
+
 
 
   /**
@@ -472,6 +429,7 @@ public final class VirtualListViewDemo
   }
 
 
+
   /**
    * {@inheritDoc}
    */
@@ -482,12 +440,13 @@ public final class VirtualListViewDemo
   }
 
 
+
   @Override
   public void ldapRequestFailed(final LdapExceptionEvent ldapExceptionEvent)
   {
-    err(new MinimalLogFormatter().format(new LogRecord(Level.SEVERE,
-        ldapExceptionEvent.getLdapException().getExceptionMessage())));
+    logger.log(Level.SEVERE,ldapExceptionEvent.getLdapException().getExceptionMessage());
   }
+
 
 
   /**
@@ -495,11 +454,47 @@ public final class VirtualListViewDemo
    */
   @Override
   public synchronized void removeLdapExceptionListener(
-      final LdapExceptionListener ldapExceptionListener)
+          final LdapExceptionListener ldapExceptionListener)
   {
     if(ldapExceptionListener != null)
     {
       ldapExceptionListeners.remove(ldapExceptionListener);
     }
   }
+
+
+
+  /**
+   * Prepares {@code VirtualListViewDemo} for use by a client - the
+   * {@code System.out} and {@code System.err OutputStreams} are used.
+   */
+  public VirtualListViewDemo()
+  {
+    this(System.out,System.err);
+  }
+
+
+
+  private VirtualListViewDemo(
+          final OutputStream outStream,final OutputStream errStream)
+  {
+    super(outStream,errStream);
+  }
+
+
+
+  /**
+   * Provides services for use with command line parameters and
+   * arguments. Handles adding a fairly standard set of arguments to the
+   * argument parser and retrieving their parameters.
+   */
+  private CommandLineOptions commandLineOptions;
+
+
+
+  /**
+   * interested parties to {@code LdapExceptionEvents}
+   */
+  private volatile Vector<LdapExceptionListener> ldapExceptionListeners =
+          new Vector<LdapExceptionListener>();
 }

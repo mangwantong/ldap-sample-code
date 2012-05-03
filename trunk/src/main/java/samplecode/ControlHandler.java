@@ -19,6 +19,11 @@ package samplecode;
 import com.unboundid.ldap.sdk.Control;
 
 
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
+
+
 /**
  * Provides services applicable to handling LDAP response controls that
  * an LDAP server may have included with a response.
@@ -28,7 +33,6 @@ import com.unboundid.ldap.sdk.Control;
 @CodeVersion("1.3")
 public interface ControlHandler
 {
-
 
   /**
    * Do something with the specified control; if the {@code control}

@@ -16,11 +16,16 @@
 package samplecode;
 
 
+import com.unboundid.util.Validator;
+
+
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
 
-import com.unboundid.util.Validator;
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
 
 
 /**
@@ -31,32 +36,38 @@ import com.unboundid.util.Validator;
 @Since("Dec 6, 2011")
 @CodeVersion("1.0")
 class SupportedFeatureLdapLogRecord
-  implements LdapLogRecord {
-
+        implements LdapLogRecord
+{
 
   static SupportedFeatureLdapLogRecord newSupportedFeatureLdapLogRecord(
-      final SupportedFeatureException supportedFeatureException) {
+          final SupportedFeatureException supportedFeatureException)
+  {
     Validator.ensureNotNull(supportedFeatureException);
     return new SupportedFeatureLdapLogRecord(supportedFeatureException);
   }
 
-
-  private SupportedFeatureLdapLogRecord(
-      final SupportedFeatureException supportedFeatureException) {
-    this.supportedFeatureException = supportedFeatureException;
-  }
 
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public LogRecord getLogRecord(final Level level) {
+  public LogRecord getLogRecord(final Level level)
+  {
     final StringBuilder builder = new StringBuilder();
     builder.append(String.format("%s is not supported.",
-        supportedFeatureException.getControlOID()));
+            supportedFeatureException.getControlOID()));
     return new LogRecord(level,builder.toString());
   }
+
+
+
+  private SupportedFeatureLdapLogRecord(
+          final SupportedFeatureException supportedFeatureException)
+  {
+    this.supportedFeatureException = supportedFeatureException;
+  }
+
 
 
   private final SupportedFeatureException supportedFeatureException;

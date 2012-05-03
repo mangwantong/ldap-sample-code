@@ -32,8 +32,12 @@ import java.io.PrintStream;
 import java.util.logging.Formatter;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
+import java.util.logging.Logger;
 
 
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
 import samplecode.listener.DefaultLdapExceptionListener;
 import samplecode.tools.AbstractTool;
 
@@ -49,7 +53,7 @@ import samplecode.tools.AbstractTool;
  *   --hostname localhost --port 1389 \
  *   --bindDn "uid=user.0,ou=people,dc=example,dc=com" \
  *   --bindPasswordFile ~/.pwdFile --useStartTLS --trustAll
- *   
+ * 
  * [18/Dec/2011:19:47:34 -0500] Connected to LDAP server.
  * [18/Dec/2011:19:47:34 -0500] Who Am I? extension is supported.
  * [18/Dec/2011:19:47:34 -0500] Authorization Identity Request Control is supported.
@@ -72,24 +76,24 @@ import samplecode.tools.AbstractTool;
 @Author("terry.gardner@unboundid.com")
 @Since("27-Nov-2011")
 @CodeVersion("2.0")
-public final class AuthDemo extends
-    AbstractTool
+public final class AuthDemo
+        extends AbstractTool
 {
-
 
   /**
    * The description of this tool; this is used in help output and for
    * other purposes.
    */
   public static final String TOOL_DESCRIPTION =
-      "Provides a demonstration of the use of the account usable request " + "and the Who Am I? extended operation. The account "
-          + "usable request control and the Who Am I? extended "
-          + "request use the authentication state of the connection "
-          + "to the LDAP server, that is, the connection authentication "
-          + "state as set by the --bindDn|-D command line argument "
-          + "and the --bindPassword|-w command line argument. The account usable request "
-          + "control was designed by Sun Microsystems and is not based on any "
-          + "RFC or draft.";
+          "Provides a demonstration of the use of the account usable request "
+                  + "and the Who Am I? extended operation. The account "
+                  + "usable request control and the Who Am I? extended "
+                  + "request use the authentication state of the connection "
+                  + "to the LDAP server, that is, the connection authentication "
+                  + "state as set by the --bindDn|-D command line argument "
+                  + "and the --bindPassword|-w command line argument. The account usable request "
+                  + "control was designed by Sun Microsystems and is not based on any "
+                  + "RFC or draft.";
 
 
 
@@ -115,34 +119,8 @@ public final class AuthDemo extends
     final AuthDemo authDemo = new AuthDemo();
     final ResultCode resultCode = authDemo.runTool(args);
     final ToolCompletedProcessing completedProcessing =
-        new BasicToolCompletedProcessing(authDemo,resultCode);
+            new BasicToolCompletedProcessing(authDemo,resultCode);
     completedProcessing.displayMessage(outStream,errStream);
-  }
-
-
-
-  /**
-   * Provides logging services.
-   */
-  private final Formatter formatter = new MinimalLogFormatter();
-
-
-
-  /**
-   * String representation of messages that provide informative or
-   * instructional messages.
-   */
-  private String msg;
-
-
-
-  /**
-   * Prepares {@code AuthDemo} for use by a client - the
-   * {@code System.out} and {@code System.err OutputStreams} are used.
-   */
-  public AuthDemo()
-  {
-    super(System.out,System.err);
   }
 
 
@@ -154,8 +132,7 @@ public final class AuthDemo extends
    * standard ones supported by the {@code CommandLineOptions} class.
    */
   @Override
-  public void
-      addNonLDAPArguments(final ArgumentParser argumentParser) throws ArgumentException
+  public void addArguments(final ArgumentParser argumentParser) throws ArgumentException
   {
     Validator.ensureNotNull(argumentParser);
     commandLineOptions = CommandLineOptions.newCommandLineOptions(argumentParser);
@@ -167,7 +144,7 @@ public final class AuthDemo extends
    * {@inheritDoc}
    */
   @Override
-  public ResultCode doToolProcessing()
+  public ResultCode executeToolTasks()
   {
     setFieldsFromCommandLineOptions();
     introduction();
@@ -208,6 +185,14 @@ public final class AuthDemo extends
 
 
 
+  @Override
+  protected Logger getLogger()
+  {
+    return Logger.getLogger(getClass().getName());
+  }
+
+
+
   private ResultCode authDemo() throws SupportedFeatureException
   {
 
@@ -221,8 +206,7 @@ public final class AuthDemo extends
      * to be returned from the client.
      */
     final UnsolicitedNotificationHandler unsolicitedNotificationHandler =
-        new DefaultUnsolicitedNotificationHandler(this);
-
+            new DefaultUnsolicitedNotificationHandler(this);
 
     LDAPConnection ldapConnection;
     if(verbose)
@@ -233,7 +217,7 @@ public final class AuthDemo extends
     {
       ldapConnection = getConnection();
       final LDAPConnectionOptions connectionOptions =
-          commandLineOptions.newLDAPConnectionOptions();
+              commandLineOptions.newLDAPConnectionOptions();
       connectionOptions.setResponseTimeoutMillis(responseTimeoutMillis);
       connectionOptions.setUnsolicitedNotificationHandler(unsolicitedNotificationHandler);
       ldapConnection.setConnectionOptions(connectionOptions);
@@ -244,7 +228,6 @@ public final class AuthDemo extends
       err(formatter.format(new LogRecord(Level.SEVERE,ldapException.getExceptionMessage())));
       return ldapException.getResultCode();
     }
-
 
     /*
      * Instantiate the object which provides methods to get the
@@ -257,7 +240,6 @@ public final class AuthDemo extends
     final AuthorizedIdentity authorizedIdentity = new AuthorizedIdentity(ldapConnection);
     authorizedIdentity.addLdapExceptionListener(new DefaultLdapExceptionListener());
 
-
     /*
      * Demonstrate the user of the Who Am I? extended operation. This
      * procedure requires creating a WhoAmIExtendedRequest object and
@@ -269,11 +251,11 @@ public final class AuthDemo extends
     }
     String authId;
     authId =
-        authorizedIdentity.getAuthorizationIdentityWhoAmIExtendedOperation(getResponseTimeout());
+            authorizedIdentity
+                    .getAuthorizationIdentityWhoAmIExtendedOperation(getResponseTimeout());
     if(authId != null)
     {
-      msg =
-          String.format("AuthorizationID from the Who am I? extended request: '%s'",authId);
+      msg = String.format("AuthorizationID from the Who am I? extended request: '%s'",authId);
       out(formatter.format(new LogRecord(Level.INFO,msg)));
     }
 
@@ -284,7 +266,8 @@ public final class AuthDemo extends
     if(bindDnAsDn == null)
     {
       final String helpfulMessage =
-          "Please specify a --bindDN argument to test the " + "AuthorizationidentityRequestControl.";
+              "Please specify a --bindDN argument to test the "
+                      + "AuthorizationidentityRequestControl.";
       final LogRecord record = new LogRecord(Level.SEVERE,helpfulMessage);
       err(formatter.format(record));
       return ResultCode.PARAM_ERROR;
@@ -296,14 +279,13 @@ public final class AuthDemo extends
     final String bindDn = bindDnAsDn.toString();
     final String bindPassword = commandLineOptions.getBindPassword();
     authId =
-        authorizedIdentity.getAuthorizationIdentityFromBindRequest(bindDn,
-            bindPassword,
-            getResponseTimeout());
+            authorizedIdentity.getAuthorizationIdentityFromBindRequest(bindDn,bindPassword,
+                    getResponseTimeout());
     if(authId != null)
     {
       msg =
-          String.format("AuthorizationID from the " + "AuthorizationIdentityResponseControl: '%s'",
-              authId);
+              String.format("AuthorizationID from the "
+                      + "AuthorizationIdentityResponseControl: '%s'",authId);
       out(formatter.format(new LogRecord(Level.INFO,msg)));
     }
     ldapConnection.close();
@@ -316,4 +298,30 @@ public final class AuthDemo extends
   {
     return responseTimeoutMillis;
   }
+
+
+
+  /**
+   * Prepares {@code AuthDemo} for use by a client - the
+   * {@code System.out} and {@code System.err OutputStreams} are used.
+   */
+  public AuthDemo()
+  {
+    super(System.out,System.err);
+  }
+
+
+
+  /**
+   * Provides logging services.
+   */
+  private final Formatter formatter = new MinimalLogFormatter();
+
+
+
+  /**
+   * String representation of messages that provide informative or
+   * instructional messages.
+   */
+  private String msg;
 }

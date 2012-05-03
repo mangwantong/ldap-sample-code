@@ -16,6 +16,11 @@
 package samplecode;
 
 
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
+
+
 /**
  * Thrown when a control OID is not supported by the server.
  */
@@ -24,12 +29,8 @@ package samplecode;
 @Since("Nov 28, 2011")
 @CodeVersion("1.0")
 public final class SupportedFeatureException
-  extends Exception
+        extends Exception
 {
-
-
-  private final String controlOID;
-
 
   /**
    * Retrieve the control OID (a dot-separated series of octets
@@ -39,8 +40,9 @@ public final class SupportedFeatureException
    */
   public String getControlOID()
   {
-    return this.controlOID;
+    return controlOID;
   }
+
 
 
   /**
@@ -52,11 +54,15 @@ public final class SupportedFeatureException
    * @param controlOID
    *          The OID that caused the exception.
    */
-  public SupportedFeatureException(final String msg,final String controlOID)
+  public SupportedFeatureException(
+          final String msg,final String controlOID)
   {
     super(msg);
     this.controlOID = controlOID;
   }
 
+
+
+  private final String controlOID;
 
 }

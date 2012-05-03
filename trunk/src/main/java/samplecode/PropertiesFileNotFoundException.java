@@ -16,6 +16,11 @@
 package samplecode;
 
 
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
+
+
 /**
  * An exception thrown when a properties file cannot be found.
  */
@@ -24,9 +29,8 @@ package samplecode;
 @Since("Dec 23, 2011")
 @CodeVersion("1.0")
 public class PropertiesFileNotFoundException
-  extends Exception
+        extends Exception
 {
-
 
   /**
    * Creates a {@code PropertiesFileNotFoundException} representing an
@@ -34,7 +38,8 @@ public class PropertiesFileNotFoundException
    * 
    * @param reason
    */
-  public PropertiesFileNotFoundException(final String reason)
+  public PropertiesFileNotFoundException(
+          final String reason)
   {
     super(reason);
   }

@@ -16,16 +16,16 @@
 package samplecode.listener;
 
 
-import java.util.EventListener;
-
-
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPSearchException;
 
 
-import samplecode.Author;
-import samplecode.CodeVersion;
-import samplecode.Since;
+import java.util.EventListener;
+
+
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
 
 
 /**
@@ -36,9 +36,8 @@ import samplecode.Since;
 @Since("Dec 31, 2011")
 @CodeVersion("1.0")
 public interface ObservedByLdapSearchExceptionListener
-    extends EventListener
+        extends EventListener
 {
-
 
   /**
    * adds the specified {@code ldapExceptionListener} to receive LDAP
@@ -49,8 +48,8 @@ public interface ObservedByLdapSearchExceptionListener
    *          {@code ldapExceptionListener} is {@code null}, no action
    *          is taken and no exception is thrown.
    */
-  void addLdapSearchExceptionListener(
-      LdapSearchExceptionListener ldapSearchExceptionListener);
+  void addLdapSearchExceptionListener(LdapSearchExceptionListener ldapSearchExceptionListener);
+
 
 
   /**
@@ -63,7 +62,8 @@ public interface ObservedByLdapSearchExceptionListener
    *          the exception that caused the notification
    */
   void fireLdapSearchExceptionListener(LDAPConnection ldapConnection,
-      LDAPSearchException ldapSearchException);
+          LDAPSearchException ldapSearchException);
+
 
 
   /**
@@ -75,6 +75,7 @@ public interface ObservedByLdapSearchExceptionListener
    *          {@code ldapExceptionListener} is {@code null}, no action
    *          is taken and no exception is thrown.
    */
-  void removeLdapSearchExceptionListener(
-      LdapSearchExceptionListener ldapSearchExceptionListener);
+  void
+          removeLdapSearchExceptionListener(
+                  LdapSearchExceptionListener ldapSearchExceptionListener);
 }

@@ -24,9 +24,9 @@ import com.unboundid.util.Validator;
 import java.util.Vector;
 
 
-import samplecode.Author;
-import samplecode.CodeVersion;
-import samplecode.Since;
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
 
 
 /**
@@ -37,23 +37,15 @@ import samplecode.Since;
 @Since("Jan 7, 2012")
 @CodeVersion("1.0")
 public abstract class AbstractObservedByLdapExceptionListener
-    implements ObservedByLdapExceptionListener
+        implements ObservedByLdapExceptionListener
 {
-
-
-  /**
-   * interested parties to {@code LdapExceptionEvents}
-   */
-  private volatile Vector<LdapExceptionListener> ldapExceptionListeners =
-      new Vector<LdapExceptionListener>();
-
 
   /**
    * {@inheritDoc}
    */
   @Override
   public synchronized void addLdapExceptionListener(
-      final LdapExceptionListener ldapExceptionListener)
+          final LdapExceptionListener ldapExceptionListener)
   {
     if(ldapExceptionListener != null)
     {
@@ -62,13 +54,14 @@ public abstract class AbstractObservedByLdapExceptionListener
   }
 
 
+
   /**
    * {@inheritDoc}
    */
   @SuppressWarnings("unchecked")
   @Override
   public void fireLdapExceptionListener(final LDAPConnection ldapConnection,
-      final LDAPException ldapException)
+          final LDAPException ldapException)
   {
     Validator.ensureNotNull(ldapConnection,ldapException);
     Vector<LdapExceptionListener> copy;
@@ -80,8 +73,7 @@ public abstract class AbstractObservedByLdapExceptionListener
     {
       return;
     }
-    final LdapExceptionEvent ev =
-        new LdapExceptionEvent(this,ldapConnection,ldapException);
+    final LdapExceptionEvent ev = new LdapExceptionEvent(this,ldapConnection,ldapException);
     for(final LdapExceptionListener l : copy)
     {
       l.ldapRequestFailed(ev);
@@ -89,12 +81,13 @@ public abstract class AbstractObservedByLdapExceptionListener
   }
 
 
+
   /**
    * {@inheritDoc}
    */
   @Override
   public synchronized void removeLdapExceptionListener(
-      final LdapExceptionListener ldapExceptionListener)
+          final LdapExceptionListener ldapExceptionListener)
   {
     if(ldapExceptionListener != null)
     {
@@ -102,5 +95,12 @@ public abstract class AbstractObservedByLdapExceptionListener
     }
   }
 
+
+
+  /**
+   * interested parties to {@code LdapExceptionEvents}
+   */
+  private volatile Vector<LdapExceptionListener> ldapExceptionListeners =
+          new Vector<LdapExceptionListener>();
 
 }

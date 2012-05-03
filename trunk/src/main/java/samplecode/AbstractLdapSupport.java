@@ -20,6 +20,11 @@ import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
 
 
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
+
+
 /**
  * Super-class of each of the LDAP operation related classes. This class
  * is not permitted to be instantiated except from a subclass.
@@ -28,15 +33,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 @Since("Dec 25, 2011")
 @CodeVersion("1.2")
 public abstract class AbstractLdapSupport
-    implements LdapSupport
+        implements LdapSupport
 {
-
-
-  protected AbstractLdapSupport()
-  {
-    // This block deliberately left empty.
-  }
-
 
   /**
    * @return get a connection to a server.
@@ -44,5 +42,11 @@ public abstract class AbstractLdapSupport
   @Override
   public abstract LDAPConnection getLdapConnection() throws LDAPException;
 
+
+
+  protected AbstractLdapSupport()
+  {
+    // This block deliberately left empty.
+  }
 
 }

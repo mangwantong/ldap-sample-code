@@ -20,6 +20,11 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
 
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
+
+
 /**
  * Defines services provided by classes that implement the construction
  * of LogRecord objects.
@@ -29,7 +34,6 @@ import java.util.logging.LogRecord;
 @CodeVersion("1.0")
 public interface LdapLogRecord
 {
-
 
   /**
    * Constructs a {@code LogRecord} suitable for use with the Java

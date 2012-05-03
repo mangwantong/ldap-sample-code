@@ -20,6 +20,11 @@ import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
 
 
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
+
+
 /**
  * Base class for classes that check whether a given attribute is
  * supported.
@@ -29,7 +34,6 @@ import com.unboundid.ldap.sdk.LDAPException;
 @CodeVersion("1.0")
 abstract class AbstractSupportedAttribute
 {
-
 
   /**
    * Checks whether the provided {@code attributeName} is supported by
@@ -47,7 +51,7 @@ abstract class AbstractSupportedAttribute
    * @throws LDAPException
    *           If a problem occurs while obtaining the server schema.
    */
-  public abstract void supported(final LDAPConnection ldapConnection,
-      final String attributeName) throws AttributeNotSupportedException,
-      LDAPException;
+  public abstract void
+          supported(final LDAPConnection ldapConnection,final String attributeName)
+                  throws AttributeNotSupportedException,LDAPException;
 }

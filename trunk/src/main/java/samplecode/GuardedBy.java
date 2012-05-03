@@ -20,6 +20,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
+
+
 /**
  * Marks an object as being guarded by an object being used as a mutex.
  */
@@ -27,8 +32,8 @@ import java.lang.annotation.RetentionPolicy;
 @Since("Dec 21, 2011")
 @CodeVersion("1.0")
 @Retention(value = RetentionPolicy.RUNTIME)
-public @interface GuardedBy{
-
+public @interface GuardedBy
+{
 
   /** the object which guards the resource */
   String object();

@@ -20,9 +20,9 @@ import java.io.IOException;
 import java.util.EventListener;
 
 
-import samplecode.Author;
-import samplecode.CodeVersion;
-import samplecode.Since;
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
 
 
 /**
@@ -33,9 +33,8 @@ import samplecode.Since;
 @Since("Dec 31, 2011")
 @CodeVersion("1.0")
 public interface ObservedByIOExceptionListener
-    extends EventListener
+        extends EventListener
 {
-
 
   /**
    * adds the specified {@code ioExceptionListener} to receive LDAP
@@ -49,6 +48,7 @@ public interface ObservedByIOExceptionListener
   void addIOExceptionListener(IOExceptionListener ioExceptionListener);
 
 
+
   /**
    * notifies the listener that an {@code IOExceptionEvent} has
    * occurred.
@@ -57,6 +57,7 @@ public interface ObservedByIOExceptionListener
    *          the exception which caused the notification
    */
   void fireIOExceptionListener(IOException ioException);
+
 
 
   /**

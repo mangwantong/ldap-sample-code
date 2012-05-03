@@ -25,20 +25,25 @@ import com.unboundid.ldap.sdk.SimpleBindRequest;
 import com.unboundid.util.Validator;
 
 
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
+
+
 /**
  * Handles simple authentication on a connection to an LDAP server.
  */
 @Author("terry.gardner@unboundid.com")
 @Since("Dec 11, 2011")
 @CodeVersion("1.0")
-final class SimpleBindExample {
-
+final class SimpleBindExample
+{
 
   BindResult authenticate(final LDAPConnection ldapConnection,final DN dn,
-      final String password,final int responseTimeout) throws LDAPException {
+          final String password,final int responseTimeout) throws LDAPException
+  {
     Validator.ensureNotNull(ldapConnection,dn,password);
-    final SimpleBindRequest simpleBindRequest =
-        new SimpleBindRequest(dn,password);
+    final SimpleBindRequest simpleBindRequest = new SimpleBindRequest(dn,password);
     final LDAPConnectionOptions connectionOptions = new LDAPConnectionOptions();
     connectionOptions.setResponseTimeoutMillis(responseTimeout);
     ldapConnection.setConnectionOptions(connectionOptions);

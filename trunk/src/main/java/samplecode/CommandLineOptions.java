@@ -41,6 +41,11 @@ import java.util.Properties;
 import java.util.logging.Logger;
 
 
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
+
+
 /**
  * Provides services related to managing command line options for
  * clients that use the LDAPCommandLineTool class. Default values for

@@ -16,16 +16,16 @@
 package samplecode.listener;
 
 
-import java.util.EventListener;
-
-
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
 
 
-import samplecode.Author;
-import samplecode.CodeVersion;
-import samplecode.Since;
+import java.util.EventListener;
+
+
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
 
 
 /**
@@ -36,9 +36,8 @@ import samplecode.Since;
 @Since("Dec 31, 2011")
 @CodeVersion("1.0")
 public interface ObservedByLdapExceptionListener
-    extends EventListener
+        extends EventListener
 {
-
 
   /**
    * adds the specified {@code ldapExceptionListener} to receive LDAP
@@ -52,6 +51,7 @@ public interface ObservedByLdapExceptionListener
   void addLdapExceptionListener(LdapExceptionListener ldapExceptionListener);
 
 
+
   /**
    * notifies the listener that an {@code LdapExceptionEvent} has
    * occurred.
@@ -61,8 +61,8 @@ public interface ObservedByLdapExceptionListener
    * @param ldapException
    *          the exception which caused the notification
    */
-  void fireLdapExceptionListener(LDAPConnection ldapConnection,
-      LDAPException ldapException);
+  void fireLdapExceptionListener(LDAPConnection ldapConnection,LDAPException ldapException);
+
 
 
   /**

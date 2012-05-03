@@ -16,6 +16,9 @@
 package samplecode.io;
 
 
+import com.unboundid.util.Validator;
+
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,12 +27,9 @@ import java.util.Iterator;
 import java.util.List;
 
 
-import com.unboundid.util.Validator;
-
-
-import samplecode.Author;
-import samplecode.CodeVersion;
-import samplecode.Since;
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
 import samplecode.listener.ExceptionListener;
 
 
@@ -40,12 +40,13 @@ import samplecode.listener.ExceptionListener;
  * 
  * <pre>
  * StringLineIterator sli = new StringLineIterator(inputStream,exceptionListeners);
- * Iterator<String> iterator = sli.iterator();
+ * Iterator&lt;String&gt; iterator = sli.iterator();
  * while(iterator.hasNext())
  * {
  *   String line = iterator.next();
  * }
  * </pre>
+ * 
  * </blockquote>
  */
 @Author("terry.gardner@unboundid.com")
@@ -53,33 +54,6 @@ import samplecode.listener.ExceptionListener;
 @CodeVersion("1.0")
 public class StringLineIterator
 {
-
-
-  private final BufferedReader bufferedReader;
-
-
-  private final List<ExceptionListener<IOException>> exceptionListeners;
-
-
-  private String line = null;
-
-
-  /**
-   * @param inputStream
-   *          the input stream over which to iterate
-   * @param exceptionListeners
-   *          if not {@code null}, a list of exception listeners to
-   *          inform in the event of an exception.
-   */
-  public StringLineIterator(final InputStream inputStream,
-                            final List<ExceptionListener<IOException>> exceptionListeners)
-  {
-    this.exceptionListeners = exceptionListeners;
-    Validator.ensureNotNullWithMessage(inputStream,
-        "A null input stream is not permitted.");
-    bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-  }
-
 
   /**
    * An iterator used for iterating over the lines in a file
@@ -91,7 +65,6 @@ public class StringLineIterator
     return new Iterator<String>()
     {
 
-
       /**
        * {@inheritDoc}
        */
@@ -102,7 +75,7 @@ public class StringLineIterator
         {
           line = bufferedReader.readLine();
         }
-        catch (final IOException iox)
+        catch(final IOException iox)
         {
           if(exceptionListeners != null)
           {
@@ -120,6 +93,7 @@ public class StringLineIterator
       }
 
 
+
       /**
        * {@inheritDoc}
        */
@@ -128,6 +102,7 @@ public class StringLineIterator
       {
         return line;
       }
+
 
 
       /**
@@ -143,4 +118,34 @@ public class StringLineIterator
 
     };
   }
+
+
+
+  /**
+   * @param inputStream
+   *          the input stream over which to iterate
+   * @param exceptionListeners
+   *          if not {@code null}, a list of exception listeners to
+   *          inform in the event of an exception.
+   */
+  public StringLineIterator(
+          final InputStream inputStream,
+          final List<ExceptionListener<IOException>> exceptionListeners)
+  {
+    this.exceptionListeners = exceptionListeners;
+    Validator.ensureNotNullWithMessage(inputStream,"A null input stream is not permitted.");
+    bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+  }
+
+
+
+  private final BufferedReader bufferedReader;
+
+
+
+  private final List<ExceptionListener<IOException>> exceptionListeners;
+
+
+
+  private String line = null;
 }

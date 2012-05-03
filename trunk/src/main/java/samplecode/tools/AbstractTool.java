@@ -27,7 +27,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.logging.Formatter;
 import java.util.logging.Level;
-import java.util.logging.LogRecord;
+import java.util.logging.Logger;
 
 
 import samplecode.CommandLineOptions;
@@ -36,56 +36,17 @@ import samplecode.CommandLineOptions;
 /**
  * A minimal implementation of the {@code LDAPCommandLineTool} class.
  */
-public abstract class AbstractTool extends
-    LDAPCommandLineTool
+public abstract class AbstractTool
+        extends LDAPCommandLineTool
 {
-
-  /**
-   * Manages command line arguments
-   */
-  protected CommandLineOptions commandLineOptions;
-
-
-
-  /**
-   * maximum amount of time to spend waiting for a response from the
-   * server
-   */
-  protected long responseTimeoutMillis;
-
-
-
-  /** Whether the tool is verbose during execution */
-  protected boolean verbose;
-
-
-
-  /**
-   * Formats {@code LogRecord} for display.
-   */
-  private final Formatter formatter = new MinimalLogFormatter();
-
-
-
-  /**
-   * @param outStream
-   * @param errStream
-   */
-  protected AbstractTool(
-      final OutputStream outStream,final OutputStream errStream)
-  {
-    super(outStream,errStream);
-  }
-
-
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public void addNonLDAPArguments(final ArgumentParser arg0) throws ArgumentException
+  public void addNonLDAPArguments(final ArgumentParser argumentParser) throws ArgumentException
   {
-    throw new UnsupportedOperationException();
+    addArguments(argumentParser);
   }
 
 
@@ -96,30 +57,18 @@ public abstract class AbstractTool extends
   @Override
   public ResultCode doToolProcessing()
   {
-    throw new UnsupportedOperationException();
+    return executeToolTasks();
   }
 
 
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public String getToolDescription()
-  {
-    throw new UnsupportedOperationException();
-  }
+  /** add tool-specific arguments */
+  protected abstract void addArguments(ArgumentParser argumentParser) throws ArgumentException;
 
 
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public String getToolName()
-  {
-    throw new UnsupportedOperationException();
-  }
+  /** executes the tasks defined in this tool */
+  protected abstract ResultCode executeToolTasks();
 
 
 
@@ -163,6 +112,11 @@ public abstract class AbstractTool extends
 
 
 
+  /** @return the logger */
+  protected abstract Logger getLogger();
+
+
+
   /**
    * Display introductory matter. This implementation display the name
    * of the tool and the tool description.
@@ -170,7 +124,7 @@ public abstract class AbstractTool extends
   protected void introduction()
   {
     wrapOut(getIntroductionIndentation(),getIntroductionColumnWidth(),getToolName() + ": " +
-                                                                      getToolDescription());
+            getToolDescription());
     out();
   }
 
@@ -193,7 +147,7 @@ public abstract class AbstractTool extends
    */
   protected void verbose(final PrintStream printStream,final String msg)
   {
-    out(formatter.format(new LogRecord(Level.FINE,msg)));
+    logger.log(Level.FINE,msg);
   }
 
 
@@ -206,4 +160,46 @@ public abstract class AbstractTool extends
   {
     verbose(System.out,msg);
   }
+
+
+
+  /**
+   * @param outStream
+   * @param errStream
+   */
+  protected AbstractTool(
+          final OutputStream outStream,final OutputStream errStream)
+  {
+    super(outStream,errStream);
+  }
+
+
+
+  /**
+   * Manages command line arguments
+   */
+  protected CommandLineOptions commandLineOptions;
+
+
+
+  /** logging faciities */
+  protected final Logger logger = getLogger();
+
+
+
+  /**
+   * maximum amount of time to spend waiting for a response from the
+   * server
+   */
+  protected long responseTimeoutMillis;
+
+
+
+  /** Whether the tool is verbose during execution */
+  protected boolean verbose;
+
+
+
+  /** Formats {@code LogRecord} for display. */
+  private final Formatter formatter = new MinimalLogFormatter();
 }

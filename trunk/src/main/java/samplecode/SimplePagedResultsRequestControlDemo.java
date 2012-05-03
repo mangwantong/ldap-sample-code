@@ -3,6 +3,9 @@
  * control extension as described in RFC2696. To compile and run, the
  * UnboundID LDAP SDK is required.
  */
+
+
+
 package samplecode;
 
 
@@ -17,7 +20,6 @@ import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.ldap.sdk.SearchScope;
 import com.unboundid.ldap.sdk.controls.SimplePagedResultsControl;
 import com.unboundid.util.LDAPCommandLineTool;
-import com.unboundid.util.MinimalLogFormatter;
 import com.unboundid.util.Validator;
 import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
@@ -25,9 +27,12 @@ import com.unboundid.util.args.ArgumentParser;
 
 import java.io.OutputStream;
 import java.util.logging.Level;
-import java.util.logging.LogRecord;
+import java.util.logging.Logger;
 
 
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
 import samplecode.listener.ExceptionListener;
 import samplecode.tools.AbstractTool;
 
@@ -70,11 +75,10 @@ import samplecode.tools.AbstractTool;
  */
 @Author("terry.gardner@unboundid.com")
 @Since("Nov 23, 2011")
-@CodeVersion("1.3")
+@CodeVersion("1.4")
 public final class SimplePagedResultsRequestControlDemo
-    extends AbstractTool
+        extends AbstractTool
 {
-
 
   /**
    * Demonstrates the use of the simple paged control extension.
@@ -82,34 +86,10 @@ public final class SimplePagedResultsRequestControlDemo
   private static class SimplePagedResultsDemo
   {
 
-
-    /**
-     * Provides services related to command line options.
-     */
-    private final CommandLineOptions commandLineOptions;
-
-
-    /**
-     * The command line tool.
-     */
-    private final LDAPCommandLineTool ldapCommandLineTool;
-
-
-    private SimplePagedResultsDemo(
-        final LDAPCommandLineTool ldapCommandLineTool,
-        final CommandLineOptions commandLineOptions)
-    {
-      Validator.ensureNotNull(ldapCommandLineTool,commandLineOptions);
-      this.ldapCommandLineTool = ldapCommandLineTool;
-      this.commandLineOptions = commandLineOptions;
-    }
-
-
     private
-        ResultCode
-        demo(
-            final ExceptionListener<SupportedFeatureException> supportedFeatureExceptionListener)
-            throws LDAPException
+            ResultCode
+            demo(final ExceptionListener<SupportedFeatureException> supportedFeatureExceptionListener)
+                    throws LDAPException
     {
 
       /*
@@ -119,16 +99,15 @@ public final class SimplePagedResultsRequestControlDemo
        */
       final LDAPConnection ldapConnection = ldapCommandLineTool.getConnection();
       final LDAPConnectionOptions connectionOptions =
-          commandLineOptions.newLDAPConnectionOptions();
+              commandLineOptions.newLDAPConnectionOptions();
       ldapConnection.setConnectionOptions(connectionOptions);
-
 
       /*
        * Check that the simple paged results control is supported by
        * server to which the client is connected.
        */
       final SupportedFeature supportedFeature =
-          SupportedFeature.newSupportedFeature(ldapConnection);
+              SupportedFeature.newSupportedFeature(ldapConnection);
       final String controlOID = SimplePagedResultsControl.PAGED_RESULTS_OID;
       try
       {
@@ -143,7 +122,6 @@ public final class SimplePagedResultsRequestControlDemo
         return ResultCode.OPERATIONS_ERROR;
       }
 
-
       /*
        * Create a search request, set a size limit and a time limit, and
        * add a simple paged results request control to it:
@@ -151,16 +129,13 @@ public final class SimplePagedResultsRequestControlDemo
       final String baseObject = commandLineOptions.getBaseObject();
       final SearchScope scope = commandLineOptions.getSearchScope();
       final Filter filter = commandLineOptions.getFilter();
-      final String[] requestedAttributes =
-          commandLineOptions.getRequestedAttributes();
+      final String[] requestedAttributes = commandLineOptions.getRequestedAttributes();
       SearchRequest searchRequest;
-      searchRequest =
-          new SearchRequest(baseObject,scope,filter,requestedAttributes);
+      searchRequest = new SearchRequest(baseObject,scope,filter,requestedAttributes);
       final int sizeLimit = commandLineOptions.getSizeLimit();
       final int timeLimit = commandLineOptions.getTimeLimit();
       searchRequest.setSizeLimit(sizeLimit);
       searchRequest.setTimeLimitSeconds(timeLimit);
-
 
       /*
        * Add the simple paged results request control
@@ -169,19 +144,16 @@ public final class SimplePagedResultsRequestControlDemo
       ASN1OctetString cookie = null;
       int total = 0;
 
-
       do
       {
-
 
         /*
          * Set the simple paged results control (if the cookie is null
          * this indicates the first time through the loop).
          */
         final SimplePagedResultsControl simplePagedResultsRequestControl =
-            new SimplePagedResultsControl(pageSize,cookie);
+                new SimplePagedResultsControl(pageSize,cookie);
         searchRequest.setControls(simplePagedResultsRequestControl);
-
 
         /*
          * Issue the search request:
@@ -189,43 +161,62 @@ public final class SimplePagedResultsRequestControlDemo
         SearchResult searchResult;
         searchResult = ldapConnection.search(searchRequest);
         final String msg =
-            String
-                .format(
-                    "searchRequest transmitted, pageSize: %d, entries returned: %d",
-                    Integer.valueOf(pageSize),
-                    Integer.valueOf(searchResult.getEntryCount()));
-        final LogRecord record = new LogRecord(Level.INFO,msg);
-        ldapCommandLineTool.out(new MinimalLogFormatter().format(record));
+                String.format("searchRequest transmitted, pageSize: %d, entries returned: %d",
+                        Integer.valueOf(pageSize),Integer.valueOf(searchResult.getEntryCount()));
+        logger.log(Level.INFO,msg);
+
         total += searchResult.getEntryCount();
 
-
-        /*
-         * Get the cookie from the paged results control.
-         */
+        // Get the cookie from the paged results control.
         cookie = null;
-        final SimplePagedResultsControl c =
-            SimplePagedResultsControl.get(searchResult);
+        final SimplePagedResultsControl c = SimplePagedResultsControl.get(searchResult);
         if(c != null)
         {
           cookie = c.getCookie();
         }
 
-
       }
-      while(cookie != null && cookie.getValueLength() > 0);
-
+      while((cookie != null) && (cookie.getValueLength() > 0));
 
       ldapConnection.close();
 
-      final String msg =
-          String.format("total entries returned: %d",Integer.valueOf(total));
-      final LogRecord record = new LogRecord(Level.INFO,msg);
-      ldapCommandLineTool.out(new MinimalLogFormatter().format(record));
+      final String msg = String.format("total entries returned: %d",Integer.valueOf(total));
+      logger.log(Level.INFO,msg);
 
       return ResultCode.SUCCESS;
     }
 
+
+
+    private SimplePagedResultsDemo(
+            final LDAPCommandLineTool ldapCommandLineTool,
+            final CommandLineOptions commandLineOptions)
+    {
+      Validator.ensureNotNull(ldapCommandLineTool,commandLineOptions);
+      this.ldapCommandLineTool = ldapCommandLineTool;
+      this.commandLineOptions = commandLineOptions;
+    }
+
+
+
+    /**
+     * Provides services related to command line options.
+     */
+    private final CommandLineOptions commandLineOptions;
+
+
+
+    /**
+     * The command line tool.
+     */
+    private final LDAPCommandLineTool ldapCommandLineTool;
+
+
+
+    private final Logger logger = Logger.getLogger(getClass().getName());
+
   }
+
 
 
   /**
@@ -356,32 +347,131 @@ public final class SimplePagedResultsRequestControlDemo
   public static void main(final String... args)
   {
     final SimplePagedResultsRequestControlDemo demo =
-        SimplePagedResultsRequestControlDemo
-            .getSimplePagedResultsRequestControlDemo();
+            SimplePagedResultsRequestControlDemo.getSimplePagedResultsRequestControlDemo();
     final ResultCode resultCode = demo.runTool(args);
     if(resultCode != null)
     {
       final StringBuilder builder = new StringBuilder(demo.getToolName());
       builder.append(" has completed processing. The result code was: ");
       builder.append(resultCode);
-      final LogRecord logRecord = new LogRecord(Level.INFO,builder.toString());
-      final String msg = new MinimalLogFormatter().format(logRecord);
-      demo.out(msg);
+      Logger.getAnonymousLogger().log(Level.INFO,builder.toString());
     }
   }
 
 
-  private static SimplePagedResultsRequestControlDemo
-      getSimplePagedResultsRequestControlDemo()
+
+  private static SimplePagedResultsRequestControlDemo getSimplePagedResultsRequestControlDemo()
   {
     return new SimplePagedResultsRequestControlDemo(System.out,System.err);
   }
 
 
-  /**
-   * Provides services necessary for handling the command line options.
+
+  /*
+   * {@inheritDoc}
    */
-  private CommandLineOptions commandLineOptions;
+  @Override
+  public void addArguments(final ArgumentParser argumentParser) throws ArgumentException
+  {
+    Validator.ensureNotNull(argumentParser);
+    commandLineOptions = CommandLineOptions.newCommandLineOptions(argumentParser);
+  }
+
+
+
+  /*
+   * {@inheritDoc}
+   */
+  @Override
+  public ResultCode executeToolTasks()
+  {
+
+    introduction();
+
+    if(commandLineOptions == null)
+    {
+      throw new IllegalStateException();
+    }
+
+    ResultCode resultCode;
+
+    final ExceptionListener<SupportedFeatureException> supportedFeatureExceptionListener =
+            new ExceptionListener<SupportedFeatureException>()
+            {
+
+              /*
+               * {@inheritDoc} <p> Always returns an indication that
+               * {@code processException} is safe to invoke.
+               */
+              @Override
+              public boolean invoke()
+              {
+                return true;
+              }
+
+
+
+              /*
+               * {@inheritDoc}
+               */
+              @Override
+              public void processException(final SupportedFeatureException exception)
+              {
+                final String msg =
+                        String.format("%s is not supported by this server.",
+                                SimplePagedResultsControl.PAGED_RESULTS_OID);
+                logger.log(Level.SEVERE,msg);
+              }
+
+            };
+
+    final SimplePagedResultsDemo simplePagedResultsDemo =
+            new SimplePagedResultsDemo(this,commandLineOptions);
+    try
+    {
+      resultCode = simplePagedResultsDemo.demo(supportedFeatureExceptionListener);
+    }
+    catch(final LDAPException ldapException)
+    {
+      final String msg =
+              String.format("LDAP Exception: %s",ldapException.getExceptionMessage());
+      logger.log(Level.SEVERE,msg);
+      return ResultCode.OPERATIONS_ERROR;
+    }
+
+    return resultCode;
+  }
+
+
+
+  @Override
+  public Logger getLogger()
+  {
+    return Logger.getLogger(getClass().getName());
+  }
+
+
+
+  /*
+   * {@inheritDoc}
+   */
+  @Override
+  public String getToolDescription()
+  {
+    return "Demonstrates the simple paged results request control.";
+  }
+
+
+
+  /*
+   * {@inheritDoc}
+   */
+  @Override
+  public String getToolName()
+  {
+    return "SimplePagedResultsRequestControlDemo";
+  }
+
 
 
   /**
@@ -395,117 +485,22 @@ public final class SimplePagedResultsRequestControlDemo
   }
 
 
+
   /**
    * Prepares {@code SimplePagedResultsRequestControlDemo} for use by a
    * client using the specified {@code OutStream} and {@code errStream}.
    */
   private SimplePagedResultsRequestControlDemo(
-      final OutputStream outStream,final OutputStream errStream)
+          final OutputStream outStream,final OutputStream errStream)
   {
     super(outStream,errStream);
   }
 
 
-  /*
-   * {@inheritDoc}
+
+  /**
+   * Provides services necessary for handling the command line options.
    */
-  @Override
-  public void addNonLDAPArguments(final ArgumentParser argumentParser)
-      throws ArgumentException
-  {
-    Validator.ensureNotNull(argumentParser);
-    commandLineOptions =
-        CommandLineOptions.newCommandLineOptions(argumentParser);
-  }
-
-
-  /*
-   * {@inheritDoc}
-   */
-  @Override
-  public ResultCode doToolProcessing()
-  {
-
-    introduction();
-
-    if(commandLineOptions == null)
-    {
-      throw new IllegalStateException();
-    }
-
-    ResultCode resultCode;
-
-    final ExceptionListener<SupportedFeatureException> supportedFeatureExceptionListener =
-        new ExceptionListener<SupportedFeatureException>()
-        {
-
-
-          /*
-           * {@inheritDoc} <p> Always returns an indication that {@code
-           * processException} is safe to invoke.
-           */
-          @Override
-          public boolean invoke()
-          {
-            return true;
-          }
-
-
-          /*
-           * {@inheritDoc}
-           */
-          @Override
-          public void
-              processException(final SupportedFeatureException exception)
-          {
-            final String msg =
-                String.format("%s is not supported by this server.",
-                    SimplePagedResultsControl.PAGED_RESULTS_OID);
-            final LogRecord record = new LogRecord(Level.SEVERE,msg);
-            err(new MinimalLogFormatter().format(record));
-          }
-
-        };
-
-
-    final SimplePagedResultsDemo simplePagedResultsDemo =
-        new SimplePagedResultsDemo(this,commandLineOptions);
-    try
-    {
-      resultCode =
-          simplePagedResultsDemo.demo(supportedFeatureExceptionListener);
-    }
-    catch(final LDAPException ldapException)
-    {
-      final String msg =
-          String.format("LDAP Exception: %s",
-              ldapException.getExceptionMessage());
-      final LogRecord record = new LogRecord(Level.SEVERE,msg);
-      err(new MinimalLogFormatter().format(record));
-      return ResultCode.OPERATIONS_ERROR;
-    }
-
-    return resultCode;
-  }
-
-
-  /*
-   * {@inheritDoc}
-   */
-  @Override
-  public String getToolDescription()
-  {
-    return "Demonstrates the simple paged results request control.";
-  }
-
-
-  /*
-   * {@inheritDoc}
-   */
-  @Override
-  public String getToolName()
-  {
-    return "SimplePagedResultsRequestControlDemo";
-  }
+  private CommandLineOptions commandLineOptions;
 
 }

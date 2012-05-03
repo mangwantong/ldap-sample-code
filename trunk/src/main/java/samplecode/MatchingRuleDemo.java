@@ -28,7 +28,6 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchRequest;
 import com.unboundid.ldap.sdk.SearchScope;
-import com.unboundid.util.MinimalLogFormatter;
 import com.unboundid.util.Validator;
 import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
@@ -39,9 +38,12 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Vector;
 import java.util.logging.Level;
-import java.util.logging.LogRecord;
+import java.util.logging.Logger;
 
 
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
 import samplecode.listener.LdapExceptionEvent;
 import samplecode.listener.LdapExceptionListener;
 import samplecode.listener.ObservedByLdapExceptionListener;
@@ -61,10 +63,9 @@ import samplecode.tools.AbstractTool;
 @Since("Nov 22, 2011")
 @CodeVersion("1.7")
 public final class MatchingRuleDemo
-    extends AbstractTool
-    implements LdapExceptionListener,ObservedByLdapExceptionListener
+        extends AbstractTool
+        implements LdapExceptionListener,ObservedByLdapExceptionListener
 {
-
 
   /**
    * Provides a service useful demonstrating the technique for comparing
@@ -72,40 +73,6 @@ public final class MatchingRuleDemo
    */
   private class AttributeMatcher
   {
-
-
-    /**
-     * The attribute from entry 1 to be compared with the attribute of
-     * the same name/type from entry 2.
-     */
-    private final Attribute attributeEntry1;
-
-
-    /**
-     * The attribute from entry 2 to be compared with the attribute of
-     * the same name/type from entry 1.
-     */
-    private final Attribute attributeEntry2;
-
-
-    /**
-     * Provides a service that will use matching rules to match the two
-     * attributes specified as {@code attributeEntry1} and
-     * {@code attributeEntry2}.
-     * 
-     * @param attributeEntry1
-     *          An attribute from entry1.
-     * @param attributeEntry2
-     *          An attribute from entry2.
-     */
-    private AttributeMatcher(
-        final Attribute attributeEntry1,final Attribute attributeEntry2)
-    {
-      Validator.ensureNotNull(attributeEntry1,attributeEntry2);
-      this.attributeEntry1 = attributeEntry1;
-      this.attributeEntry2 = attributeEntry2;
-    }
-
 
     private void match() throws LDAPException,AttributeValueMatchException
     {
@@ -122,17 +89,27 @@ public final class MatchingRuleDemo
         throw new AttributeValueMatchException(attributeEntry1,attributeEntry2);
       }
     }
-  }
 
 
-  /**
-   * An exception which is thrown when two attributes values do not
-   * match.
-   */
-  @SuppressWarnings("serial")
-  private class AttributeValueMatchException
-      extends Exception
-  {
+
+    /**
+     * Provides a service that will use matching rules to match the two
+     * attributes specified as {@code attributeEntry1} and
+     * {@code attributeEntry2}.
+     * 
+     * @param attributeEntry1
+     *          An attribute from entry1.
+     * @param attributeEntry2
+     *          An attribute from entry2.
+     */
+    private AttributeMatcher(
+            final Attribute attributeEntry1,final Attribute attributeEntry2)
+    {
+      Validator.ensureNotNull(attributeEntry1,attributeEntry2);
+      this.attributeEntry1 = attributeEntry1;
+      this.attributeEntry2 = attributeEntry2;
+    }
+
 
 
     /**
@@ -142,21 +119,25 @@ public final class MatchingRuleDemo
     private final Attribute attributeEntry1;
 
 
+
     /**
      * The attribute from entry 2 to be compared with the attribute of
      * the same name/type from entry 1.
      */
     private final Attribute attributeEntry2;
+  }
 
 
-    private AttributeValueMatchException(
-        final Attribute attributeEntry1,final Attribute attributeEntry2)
-    {
-      Validator.ensureNotNull(attributeEntry1,attributeEntry2);
-      this.attributeEntry1 = attributeEntry1;
-      this.attributeEntry2 = attributeEntry2;
-    }
 
+
+  /**
+   * An exception which is thrown when two attributes values do not
+   * match.
+   */
+  @SuppressWarnings("serial")
+  private class AttributeValueMatchException
+          extends Exception
+  {
 
     /**
      * @return The attribute from entry 1 to be compared with the
@@ -168,6 +149,7 @@ public final class MatchingRuleDemo
     }
 
 
+
     /**
      * @return The attribute from entry 2 to be compared with the
      *         attribute of the same name/type from entry 1.
@@ -176,7 +158,34 @@ public final class MatchingRuleDemo
     {
       return attributeEntry2;
     }
+
+
+
+    private AttributeValueMatchException(
+            final Attribute attributeEntry1,final Attribute attributeEntry2)
+    {
+      Validator.ensureNotNull(attributeEntry1,attributeEntry2);
+      this.attributeEntry1 = attributeEntry1;
+      this.attributeEntry2 = attributeEntry2;
+    }
+
+
+
+    /**
+     * The attribute from entry 1 to be compared with the attribute of
+     * the same name/type from entry 2.
+     */
+    private final Attribute attributeEntry1;
+
+
+
+    /**
+     * The attribute from entry 2 to be compared with the attribute of
+     * the same name/type from entry 1.
+     */
+    private final Attribute attributeEntry2;
   }
+
 
 
   /**
@@ -184,16 +193,18 @@ public final class MatchingRuleDemo
    * purposes.
    */
   public static final String TOOL_DESCRIPTION =
-      "Provides a demonstration of the use of matching rules "
-          + "by comparing a specified attribute between two entries. "
-          + "The attribute to be compared is specified by --attribute "
-          + ", and the entries are specified by --entryDn1 and --entryDn2.";
+          "Provides a demonstration of the use of matching rules "
+                  + "by comparing a specified attribute between two entries. "
+                  + "The attribute to be compared is specified by --attribute "
+                  + ", and the entries are specified by --entryDn1 and --entryDn2.";
+
 
 
   /**
    * The name of this tool; used for help output and for other purposes.
    */
   public static final String TOOL_NAME = "MatchingRuleDemo";
+
 
 
   /**
@@ -327,62 +338,13 @@ public final class MatchingRuleDemo
   {
     final PrintStream outStream = System.out;
     final PrintStream errStream = System.err;
-    final MatchingRuleDemo matchingRuleDemo =
-        new MatchingRuleDemo(outStream,errStream);
+    final MatchingRuleDemo matchingRuleDemo = new MatchingRuleDemo(outStream,errStream);
     final ResultCode resultCode = matchingRuleDemo.runTool(args);
     final ToolCompletedProcessing completedProcessing =
-        new BasicToolCompletedProcessing(matchingRuleDemo,resultCode);
+            new BasicToolCompletedProcessing(matchingRuleDemo,resultCode);
     completedProcessing.displayMessage(outStream,errStream);
   }
 
-
-  /**
-   * Provides services related to managing command line options for
-   * clients that use the LDAPCommandLineTool class.
-   */
-  private MatchingRuleDemoCommandLineOptions commandLineOptions;
-
-
-  /**
-   * interested parties to {@code LdapExceptionEvents}
-   */
-  private volatile Vector<LdapExceptionListener> ldapExceptionListeners =
-      new Vector<LdapExceptionListener>();
-
-
-  /**
-   * Prepares {@code MatchingRuleDemo} for use by a client - the
-   * {@code System.out} and {@code System.err OutputStreams} are used.
-   */
-  public MatchingRuleDemo()
-  {
-    this(System.out,System.err);
-  }
-
-
-  /**
-   * Prepares {@code MatchingRuleDemo} for use by a client - the
-   * specified output streams are used.
-   */
-  private MatchingRuleDemo(
-      final OutputStream outStream,final OutputStream errStream)
-  {
-    super(outStream,errStream);
-  }
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public synchronized void addLdapExceptionListener(
-      final LdapExceptionListener ldapExceptionListener)
-  {
-    if(ldapExceptionListener != null)
-    {
-      ldapExceptionListeners.add(ldapExceptionListener);
-    }
-  }
 
 
   /**
@@ -393,8 +355,7 @@ public final class MatchingRuleDemo
    * arguments.
    */
   @Override
-  public void addNonLDAPArguments(final ArgumentParser argumentParser)
-      throws ArgumentException
+  public void addArguments(final ArgumentParser argumentParser) throws ArgumentException
   {
     Validator.ensureNotNull(argumentParser);
     commandLineOptions = new MatchingRuleDemoCommandLineOptions(argumentParser);
@@ -402,11 +363,27 @@ public final class MatchingRuleDemo
   }
 
 
+
   /**
    * {@inheritDoc}
    */
   @Override
-  public ResultCode doToolProcessing()
+  public synchronized void addLdapExceptionListener(
+          final LdapExceptionListener ldapExceptionListener)
+  {
+    if(ldapExceptionListener != null)
+    {
+      ldapExceptionListeners.add(ldapExceptionListener);
+    }
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public ResultCode executeToolTasks()
   {
     introduction();
     /*
@@ -424,8 +401,7 @@ public final class MatchingRuleDemo
      */
     final String attributeName = commandLineOptions.getRequestedAttributes()[0];
     Validator.ensureFalse(attributeName.length() == 0,
-        "This tool requires that the attribute name "
-            + "have a length greater than zero.");
+            "This tool requires that the attribute name " + "have a length greater than zero.");
 
     /*
      * Use the {@code LDAPCommandLineTool} class to obtain a pool of
@@ -442,8 +418,7 @@ public final class MatchingRuleDemo
       final int initialConnections = commandLineOptions.getInitialConnections();
       final int maxConnections = commandLineOptions.getMaxConnections();
       ldapConnectionPool =
-          new LDAPConnectionPool(ldapConnection,initialConnections,
-              maxConnections);
+              new LDAPConnectionPool(ldapConnection,initialConnections,maxConnections);
     }
     catch(final LDAPException ldapException)
     {
@@ -469,7 +444,7 @@ public final class MatchingRuleDemo
     {
       final StringBuilder builder = new StringBuilder();
       builder.append(String.format("attribute '%s' is not supported "
-          + "by this directory server.",e.getAttributeName()));
+              + "by this directory server.",e.getAttributeName()));
       err(builder.toString());
       return ResultCode.PARAM_ERROR;
     }
@@ -493,7 +468,7 @@ public final class MatchingRuleDemo
         attributeName
       };
       SearchRequest searchRequest =
-          new SearchRequest(baseObject,scope,filter,requestedAttributes);
+              new SearchRequest(baseObject,scope,filter,requestedAttributes);
       searchRequest.setSizeLimit(commandLineOptions.getSizeLimit());
       searchRequest.setTimeLimitSeconds(commandLineOptions.getTimeLimit());
       entry1 = ldapConnectionPool.searchForEntry(searchRequest);
@@ -502,8 +477,7 @@ public final class MatchingRuleDemo
        * Repeat for entryDn2
        */
       baseObject = entryDn2.toString();
-      searchRequest =
-          new SearchRequest(baseObject,scope,filter,requestedAttributes);
+      searchRequest = new SearchRequest(baseObject,scope,filter,requestedAttributes);
       searchRequest.setSizeLimit(commandLineOptions.getSizeLimit());
       searchRequest.setTimeLimitSeconds(commandLineOptions.getTimeLimit());
       entry2 = ldapConnectionPool.searchForEntry(searchRequest);
@@ -512,15 +486,15 @@ public final class MatchingRuleDemo
        * Retrieve the attribute specified by the --attribute command
        * line argument from each entry and compare one to the other.
        */
-      if(entry1 != null && entry2 != null)
+      if((entry1 != null) && (entry2 != null))
       {
         final Attribute attributeEntry1 = entry1.getAttribute(attributeName);
         final Attribute attributeEntry2 = entry2.getAttribute(attributeName);
         if(attributeEntry1 == null)
         {
           final StringBuilder builder = new StringBuilder();
-          builder.append(String.format("attribute '%s' was not present in %s",
-              attributeName,entryDn1));
+          builder.append(String.format("attribute '%s' was not present in %s",attributeName,
+                  entryDn1));
           final String msg = builder.toString();
           err(msg);
           return ResultCode.PARAM_ERROR;
@@ -528,20 +502,19 @@ public final class MatchingRuleDemo
         if(attributeEntry2 == null)
         {
           final StringBuilder builder = new StringBuilder();
-          builder.append(String.format("attribute '%s' was not present in %s",
-              attributeName,entryDn2));
+          builder.append(String.format("attribute '%s' was not present in %s",attributeName,
+                  entryDn2));
           final String msg = builder.toString();
           err(msg);
           return ResultCode.PARAM_ERROR;
         }
         final AttributeMatcher attributeMatcher =
-            new AttributeMatcher(attributeEntry1,attributeEntry2);
+                new AttributeMatcher(attributeEntry1,attributeEntry2);
         attributeMatcher.match();
       }
       else
       {
-        out(new MinimalLogFormatter().format(new LogRecord(Level.INFO,
-            "no entries were returned")));
+        logger.log(Level.INFO,"no entries were returned.");
       }
     }
     catch(final LDAPException ldapException)
@@ -566,13 +539,14 @@ public final class MatchingRuleDemo
   }
 
 
+
   /**
    * {@inheritDoc}
    */
   @SuppressWarnings("unchecked")
   @Override
   public void fireLdapExceptionListener(final LDAPConnection ldapConnection,
-      final LDAPException ldapException)
+          final LDAPException ldapException)
   {
     Vector<LdapExceptionListener> copy;
     synchronized(this)
@@ -583,13 +557,21 @@ public final class MatchingRuleDemo
     {
       return;
     }
-    final LdapExceptionEvent ev =
-        new LdapExceptionEvent(this,ldapConnection,ldapException);
+    final LdapExceptionEvent ev = new LdapExceptionEvent(this,ldapConnection,ldapException);
     for(final LdapExceptionListener l : copy)
     {
       l.ldapRequestFailed(ev);
     }
   }
+
+
+
+  @Override
+  public Logger getLogger()
+  {
+    return Logger.getLogger(getClass().getName());
+  }
+
 
 
   /**
@@ -602,6 +584,7 @@ public final class MatchingRuleDemo
   }
 
 
+
   /**
    * {@inheritDoc}
    */
@@ -612,15 +595,16 @@ public final class MatchingRuleDemo
   }
 
 
+
   /**
    * {@inheritDoc}
    */
   @Override
   public void ldapRequestFailed(final LdapExceptionEvent ldapExceptionEvent)
   {
-    err(new MinimalLogFormatter().format(new LogRecord(Level.SEVERE,
-        ldapExceptionEvent.getLdapException().getExceptionMessage())));
+    logger.log(Level.SEVERE,ldapExceptionEvent.getLdapException().getExceptionMessage());
   }
+
 
 
   /**
@@ -628,13 +612,52 @@ public final class MatchingRuleDemo
    */
   @Override
   public synchronized void removeLdapExceptionListener(
-      final LdapExceptionListener ldapExceptionListener)
+          final LdapExceptionListener ldapExceptionListener)
   {
     if(ldapExceptionListener != null)
     {
       ldapExceptionListeners.remove(ldapExceptionListener);
     }
   }
+
+
+
+  /**
+   * Prepares {@code MatchingRuleDemo} for use by a client - the
+   * {@code System.out} and {@code System.err OutputStreams} are used.
+   */
+  public MatchingRuleDemo()
+  {
+    this(System.out,System.err);
+  }
+
+
+
+  /**
+   * Prepares {@code MatchingRuleDemo} for use by a client - the
+   * specified output streams are used.
+   */
+  private MatchingRuleDemo(
+          final OutputStream outStream,final OutputStream errStream)
+  {
+    super(outStream,errStream);
+  }
+
+
+
+  /**
+   * Provides services related to managing command line options for
+   * clients that use the LDAPCommandLineTool class.
+   */
+  private MatchingRuleDemoCommandLineOptions commandLineOptions;
+
+
+
+  /**
+   * interested parties to {@code LdapExceptionEvents}
+   */
+  private volatile Vector<LdapExceptionListener> ldapExceptionListeners =
+          new Vector<LdapExceptionListener>();
 
 }
 
@@ -647,15 +670,15 @@ public final class MatchingRuleDemo
 @Since("Dec 19, 2011")
 @CodeVersion("1.7")
 class MatchingRuleDemoCommandLineOptions
-    extends CommandLineOptions
+        extends CommandLineOptions
 {
-
 
   /**
    * The long identifier of the argument whose parameter is the name of
    * entry number 1.
    */
   private static final String ARG_NAME_ENTRY_DN_1 = "entryDn1";
+
 
 
   /**
@@ -665,9 +688,30 @@ class MatchingRuleDemoCommandLineOptions
   private static final String ARG_NAME_ENTRY_DN_2 = "entryDn2";
 
 
+
+  DN getEntryDn1()
+  {
+    final DNArgument arg =
+            (DNArgument)getArgumentParser().getNamedArgument(
+                    MatchingRuleDemoCommandLineOptions.ARG_NAME_ENTRY_DN_1);
+    return arg.getValue();
+  }
+
+
+
+  DN getEntryDn2()
+  {
+    final DNArgument arg =
+            (DNArgument)getArgumentParser().getNamedArgument(
+                    MatchingRuleDemoCommandLineOptions.ARG_NAME_ENTRY_DN_2);
+    return arg.getValue();
+  }
+
+
+
   MatchingRuleDemoCommandLineOptions(
-      final ArgumentParser argumentParser)
-      throws ArgumentException
+          final ArgumentParser argumentParser)
+          throws ArgumentException
   {
     super(argumentParser);
 
@@ -675,15 +719,14 @@ class MatchingRuleDemoCommandLineOptions
      * Add the argument whose parameter is the DN of an entry to be
      * compared with entry 2
      */
-    String longIdentifier =
-        MatchingRuleDemoCommandLineOptions.ARG_NAME_ENTRY_DN_1;
+    String longIdentifier = MatchingRuleDemoCommandLineOptions.ARG_NAME_ENTRY_DN_1;
     boolean isRequired = true;
     final int maxOccurrences = 1;
     final String valuePlaceholder = "{distinguishedName}";
     String description = "The distinguished name to be compared with entry-2";
     final DNArgument entryDn1 =
-        new DNArgument(null,longIdentifier,isRequired,maxOccurrences,
-            valuePlaceholder,description);
+            new DNArgument(null,longIdentifier,isRequired,maxOccurrences,valuePlaceholder,
+                    description);
     argumentParser.addArgument(entryDn1);
 
     /**
@@ -695,26 +738,8 @@ class MatchingRuleDemoCommandLineOptions
     isRequired = true;
     description = "The distinguished name to be compared with entry-1";
     final DNArgument entryDn2 =
-        new DNArgument(null,longIdentifier,isRequired,maxOccurrences,
-            valuePlaceholder,description);
+            new DNArgument(null,longIdentifier,isRequired,maxOccurrences,valuePlaceholder,
+                    description);
     argumentParser.addArgument(entryDn2);
-  }
-
-
-  DN getEntryDn1()
-  {
-    final DNArgument arg =
-        (DNArgument)getArgumentParser().getNamedArgument(
-            MatchingRuleDemoCommandLineOptions.ARG_NAME_ENTRY_DN_1);
-    return arg.getValue();
-  }
-
-
-  DN getEntryDn2()
-  {
-    final DNArgument arg =
-        (DNArgument)getArgumentParser().getNamedArgument(
-            MatchingRuleDemoCommandLineOptions.ARG_NAME_ENTRY_DN_2);
-    return arg.getValue();
   }
 }

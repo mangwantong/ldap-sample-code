@@ -29,5 +29,3 @@
  */
 package samplecode;
 
-
-

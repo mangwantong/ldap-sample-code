@@ -19,10 +19,10 @@ package samplecode.listener;
 import java.util.List;
 
 
-import samplecode.Author;
-import samplecode.CodeVersion;
 import samplecode.SampleCodeCollectionUtils;
-import samplecode.Since;
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
 
 
 /**
@@ -34,23 +34,14 @@ import samplecode.Since;
 @Since("Jan 5, 2012")
 @CodeVersion("1.0")
 public abstract class ObservedByLdifEntryEventAdapter
-    implements ObservedByLdifEntryEventListener
+        implements ObservedByLdifEntryEventListener
 {
-
-
-  /**
-   * The list of event listeners.
-   */
-  protected List<LdifEntryEventListener> ldifEventListeners =
-      SampleCodeCollectionUtils.newArrayList();
-
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public synchronized void addLdifEventListener(
-      final LdifEntryEventListener ldifEventListener)
+  public synchronized void addLdifEventListener(final LdifEntryEventListener ldifEventListener)
   {
     if(ldifEventListener != null)
     {
@@ -59,17 +50,26 @@ public abstract class ObservedByLdifEntryEventAdapter
   }
 
 
+
   /**
    * {@inheritDoc}
    */
   @Override
   public synchronized void removeLdifEventListener(
-      final LdifEntryEventListener ldifEventListener)
+          final LdifEntryEventListener ldifEventListener)
   {
     if(ldifEventListener != null)
     {
       ldifEventListeners.remove(ldifEventListener);
     }
   }
+
+
+
+  /**
+   * The list of event listeners.
+   */
+  protected List<LdifEntryEventListener> ldifEventListeners = SampleCodeCollectionUtils
+          .newArrayList();
 
 }

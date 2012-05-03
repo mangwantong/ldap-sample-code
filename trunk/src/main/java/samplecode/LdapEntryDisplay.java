@@ -16,6 +16,11 @@
 package samplecode;
 
 
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
+
+
 /**
  * Provides a service that can be used for displaying an entry that was
  * retrieved from a directory server. How the entry is displayed is left
@@ -24,8 +29,8 @@ package samplecode;
 @Author("terry.gardner@unboundid.com")
 @Since("Nov 29, 2011")
 @CodeVersion("1.0")
-interface LdapEntryDisplay {
-
+interface LdapEntryDisplay
+{
 
   /**
    * Display the entry.

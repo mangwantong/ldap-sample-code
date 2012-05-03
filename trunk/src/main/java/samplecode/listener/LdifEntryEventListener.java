@@ -19,9 +19,9 @@ package samplecode.listener;
 import java.util.EventListener;
 
 
-import samplecode.Author;
-import samplecode.CodeVersion;
-import samplecode.Since;
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
 
 
 /**
@@ -32,9 +32,8 @@ import samplecode.Since;
 @Since("Jan 5, 2012")
 @CodeVersion("1.0")
 public interface LdifEntryEventListener
-    extends EventListener
+        extends EventListener
 {
-
 
   /**
    * An entry has been read from an LDIF file.

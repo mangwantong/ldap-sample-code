@@ -16,9 +16,6 @@
 package samplecode;
 
 
-import java.util.EnumMap;
-
-
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
@@ -28,22 +25,32 @@ import com.unboundid.ldap.sdk.controls.PostReadRequestControl;
 import com.unboundid.ldap.sdk.controls.PreReadRequestControl;
 
 
+import java.util.EnumMap;
+
+
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
+
+
 @Author("terry.gardner@unboundid.com")
 @Since("01-Nov-2011")
 @CodeVersion("1.1")
-final class ModDnExample {
+final class ModDnExample
+{
 
+  private class Data
+  {
 
-  private class Data {
-
-
-    Data(final EnumMap<Key,Object> parameters) {
+    Data(final EnumMap<Key,Object> parameters)
+    {
 
       deleteOldRdn = get(parameters,Key.DELETE_OLD_RDN,Boolean.class);
 
       newDn = get(parameters,Key.NEW_DN,String.class);
 
-      if(newDn == null || newDn.isEmpty()) {
+      if((newDn == null) || newDn.isEmpty())
+      {
         throw new IllegalArgumentException();
       }
 
@@ -51,19 +58,22 @@ final class ModDnExample {
 
       existingDn = get(parameters,Key.EXISTING_DN,String.class);
 
-      if(existingDn == null || existingDn.isEmpty()) {
+      if((existingDn == null) || existingDn.isEmpty())
+      {
         throw new IllegalArgumentException();
       }
 
       hostname = get(parameters,Key.HOSTNAME,String.class);
 
-      if(hostname == null || hostname.isEmpty()) {
+      if((hostname == null) || hostname.isEmpty())
+      {
         throw new IllegalArgumentException();
       }
 
       port = get(parameters,Key.PORT,Integer.class);
 
-      if(port <= 0) {
+      if(port <= 0)
+      {
         throw new IllegalArgumentException();
       }
 
@@ -71,29 +81,39 @@ final class ModDnExample {
     }
 
 
+
     final Control[] controls;
+
 
 
     final boolean deleteOldRdn;
 
 
+
     final String existingDn;
+
 
 
     final String hostname;
 
 
+
     final String newDn;
 
 
+
     final String newSuperiorDn;
+
 
 
     final int port;
   }
 
 
-  private enum Key {
+
+
+  private enum Key
+  {
 
     /**
      * The value associated with CONTROLS is an array of {@link Control}
@@ -109,7 +129,13 @@ final class ModDnExample {
   }
 
 
-  public static void main(final String... args) {
+
+  private static ModDnExample instance = null;
+
+
+
+  public static void main(final String... args)
+  {
 
     final EnumMap<Key,Object> parameters = new EnumMap<Key,Object>(Key.class);
 
@@ -118,38 +144,40 @@ final class ModDnExample {
     parameters.put(Key.EXISTING_DN,"uid=user.0,ou=people,dc=example,dc=com");
     parameters.put(Key.HOSTNAME,"slamd");
     parameters.put(Key.NEW_DN,"uid=user.0");
-    parameters.put(Key.CONTROLS,new Control[] {
-        new PreReadRequestControl("uid"),
-        new PostReadRequestControl("uid")
+    parameters.put(Key.CONTROLS,new Control[]
+    {
+            new PreReadRequestControl("uid"), new PostReadRequestControl("uid")
     });
-
 
     final ModDnExample example = ModDnExample.getInstance();
     final LDAPResult result = example.modifyDn(parameters);
-    if(result != null) {
+    if(result != null)
+    {
       System.out.println("result: " + result);
     }
   }
 
 
-  private static ModDnExample getInstance() {
-    if(instance == null) {
-      instance = new ModDnExample();
+
+  private static ModDnExample getInstance()
+  {
+    if(ModDnExample.instance == null)
+    {
+      ModDnExample.instance = new ModDnExample();
     }
-    return instance;
+    return ModDnExample.instance;
   }
 
 
-  private static ModDnExample instance = null;
 
-
-  private <T> T get(final EnumMap<Key,Object> parameters,
-                    final Key key,
-                    final Class<T> cl) {
+  private <T> T get(final EnumMap<Key,Object> parameters,final Key key,final Class<T> cl)
+  {
     T result = null;
-    if(parameters != null && cl != null) {
+    if((parameters != null) && (cl != null))
+    {
       final Object o = parameters.get(key);
-      if(o != null) {
+      if(o != null)
+      {
         result = cl.cast(o);
       }
     }
@@ -157,26 +185,28 @@ final class ModDnExample {
   }
 
 
-  private LDAPResult modifyDn(final EnumMap<Key,Object> parameters) {
-    if(parameters == null) {
+
+  private LDAPResult modifyDn(final EnumMap<Key,Object> parameters)
+  {
+    if(parameters == null)
+    {
       throw new NullPointerException();
     }
 
     final Data d = new Data(parameters);
 
     LDAPResult result;
-    try {
-      final LDAPConnection ldapConnection =
-          new LDAPConnection(d.hostname,d.port);
+    try
+    {
+      final LDAPConnection ldapConnection = new LDAPConnection(d.hostname,d.port);
       final ModifyDNRequest r =
-          new ModifyDNRequest(d.existingDn,
-                              d.newDn,
-                              d.deleteOldRdn,
-                              d.newSuperiorDn,
-                              d.controls);
+              new ModifyDNRequest(d.existingDn,d.newDn,d.deleteOldRdn,d.newSuperiorDn,
+                      d.controls);
       result = ldapConnection.modifyDN(r);
       ldapConnection.close();
-    } catch (final LDAPException lex) {
+    }
+    catch(final LDAPException lex)
+    {
       System.err.println(lex.getResultCode() + ": " + lex.getLocalizedMessage());
       result = null;
     }

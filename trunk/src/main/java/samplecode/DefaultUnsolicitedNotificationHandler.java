@@ -16,17 +16,22 @@
 package samplecode;
 
 
-import java.util.logging.Formatter;
-import java.util.logging.Level;
-import java.util.logging.LogRecord;
-
-
 import com.unboundid.ldap.sdk.ExtendedResult;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.UnsolicitedNotificationHandler;
 import com.unboundid.util.LDAPCommandLineTool;
 import com.unboundid.util.MinimalLogFormatter;
 import com.unboundid.util.Validator;
+
+
+import java.util.logging.Formatter;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
+
+
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
 
 
 /**
@@ -38,7 +43,28 @@ import com.unboundid.util.Validator;
 @Since("Dec 10, 2011")
 @CodeVersion("1.0")
 class DefaultUnsolicitedNotificationHandler
-  implements UnsolicitedNotificationHandler {
+        implements UnsolicitedNotificationHandler
+{
+
+  /**
+   * {@inheritDoc}
+   * <p>
+   * Logs a message that the extended result was received as an
+   * unsolicited notification. The message printed contains the returned
+   * object from {@link ExtendedResult#getDiagnosticMessage()}.
+   */
+  @Override
+  public void handleUnsolicitedNotification(final LDAPConnection ldapConnection,
+          final ExtendedResult extendedResult)
+  {
+    Validator.ensureNotNull(ldapConnection,extendedResult);
+    final String msg =
+            String.format("recd unsolicited notification: %s",
+                    extendedResult.getDiagnosticMessage());
+    final LogRecord logRecord = new LogRecord(Level.WARNING,msg);
+    ldapCommandLineTool.out(loggingFormatter.format(logRecord));
+  }
+
 
 
   /**
@@ -51,33 +77,17 @@ class DefaultUnsolicitedNotificationHandler
    *          unsolicited extended results. {@code ldapCommandLineTool}
    *          may not be {@code null}.
    */
-  DefaultUnsolicitedNotificationHandler(final LDAPCommandLineTool ldapCommandLineTool) {
+  DefaultUnsolicitedNotificationHandler(
+          final LDAPCommandLineTool ldapCommandLineTool)
+  {
     loggingFormatter = new MinimalLogFormatter();
     this.ldapCommandLineTool = ldapCommandLineTool;
   }
 
 
-  /**
-   * {@inheritDoc}
-   * <p>
-   * Logs a message that the extended result was received as an
-   * unsolicited notification. The message printed contains the returned
-   * object from {@link ExtendedResult#getDiagnosticMessage()}.
-   */
-  @Override
-  public void
-      handleUnsolicitedNotification(final LDAPConnection ldapConnection,
-                                    final ExtendedResult extendedResult) {
-    Validator.ensureNotNull(ldapConnection,extendedResult);
-    final String msg =
-        String.format("recd unsolicited notification: %s",
-                      extendedResult.getDiagnosticMessage());
-    final LogRecord logRecord = new LogRecord(Level.WARNING,msg);
-    ldapCommandLineTool.out(loggingFormatter.format(logRecord));
-  }
-
 
   private final LDAPCommandLineTool ldapCommandLineTool;
+
 
 
   private final Formatter loggingFormatter;

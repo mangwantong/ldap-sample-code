@@ -21,6 +21,11 @@ import com.unboundid.util.NotMutable;
 import com.unboundid.util.Validator;
 
 
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
+
+
 /**
  * This exception is thrown when an entry fails to pass the test for the
  * authorization identity's effective rights.
@@ -31,17 +36,8 @@ import com.unboundid.util.Validator;
 @CodeVersion("1.0")
 @NotMutable
 public final class CheckEffectiveRightsException
-  extends Exception
+        extends Exception
 {
-
-
-  // The attribute that was tested
-  private final String attributeName;
-
-
-  // The right to the attribute
-  private final AttributeRight attributeRight;
-
 
   /**
    * Retrieve the name of the attribute that was tested.
@@ -50,8 +46,9 @@ public final class CheckEffectiveRightsException
    */
   public String attributeName()
   {
-    return this.attributeName;
+    return attributeName;
   }
+
 
 
   /**
@@ -63,8 +60,9 @@ public final class CheckEffectiveRightsException
    */
   public AttributeRight attributeRight()
   {
-    return this.attributeRight;
+    return attributeRight;
   }
+
 
 
   /**
@@ -77,12 +75,22 @@ public final class CheckEffectiveRightsException
    * @param attributeRight
    *          right against which the attribute was tested.
    */
-  public CheckEffectiveRightsException(final String attributeName,
-                                       final AttributeRight attributeRight)
+  public CheckEffectiveRightsException(
+          final String attributeName,final AttributeRight attributeRight)
   {
     Validator.ensureNotNull(attributeName,attributeRight);
     this.attributeName = attributeName;
     this.attributeRight = attributeRight;
   }
+
+
+
+  // The attribute that was tested
+  private final String attributeName;
+
+
+
+  // The right to the attribute
+  private final AttributeRight attributeRight;
 
 }

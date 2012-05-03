@@ -15,8 +15,14 @@
  */
 package samplecode;
 
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+
+
+import samplecode.annotation.Author;
+import samplecode.annotation.Since;
+
 
 /**
  * Marks a type as Launchable, that is, a type has a
@@ -25,7 +31,8 @@ import java.lang.annotation.RetentionPolicy;
 @Author("terry.gardner@unboundid.com")
 @Retention(RetentionPolicy.RUNTIME)
 @Since("1.1")
-@interface Launchable {
-    // This block deliberately left empty.
+@interface Launchable
+{
+  // This block deliberately left empty.
 
 }

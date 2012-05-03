@@ -16,6 +16,11 @@
 package samplecode;
 
 
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
+
+
 /**
  * Indicates that a class provides a way to set a value.
  * 
@@ -27,7 +32,6 @@ package samplecode;
 @CodeVersion("1.0")
 public interface SetterAware<T>
 {
-
 
   /**
    * Sets the value {@code value}.

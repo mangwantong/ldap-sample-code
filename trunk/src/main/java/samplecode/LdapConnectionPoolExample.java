@@ -22,46 +22,52 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.util.Validator;
 
 
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
+
+
 /**
  * An example of how to create and use a connection pool.
  */
 @Author("terry.gardner@unboundID.com")
 @Since("Oct 31, 2011")
 @CodeVersion("1.2")
-final class LdapConnectionPoolExample {
+final class LdapConnectionPoolExample
+{
 
-
-  private LdapConnectionPoolExample() {
-    throw new UnsupportedOperationException(getClass().getCanonicalName() +
-        " cannot be instantiated.");
-  }
-
-
-  public LDAPConnectionPool connectionPool(final String hostname,
-                                           final int port,
-                                           final int initialConnections,
-                                           final int maxConnections)
-      throws LDAPException {
+  public LDAPConnectionPool connectionPool(final String hostname,final int port,
+          final int initialConnections,final int maxConnections) throws LDAPException
+  {
     Validator.ensureNotNull(hostname);
-    if(port <= 0) {
+    if(port <= 0)
+    {
       final StringBuilder builder = new StringBuilder(port);
       builder.append(" is an illegal value for port.");
       throw new IllegalArgumentException(builder.toString());
     }
-    if(initialConnections <= 0) {
+    if(initialConnections <= 0)
+    {
       final StringBuilder builder = new StringBuilder(initialConnections);
       builder.append(" is an illegal value for initialConnections.");
       throw new IllegalArgumentException(builder.toString());
     }
-    if(maxConnections <= 0) {
+    if(maxConnections <= 0)
+    {
       final StringBuilder builder = new StringBuilder(maxConnections);
       builder.append(" is an illegal value for maxConnections.");
       throw new IllegalArgumentException(builder.toString());
     }
     final LDAPConnection ldapConnection = new LDAPConnection(hostname,port);
-    return new LDAPConnectionPool(ldapConnection,
-                                  initialConnections,
-                                  maxConnections);
+    return new LDAPConnectionPool(ldapConnection,initialConnections,maxConnections);
+  }
+
+
+
+  private LdapConnectionPoolExample()
+  {
+    throw new UnsupportedOperationException(getClass().getCanonicalName() +
+            " cannot be instantiated.");
   }
 
 }

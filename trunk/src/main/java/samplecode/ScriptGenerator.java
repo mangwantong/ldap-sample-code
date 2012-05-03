@@ -25,6 +25,11 @@ import java.io.IOException;
 import java.io.Writer;
 
 
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
+
+
 /**
  * Generates a bash script with which the demo examples can be invoked.
  */
@@ -33,65 +38,6 @@ import java.io.Writer;
 @CodeVersion("1.2")
 public final class ScriptGenerator
 {
-
-
-  // a launchable class name.
-  private final String className;
-
-
-  // classpath to insert into finished script
-  private final String classpath;
-
-
-  // The directory in which the script is placed.
-  private final String directory;
-
-
-  // JVM options
-  private final String spaceSeparatedJVMOptions;
-
-
-  /**
-   * @param className
-   *          the name of the class to launch. {@code className} is not
-   *          permitted to be {@code null}.
-   * @param classpath
-   *          the classpath to use in the generated script.
-   * @param spaceSeparatedJVMOptions
-   *          JVM options; {@code spaceSeparatedJVMOptions} is not
-   *          permitted to be {@code null}.
-   * @param directory
-   *          the directory in which the script is dropped.
-   *          {@code directory} is not permitted to be {@code null}.
-   */
-  public ScriptGenerator(
-      final String className,final String classpath,
-      final String spaceSeparatedJVMOptions,final String directory)
-  {
-
-
-    Validator.ensureNotNullWithMessage(className,
-        "The classname is not permitted to be null.");
-
-
-    Validator.ensureNotNullWithMessage(classpath,
-        "The classpath is not permitted to be null.");
-
-
-    Validator.ensureNotNullWithMessage(spaceSeparatedJVMOptions,
-        "The spaceSeparatedJVMOptions is not permitted to be null.");
-
-
-    Validator.ensureNotNullWithMessage(directory,
-        "The directory is not permitted to be null.");
-
-
-    this.className = className;
-    this.classpath = classpath;
-    this.spaceSeparatedJVMOptions = spaceSeparatedJVMOptions;
-    this.directory = directory;
-  }
-
 
   /**
    * Creates a file containing shell script that can be used to launch a
@@ -106,6 +52,7 @@ public final class ScriptGenerator
   }
 
 
+
   /**
    * @return the filename that is used for the generated script.
    */
@@ -113,6 +60,7 @@ public final class ScriptGenerator
   {
     return transformClassToFilename(className);
   }
+
 
 
   /**
@@ -123,6 +71,7 @@ public final class ScriptGenerator
   {
     return generate();
   }
+
 
 
   /**
@@ -139,6 +88,7 @@ public final class ScriptGenerator
   }
 
 
+
   private String generate()
   {
     final StringBuilder builder = new StringBuilder();
@@ -150,17 +100,20 @@ public final class ScriptGenerator
   }
 
 
+
   private Object getClasspath()
   {
-    return terminatedWithNewLine("declare -r -x CLASSPATH=\"${SCRIPT_CLASSPATH:=" +
-        classpath + "}\"");
+    return terminatedWithNewLine("declare -r -x CLASSPATH=\"${SCRIPT_CLASSPATH:=" + classpath +
+            "}\"");
   }
+
 
 
   private String getExtension()
   {
     return ".bash";
   }
+
 
 
   private File getFile() throws IOException
@@ -176,20 +129,22 @@ public final class ScriptGenerator
   }
 
 
+
   private String getInvocation()
   {
-    return terminatedWithNewLine(String.format("java ${JVM_OPTS} %s \"$@\"",
-        className));
+    return terminatedWithNewLine(String.format("java ${JVM_OPTS} %s \"$@\"",className));
   }
+
 
 
   private String getJVMOptions()
   {
     final String jvmOptionsString =
-        String.format("declare -r -x JVM_OPTS=\"${SCRIPT_JVM_OPTS:=%s}\"",
-            spaceSeparatedJVMOptions);
+            String.format("declare -r -x JVM_OPTS=\"${SCRIPT_JVM_OPTS:=%s}\"",
+                    spaceSeparatedJVMOptions);
     return terminatedWithNewLine(jvmOptionsString);
   }
+
 
 
   private String getScriptFileExtension()
@@ -198,10 +153,12 @@ public final class ScriptGenerator
   }
 
 
+
   private String getShellScriptFirstLine()
   {
     return terminatedWithNewLine("#! /bin/bash");
   }
+
 
 
   private String terminatedWithNewLine(final String string)
@@ -212,10 +169,65 @@ public final class ScriptGenerator
   }
 
 
+
   private String transformClassToFilename(final String className)
   {
-    return className.substring(className.lastIndexOf('.') + 1) +
-        getScriptFileExtension();
+    return className.substring(className.lastIndexOf('.') + 1) + getScriptFileExtension();
   }
+
+
+
+  /**
+   * @param className
+   *          the name of the class to launch. {@code className} is not
+   *          permitted to be {@code null}.
+   * @param classpath
+   *          the classpath to use in the generated script.
+   * @param spaceSeparatedJVMOptions
+   *          JVM options; {@code spaceSeparatedJVMOptions} is not
+   *          permitted to be {@code null}.
+   * @param directory
+   *          the directory in which the script is dropped.
+   *          {@code directory} is not permitted to be {@code null}.
+   */
+  public ScriptGenerator(
+          final String className,final String classpath,final String spaceSeparatedJVMOptions,
+          final String directory)
+  {
+
+    Validator.ensureNotNullWithMessage(className,"The classname is not permitted to be null.");
+
+    Validator.ensureNotNullWithMessage(classpath,"The classpath is not permitted to be null.");
+
+    Validator.ensureNotNullWithMessage(spaceSeparatedJVMOptions,
+            "The spaceSeparatedJVMOptions is not permitted to be null.");
+
+    Validator.ensureNotNullWithMessage(directory,"The directory is not permitted to be null.");
+
+    this.className = className;
+    this.classpath = classpath;
+    this.spaceSeparatedJVMOptions = spaceSeparatedJVMOptions;
+    this.directory = directory;
+  }
+
+
+
+  // a launchable class name.
+  private final String className;
+
+
+
+  // classpath to insert into finished script
+  private final String classpath;
+
+
+
+  // The directory in which the script is placed.
+  private final String directory;
+
+
+
+  // JVM options
+  private final String spaceSeparatedJVMOptions;
 
 }

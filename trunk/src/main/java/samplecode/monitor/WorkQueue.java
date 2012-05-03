@@ -32,11 +32,12 @@ import java.util.Map;
 
 
 import samplecode.AbstractLdapSearchSupport;
-import samplecode.Author;
-import samplecode.CodeVersion;
 import samplecode.SampleCodeCollectionUtils;
-import samplecode.Since;
 import samplecode.Singleton;
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
+
 
 
 /**
@@ -49,11 +50,13 @@ import samplecode.Singleton;
  * 
  * 
  * 
+ * 
+ * 
  * final WorkQueue wq = WorkQueue.newWorkQueue(this.ldapConnection);
  * 
  * 
- * final Map&lt;Attribute,String[]&gt; mapOfWorkQueueAttributes = wq
- *     .getWorkQueueRawAttributeValues();
+ * 
+ * final Map&lt;Attribute,String[]&gt; mapOfWorkQueueAttributes = wq.getWorkQueueRawAttributeValues();
  * </pre>
  * 
  * </blockquote>
@@ -63,22 +66,22 @@ import samplecode.Singleton;
 @CodeVersion("1.2")
 @Singleton
 public final class WorkQueue
-    extends AbstractLdapSearchSupport
+        extends AbstractLdapSearchSupport
 {
-
 
   /**
    * The average work queue size attribute type
    */
-  public static final String ATTR_NAME_AVERAGE_QUEUE_SIZE =
-      "average-queue-size";
+  public static final String ATTR_NAME_AVERAGE_QUEUE_SIZE = "average-queue-size";
+
 
 
   /**
    * The average worker thread percent busy attribute type
    */
   public static final String ATTR_NAME_AVERAGE_WORKER_THREAD_PERCENT_BUSY =
-      "average-worker-thread-percent-busy";
+          "average-worker-thread-percent-busy";
+
 
 
   /**
@@ -87,32 +90,36 @@ public final class WorkQueue
   public static final String ATTR_NAME_CN = "cn";
 
 
+
   /**
    * Current administrative session queue size
    */
   public static final String ATTR_NAME_CURRENT_ADMINISTRATIVE_SESSION_QUEUE_SIZE =
-      "current-administrative-session-queue-size";
+          "current-administrative-session-queue-size";
+
 
 
   /**
    * Current queue size.
    */
-  public static final String ATTR_NAME_CURRENT_QUEUE_SIZE =
-      "current-queue-size";
+  public static final String ATTR_NAME_CURRENT_QUEUE_SIZE = "current-queue-size";
+
 
 
   /**
    * Current worker thread percent busy
    */
   public static final String ATTR_NAME_CURRENT_WORKER_THREAD_PERCENT_BUSY =
-      "current-worker-thread-percent-busy";
+          "current-worker-thread-percent-busy";
+
 
 
   /**
    * maxmimum size of the administrative session queue.
    */
   public static final String ATTR_NAME_MAX_ADMINISTRATVE_SESSION_QUEUE_SIZE =
-      "max-administrative-session-queue-size";
+          "max-administrative-session-queue-size";
+
 
 
   /**
@@ -121,53 +128,58 @@ public final class WorkQueue
   public static final String ATTR_NAME_MAX_QUEUE_SIZE = "max-queue-size";
 
 
+
   /**
    * max worker thread percent busy
    */
   public static final String ATTR_NAME_MAX_WORKER_THREAD_PERCENT_BUSY =
-      "max-worker-thread-percent-busy";
+          "max-worker-thread-percent-busy";
+
 
 
   /**
    * Number of administrative session worker threads
    */
   public static final String ATTR_NAME_NUM_ADMINISTRATIVE_SESSION_WORKER_THREADS =
-      "num-administrative-session-worker-threads";
+          "num-administrative-session-worker-threads";
+
 
 
   /**
    * Number of busy administrative session worker threads
    */
   public static final String ATTR_NAME_NUM_BUSY_ADMINISTRATIVE_SESSION_WORKER_THREADS =
-      "num-busy-administrative-session-worker-threads";
+          "num-busy-administrative-session-worker-threads";
+
 
 
   /**
    * Number of busy worker threads
    */
-  public static final String ATTR_NAME_NUM_BUSY_WORKER_THREADS =
-      "num-busy-worker-threads";
+  public static final String ATTR_NAME_NUM_BUSY_WORKER_THREADS = "num-busy-worker-threads";
+
 
 
   /**
    * Number of worker threads.
    */
-  public static final String ATTR_NAME_NUM_WORKER_THREADS =
-      "num-worker-threads";
+  public static final String ATTR_NAME_NUM_WORKER_THREADS = "num-worker-threads";
+
 
 
   /**
    * recent average queue size.
    */
-  public static final String ATTR_NAME_RECENT_AVERAGE_QUEUE_SIZE =
-      "recent-average-queue-size";
+  public static final String ATTR_NAME_RECENT_AVERAGE_QUEUE_SIZE = "recent-average-queue-size";
+
 
 
   /**
    * recent worker thread percent busy
    */
   public static final String ATTR_NAME_RECENT_WORKER_THREAD_PERCENT_BUSY =
-      "recent-worker-thread-percent-busy";
+          "recent-worker-thread-percent-busy";
+
 
 
   /**
@@ -176,14 +188,17 @@ public final class WorkQueue
   public static final String ATTR_NAME_REJECTED_COUNT = "rejected-count";
 
 
+
   /**
    * The relative distinguished name of the work queue monitor entry.
    */
   public static final String WORK_QUEUE_RDN = "cn=work queue";
 
 
+
   // singleton instance
   private static WorkQueue instance = null;
+
 
 
   /**
@@ -201,6 +216,7 @@ public final class WorkQueue
   }
 
 
+
   /**
    * {@inheritDoc}
    */
@@ -211,15 +227,16 @@ public final class WorkQueue
   }
 
 
+
   /**
    * {@inheritDoc}
    */
   @Override
   public Filter getFilter() throws LDAPException
   {
-    return Filter.createEqualityFilter("objectClass",
-        "ds-unboundid-work-queue-monitor-entry");
+    return Filter.createEqualityFilter("objectClass","ds-unboundid-work-queue-monitor-entry");
   }
+
 
 
   @Override
@@ -231,6 +248,7 @@ public final class WorkQueue
   }
 
 
+
   /**
    * {@inheritDoc}
    */
@@ -239,24 +257,24 @@ public final class WorkQueue
   {
     return new String[]
     {
-        WorkQueue.ATTR_NAME_AVERAGE_QUEUE_SIZE,
-        WorkQueue.ATTR_NAME_AVERAGE_WORKER_THREAD_PERCENT_BUSY,
-        WorkQueue.ATTR_NAME_CN,
-        WorkQueue.ATTR_NAME_CURRENT_ADMINISTRATIVE_SESSION_QUEUE_SIZE,
-        WorkQueue.ATTR_NAME_CURRENT_QUEUE_SIZE,
-        WorkQueue.ATTR_NAME_CURRENT_WORKER_THREAD_PERCENT_BUSY,
-        WorkQueue.ATTR_NAME_MAX_ADMINISTRATVE_SESSION_QUEUE_SIZE,
-        WorkQueue.ATTR_NAME_MAX_QUEUE_SIZE,
-        WorkQueue.ATTR_NAME_MAX_WORKER_THREAD_PERCENT_BUSY,
-        WorkQueue.ATTR_NAME_NUM_ADMINISTRATIVE_SESSION_WORKER_THREADS,
-        WorkQueue.ATTR_NAME_NUM_BUSY_ADMINISTRATIVE_SESSION_WORKER_THREADS,
-        WorkQueue.ATTR_NAME_NUM_BUSY_WORKER_THREADS,
-        WorkQueue.ATTR_NAME_NUM_WORKER_THREADS,
-        WorkQueue.ATTR_NAME_RECENT_AVERAGE_QUEUE_SIZE,
-        WorkQueue.ATTR_NAME_RECENT_WORKER_THREAD_PERCENT_BUSY,
-        WorkQueue.ATTR_NAME_REJECTED_COUNT,
+            WorkQueue.ATTR_NAME_AVERAGE_QUEUE_SIZE,
+            WorkQueue.ATTR_NAME_AVERAGE_WORKER_THREAD_PERCENT_BUSY, WorkQueue.ATTR_NAME_CN,
+            WorkQueue.ATTR_NAME_CURRENT_ADMINISTRATIVE_SESSION_QUEUE_SIZE,
+            WorkQueue.ATTR_NAME_CURRENT_QUEUE_SIZE,
+            WorkQueue.ATTR_NAME_CURRENT_WORKER_THREAD_PERCENT_BUSY,
+            WorkQueue.ATTR_NAME_MAX_ADMINISTRATVE_SESSION_QUEUE_SIZE,
+            WorkQueue.ATTR_NAME_MAX_QUEUE_SIZE,
+            WorkQueue.ATTR_NAME_MAX_WORKER_THREAD_PERCENT_BUSY,
+            WorkQueue.ATTR_NAME_NUM_ADMINISTRATIVE_SESSION_WORKER_THREADS,
+            WorkQueue.ATTR_NAME_NUM_BUSY_ADMINISTRATIVE_SESSION_WORKER_THREADS,
+            WorkQueue.ATTR_NAME_NUM_BUSY_WORKER_THREADS,
+            WorkQueue.ATTR_NAME_NUM_WORKER_THREADS,
+            WorkQueue.ATTR_NAME_RECENT_AVERAGE_QUEUE_SIZE,
+            WorkQueue.ATTR_NAME_RECENT_WORKER_THREAD_PERCENT_BUSY,
+            WorkQueue.ATTR_NAME_REJECTED_COUNT,
     };
   }
+
 
 
   /**
@@ -269,6 +287,7 @@ public final class WorkQueue
   }
 
 
+
   /**
    * Return the current average queue size.
    * 
@@ -279,14 +298,14 @@ public final class WorkQueue
    * @throws LDAPSearchException
    */
   public int getWorkQueueAverageSize(final LDAPConnection ldapConnection)
-      throws LDAPSearchException,LDAPException
+          throws LDAPSearchException,LDAPException
   {
     Validator.ensureNotNullWithMessage(ldapConnection,
-        "ldapConnection is not permitted to be null.");
+            "ldapConnection is not permitted to be null.");
 
-    return getIntAttributeValue(ldapConnection,
-        WorkQueue.ATTR_NAME_AVERAGE_QUEUE_SIZE);
+    return getIntAttributeValue(ldapConnection,WorkQueue.ATTR_NAME_AVERAGE_QUEUE_SIZE);
   }
+
 
 
   /**
@@ -298,16 +317,16 @@ public final class WorkQueue
    * @throws LDAPException
    * @throws LDAPSearchException
    */
-  public int getWorkQueueAverageWorkerThreadPercentBusy(
-      final LDAPConnection ldapConnection) throws LDAPSearchException,
-      LDAPException
+  public int getWorkQueueAverageWorkerThreadPercentBusy(final LDAPConnection ldapConnection)
+          throws LDAPSearchException,LDAPException
   {
     Validator.ensureNotNullWithMessage(ldapConnection,
-        "ldapConnection is not permitted to be null.");
+            "ldapConnection is not permitted to be null.");
 
     return getIntAttributeValue(ldapConnection,
-        WorkQueue.ATTR_NAME_AVERAGE_WORKER_THREAD_PERCENT_BUSY);
+            WorkQueue.ATTR_NAME_AVERAGE_WORKER_THREAD_PERCENT_BUSY);
   }
+
 
 
   /**
@@ -317,16 +336,16 @@ public final class WorkQueue
    * @throws LDAPException
    * @throws LDAPSearchException
    */
-  public int getWorkQueueCurrentAdministrativeQueueSize(
-      final LDAPConnection ldapConnection) throws LDAPSearchException,
-      LDAPException
+  public int getWorkQueueCurrentAdministrativeQueueSize(final LDAPConnection ldapConnection)
+          throws LDAPSearchException,LDAPException
   {
     Validator.ensureNotNullWithMessage(ldapConnection,
-        "ldapConnection is not permitted to be null.");
+            "ldapConnection is not permitted to be null.");
 
     return getIntAttributeValue(ldapConnection,
-        WorkQueue.ATTR_NAME_CURRENT_ADMINISTRATIVE_SESSION_QUEUE_SIZE);
+            WorkQueue.ATTR_NAME_CURRENT_ADMINISTRATIVE_SESSION_QUEUE_SIZE);
   }
+
 
 
   /**
@@ -339,11 +358,13 @@ public final class WorkQueue
    * 
    * 
    * 
+   * 
+   * 
    * final WorkQueue wq = WorkQueue.newWorkQueue(this.ldapConnection);
    * 
    * 
-   * final Map&lt;Attribute,String[]&gt; mapOfWorkQueueAttributes = wq
-   *     .getWorkQueueRawAttributeValues();
+   * 
+   * final Map&lt;Attribute,String[]&gt; mapOfWorkQueueAttributes = wq.getWorkQueueRawAttributeValues();
    * </pre>
    * 
    * </blockquote>
@@ -356,13 +377,12 @@ public final class WorkQueue
    * @throws LDAPException
    * @throws LDAPSearchException
    */
-  public Map<String,String[]> getWorkQueueRawAttributeValues(
-      final LDAPConnection ldapConnection) throws LDAPSearchException,
-      LDAPException
+  public Map<String,String[]>
+          getWorkQueueRawAttributeValues(final LDAPConnection ldapConnection)
+                  throws LDAPSearchException,LDAPException
   {
     Validator.ensureNotNullWithMessage(ldapConnection,
-        "ldapConnection is not permitted to be null.");
-
+            "ldapConnection is not permitted to be null.");
 
     SearchResult searchResult;
     searchResult = doSearch(ldapConnection,newSearchRequest());
@@ -384,6 +404,7 @@ public final class WorkQueue
   }
 
 
+
   /**
    * {@inheritDoc}
    */
@@ -391,25 +412,25 @@ public final class WorkQueue
   public SearchRequest newSearchRequest() throws LDAPException
   {
     final SearchRequest req =
-        new SearchRequest(getBaseObject(),getScope(),getFilter(),
-            getRequestedAttributes());
+            new SearchRequest(getBaseObject(),getScope(),getFilter(),getRequestedAttributes());
     return req;
   }
 
 
+
   private SearchResult doSearch(final LDAPConnection ldapConnection,
-      final SearchRequest searchRequest) throws LDAPSearchException
+          final SearchRequest searchRequest) throws LDAPSearchException
   {
     return ldapConnection.search(searchRequest);
   }
 
 
+
   private int getIntAttributeValue(final LDAPConnection ldapConnection,
-      final String attributeName) throws LDAPSearchException,LDAPException
+          final String attributeName) throws LDAPSearchException,LDAPException
   {
     int value;
-    final String[] values =
-        getValuesByAttributeName(ldapConnection,attributeName);
+    final String[] values = getValuesByAttributeName(ldapConnection,attributeName);
     if(values != null)
     {
       try
@@ -430,15 +451,13 @@ public final class WorkQueue
   }
 
 
-  private String[] getValuesByAttributeName(
-      final LDAPConnection ldapConnection,final String attributeName)
-      throws LDAPSearchException,LDAPException
+
+  private String[] getValuesByAttributeName(final LDAPConnection ldapConnection,
+          final String attributeName) throws LDAPSearchException,LDAPException
   {
     Validator.ensureNotNull(attributeName);
-    final Map<String,String[]> map =
-        getWorkQueueRawAttributeValues(ldapConnection);
+    final Map<String,String[]> map = getWorkQueueRawAttributeValues(ldapConnection);
     return map.get(attributeName);
   }
-
 
 }

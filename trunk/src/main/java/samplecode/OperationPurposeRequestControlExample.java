@@ -25,7 +25,6 @@ import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchScope;
 import com.unboundid.ldap.sdk.unboundidds.controls.OperationPurposeRequestControl;
 import com.unboundid.util.LDAPCommandLineTool;
-import com.unboundid.util.MinimalLogFormatter;
 import com.unboundid.util.Validator;
 import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
@@ -35,9 +34,12 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Vector;
 import java.util.logging.Level;
-import java.util.logging.LogRecord;
+import java.util.logging.Logger;
 
 
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
 import samplecode.listener.LdapExceptionEvent;
 import samplecode.listener.LdapExceptionListener;
 import samplecode.listener.ObservedByLdapExceptionListener;
@@ -55,60 +57,23 @@ import samplecode.tools.AbstractTool;
  */
 @Author("terry.gardner@unboundID.com")
 @Since("Oct 30, 2011")
-@CodeVersion("1.1")
+@CodeVersion("1.2")
 @Launchable
 public final class OperationPurposeRequestControlExample
-    extends AbstractTool
-    implements LdapExceptionListener
+        extends AbstractTool
+        implements LdapExceptionListener
 {
 
-
   private class OperationPurposeRequestControlDemo
-      implements ObservedByLdapExceptionListener
+          implements ObservedByLdapExceptionListener
   {
-
-
-    /**
-     * Manages common command line options.
-     */
-    private final CommandLineOptions commandLineOptions;
-
-
-    /*
-     * The command line tool object.
-     */
-    private final LDAPCommandLineTool commandLineTool;
-
-
-    /**
-     * interested parties to {@code LdapExceptionEvents}
-     */
-    private volatile Vector<LdapExceptionListener> ldapExceptionListeners =
-        new Vector<LdapExceptionListener>();
-
-
-    /*
-     * Whether the operation purpose request control is supported.
-     */
-    private boolean operationPurposeRequestControlSupported;
-
-
-    OperationPurposeRequestControlDemo(
-        final LDAPCommandLineTool commandLineTool,
-        final CommandLineOptions commandLineOptions)
-    {
-      Validator.ensureNotNull(commandLineTool,commandLineOptions);
-      this.commandLineTool = commandLineTool;
-      this.commandLineOptions = commandLineOptions;
-    }
-
 
     /**
      * {@inheritDoc}
      */
     @Override
     public synchronized void addLdapExceptionListener(
-        final LdapExceptionListener ldapExceptionListener)
+            final LdapExceptionListener ldapExceptionListener)
     {
       if(ldapExceptionListener != null)
       {
@@ -117,13 +82,14 @@ public final class OperationPurposeRequestControlExample
     }
 
 
+
     /**
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
     @Override
     public void fireLdapExceptionListener(final LDAPConnection ldapConnection,
-        final LDAPException ldapException)
+            final LDAPException ldapException)
     {
       Validator.ensureNotNull(ldapConnection,ldapException);
       Vector<LdapExceptionListener> copy;
@@ -135,8 +101,7 @@ public final class OperationPurposeRequestControlExample
       {
         return;
       }
-      final LdapExceptionEvent ev =
-          new LdapExceptionEvent(this,ldapConnection,ldapException);
+      final LdapExceptionEvent ev = new LdapExceptionEvent(this,ldapConnection,ldapException);
       for(final LdapExceptionListener l : copy)
       {
         l.ldapRequestFailed(ev);
@@ -144,18 +109,20 @@ public final class OperationPurposeRequestControlExample
     }
 
 
+
     /**
      * {@inheritDoc}
      */
     @Override
     public synchronized void removeLdapExceptionListener(
-        final LdapExceptionListener ldapExceptionListener)
+            final LdapExceptionListener ldapExceptionListener)
     {
       if(ldapExceptionListener != null)
       {
         ldapExceptionListeners.remove(ldapExceptionListener);
       }
     }
+
 
 
     void execute()
@@ -171,7 +138,6 @@ public final class OperationPurposeRequestControlExample
         return;
       }
 
-
       /*
        * Validate that the directory server supports the
        * OperationPurposeRequestControl.
@@ -179,9 +145,8 @@ public final class OperationPurposeRequestControlExample
       try
       {
         final SupportedFeature supportedControl =
-            SupportedFeature.newSupportedFeature(ldapConnection);
-        final String oid =
-            OperationPurposeRequestControl.OPERATION_PURPOSE_REQUEST_OID;
+                SupportedFeature.newSupportedFeature(ldapConnection);
+        final String oid = OperationPurposeRequestControl.OPERATION_PURPOSE_REQUEST_OID;
         operationPurposeRequestControlSupported = true;
         supportedControl.isControlSupported(oid);
       }
@@ -194,7 +159,6 @@ public final class OperationPurposeRequestControlExample
         fireLdapExceptionListener(ldapConnection,ldapException);
         return;
       }
-
 
       /*
        * Display the naming context entries
@@ -216,20 +180,17 @@ public final class OperationPurposeRequestControlExample
           final String baseObject = namingContext;
           final SearchScope scope = SearchScope.BASE;
           final String filter = "(&)";
-          final String[] requestedAttributes =
-              commandLineOptions.getRequestedAttributes();
+          final String[] requestedAttributes = commandLineOptions.getRequestedAttributes();
           SearchRequest searchRequest;
           try
           {
-            searchRequest =
-                new SearchRequest(baseObject,scope,filter,requestedAttributes);
+            searchRequest = new SearchRequest(baseObject,scope,filter,requestedAttributes);
           }
           catch(final LDAPException ldapException)
           {
             fireLdapExceptionListener(ldapConnection,ldapException);
             return;
           }
-
 
           /*
            * Set size limit and time limit
@@ -238,7 +199,6 @@ public final class OperationPurposeRequestControlExample
           searchRequest.setSizeLimit(sizeLimit);
           final int timeLimit = commandLineOptions.getTimeLimit();
           searchRequest.setTimeLimitSeconds(timeLimit);
-
 
           /*
            * Add the operation purpose request control, if it is
@@ -251,11 +211,10 @@ public final class OperationPurposeRequestControlExample
             final int codeLocationFrames = 0;
             final String requestPurpose = commandLineTool.getToolDescription();
             final OperationPurposeRequestControl operationPurposeRequestControl =
-                new OperationPurposeRequestControl(applicationName,
-                    applicationVersion,codeLocationFrames,requestPurpose);
+                    new OperationPurposeRequestControl(applicationName,applicationVersion,
+                            codeLocationFrames,requestPurpose);
             searchRequest.addControl(operationPurposeRequestControl);
           }
-
 
           /*
            * Transmit search request to the directory server.
@@ -271,28 +230,66 @@ public final class OperationPurposeRequestControlExample
             return;
           }
 
-
           /*
            * Display the results.
            */
-          if(searchResult != null &&
-              searchResult.getResultCode().equals(ResultCode.SUCCESS) &&
-              searchResult.getEntryCount() > 0)
+          if((searchResult != null) &&
+                  searchResult.getResultCode().equals(ResultCode.SUCCESS) &&
+                  (searchResult.getEntryCount() > 0))
           {
             for(final SearchResultEntry entry : searchResult.getSearchEntries())
             {
-              final LdapEntryDisplay ldapEntryDisplay =
-                  new BasicLdapEntryDisplay(entry);
+              final LdapEntryDisplay ldapEntryDisplay = new BasicLdapEntryDisplay(entry);
               ldapEntryDisplay.display();
             }
           }
-
 
         }
       }
       ldapConnection.close();
     }
+
+
+
+    OperationPurposeRequestControlDemo(
+            final LDAPCommandLineTool commandLineTool,
+            final CommandLineOptions commandLineOptions)
+    {
+      Validator.ensureNotNull(commandLineTool,commandLineOptions);
+      this.commandLineTool = commandLineTool;
+      this.commandLineOptions = commandLineOptions;
+    }
+
+
+
+    /**
+     * Manages common command line options.
+     */
+    private final CommandLineOptions commandLineOptions;
+
+
+
+    /*
+     * The command line tool object.
+     */
+    private final LDAPCommandLineTool commandLineTool;
+
+
+
+    /**
+     * interested parties to {@code LdapExceptionEvents}
+     */
+    private volatile Vector<LdapExceptionListener> ldapExceptionListeners =
+            new Vector<LdapExceptionListener>();
+
+
+
+    /*
+     * Whether the operation purpose request control is supported.
+     */
+    private boolean operationPurposeRequestControlSupported;
   }
+
 
 
   /**
@@ -390,25 +387,25 @@ public final class OperationPurposeRequestControlExample
   public static void main(final String... args)
   {
 
-
     /*
      * Construct the demo object.
      */
     final PrintStream outStream = System.out;
     final PrintStream errStream = System.err;
     final OperationPurposeRequestControlExample demo =
-        OperationPurposeRequestControlExample
-            .newOperationPurposeRequestControlExample(outStream,errStream);
+            OperationPurposeRequestControlExample.newOperationPurposeRequestControlExample(
+                    outStream,errStream);
     final ResultCode resultCode = demo.runTool(args);
     final ToolCompletedProcessing completedProcessing =
-        new BasicToolCompletedProcessing(demo,resultCode);
+            new BasicToolCompletedProcessing(demo,resultCode);
     completedProcessing.displayMessage(outStream,errStream);
   }
 
 
+
   private static OperationPurposeRequestControlExample
-      newOperationPurposeRequestControlExample(final OutputStream outStream,
-          final OutputStream errStream)
+          newOperationPurposeRequestControlExample(final OutputStream outStream,
+                  final OutputStream errStream)
   {
     if(outStream == null)
     {
@@ -422,10 +419,73 @@ public final class OperationPurposeRequestControlExample
   }
 
 
+
   /**
-   * Manages common command line options.
+   * {@inheritDoc}
    */
-  private CommandLineOptions commandLineOptions;
+  @Override
+  public void addArguments(final ArgumentParser argumentParser) throws ArgumentException
+  {
+    if(argumentParser == null)
+    {
+      throw new NullPointerException("null argument parser is not allowed.");
+    }
+    commandLineOptions = CommandLineOptions.newCommandLineOptions(argumentParser);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public ResultCode executeToolTasks()
+  {
+    introduction();
+    final OperationPurposeRequestControlDemo demo =
+            new OperationPurposeRequestControlDemo(this,commandLineOptions);
+    demo.execute();
+    return ResultCode.SUCCESS;
+  }
+
+
+
+  @Override
+  public Logger getLogger()
+  {
+    return Logger.getLogger(getClass().getName());
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String getToolDescription()
+  {
+    return "Demonstrates the use of the operation purpose request control";
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String getToolName()
+  {
+    return "OperationPurposerequestControlExample";
+  }
+
+
+
+  @Override
+  public void ldapRequestFailed(final LdapExceptionEvent ldapExceptionEvent)
+  {
+    logger.log(Level.SEVERE,ldapExceptionEvent.getLdapException().getExceptionMessage());
+  }
+
 
 
   /**
@@ -439,69 +499,18 @@ public final class OperationPurposeRequestControlExample
   }
 
 
+
   private OperationPurposeRequestControlExample(
-      final OutputStream outStream,final OutputStream errStream)
+          final OutputStream outStream,final OutputStream errStream)
   {
     super(outStream,errStream);
   }
 
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void addNonLDAPArguments(final ArgumentParser argumentParser)
-      throws ArgumentException
-  {
-    if(argumentParser == null)
-    {
-      throw new NullPointerException("null argument parser is not allowed.");
-    }
-    commandLineOptions =
-        CommandLineOptions.newCommandLineOptions(argumentParser);
-  }
-
 
   /**
-   * {@inheritDoc}
+   * Manages common command line options.
    */
-  @Override
-  public ResultCode doToolProcessing()
-  {
-    introduction();
-    final OperationPurposeRequestControlDemo demo =
-        new OperationPurposeRequestControlDemo(this,commandLineOptions);
-    demo.execute();
-    return ResultCode.SUCCESS;
-  }
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public String getToolDescription()
-  {
-    return "Demonstrates the use of the operation purpose request control";
-  }
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public String getToolName()
-  {
-    return "OperationPurposerequestControlExample";
-  }
-
-
-  @Override
-  public void ldapRequestFailed(final LdapExceptionEvent ldapExceptionEvent)
-  {
-    err(new MinimalLogFormatter().format(new LogRecord(Level.SEVERE,
-        ldapExceptionEvent.getLdapException().getExceptionMessage())));
-  }
-
+  private CommandLineOptions commandLineOptions;
 
 }

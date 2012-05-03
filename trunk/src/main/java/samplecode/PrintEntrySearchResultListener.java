@@ -16,6 +16,13 @@
 package samplecode;
 
 
+import com.unboundid.ldap.sdk.SearchResultEntry;
+import com.unboundid.ldap.sdk.SearchResultReference;
+import com.unboundid.util.MinimalLogFormatter;
+import com.unboundid.util.NotMutable;
+import com.unboundid.util.Validator;
+
+
 import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.logging.Formatter;
@@ -23,11 +30,9 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
 
-import com.unboundid.ldap.sdk.SearchResultEntry;
-import com.unboundid.ldap.sdk.SearchResultReference;
-import com.unboundid.util.MinimalLogFormatter;
-import com.unboundid.util.NotMutable;
-import com.unboundid.util.Validator;
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
 
 
 /**
@@ -40,17 +45,8 @@ import com.unboundid.util.Validator;
 @CodeVersion("1.0")
 @NotMutable
 public class PrintEntrySearchResultListener
-  extends AbstractSearchResultListener
+        extends AbstractSearchResultListener
 {
-
-
-  // text is transmitted via this stream
-  private final PrintStream displayStream = System.out;
-
-
-  // format text in a standardized format.
-  private final Formatter formatter = new MinimalLogFormatter();
-
 
   /**
    * {@inheritDoc}
@@ -60,27 +56,28 @@ public class PrintEntrySearchResultListener
   {
     Validator.ensureNotNull(searchResultEntry);
     final String msg =
-        String.format("dn: %s attributes: %s",searchResultEntry.getDN(),
-            searchResultEntry.getAttributes());
+            String.format("dn: %s attributes: %s",searchResultEntry.getDN(),
+                    searchResultEntry.getAttributes());
     final LogRecord record = new LogRecord(Level.INFO,msg);
     displayStream.println(formatter.format(record));
   }
+
 
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public void searchReferenceReturned(
-      final SearchResultReference searchResultReference)
+  public void searchReferenceReturned(final SearchResultReference searchResultReference)
   {
     Validator.ensureNotNull(searchResultReference);
     final String msg =
-        String.format("referral URLs: %s",
-            Arrays.asList(searchResultReference.getReferralURLs()));
+            String.format("referral URLs: %s",
+                    Arrays.asList(searchResultReference.getReferralURLs()));
     final LogRecord record = new LogRecord(Level.INFO,msg);
     displayStream.println(formatter.format(record));
   }
+
 
 
   /**
@@ -90,4 +87,14 @@ public class PrintEntrySearchResultListener
   {
     // This block deliberately left empty.
   }
+
+
+
+  // text is transmitted via this stream
+  private final PrintStream displayStream = System.out;
+
+
+
+  // format text in a standardized format.
+  private final Formatter formatter = new MinimalLogFormatter();
 }

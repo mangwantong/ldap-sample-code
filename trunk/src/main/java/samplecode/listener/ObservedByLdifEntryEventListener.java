@@ -16,15 +16,15 @@
 package samplecode.listener;
 
 
-import java.util.EventListener;
-
-
 import com.unboundid.ldap.sdk.Entry;
 
 
-import samplecode.Author;
-import samplecode.CodeVersion;
-import samplecode.Since;
+import java.util.EventListener;
+
+
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
 
 
 /**
@@ -35,9 +35,8 @@ import samplecode.Since;
 @Since("Dec 31, 2011")
 @CodeVersion("1.0")
 public interface ObservedByLdifEntryEventListener
-    extends EventListener
+        extends EventListener
 {
-
 
   /**
    * adds the specified {@code ldifEventListener} to receive LDAP
@@ -51,6 +50,7 @@ public interface ObservedByLdifEntryEventListener
   void addLdifEventListener(LdifEntryEventListener ldifEventListener);
 
 
+
   /**
    * notifies the listener that an {@code entry} has been read from a
    * file.
@@ -58,6 +58,7 @@ public interface ObservedByLdifEntryEventListener
    * @param entry
    */
   void fireLdifEventListener(Entry entry);
+
 
 
   /**

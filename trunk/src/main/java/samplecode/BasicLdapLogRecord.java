@@ -16,13 +16,18 @@
 package samplecode;
 
 
+import com.unboundid.util.NotMutable;
+import com.unboundid.util.Validator;
+
+
 import java.util.logging.Formatter;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
 
-import com.unboundid.util.NotMutable;
-import com.unboundid.util.Validator;
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
 
 
 /**
@@ -35,13 +40,8 @@ import com.unboundid.util.Validator;
 @CodeVersion("1.0")
 @NotMutable
 public class BasicLdapLogRecord
-  implements LdapLogRecord
+        implements LdapLogRecord
 {
-
-
-  // A message used to instantiate a LogRecord object.
-  private final String logMessage;
-
 
   /**
    * {@inheritDoc}
@@ -55,8 +55,9 @@ public class BasicLdapLogRecord
   public LogRecord getLogRecord(final Level level)
   {
     Validator.ensureNotNull(level);
-    return new LogRecord(level,this.logMessage);
+    return new LogRecord(level,logMessage);
   }
+
 
 
   /**
@@ -69,9 +70,15 @@ public class BasicLdapLogRecord
    *          Precondition: {@code logMessage} is not permitted to be
    *          {@code null}.
    */
-  public BasicLdapLogRecord(final String logMessage)
+  public BasicLdapLogRecord(
+          final String logMessage)
   {
     Validator.ensureNotNull(logMessage);
     this.logMessage = logMessage;
   }
+
+
+
+  // A message used to instantiate a LogRecord object.
+  private final String logMessage;
 }

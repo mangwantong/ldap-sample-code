@@ -20,9 +20,9 @@ import java.io.PrintStream;
 import java.util.EventListener;
 
 
-import samplecode.Author;
-import samplecode.CodeVersion;
-import samplecode.Since;
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
 
 
 /**
@@ -36,9 +36,8 @@ import samplecode.Since;
 @Since("Dec 26, 2011")
 @CodeVersion("1.0")
 public interface ErrorListener<T>
-    extends EventListener
+        extends EventListener
 {
-
 
   /**
    * Displays an error message in a manner decided by the implementor.

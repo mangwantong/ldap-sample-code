@@ -13,7 +13,7 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
-package samplecode;
+package samplecode.annotation;
 
 
 import java.lang.annotation.ElementType;
@@ -29,7 +29,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface CodeVersion
 {
-
 
   /**
    * @return The version

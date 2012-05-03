@@ -19,9 +19,9 @@ package samplecode.listener;
 import java.util.EventListener;
 
 
-import samplecode.Author;
-import samplecode.CodeVersion;
-import samplecode.Since;
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
 
 
 /**
@@ -31,9 +31,8 @@ import samplecode.Since;
 @Since("Dec 31, 2011")
 @CodeVersion("1.0")
 public interface LdapExceptionListener
-    extends EventListener
+        extends EventListener
 {
-
 
   /**
    * The server rejected the request, or a problem occurred while
@@ -43,6 +42,5 @@ public interface LdapExceptionListener
    *          the event that caused the notification
    */
   void ldapRequestFailed(LdapExceptionEvent ldapExceptionEvent);
-
 
 }

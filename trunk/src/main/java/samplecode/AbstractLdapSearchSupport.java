@@ -22,6 +22,11 @@ import com.unboundid.ldap.sdk.SearchRequest;
 import com.unboundid.ldap.sdk.SearchScope;
 
 
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
+
+
 /**
  * Super-class of each of the LDAP search operation related classes.
  * This class is not permitted to be instantiated except from a
@@ -29,18 +34,11 @@ import com.unboundid.ldap.sdk.SearchScope;
  */
 @Author("terry.gardner@unboundid.com")
 @Since("Dec 25, 2011")
-@CodeVersion("1.2")
+@CodeVersion("1.3")
 public abstract class AbstractLdapSearchSupport
-    extends AbstractLdapSupport
-    implements LdapSearchSupport
+        extends AbstractLdapSupport
+        implements LdapSearchSupport
 {
-
-
-  protected AbstractLdapSearchSupport()
-  {
-    // This block deliberately left empty.
-  }
-
 
   /**
    * Get the base object for creating a search request.
@@ -51,6 +49,7 @@ public abstract class AbstractLdapSearchSupport
   public abstract String getBaseObject();
 
 
+
   /**
    * Get the filter for creating a search request.
    * 
@@ -58,6 +57,7 @@ public abstract class AbstractLdapSearchSupport
    */
   @Override
   public abstract Filter getFilter() throws LDAPException;
+
 
 
   /**
@@ -70,6 +70,7 @@ public abstract class AbstractLdapSearchSupport
   public abstract String[] getRequestedAttributes();
 
 
+
   /**
    * Get the scope for creating a search request.
    * 
@@ -77,6 +78,7 @@ public abstract class AbstractLdapSearchSupport
    */
   @Override
   public abstract SearchScope getScope();
+
 
 
   /**
@@ -88,5 +90,11 @@ public abstract class AbstractLdapSearchSupport
   @Override
   public abstract SearchRequest newSearchRequest() throws LDAPException;
 
+
+
+  protected AbstractLdapSearchSupport()
+  {
+    // This block deliberately left empty.
+  }
 
 }

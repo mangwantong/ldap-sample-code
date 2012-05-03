@@ -15,9 +15,10 @@
  */
 package samplecode.listener;
 
-import samplecode.Author;
-import samplecode.CodeVersion;
-import samplecode.Since;
+
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
 
 
 /**
@@ -33,7 +34,6 @@ import samplecode.Since;
 @CodeVersion("1.2")
 public interface ProgressEvent<T>
 {
-
 
   /**
    * Retrieve the message describing the progress of the process.
