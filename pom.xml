@@ -8,7 +8,7 @@
   <groupId>samplecode</groupId>
   <artifactId>sample-code</artifactId>
   <name>Sample code</name>
-  <version position="left">2.0</version>
+  <version position="left">2.1</version>
   <packaging>jar</packaging>
   <properties>
     <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
