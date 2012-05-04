@@ -13,7 +13,7 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
-package samplecode;
+package samplecode.bind;
 
 
 import com.unboundid.ldap.sdk.*;
@@ -37,6 +37,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
+import samplecode.BasicToolCompletedProcessing;
+import samplecode.CommandLineOptions;
+import samplecode.DefaultUnsolicitedNotificationHandler;
+import samplecode.SupportedFeature;
+import samplecode.SupportedFeatureException;
+import samplecode.ToolCompletedProcessing;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
@@ -60,7 +66,7 @@ import samplecode.tools.AbstractTool;
  */
 @Author("terry.gardner@unboundid.com")
 @Since("01-Sep-2011")
-@CodeVersion("1.20")
+@CodeVersion("1.21")
 public final class BindDemo
         extends AbstractTool
         implements LdapExceptionListener,ObservedByLdapExceptionListener,
