@@ -31,8 +31,8 @@ import samplecode.annotation.Since;
  */
 @Author("terry.gardner@unboundid.com")
 @Since("Dec 6, 2011")
-@CodeVersion("1.0")
-interface ResponseControlAware
+@CodeVersion("1.1")
+public interface ResponseControlAware
 {
 
   /**
