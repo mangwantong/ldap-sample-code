@@ -25,6 +25,7 @@ import com.unboundid.util.Validator;
 
 import java.io.PrintStream;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 import samplecode.annotation.Author;
@@ -40,10 +41,40 @@ import samplecode.annotation.Since;
  */
 @Author("terry.gardner@unboundid.com")
 @Since("Dec 24, 2011")
-@CodeVersion("1.0")
+@CodeVersion("1.1")
 public class BasicToolCompletedProcessing
         implements ToolCompletedProcessing
 {
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String createMsg()
+  {
+    return String.format("%s has completed processing, result code: %s",tool.getToolName(),
+            resultCode);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void displayMessage(final Logger logger)
+  {
+    if(resultCode.equals(ResultCode.SUCCESS))
+    {
+      logger.info(createMsg());
+    }
+    else
+    {
+      logger.severe(createMsg());
+    }
+  }
+
+
 
   /**
    * {@inheritDoc}
@@ -55,10 +86,7 @@ public class BasicToolCompletedProcessing
   public void displayMessage(final PrintStream outStream,final PrintStream errStream)
   {
     Validator.ensureNotNull(outStream,errStream);
-    final LdapLogRecord ldapLogRecord =
-            new BasicLdapLogRecord(String.format(
-                    "%s has completed processing, the result code was: %s",tool.getToolName(),
-                    resultCode));
+    final LdapLogRecord ldapLogRecord = new BasicLdapLogRecord(createMsg());
     if(resultCode.equals(ResultCode.SUCCESS))
     {
       outStream

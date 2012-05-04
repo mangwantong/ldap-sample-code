@@ -28,7 +28,6 @@ import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
 
 
-import java.io.PrintStream;
 import java.util.logging.Formatter;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
@@ -120,13 +119,11 @@ public final class AuthDemo
    */
   public static void main(final String... args)
   {
-    final PrintStream outStream = System.out;
-    final PrintStream errStream = System.err;
     final AuthDemo authDemo = new AuthDemo();
     final ResultCode resultCode = authDemo.runTool(args);
     final ToolCompletedProcessing completedProcessing =
             new BasicToolCompletedProcessing(authDemo,resultCode);
-    completedProcessing.displayMessage(outStream,errStream);
+    completedProcessing.displayMessage(Logger.getLogger(AuthDemo.class.getName()));
   }
 
 
@@ -161,7 +158,9 @@ public final class AuthDemo
     }
     catch(final SupportedFeatureException exception)
     {
-      err(formatter.format(new LogRecord(Level.SEVERE,"feature or control not supported.")));
+      final String msg =
+              String.format("feature or control not supported: %s",exception.getMessage());
+      getLogger().severe(msg);
       resultCode = ResultCode.UNWILLING_TO_PERFORM;
     }
     return resultCode;
@@ -214,6 +213,12 @@ public final class AuthDemo
     final UnsolicitedNotificationHandler unsolicitedNotificationHandler =
             new DefaultUnsolicitedNotificationHandler(this);
 
+
+    /*
+     * Connect to the server as specified by the command line options,
+     * for example, --hostname, --port, --bindDN, --bindPassword, (or
+     * --bindPasswordFile), and so forth.
+     */
     LDAPConnection ldapConnection;
     if(verbose)
     {
@@ -231,9 +236,10 @@ public final class AuthDemo
     catch(final LDAPException ldapException)
     {
       // ldapConnection is not initialized here
-      err(formatter.format(new LogRecord(Level.SEVERE,ldapException.getExceptionMessage())));
+      getLogger().severe(ldapException.getExceptionMessage());
       return ldapException.getResultCode();
     }
+
 
     /*
      * Instantiate the object which provides methods to get the
@@ -246,6 +252,7 @@ public final class AuthDemo
     final AuthorizedIdentity authorizedIdentity = new AuthorizedIdentity(ldapConnection);
     authorizedIdentity.addLdapExceptionListener(new DefaultLdapExceptionListener());
 
+
     /*
      * Demonstrate the user of the Who Am I? extended operation. This
      * procedure requires creating a WhoAmIExtendedRequest object and
@@ -255,15 +262,15 @@ public final class AuthDemo
     {
       verbose("Getting the authorization identity using the Who Am I? extended request.");
     }
-    String authId;
-    authId =
+    String authId =
             authorizedIdentity
                     .getAuthorizationIdentityWhoAmIExtendedOperation(getResponseTimeout());
     if(authId != null)
     {
       msg = String.format("AuthorizationID from the Who am I? extended request: '%s'",authId);
-      out(formatter.format(new LogRecord(Level.INFO,msg)));
+      getLogger().info(msg);
     }
+
 
     /*
      * Demonstrate the use of the AuthorizationIdentityRequestControl.

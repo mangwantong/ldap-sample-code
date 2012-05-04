@@ -20,6 +20,7 @@ import com.unboundid.util.CommandLineTool;
 
 
 import java.io.PrintStream;
+import java.util.logging.Logger;
 
 
 import samplecode.annotation.Author;
@@ -35,9 +36,29 @@ import samplecode.annotation.Since;
  */
 @Author("terry.gardner@unboundid.com")
 @Since("Dec 24, 2011")
-@CodeVersion("1.0")
+@CodeVersion("1.1")
 public interface ToolCompletedProcessing
 {
+
+  /**
+   * Constructs the string consisting of the message to be displayed.
+   * 
+   * @return the message to be displayed
+   */
+  String createMsg();
+
+
+
+  /**
+   * Transmits a message created at the discretion of the implementing
+   * class to the output stream or error stream (errors only).
+   * 
+   * @param logger
+   *          A logger created by the client
+   */
+  void displayMessage(Logger logger);
+
+
 
   /**
    * Transmits a message created at the discretion of the implementing
