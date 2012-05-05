@@ -17,7 +17,6 @@ package samplecode.auth;
 
 
 import com.unboundid.ldap.sdk.DN;
-import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.UnsolicitedNotificationHandler;
@@ -27,7 +26,6 @@ import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
 
 
-import java.util.Vector;
 import java.util.logging.Formatter;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
@@ -44,9 +42,6 @@ import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
 import samplecode.listener.DefaultLdapExceptionListener;
-import samplecode.listener.LdapExceptionEvent;
-import samplecode.listener.LdapExceptionListener;
-import samplecode.listener.ObservedByLdapExceptionListener;
 import samplecode.tools.AbstractTool;
 
 
@@ -86,7 +81,6 @@ import samplecode.tools.AbstractTool;
 @CodeVersion("2.1")
 public final class AuthDemo
         extends AbstractTool
-        implements LdapExceptionListener,ObservedByLdapExceptionListener
 {
 
 
@@ -102,7 +96,8 @@ public final class AuthDemo
                   + "request use the authentication state of the connection "
                   + "to the LDAP server, that is, the connection authentication "
                   + "state as set by the --bindDn|-D command line argument "
-                  + "and the --bindPassword|-w command line argument. The account usable request "
+                  + "and the --bindPassword|-w command line argument. "
+                  + "The account usable request "
                   + "control was designed by Sun Microsystems and is not based on any "
                   + "RFC or draft.";
 
@@ -153,21 +148,6 @@ public final class AuthDemo
    * {@inheritDoc}
    */
   @Override
-  public synchronized void addLdapExceptionListener(
-          final LdapExceptionListener ldapExceptionListener)
-  {
-    if(ldapExceptionListener != null)
-    {
-      ldapExceptionListeners.add(ldapExceptionListener);
-    }
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   public ResultCode executeToolTasks()
   {
     introduction();
@@ -191,32 +171,6 @@ public final class AuthDemo
   /**
    * {@inheritDoc}
    */
-  @SuppressWarnings("unchecked")
-  @Override
-  public void fireLdapExceptionListener(final LDAPConnection ldapConnection,
-          final LDAPException ldapException)
-  {
-    Vector<LdapExceptionListener> copy;
-    synchronized(this)
-    {
-      copy = (Vector<LdapExceptionListener>)ldapExceptionListeners.clone();
-    }
-    if(copy.size() == 0)
-    {
-      return;
-    }
-    final LdapExceptionEvent ev = new LdapExceptionEvent(this,ldapConnection,ldapException);
-    for(final LdapExceptionListener l : copy)
-    {
-      l.ldapRequestFailed(ev);
-    }
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public String getToolDescription()
   {
@@ -232,29 +186,6 @@ public final class AuthDemo
   public String getToolName()
   {
     return AuthDemo.TOOL_NAME;
-  }
-
-
-
-  @Override
-  public void ldapRequestFailed(final LdapExceptionEvent ldapExceptionEvent)
-  {
-    logger.log(Level.SEVERE,ldapExceptionEvent.getLdapException().getExceptionMessage());
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public synchronized void removeLdapExceptionListener(
-          final LdapExceptionListener ldapExceptionListener)
-  {
-    if(ldapExceptionListener != null)
-    {
-      ldapExceptionListeners.remove(ldapExceptionListener);
-    }
   }
 
 
