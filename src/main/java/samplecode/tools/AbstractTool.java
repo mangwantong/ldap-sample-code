@@ -127,6 +127,19 @@ public abstract class AbstractTool
 
 
 
+  /**
+   * 
+   * TODO: Provide a comment for this method.
+   * 
+   * @return Whether the tool is verbose in its output.
+   */
+  public boolean isVerbose()
+  {
+    return verbose;
+  }
+
+
+
   @Override
   public void ldapRequestFailed(final LdapExceptionEvent ldapExceptionEvent)
   {
@@ -524,11 +537,11 @@ public abstract class AbstractTool
 
 
 
-  /** Whether the tool is verbose during execution */
-  protected boolean verbose;
-
-
-
   /** Formats {@code LogRecord} for display. */
   private final Formatter formatter = new MinimalLogFormatter();
+
+
+
+  /** Whether the tool is verbose during execution */
+  private boolean verbose;
 }
