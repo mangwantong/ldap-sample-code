@@ -37,8 +37,10 @@ import java.util.logging.Logger;
 
 
 import samplecode.CommandLineOptions;
+import samplecode.listener.LdapExceptionEvent;
 import samplecode.listener.LdapExceptionListener;
 import samplecode.listener.LdapSearchExceptionListener;
+import samplecode.listener.ObservedByLdapExceptionListener;
 
 
 /**
@@ -46,7 +48,23 @@ import samplecode.listener.LdapSearchExceptionListener;
  */
 public abstract class AbstractTool
         extends LDAPCommandLineTool
+        implements LdapExceptionListener,ObservedByLdapExceptionListener
 {
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public synchronized void addLdapExceptionListener(
+          final LdapExceptionListener ldapExceptionListener)
+  {
+    if(ldapExceptionListener != null)
+    {
+      ldapExceptionListeners.add(ldapExceptionListener);
+    }
+  }
+
+
 
   /**
    * {@inheritDoc}
@@ -66,6 +84,55 @@ public abstract class AbstractTool
   public ResultCode doToolProcessing()
   {
     return executeToolTasks();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @SuppressWarnings("unchecked")
+  @Override
+  public void fireLdapExceptionListener(final LDAPConnection ldapConnection,
+          final LDAPException ldapException)
+  {
+    Vector<LdapExceptionListener> copy;
+    synchronized(this)
+    {
+      copy = (Vector<LdapExceptionListener>)ldapExceptionListeners.clone();
+    }
+    if(copy.size() == 0)
+    {
+      return;
+    }
+    final LdapExceptionEvent ev = new LdapExceptionEvent(this,ldapConnection,ldapException);
+    for(final LdapExceptionListener l : copy)
+    {
+      l.ldapRequestFailed(ev);
+    }
+  }
+
+
+
+  @Override
+  public void ldapRequestFailed(final LdapExceptionEvent ldapExceptionEvent)
+  {
+    logger.log(Level.SEVERE,ldapExceptionEvent.getLdapException().getExceptionMessage());
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public synchronized void removeLdapExceptionListener(
+          final LdapExceptionListener ldapExceptionListener)
+  {
+    if(ldapExceptionListener != null)
+    {
+      ldapExceptionListeners.remove(ldapExceptionListener);
+    }
   }
 
 

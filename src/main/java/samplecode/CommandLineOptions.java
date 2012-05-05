@@ -44,6 +44,9 @@ import java.util.logging.Logger;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
+import samplecode.listener.FileNotFoundExceptionEvent;
+import samplecode.listener.FileNotFoundExceptionListener;
+import samplecode.listener.IOExceptionEvent;
 
 
 /**
@@ -1979,18 +1982,28 @@ public class CommandLineOptions
     this.argumentParser = argumentParser;
 
     final String resourceName = CommandLineOptions.PROPERTIES_RESOURCE_NAME;
-    PropertiesFile propertiesFile = null;
-    propertiesFile = newPropertiesFile(resourceName);
-    Properties properties = null;
-    if(propertiesFile != null)
-    {
-      properties = propertiesFile.getProperties();
-    }
-    else
-    {
-      logger.severe(resourceName + ": propertiesFile was null.");
-      throw new NullPointerException();
-    }
+    final PropertiesFile propertiesFile = newPropertiesFile(resourceName);
+    final FileNotFoundExceptionListener fileNotFoundExceptionListener =
+            new FileNotFoundExceptionListener()
+            {
+
+              @Override
+              public void fileNotFound(final FileNotFoundExceptionEvent event)
+              {
+                logger.severe(event.getFileNotFoundException().getMessage());
+              }
+
+
+
+              @Override
+              public void ioExceptionOccurred(final IOExceptionEvent ioExceptionEvent)
+              {
+                logger.severe(ioExceptionEvent.getIoException().getMessage());
+              }
+
+            };
+    propertiesFile.addFileNotFoundExceptionListener(fileNotFoundExceptionListener);
+    final Properties properties = propertiesFile.getProperties();
     final BooleanArgument abandonOnTimeArgument = newAbandonOnTimeoutArgument(properties);
     final StringArgument attributeArgument = newAttributeArgument(properties);
     final BooleanArgument autoReconnectArgument = newAutoReconnectArgument(properties);
