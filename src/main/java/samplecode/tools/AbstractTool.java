@@ -311,7 +311,7 @@ public abstract class AbstractTool
    */
   protected int getIntroductionColumnWidth()
   {
-    return 72;
+    return 96;
   }
 
 
