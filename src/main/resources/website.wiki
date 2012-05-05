@@ -1,0 +1,39 @@
+<g:plusone size="medium"></g:plusone>
+
+== Project Description ==
+
+The *ldap-sample-code* project houses sample code written for use in demonstrating aspects of LDAP, best practices with LDAP, and the [http://www.unboundid.com/products/ldap-sdk/ UnboundID LDAP SDK]. The sample code is often used to provide examples and demonstrations at the [http://ldapmaven.org LDAP Blog] and references to code in that blog refer to code hosted in this project. 
+
+Some of the examples use classes that are available in the UnboundID LDAP SDK commercial edition. If the commercial edition is not available, simply remove those classes after checking out the code and before using [http://maven.apache.org mvn] to compile an create a jar file. Then download the standard edition of the LDAP SDK from the link above, or fetch it with maven. Click on [http://www.evernote.com/shard/s5/sh/899e154f-3345-4c09-b784-9912c653e7fc/83c03764c116336a574766ae0affa828 POM dependency] for the pom.xml dependency clause.
+
+The classes that would need to be removed are:
+
+ * `src/main/java/samplecode/BindDemo.java`
+ * `src/main/java/samplecode/EffectiveRightsEntryDemo.java`
+ * `src/main/java/samplecode/OperationPurposeRequestControlExample.java`
+
+There are many examples of best practices uses of LDAP such as
+
+ * [http://www.evernote.com/shard/s5/sh/3ec0447f-6a21-4343-9d72-09b1b0e779ec/a3b70abbdad6efdf6d92c8c20bfa76a3 search best practices]
+ * Demonstrations use the `LDAPCommandLineTool` class
+ * the use of extensions and request controls
+ * [http://ff1959.wordpress.com/2011/11/22/matching-rules-comparisons/ matching rules] used to compare distinguished names and attribute values
+ * use  of the [http://www.evernote.com/shard/s5/sh/e6bdc1cd-068d-4d63-93f1-a3275f7a703b/b5968790355e854a35ba36dc775144b9 root DSE] to check whether request controls and extensions are supported
+ * the minimal log formatter, suitable for use with the java.util.logging framework
+
+== Example Code ==
+
+|| *Description* || *Requires Commercial Edition* ||
+|| Asssertion request control || no ||
+|| Matched values request control || no ||
+|| Bind demonstration || no ||
+|| Authorization Identity Request Control || no ||
+|| Password Modify Extended Request || no ||
+|| Simple Paged Results Request Control || no ||
+|| Virtual List View Request Control || no ||
+||  In-memory Directory Server || no ||
+|| LDAP Tree Delete || no ||
+|| Matching Rules || no ||
+|| Operation Purpose Request Control || yes ||
+|| Get Effective Rights Request Control || yes ||
+|| Account Usable Request Control || yes ||
