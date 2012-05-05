@@ -13,7 +13,7 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
-package samplecode;
+package samplecode.rights;
 
 
 import com.unboundid.ldap.sdk.DN;
@@ -51,6 +51,12 @@ import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 
+import samplecode.BasicToolCompletedProcessing;
+import samplecode.CheckEffectiveRights;
+import samplecode.CheckEffectiveRightsException;
+import samplecode.CommandLineOptions;
+import samplecode.SupportedFeatureException;
+import samplecode.ToolCompletedProcessing;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
@@ -447,24 +453,16 @@ public class EffectiveRightsEntryDemo
 
 
 
-  private void report(final PrintStream printStream,final String msg)
-  {
-    final LogRecord record = new LogRecord(Level.INFO,msg);
-    printStream.println(getFormatter().format(record));
-  }
-
-
-
   private void reportDoesHaveRight(final String msg)
   {
-    report(System.err,msg);
+    getLogger().info(msg);
   }
 
 
 
   private void reportDoesNotHaveRight(final String msg)
   {
-    report(System.err,msg);
+    getLogger().info(msg);
   }
 
 
