@@ -37,6 +37,7 @@ import java.util.logging.Logger;
 
 
 import samplecode.CommandLineOptions;
+import samplecode.annotation.CodeVersion;
 import samplecode.listener.LdapExceptionEvent;
 import samplecode.listener.LdapExceptionListener;
 import samplecode.listener.LdapSearchExceptionListener;
@@ -46,6 +47,7 @@ import samplecode.listener.ObservedByLdapExceptionListener;
 /**
  * A minimal implementation of the {@code LDAPCommandLineTool} class.
  */
+@CodeVersion("2.1")
 public abstract class AbstractTool
         extends LDAPCommandLineTool
         implements LdapExceptionListener,ObservedByLdapExceptionListener
