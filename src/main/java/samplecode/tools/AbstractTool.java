@@ -114,6 +114,19 @@ public abstract class AbstractTool
 
 
 
+  /**
+   * Get the response time in milliseconds. TODO: Better documentatian
+   * of this method
+   * 
+   * @return response time in milliseconds
+   */
+  public long getResponseTimeout()
+  {
+    return responseTimeoutMillis;
+  }
+
+
+
   @Override
   public void ldapRequestFailed(final LdapExceptionEvent ldapExceptionEvent)
   {
@@ -377,7 +390,15 @@ public abstract class AbstractTool
 
 
 
-  protected abstract UnsolicitedNotificationHandler getUnsolicitedNotificationHandler();
+  /**
+   * TODO: Provide a comment for this method.
+   * 
+   * @return
+   */
+  protected UnsolicitedNotificationHandler getUnsolicitedNotificationHandler()
+  {
+    return new samplecode.DefaultUnsolicitedNotificationHandler(this);
+  }
 
 
 
@@ -431,6 +452,18 @@ public abstract class AbstractTool
       responseTimeoutMillis = 1000;
       verbose = false;
     }
+  }
+
+
+
+  /**
+   * 
+   * Creates a {@code AbstractTool} with default state.
+   * 
+   */
+  protected AbstractTool()
+  {
+    super(System.out,System.err);
   }
 
 
