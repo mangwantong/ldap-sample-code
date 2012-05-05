@@ -19,16 +19,11 @@ package samplecode.auth;
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
-import com.unboundid.ldap.sdk.UnsolicitedNotificationHandler;
-import com.unboundid.util.MinimalLogFormatter;
 import com.unboundid.util.Validator;
 import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
 
 
-import java.util.logging.Formatter;
-import java.util.logging.Level;
-import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 
@@ -167,6 +162,14 @@ public final class AuthDemo
 
 
 
+  @Override
+  public Logger getLogger()
+  {
+    return Logger.getLogger(getClass().getName());
+  }
+
+
+
   /**
    * {@inheritDoc}
    */
@@ -185,22 +188,6 @@ public final class AuthDemo
   public String getToolName()
   {
     return AuthDemo.TOOL_NAME;
-  }
-
-
-
-  @Override
-  protected Logger getLogger()
-  {
-    return Logger.getLogger(getClass().getName());
-  }
-
-
-
-  @Override
-  protected UnsolicitedNotificationHandler getUnsolicitedNotificationHandler()
-  {
-    return new samplecode.DefaultUnsolicitedNotificationHandler(this);
   }
 
 
@@ -240,6 +227,11 @@ public final class AuthDemo
     final AuthorizedIdentity authorizedIdentity = new AuthorizedIdentity(ldapConnection);
     authorizedIdentity.addLdapExceptionListener(new DefaultLdapExceptionListener());
 
+    /**
+     * String representation of messages that provide informative or
+     * instructional messages.
+     */
+    String msg;
 
     /*
      * Demonstrate the user of the Who Am I? extended operation. This
@@ -269,8 +261,7 @@ public final class AuthDemo
       final String helpfulMessage =
               "Please specify a --bindDN argument to test the "
                       + "AuthorizationidentityRequestControl.";
-      final LogRecord record = new LogRecord(Level.SEVERE,helpfulMessage);
-      err(formatter.format(record));
+      getLogger().info(helpfulMessage);
       return ResultCode.PARAM_ERROR;
     }
     if(verbose)
@@ -287,7 +278,7 @@ public final class AuthDemo
       msg =
               String.format("AuthorizationID from the "
                       + "AuthorizationIdentityResponseControl: '%s'",authId);
-      out(formatter.format(new LogRecord(Level.INFO,msg)));
+      getLogger().info(msg);
     }
     ldapConnection.close();
     return ResultCode.SUCCESS;
@@ -295,34 +286,4 @@ public final class AuthDemo
 
 
 
-  private long getResponseTimeout()
-  {
-    return responseTimeoutMillis;
-  }
-
-
-
-  /**
-   * Prepares {@code AuthDemo} for use by a client - the
-   * {@code System.out} and {@code System.err OutputStreams} are used.
-   */
-  public AuthDemo()
-  {
-    super(System.out,System.err);
-  }
-
-
-
-  /**
-   * Provides logging services.
-   */
-  private final Formatter formatter = new MinimalLogFormatter();
-
-
-
-  /**
-   * String representation of messages that provide informative or
-   * instructional messages.
-   */
-  private String msg;
 }
