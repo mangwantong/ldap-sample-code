@@ -29,6 +29,7 @@ import com.unboundid.ldap.sdk.SearchRequest;
 import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchScope;
+import com.unboundid.ldap.sdk.UnsolicitedNotificationHandler;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.ldif.LDIFException;
 import com.unboundid.ldif.LDIFReader;
@@ -1184,6 +1185,14 @@ public final class LdapListenerExample
   protected Logger getLogger()
   {
     return Logger.getLogger(getClass().getName());
+  }
+
+
+
+  @Override
+  protected UnsolicitedNotificationHandler getUnsolicitedNotificationHandler()
+  {
+    return new samplecode.DefaultUnsolicitedNotificationHandler(this);
   }
 
 

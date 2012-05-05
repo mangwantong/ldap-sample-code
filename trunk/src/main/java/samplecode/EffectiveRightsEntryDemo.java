@@ -23,6 +23,7 @@ import com.unboundid.ldap.sdk.LDAPSearchException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchRequest;
 import com.unboundid.ldap.sdk.SearchResult;
+import com.unboundid.ldap.sdk.UnsolicitedNotificationHandler;
 import com.unboundid.ldap.sdk.unboundidds.controls.AttributeRight;
 import com.unboundid.ldap.sdk.unboundidds.controls.EffectiveRightsEntry;
 import com.unboundid.ldap.sdk.unboundidds.controls.GetEffectiveRightsRequestControl;
@@ -407,6 +408,14 @@ public class EffectiveRightsEntryDemo
   protected Logger getLogger()
   {
     return Logger.getLogger(getClass().getName());
+  }
+
+
+
+  @Override
+  protected UnsolicitedNotificationHandler getUnsolicitedNotificationHandler()
+  {
+    return new samplecode.DefaultUnsolicitedNotificationHandler(this);
   }
 
 

@@ -590,6 +590,14 @@ public final class ModifyIncrementDemo
 
 
 
+  @Override
+  protected UnsolicitedNotificationHandler getUnsolicitedNotificationHandler()
+  {
+    return new samplecode.DefaultUnsolicitedNotificationHandler(this);
+  }
+
+
+
   /**
    * Prepares {@code ModifyIncrementDemo} for use by a client - the
    * {@code System.out} and {@code System.err OutputStreams} are used.

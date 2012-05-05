@@ -17,6 +17,7 @@ package samplecode.tools;
 
 
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.UnsolicitedNotificationHandler;
 import com.unboundid.util.MinimalLogFormatter;
 import com.unboundid.util.Validator;
 import com.unboundid.util.args.ArgumentException;
@@ -50,6 +51,7 @@ import samplecode.annotation.Since;
 public final class ScriptTool
         extends AbstractTool
 {
+
 
   /**
    * The description of this tool; this is used for help and diagnostic
@@ -288,6 +290,14 @@ public final class ScriptTool
 
 
 
+  @Override
+  protected UnsolicitedNotificationHandler getUnsolicitedNotificationHandler()
+  {
+    return new samplecode.DefaultUnsolicitedNotificationHandler(this);
+  }
+
+
+
   /**
    * Constructs a {@code ScriptTool}.
    */
@@ -336,6 +346,7 @@ public final class ScriptTool
  * <blockquote>
  * 
  * <pre>
+ * 
  * 
  * 
  * 

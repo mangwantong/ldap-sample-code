@@ -18,7 +18,6 @@ package samplecode.auth;
 
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.LDAPConnection;
-import com.unboundid.ldap.sdk.LDAPConnectionOptions;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.UnsolicitedNotificationHandler;
@@ -28,6 +27,7 @@ import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
 
 
+import java.util.Vector;
 import java.util.logging.Formatter;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
@@ -44,6 +44,9 @@ import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
 import samplecode.listener.DefaultLdapExceptionListener;
+import samplecode.listener.LdapExceptionEvent;
+import samplecode.listener.LdapExceptionListener;
+import samplecode.listener.ObservedByLdapExceptionListener;
 import samplecode.tools.AbstractTool;
 
 
@@ -83,7 +86,10 @@ import samplecode.tools.AbstractTool;
 @CodeVersion("2.1")
 public final class AuthDemo
         extends AbstractTool
+        implements LdapExceptionListener,ObservedByLdapExceptionListener
 {
+
+
 
   /**
    * The description of this tool; this is used in help output and for
@@ -147,9 +153,23 @@ public final class AuthDemo
    * {@inheritDoc}
    */
   @Override
+  public synchronized void addLdapExceptionListener(
+          final LdapExceptionListener ldapExceptionListener)
+  {
+    if(ldapExceptionListener != null)
+    {
+      ldapExceptionListeners.add(ldapExceptionListener);
+    }
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public ResultCode executeToolTasks()
   {
-    setFieldsFromCommandLineOptions();
     introduction();
     ResultCode resultCode = ResultCode.SUCCESS;
     try
@@ -164,6 +184,32 @@ public final class AuthDemo
       resultCode = ResultCode.UNWILLING_TO_PERFORM;
     }
     return resultCode;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @SuppressWarnings("unchecked")
+  @Override
+  public void fireLdapExceptionListener(final LDAPConnection ldapConnection,
+          final LDAPException ldapException)
+  {
+    Vector<LdapExceptionListener> copy;
+    synchronized(this)
+    {
+      copy = (Vector<LdapExceptionListener>)ldapExceptionListeners.clone();
+    }
+    if(copy.size() == 0)
+    {
+      return;
+    }
+    final LdapExceptionEvent ev = new LdapExceptionEvent(this,ldapConnection,ldapException);
+    for(final LdapExceptionListener l : copy)
+    {
+      l.ldapRequestFailed(ev);
+    }
   }
 
 
@@ -191,6 +237,29 @@ public final class AuthDemo
 
 
   @Override
+  public void ldapRequestFailed(final LdapExceptionEvent ldapExceptionEvent)
+  {
+    logger.log(Level.SEVERE,ldapExceptionEvent.getLdapException().getExceptionMessage());
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public synchronized void removeLdapExceptionListener(
+          final LdapExceptionListener ldapExceptionListener)
+  {
+    if(ldapExceptionListener != null)
+    {
+      ldapExceptionListeners.remove(ldapExceptionListener);
+    }
+  }
+
+
+
+  @Override
   protected Logger getLogger()
   {
     return Logger.getLogger(getClass().getName());
@@ -198,45 +267,35 @@ public final class AuthDemo
 
 
 
+  @Override
+  protected UnsolicitedNotificationHandler getUnsolicitedNotificationHandler()
+  {
+    return new samplecode.DefaultUnsolicitedNotificationHandler(this);
+  }
+
+
+
   private ResultCode authDemo() throws SupportedFeatureException
   {
 
-    /*
-     * Handles unsolicited notifications. An unsolicited notification is
-     * an LDAPMessage sent from the server to the client that is not in
-     * response to any LDAPMessage received by the server. It is used to
-     * signal an extraordinary condition in the server or in the LDAP
-     * session between the client and the server. The notification is of
-     * an advisory nature, and the server will not expect any response
-     * to be returned from the client.
-     */
-    final UnsolicitedNotificationHandler unsolicitedNotificationHandler =
-            new DefaultUnsolicitedNotificationHandler(this);
+    new DefaultUnsolicitedNotificationHandler(this);
 
 
     /*
-     * Connect to the server as specified by the command line options,
-     * for example, --hostname, --port, --bindDN, --bindPassword, (or
-     * --bindPasswordFile), and so forth.
+     * Obtain a pool of connections to the LDAP server from the
+     * LDAPCommandLineTool services,this requires specifying a
+     * connection to the LDAP server,a number of initial connections
+     * (--initialConnections) in the pool,and the maximum number of
+     * connections (--maxConnections) that the pool should create.
      */
-    LDAPConnection ldapConnection;
-    if(verbose)
-    {
-      verbose("connecting to LDAP server.");
-    }
     try
     {
-      ldapConnection = getConnection();
-      final LDAPConnectionOptions connectionOptions =
-              commandLineOptions.newLDAPConnectionOptions();
-      connectionOptions.setResponseTimeoutMillis(responseTimeoutMillis);
-      connectionOptions.setUnsolicitedNotificationHandler(unsolicitedNotificationHandler);
-      ldapConnection.setConnectionOptions(connectionOptions);
+      ldapConnection = connectToServer();
+      ldapConnectionPool = getLdapConnectionPool(ldapConnection);
     }
     catch(final LDAPException ldapException)
     {
-      // ldapConnection is not initialized here
-      getLogger().severe(ldapException.getExceptionMessage());
+      fireLdapExceptionListener(ldapConnection,ldapException);
       return ldapException.getResultCode();
     }
 

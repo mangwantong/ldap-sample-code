@@ -16,7 +16,20 @@
 package samplecode.bind;
 
 
-import com.unboundid.ldap.sdk.*;
+
+import com.unboundid.ldap.sdk.BindResult;
+import com.unboundid.ldap.sdk.Control;
+import com.unboundid.ldap.sdk.DN;
+import com.unboundid.ldap.sdk.LDAPConnection;
+import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.LDAPResult;
+import com.unboundid.ldap.sdk.LDAPSearchException;
+import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.SearchRequest;
+import com.unboundid.ldap.sdk.SearchResult;
+import com.unboundid.ldap.sdk.SearchResultEntry;
+import com.unboundid.ldap.sdk.SimpleBindRequest;
+import com.unboundid.ldap.sdk.UnsolicitedNotificationHandler;
 import com.unboundid.ldap.sdk.controls.PasswordExpiredControl;
 import com.unboundid.ldap.sdk.controls.PasswordExpiringControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.AccountUsableRequestControl;
@@ -39,7 +52,7 @@ import java.util.logging.Logger;
 
 import samplecode.BasicToolCompletedProcessing;
 import samplecode.CommandLineOptions;
-import samplecode.DefaultUnsolicitedNotificationHandler;
+import samplecode.ResponseControlAware;
 import samplecode.SupportedFeature;
 import samplecode.SupportedFeatureException;
 import samplecode.ToolCompletedProcessing;
@@ -453,11 +466,14 @@ public final class BindDemo
     final ResultCode resultCode = bindDemo.runTool(args);
     final ToolCompletedProcessing completedProcessing =
             new BasicToolCompletedProcessing(bindDemo,resultCode);
-    completedProcessing.displayMessage(outStream,errStream);
+    completedProcessing.displayMessage(Logger.getLogger(BindDemo.class.getCanonicalName()));
   }
 
 
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void addArguments(final ArgumentParser argumentParser) throws ArgumentException
   {
@@ -525,6 +541,7 @@ public final class BindDemo
   {
     introduction();
 
+
     /*
      * The tool requires a valid distinguished name with which to bind
      * to directory server. If no DN was provided,print a helpful
@@ -541,41 +558,25 @@ public final class BindDemo
       return ResultCode.PARAM_ERROR;
     }
 
-    /*
-     * Handles unsolicited notifications from the directory server.
-     */
-    final UnsolicitedNotificationHandler unsolicitedNotificationHandler =
-            new DefaultUnsolicitedNotificationHandler(this);
 
     /*
-     * Obtain a connection pool from the LDAPCommandLineTool
-     * services,this requires specifying a connection to the LDAP
-     * server,a number of initial connections (--initialConnections) in
-     * the pool,and the maximum number of connections (--maxConnections)
-     * that the pool should create.
+     * Obtain a pool of connections to the LDAP server from the
+     * LDAPCommandLineTool services,this requires specifying a
+     * connection to the LDAP server,a number of initial connections
+     * (--initialConnections) in the pool,and the maximum number of
+     * connections (--maxConnections) that the pool should create.
      */
-    LDAPConnectionPool ldapConnectionPool;
-    LDAPConnection ldapConnection = null;
     try
     {
-      final int initialConnections = commandLineOptions.getInitialConnections();
-      final int maxConnections = commandLineOptions.getMaxConnections();
-      ldapConnection = getConnection();
-      final LDAPConnectionOptions ldapConnectionOptions =
-              commandLineOptions.newLDAPConnectionOptions();
-      ldapConnectionOptions.setUnsolicitedNotificationHandler(unsolicitedNotificationHandler);
-      ldapConnection.setConnectionOptions(ldapConnectionOptions);
-      ldapConnectionPool =
-              new LDAPConnectionPool(ldapConnection,initialConnections,maxConnections);
+      ldapConnection = connectToServer();
+      ldapConnectionPool = getLdapConnectionPool(ldapConnection);
     }
     catch(final LDAPException ldapException)
     {
-      if(ldapConnection != null)
-      {
-        fireLdapExceptionListener(ldapConnection,ldapException);
-      }
+      fireLdapExceptionListener(ldapConnection,ldapException);
       return ldapException.getResultCode();
     }
+
 
     /*
      * Check that the server supports the AccountUsableRequestControl
@@ -616,6 +617,7 @@ public final class BindDemo
       return ldapException.getResultCode();
     }
 
+
     /*
      * Authenticate to directory server. If you are using the standard
      * edition of the UnboundID LDAP SDK,remove all references to
@@ -639,6 +641,7 @@ public final class BindDemo
       return ldapException.getResultCode();
     }
 
+
     /*
      * Handle response controls that may be attached to the bind
      * response. Response controls that might be attached are the
@@ -659,6 +662,7 @@ public final class BindDemo
         }
       }
     }
+
 
     /*
      * Construct a search request with AccountUsableRequestControl
@@ -688,6 +692,7 @@ public final class BindDemo
       return ldapException.getResultCode();
     }
 
+
     /*
      * Issue search request:
      */
@@ -701,6 +706,7 @@ public final class BindDemo
       fireLdapSearchExceptionListener(ldapConnection,ldapSearchException);
       return ldapSearchException.getResultCode();
     }
+
 
     /*
      * Check for the account usable response control:
@@ -725,6 +731,7 @@ public final class BindDemo
         }
       }
     }
+
 
     /*
      * Handle response controls that may be attached to the search
@@ -829,6 +836,14 @@ public final class BindDemo
   public String getToolName()
   {
     return "BindDemo";
+  }
+
+
+
+  @Override
+  public UnsolicitedNotificationHandler getUnsolicitedNotificationHandler()
+  {
+    return new samplecode.DefaultUnsolicitedNotificationHandler(this);
   }
 
 
@@ -939,26 +954,6 @@ public final class BindDemo
     super(outStream,errStream);
     responseControlHandlers = new ArrayList<ResponseControlAware>();
   }
-
-
-
-  private CommandLineOptions commandLineOptions;
-
-
-
-  /**
-   * interested parties to {@code LdapExceptionEvents}
-   */
-  private volatile Vector<LdapExceptionListener> ldapExceptionListeners =
-          new Vector<LdapExceptionListener>();
-
-
-
-  /**
-   * interested parties to {@code LdapExceptionEvents}
-   */
-  private volatile Vector<LdapSearchExceptionListener> ldapSearchExceptionListeners =
-          new Vector<LdapSearchExceptionListener>();
 
 
 

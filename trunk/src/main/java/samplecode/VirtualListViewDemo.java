@@ -66,6 +66,7 @@ public final class VirtualListViewDemo
         implements LdapExceptionListener,ObservedByLdapExceptionListener
 {
 
+
   /**
    * The description of the tool; this is used in self-documentation and
    * help text.
@@ -460,6 +461,14 @@ public final class VirtualListViewDemo
     {
       ldapExceptionListeners.remove(ldapExceptionListener);
     }
+  }
+
+
+
+  @Override
+  protected UnsolicitedNotificationHandler getUnsolicitedNotificationHandler()
+  {
+    return new samplecode.DefaultUnsolicitedNotificationHandler(this);
   }
 
 

@@ -23,6 +23,7 @@ import com.unboundid.ldap.sdk.SearchRequest;
 import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchScope;
+import com.unboundid.ldap.sdk.UnsolicitedNotificationHandler;
 import com.unboundid.ldap.sdk.unboundidds.controls.OperationPurposeRequestControl;
 import com.unboundid.util.LDAPCommandLineTool;
 import com.unboundid.util.Validator;
@@ -484,6 +485,14 @@ public final class OperationPurposeRequestControlExample
   public void ldapRequestFailed(final LdapExceptionEvent ldapExceptionEvent)
   {
     logger.log(Level.SEVERE,ldapExceptionEvent.getLdapException().getExceptionMessage());
+  }
+
+
+
+  @Override
+  protected UnsolicitedNotificationHandler getUnsolicitedNotificationHandler()
+  {
+    return new samplecode.DefaultUnsolicitedNotificationHandler(this);
   }
 
 
