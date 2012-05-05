@@ -35,7 +35,6 @@ import java.util.logging.Logger;
 import samplecode.AuthorizedIdentity;
 import samplecode.BasicToolCompletedProcessing;
 import samplecode.CommandLineOptions;
-import samplecode.DefaultUnsolicitedNotificationHandler;
 import samplecode.SupportedFeatureException;
 import samplecode.ToolCompletedProcessing;
 import samplecode.annotation.Author;
@@ -209,7 +208,6 @@ public final class AuthDemo
   private ResultCode authDemo() throws SupportedFeatureException
   {
 
-    new DefaultUnsolicitedNotificationHandler(this);
 
 
     /*
