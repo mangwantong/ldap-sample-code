@@ -220,7 +220,7 @@ public final class AuthDemo
      * Instantiate the object which provides methods to get the
      * authorization identity.
      */
-    if(verbose)
+    if(isVerbose())
     {
       verbose("Creating the authorized identity object.");
     }
@@ -238,7 +238,7 @@ public final class AuthDemo
      * procedure requires creating a WhoAmIExtendedRequest object and
      * using processExtendedOperation to transmit it.
      */
-    if(verbose)
+    if(isVerbose())
     {
       verbose("Getting the authorization identity using the Who Am I? extended request.");
     }
@@ -264,7 +264,7 @@ public final class AuthDemo
       getLogger().info(helpfulMessage);
       return ResultCode.PARAM_ERROR;
     }
-    if(verbose)
+    if(isVerbose())
     {
       verbose("Getting the authorization identity using the authorization identity request.");
     }
