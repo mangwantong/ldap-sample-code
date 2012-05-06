@@ -317,8 +317,7 @@ public class EffectiveRightsEntryDemo
     {
       final String msg =
               String.format("the DN specified for authZid '%s' does not exist.",authZid);
-      final LogRecord record = new LogRecord(Level.INFO,msg);
-      err(getFormatter().format(record));
+      getLogger().severe(msg);
       return ResultCode.NO_SUCH_OBJECT;
     }
 
