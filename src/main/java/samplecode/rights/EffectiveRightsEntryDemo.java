@@ -51,8 +51,6 @@ import java.util.logging.Logger;
 
 
 import samplecode.BasicToolCompletedProcessing;
-import samplecode.CheckEffectiveRights;
-import samplecode.CheckEffectiveRightsException;
 import samplecode.CommandLineOptions;
 import samplecode.SupportedFeatureException;
 import samplecode.ToolCompletedProcessing;
