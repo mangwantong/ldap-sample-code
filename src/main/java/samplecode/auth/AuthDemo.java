@@ -27,7 +27,6 @@ import com.unboundid.util.args.ArgumentParser;
 import java.util.logging.Logger;
 
 
-import samplecode.AuthorizedIdentity;
 import samplecode.BasicToolCompletedProcessing;
 import samplecode.CommandLineOptions;
 import samplecode.SupportedFeatureException;
@@ -196,7 +195,6 @@ public final class AuthDemo
   {
 
 
-
     /*
      * Obtain a pool of connections to the LDAP server from the
      * LDAPCommandLineTool services,this requires specifying a
@@ -226,6 +224,7 @@ public final class AuthDemo
     }
     final AuthorizedIdentity authorizedIdentity = new AuthorizedIdentity(ldapConnection);
     authorizedIdentity.addLdapExceptionListener(new DefaultLdapExceptionListener());
+
 
     /**
      * String representation of messages that provide informative or
@@ -280,6 +279,11 @@ public final class AuthDemo
                       + "AuthorizationIdentityResponseControl: '%s'",authId);
       getLogger().info(msg);
     }
+
+
+    /**
+     * Demonstration is complete, close the connection(s)
+     */
     ldapConnection.close();
     return ResultCode.SUCCESS;
   }
