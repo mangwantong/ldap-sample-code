@@ -17,7 +17,6 @@ package samplecode.rights;
 
 
 import com.unboundid.ldap.sdk.DN;
-import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPSearchException;
 import com.unboundid.ldap.sdk.ResultCode;
@@ -173,7 +172,7 @@ import samplecode.tools.AbstractTool;
  */
 @Author("terry.gardner@unboundid.com")
 @Since("Nov 23, 2011")
-@CodeVersion("1.28")
+@CodeVersion("1.29")
 public class EffectiveRightsEntryDemo
         extends AbstractTool
 {
@@ -284,13 +283,21 @@ public class EffectiveRightsEntryDemo
      */
     final List<String> rights = commandLineOptions.getRights();
 
-    LDAPConnection ldapConnection;
+    /*
+     * Obtain a pool of connections to the LDAP server from the
+     * LDAPCommandLineTool services,this requires specifying a
+     * connection to the LDAP server,a number of initial connections
+     * (--initialConnections) in the pool,and the maximum number of
+     * connections (--maxConnections) that the pool should create.
+     */
     try
     {
-      ldapConnection = getConnection();
+      ldapConnection = connectToServer();
+      ldapConnectionPool = getLdapConnectionPool(ldapConnection);
     }
     catch(final LDAPException ldapException)
     {
+      fireLdapExceptionListener(ldapConnection,ldapException);
       return ldapException.getResultCode();
     }
 
