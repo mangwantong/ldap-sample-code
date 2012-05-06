@@ -182,10 +182,17 @@ public class EffectiveRightsEntryDemo
    * output and for other purposes.
    */
   public static final String TOOL_DESCRIPTION =
-          "Provides a demonstration of the GetEffectiveRightsRequestControl. "
-                  + "Command line options --entry, --authZid, and --right specify the "
-                  + "entry for which to test, the authorization ID, and a set of "
-                  + "rights. The command line argument --right can be specified multiple times.";
+          "Provides a demonstration of the GetEffectiveRightsRequestControl which "
+                  + "provides a mechanism for extracting the effective rights information "
+                  + "from an entry returned for a search request that included the "
+                  + "get effective rights request control. In particular, it provides "
+                  + "the ability to parse the values of the aclRights attributes in order "
+                  + "to determine what rights the specified user may have when "
+                  + "interacting with the entry. Command line options --entry, "
+                  + "--authZid, and --right specify the entry for which to test, "
+                  + "the authorization ID, and a set of "
+                  + "rights. The command line argument --right can be "
+                  + "specified multiple times.";
 
 
 
