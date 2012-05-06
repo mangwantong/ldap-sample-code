@@ -13,7 +13,7 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
-package samplecode;
+package samplecode.rights;
 
 
 import com.unboundid.ldap.sdk.LDAPConnection;
@@ -31,6 +31,8 @@ import com.unboundid.util.Validator;
 import java.util.Vector;
 
 
+import samplecode.SupportedFeature;
+import samplecode.SupportedFeatureException;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
@@ -49,6 +51,7 @@ import samplecode.listener.ObservedByLdapSearchExceptionListener;
  * <b>Usage Example</b> <blockquote>
  * 
  * <pre>
+ * 
  * 
  * public void check() throws CheckEffectiveRightsException,SupportedFeatureException
  * {
