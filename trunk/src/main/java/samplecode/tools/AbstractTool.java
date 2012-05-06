@@ -23,7 +23,6 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.UnsolicitedNotificationHandler;
 import com.unboundid.util.LDAPCommandLineTool;
-import com.unboundid.util.MinimalLogFormatter;
 import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
 
@@ -31,7 +30,6 @@ import com.unboundid.util.args.ArgumentParser;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Vector;
-import java.util.logging.Formatter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -297,16 +295,6 @@ public abstract class AbstractTool
 
 
   /**
-   * @return the formatter
-   */
-  protected Formatter getFormatter()
-  {
-    return formatter;
-  }
-
-
-
-  /**
    * @return the column width of the introduction text.
    */
   protected int getIntroductionColumnWidth()
@@ -536,11 +524,6 @@ public abstract class AbstractTool
    * server
    */
   protected long responseTimeoutMillis;
-
-
-
-  /** Formats {@code LogRecord} for display. */
-  private final Formatter formatter = new MinimalLogFormatter();
 
 
 
