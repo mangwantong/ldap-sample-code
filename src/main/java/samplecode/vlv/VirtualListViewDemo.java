@@ -19,14 +19,12 @@ package samplecode.vlv;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.Filter;
-import com.unboundid.ldap.sdk.LDAPConnectionOptions;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchRequest;
 import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchScope;
-import com.unboundid.ldap.sdk.UnsolicitedNotificationHandler;
 import com.unboundid.ldap.sdk.controls.ServerSideSortRequestControl;
 import com.unboundid.ldap.sdk.controls.SortKey;
 import com.unboundid.ldap.sdk.controls.VirtualListViewRequestControl;
@@ -42,7 +40,6 @@ import java.util.logging.Logger;
 import samplecode.AttributeNotSupportedException;
 import samplecode.BasicLdapEntryDisplay;
 import samplecode.BasicToolCompletedProcessing;
-import samplecode.DefaultUnsolicitedNotificationHandler;
 import samplecode.LdapEntryDisplay;
 import samplecode.SupportedFeature;
 import samplecode.SupportedFeatureException;
@@ -234,17 +231,6 @@ public final class VirtualListViewDemo
 
     try
     {
-
-      /*
-       * Handles unsolicited notifications from the directory server.
-       */
-      final UnsolicitedNotificationHandler unsolicitedNotificationHandler =
-              new DefaultUnsolicitedNotificationHandler(this);
-
-      final LDAPConnectionOptions ldapConnectionOptions =
-              commandLineOptions.newLDAPConnectionOptions();
-      ldapConnectionOptions.setUnsolicitedNotificationHandler(unsolicitedNotificationHandler);
-      ldapConnection.setConnectionOptions(ldapConnectionOptions);
 
       /*
        * Determine whether the VirtualListViewRequestControl and the
