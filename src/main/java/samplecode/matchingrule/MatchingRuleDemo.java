@@ -22,8 +22,6 @@ import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.Filter;
-import com.unboundid.ldap.sdk.LDAPConnection;
-import com.unboundid.ldap.sdk.LDAPConnectionPool;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchRequest;
@@ -65,7 +63,7 @@ import samplecode.tools.AbstractTool;
  */
 @Author("terry.gardner@unboundid.com")
 @Since("Nov 22, 2011")
-@CodeVersion("1.9")
+@CodeVersion("1.10")
 public final class MatchingRuleDemo
         extends AbstractTool
         implements LdapExceptionListener,ObservedByLdapExceptionListener
@@ -385,8 +383,8 @@ public final class MatchingRuleDemo
      * Retrieve the parameters provided to the entryDn1, entryDn2, and
      * attribute arguments:
      */
-    final DN entryDn1 = commandLineOptions.getEntryDn1();
-    final DN entryDn2 = commandLineOptions.getEntryDn2();
+    final DN entryDn1 = ((MatchingRuleDemoCommandLineOptions)commandLineOptions).getEntryDn1();
+    final DN entryDn2 = ((MatchingRuleDemoCommandLineOptions)commandLineOptions).getEntryDn2();
 
     /*
      * Retreive the first attribute name specified by the command line
@@ -399,25 +397,20 @@ public final class MatchingRuleDemo
             "This tool requires that the attribute name " + "have a length greater than zero.");
 
     /*
-     * Use the {@code LDAPCommandLineTool} class to obtain a pool of
-     * connctions to the directory server that was specified with the
-     * command line options for number of initial connections
-     * (--initialConnections) and maximum number of connections
-     * (--maxConnections).
+     * Obtain a pool of connections to the LDAP server from the
+     * LDAPCommandLineTool services,this requires specifying a
+     * connection to the LDAP server,a number of initial connections
+     * (--initialConnections) in the pool,and the maximum number of
+     * connections (--maxConnections) that the pool should create.
      */
-    LDAPConnectionPool ldapConnectionPool;
-    LDAPConnection ldapConnection;
     try
     {
-      ldapConnection = getConnection();
-      final int initialConnections = commandLineOptions.getInitialConnections();
-      final int maxConnections = commandLineOptions.getMaxConnections();
-      ldapConnectionPool =
-              new LDAPConnectionPool(ldapConnection,initialConnections,maxConnections);
+      ldapConnection = connectToServer();
+      ldapConnectionPool = getLdapConnectionPool(ldapConnection);
     }
     catch(final LDAPException ldapException)
     {
-      fireLdapExceptionListener(null,ldapException);
+      fireLdapExceptionListener(ldapConnection,ldapException);
       return ldapException.getResultCode();
     }
 
@@ -427,8 +420,7 @@ public final class MatchingRuleDemo
      */
     try
     {
-      final LDAPConnection connection = ldapConnectionPool.getConnection();
-      SupportedUserAttribute.getInstance().supported(connection,attributeName);
+      SupportedUserAttribute.getInstance().supported(ldapConnection,attributeName);
     }
     catch(final LDAPException ldapException)
     {
@@ -593,14 +585,6 @@ public final class MatchingRuleDemo
   {
     super(outStream,errStream);
   }
-
-
-
-  /**
-   * Provides services related to managing command line options for
-   * clients that use the LDAPCommandLineTool class.
-   */
-  private MatchingRuleDemoCommandLineOptions commandLineOptions;
 
 }
 
