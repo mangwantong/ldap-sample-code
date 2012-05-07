@@ -299,26 +299,6 @@ public abstract class AbstractTool
 
 
   /**
-   * @return the column width of the introduction text.
-   */
-  protected int getIntroductionColumnWidth()
-  {
-    return introductionColumnWidth;
-  }
-
-
-
-  /**
-   * @return the indentation of the introduction text.
-   */
-  protected int getIntroductionIndentation()
-  {
-    return 0;
-  }
-
-
-
-  /**
    * @return the text to be used for the introduction string.
    */
   protected String getIntroductionString()
@@ -415,8 +395,20 @@ public abstract class AbstractTool
    */
   protected void introduction()
   {
-    wrapOut(getIntroductionIndentation(),getIntroductionColumnWidth(),getToolName() + ": " +
-            getToolDescription());
+
+    // TODO: Add support for a configurable introduction indentation
+    final int indentation = 0;
+    int width;
+
+    if(commandLineOptions != null)
+    {
+      width = commandLineOptions.getIntroductionColumnWidth();
+    }
+    else
+    {
+      width = 96;
+    }
+    wrapOut(indentation,width,getToolName() + ": " + getToolDescription());
     out();
   }
 
@@ -442,7 +434,7 @@ public abstract class AbstractTool
    */
   protected void verbose(final String msg)
   {
-    verbose(System.out,msg);
+    logger.log(Level.FINE,msg);
   }
 
 
@@ -512,15 +504,6 @@ public abstract class AbstractTool
    * server
    */
   protected long responseTimeoutMillis;
-
-
-
-  /**
-   * The width of the introduction columns as specified by one of the
-   * command line option {@code --introductionColumnWidth}, the
-   * properties file, or a default value.
-   */
-  private int introductionColumnWidth;
 
 
 
