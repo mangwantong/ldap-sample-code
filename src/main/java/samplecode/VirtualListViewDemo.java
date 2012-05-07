@@ -19,7 +19,6 @@ package samplecode;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.Filter;
-import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPConnectionOptions;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
@@ -207,19 +206,21 @@ public final class VirtualListViewDemo
     introduction();
 
     /*
-     * Obtain a connection to the directory server. The connection
-     * parameters are specified by the basic command line connection
-     * parameters such as --hostname, --port, --bindDn, and so forth.
+     * Obtain a pool of connections to the LDAP server from the
+     * LDAPCommandLineTool services,this requires specifying a
+     * connection to the LDAP server,a number of initial connections
+     * (--initialConnections) in the pool,and the maximum number of
+     * connections (--maxConnections) that the pool should create.
      */
-    LDAPConnection ldapConnection;
     try
     {
-      ldapConnection = getConnection();
+      ldapConnection = connectToServer();
+      ldapConnectionPool = getLdapConnectionPool(ldapConnection);
     }
-    catch(final LDAPException exception)
+    catch(final LDAPException ldapException)
     {
-      logger.log(Level.SEVERE,exception.getMessage());
-      return exception.getResultCode();
+      fireLdapExceptionListener(ldapConnection,ldapException);
+      return ldapException.getResultCode();
     }
 
     try
