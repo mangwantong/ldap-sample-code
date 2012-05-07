@@ -202,7 +202,7 @@ public final class MatchingRuleDemo
                   + "\n\nexample usage:\n\n"
                   + "java samplecode.MatchingRuleDemo --filter '(&)' "
                   + "--scope SUB --entryDn1 uid=user.0,ou=people, dc=example,dc=com "
-                  + "--entryDn2 uid=user.1,ou=people,dc=example,dc=com "
+                  + "--entryDn2 uid=user.1,ou=people,dc=example,dc=com --filter uid=user.0"
                   + "--attribute description  --hostname localhost --port 1389";
 
 
