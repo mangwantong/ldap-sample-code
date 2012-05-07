@@ -286,7 +286,6 @@ public abstract class AbstractTool
    */
   protected LDAPConnection connectToServer() throws LDAPException
   {
-    setValueFromCommandLineOptions();
     final LDAPConnection c = getConnection();
     c.setConnectionOptions(getLdapConnectionOptions());
     return c;
@@ -444,29 +443,6 @@ public abstract class AbstractTool
   protected void verbose(final String msg)
   {
     verbose(System.out,msg);
-  }
-
-
-
-  private void setValueFromCommandLineOptions()
-  {
-    if(commandLineOptions != null)
-    {
-      introductionColumnWidth = commandLineOptions.getIntroductionColumnWidth();
-      responseTimeoutMillis = commandLineOptions.getMaxResponseTimeMillis();
-      verbose = commandLineOptions.isVerbose();
-    }
-    else
-    {
-      introductionColumnWidth =
-              Integer.parseInt(CommandLineOptions.ARG_INTRODUCTION_COLUMN_WIDTH_DEFAULT_VALUE);
-
-      // TODO: use default value from CommandLineOptions
-      responseTimeoutMillis = 1000;
-
-      // TODO: use default value from CommandLineOptions
-      verbose = false;
-    }
   }
 
 
