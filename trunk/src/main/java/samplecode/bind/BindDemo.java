@@ -59,7 +59,6 @@ import samplecode.ToolCompletedProcessing;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
-import samplecode.listener.LdapExceptionEvent;
 import samplecode.listener.LdapExceptionListener;
 import samplecode.listener.LdapSearchExceptionEvent;
 import samplecode.listener.LdapSearchExceptionListener;
@@ -488,21 +487,6 @@ public final class BindDemo
    * {@inheritDoc}
    */
   @Override
-  public synchronized void addLdapExceptionListener(
-          final LdapExceptionListener ldapExceptionListener)
-  {
-    if(ldapExceptionListener != null)
-    {
-      ldapExceptionListeners.add(ldapExceptionListener);
-    }
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   public synchronized void addLdapSearchExceptionListener(
           final LdapSearchExceptionListener ldapSearchExceptionListener)
   {
@@ -767,32 +751,6 @@ public final class BindDemo
    */
   @SuppressWarnings("unchecked")
   @Override
-  public void fireLdapExceptionListener(final LDAPConnection ldapConnection,
-          final LDAPException ldapException)
-  {
-    Vector<LdapExceptionListener> copy;
-    synchronized(this)
-    {
-      copy = (Vector<LdapExceptionListener>)ldapExceptionListeners.clone();
-    }
-    if(copy.size() == 0)
-    {
-      return;
-    }
-    final LdapExceptionEvent ev = new LdapExceptionEvent(this,ldapConnection,ldapException);
-    for(final LdapExceptionListener l : copy)
-    {
-      l.ldapRequestFailed(ev);
-    }
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @SuppressWarnings("unchecked")
-  @Override
   public void fireLdapSearchExceptionListener(final LDAPConnection ldapConnection,
           final LDAPSearchException ldapSearchException)
   {
@@ -844,29 +802,6 @@ public final class BindDemo
   public UnsolicitedNotificationHandler getUnsolicitedNotificationHandler()
   {
     return new samplecode.DefaultUnsolicitedNotificationHandler(this);
-  }
-
-
-
-  @Override
-  public void ldapRequestFailed(final LdapExceptionEvent ldapExceptionEvent)
-  {
-    logger.log(Level.SEVERE,ldapExceptionEvent.getLdapException().getExceptionMessage());
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public synchronized void removeLdapExceptionListener(
-          final LdapExceptionListener ldapExceptionListener)
-  {
-    if(ldapExceptionListener != null)
-    {
-      ldapExceptionListeners.remove(ldapExceptionListener);
-    }
   }
 
 
