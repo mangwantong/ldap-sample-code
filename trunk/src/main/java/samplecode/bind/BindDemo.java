@@ -78,7 +78,7 @@ import samplecode.tools.AbstractTool;
  */
 @Author("terry.gardner@unboundid.com")
 @Since("01-Sep-2011")
-@CodeVersion("1.21")
+@CodeVersion("1.22")
 public final class BindDemo
         extends AbstractTool
         implements LdapExceptionListener,ObservedByLdapExceptionListener,
@@ -267,6 +267,24 @@ public final class BindDemo
 
     private final Control control;
   }
+
+
+
+  /**
+   * The description of this tool; this is used in help output and for
+   * other purposes.
+   */
+  public static final String TOOL_DESCRIPTION =
+          "Demonstrates the use of the bind request, account usable request "
+                  + "control, and the operation purpose request control.";
+
+
+
+  /**
+   * The name of this tool; this is used in help output and for other
+   * purposes.
+   */
+  public static final String TOOL_NAME = "BindDemo";
 
 
 
@@ -785,7 +803,7 @@ public final class BindDemo
   @Override
   public String getToolDescription()
   {
-    return "Demonstrate the use of the bind request";
+    return BindDemo.TOOL_DESCRIPTION;
   }
 
 
@@ -793,7 +811,7 @@ public final class BindDemo
   @Override
   public String getToolName()
   {
-    return "BindDemo";
+    return BindDemo.TOOL_NAME;
   }
 
 
