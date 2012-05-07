@@ -28,8 +28,8 @@ import samplecode.annotation.Since;
  */
 @Author("terry.gardner@unboundid.com")
 @Since("Nov 29, 2011")
-@CodeVersion("1.0")
-interface LdapEntryDisplay
+@CodeVersion("1.1")
+public interface LdapEntryDisplay
 {
 
   /**

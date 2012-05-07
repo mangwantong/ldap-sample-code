@@ -13,7 +13,7 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
-package samplecode;
+package samplecode.vlv;
 
 
 import com.unboundid.asn1.ASN1OctetString;
@@ -39,6 +39,15 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
+import samplecode.AttributeNotSupportedException;
+import samplecode.BasicLdapEntryDisplay;
+import samplecode.BasicToolCompletedProcessing;
+import samplecode.DefaultUnsolicitedNotificationHandler;
+import samplecode.LdapEntryDisplay;
+import samplecode.SupportedFeature;
+import samplecode.SupportedFeatureException;
+import samplecode.SupportedUserAttribute;
+import samplecode.ToolCompletedProcessing;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
