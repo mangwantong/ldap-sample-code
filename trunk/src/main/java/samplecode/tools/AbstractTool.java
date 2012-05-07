@@ -464,7 +464,9 @@ public abstract class AbstractTool
 
 
   /**
-   * Manages command line arguments
+   * Provides services for use with command line parameters and
+   * arguments. Handles adding a fairly standard set of arguments to the
+   * argument parser and retrieving their parameters.
    */
   protected CommandLineOptions commandLineOptions;
 
