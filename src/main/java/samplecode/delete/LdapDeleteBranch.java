@@ -13,7 +13,7 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
-package samplecode;
+package samplecode.delete;
 
 
 import com.unboundid.ldap.sdk.Control;
@@ -30,6 +30,10 @@ import com.unboundid.util.Validator;
 import java.util.Vector;
 
 
+import samplecode.ControlHandler;
+import samplecode.Singleton;
+import samplecode.SupportedFeature;
+import samplecode.SupportedFeatureException;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;

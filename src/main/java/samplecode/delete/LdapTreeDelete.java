@@ -13,7 +13,7 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
-package samplecode;
+package samplecode.delete;
 
 
 import com.unboundid.ldap.sdk.Control;
@@ -40,6 +40,13 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
 
+import samplecode.BasicToolCompletedProcessing;
+import samplecode.CommandLineOptions;
+import samplecode.ControlHandler;
+import samplecode.ReadLdifFile;
+import samplecode.SampleCodeCollectionUtils;
+import samplecode.SupportedFeatureException;
+import samplecode.ToolCompletedProcessing;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
