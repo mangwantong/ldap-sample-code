@@ -13,7 +13,7 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
-package samplecode;
+package samplecode.matchingrule;
 
 
 import com.unboundid.asn1.ASN1OctetString;
@@ -42,6 +42,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
+import samplecode.AttributeNotSupportedException;
+import samplecode.BasicToolCompletedProcessing;
+import samplecode.CommandLineOptions;
+import samplecode.SupportedUserAttribute;
+import samplecode.ToolCompletedProcessing;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
@@ -62,7 +67,7 @@ import samplecode.tools.AbstractTool;
  */
 @Author("terry.gardner@unboundid.com")
 @Since("Nov 22, 2011")
-@CodeVersion("1.7")
+@CodeVersion("1.9")
 public final class MatchingRuleDemo
         extends AbstractTool
         implements LdapExceptionListener,ObservedByLdapExceptionListener
