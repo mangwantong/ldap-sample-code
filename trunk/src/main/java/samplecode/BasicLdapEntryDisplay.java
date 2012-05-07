@@ -30,8 +30,8 @@ import samplecode.annotation.Since;
  */
 @Author("terry.gardner@unboundid.com")
 @Since("Nov 29, 2011")
-@CodeVersion("1.2")
-class BasicLdapEntryDisplay
+@CodeVersion("1.3")
+public class BasicLdapEntryDisplay
         implements LdapEntryDisplay
 {
 
@@ -51,7 +51,14 @@ class BasicLdapEntryDisplay
 
 
 
-  BasicLdapEntryDisplay(
+  /**
+   * Creates a {@code BasicLdapEntryDisplay} with default state. using
+   * the specified {@code entry}.
+   * 
+   * @param entry
+   *          the entry, which cannot be {@code null}.
+   */
+  public BasicLdapEntryDisplay(
           final Entry entry)
   {
     if(entry == null)
