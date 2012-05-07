@@ -23,6 +23,7 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.UnsolicitedNotificationHandler;
 import com.unboundid.util.LDAPCommandLineTool;
+import com.unboundid.util.Validator;
 import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
 
@@ -163,8 +164,12 @@ public abstract class AbstractTool
 
 
 
-  /** add tool-specific arguments */
-  protected abstract void addArguments(ArgumentParser argumentParser) throws ArgumentException;
+  protected void addArguments(final ArgumentParser argumentParser) throws ArgumentException
+  {
+    Validator.ensureNotNull(argumentParser);
+    commandLineOptions = CommandLineOptions.newCommandLineOptions(argumentParser);
+    return;
+  }
 
 
 

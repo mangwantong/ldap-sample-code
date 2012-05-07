@@ -37,8 +37,6 @@ import com.unboundid.ldap.sdk.unboundidds.controls.AccountUsableResponseControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.OperationPurposeRequestControl;
 import com.unboundid.util.CommandLineTool;
 import com.unboundid.util.Validator;
-import com.unboundid.util.args.ArgumentException;
-import com.unboundid.util.args.ArgumentParser;
 
 
 import java.io.OutputStream;
@@ -51,7 +49,6 @@ import java.util.logging.Logger;
 
 
 import samplecode.BasicToolCompletedProcessing;
-import samplecode.CommandLineOptions;
 import samplecode.ResponseControlAware;
 import samplecode.SupportedFeature;
 import samplecode.SupportedFeatureException;
@@ -484,19 +481,6 @@ public final class BindDemo
     final ToolCompletedProcessing completedProcessing =
             new BasicToolCompletedProcessing(bindDemo,resultCode);
     completedProcessing.displayMessage(Logger.getLogger(BindDemo.class.getCanonicalName()));
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void addArguments(final ArgumentParser argumentParser) throws ArgumentException
-  {
-    Validator.ensureNotNull(argumentParser);
-    commandLineOptions = CommandLineOptions.newCommandLineOptions(argumentParser);
-    return;
   }
 
 

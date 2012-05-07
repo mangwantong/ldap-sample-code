@@ -19,16 +19,12 @@ package samplecode.auth;
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
-import com.unboundid.util.Validator;
-import com.unboundid.util.args.ArgumentException;
-import com.unboundid.util.args.ArgumentParser;
 
 
 import java.util.logging.Logger;
 
 
 import samplecode.BasicToolCompletedProcessing;
-import samplecode.CommandLineOptions;
 import samplecode.SupportedFeatureException;
 import samplecode.ToolCompletedProcessing;
 import samplecode.annotation.Author;
@@ -118,21 +114,6 @@ public final class AuthDemo
     final ToolCompletedProcessing completedProcessing =
             new BasicToolCompletedProcessing(authDemo,resultCode);
     completedProcessing.displayMessage(Logger.getLogger(AuthDemo.class.getName()));
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   * <p>
-   * Does not add any additional command line arguments beyond the
-   * standard ones supported by the {@code CommandLineOptions} class.
-   */
-  @Override
-  public void addArguments(final ArgumentParser argumentParser) throws ArgumentException
-  {
-    Validator.ensureNotNull(argumentParser);
-    commandLineOptions = CommandLineOptions.newCommandLineOptions(argumentParser);
   }
 
 
