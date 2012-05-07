@@ -281,7 +281,7 @@ public abstract class AbstractTool
    */
   protected LDAPConnection connectToServer() throws LDAPException
   {
-    setFieldsFromCommandLineOptions();
+    setValueFromCommandLineOptions();
     final LDAPConnection c = getConnection();
     c.setConnectionOptions(getLdapConnectionOptions());
     return c;
@@ -299,7 +299,7 @@ public abstract class AbstractTool
    */
   protected int getIntroductionColumnWidth()
   {
-    return 96;
+    return introductionColumnWidth;
   }
 
 
@@ -443,16 +443,23 @@ public abstract class AbstractTool
 
 
 
-  private void setFieldsFromCommandLineOptions()
+  private void setValueFromCommandLineOptions()
   {
     if(commandLineOptions != null)
     {
+      introductionColumnWidth = commandLineOptions.getIntroductionColumnWidth();
       responseTimeoutMillis = commandLineOptions.getMaxResponseTimeMillis();
       verbose = commandLineOptions.isVerbose();
     }
     else
     {
+      introductionColumnWidth =
+              Integer.parseInt(CommandLineOptions.ARG_INTRODUCTION_COLUMN_WIDTH_DEFAULT_VALUE);
+
+      // TODO: use default value from CommandLineOptions
       responseTimeoutMillis = 1000;
+
+      // TODO: use default value from CommandLineOptions
       verbose = false;
     }
   }
@@ -524,6 +531,15 @@ public abstract class AbstractTool
    * server
    */
   protected long responseTimeoutMillis;
+
+
+
+  /**
+   * The width of the introduction columns as specified by one of the
+   * command line option {@code --introductionColumnWidth}, the
+   * properties file, or a default value.
+   */
+  private int introductionColumnWidth;
 
 
 
