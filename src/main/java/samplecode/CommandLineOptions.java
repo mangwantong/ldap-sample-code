@@ -132,9 +132,26 @@ import samplecode.listener.IOExceptionEvent;
  */
 @Author("terry.gardner@unboundid.com")
 @Since("Nov 28, 2011")
-@CodeVersion("1.69")
+@CodeVersion("1.70")
 public class CommandLineOptions
 {
+
+  /**
+   * The short identifier for the {@code --abandonOnTimeout} command
+   * line option.
+   */
+  public static final Character ABANDON_ON_TIMEOUT_SHORT_IDENTIFIER = null;
+
+
+
+  /**
+   * The value place-holder for the {@code --introductionColumnWidth}
+   * command line options.
+   */
+  public static final String ARG_INTRODUCTION_COLUMN_WIDTH_VALUE_PLACEHOLDER =
+          "{integer-column-width}";
+
+
 
   /**
    * The long identifier of the command line argument whose parameter is
@@ -234,6 +251,14 @@ public class CommandLineOptions
    * default value, and may be specified exactly once.
    */
   public static final String ARG_NAME_INITIAL_CONNECTIONS = "initialConnections";
+
+
+
+  /**
+   * The long identifier of the command line argument whose parameter is
+   * the length in characters of the introduction column.
+   */
+  public static final String ARG_NAME_INTRODUCTION_COLUMN_WIDTH = "introductionColumnWidth";
 
 
 
@@ -507,6 +532,61 @@ public class CommandLineOptions
    * search time limit.
    */
   public static final int DEFAULT_TIME_LIMIT = 10;
+
+
+
+  /**
+   * The default value of the {@code --introductionColumnWidth} command
+   * line option.
+   */
+  public static final String INTRODUCTION_COLUMN_WIDTH_DEFAULT_VALUE = "72";
+
+
+
+  /**
+   * The description of the the {@code --introductionColumnWidth}
+   * command line options.
+   */
+  public static final String INTRODUCTION_COLUMN_WIDTH_DESCRIPTION =
+          "Specifies the maximum width of the introduction lines.";
+
+
+
+  /**
+   * The introduction column width command line option is not required.
+   */
+  public static final boolean INTRODUCTION_COLUMN_WIDTH_IS_REQUIRED = false;
+
+
+
+  /**
+   * The default value of the lower bound of the
+   * {@code --introductionColumnWidth} command line option.
+   */
+  public static final String INTRODUCTION_COLUMN_WIDTH_LOWER_BOUND_DEFAULT_VALUE = "8";
+
+
+
+  /**
+   * The maximum number of occurrences of the
+   * {@code --introductionColumnWith} command line option.
+   */
+  public final static int INTRODUCTION_COLUMN_WIDTH_MAX_OCCURENCES = 1;
+
+
+
+  /**
+   * The short identifier for the introduction column width argument
+   */
+  public final static Character INTRODUCTION_COLUMN_WIDTH_SHORT_IDENTIFIER = null;
+
+
+
+  /**
+   * The default value of the upper bound of the
+   * {@code --introductionColumnWidth} command line option.
+   */
+  public static final String INTRODUCTION_COLUMN_WIDTH_UPPER_BOUND_DEFAULT_VALUE = "96";
 
 
 
@@ -843,6 +923,28 @@ public class CommandLineOptions
       initialConnections = arg.getValue().intValue();
     }
     return initialConnections > 0 ? initialConnections : 1;
+  }
+
+
+
+  /**
+   * Provides access to the value of the introduction column width as
+   * specified by the {@code --introductionColumnWidth} command line
+   * option.
+   * 
+   * @return introduction column width
+   */
+  public int getIntroductionColumnWidth()
+  {
+    int value = 0;
+    final IntegerArgument arg =
+            (IntegerArgument)argumentParser
+                    .getNamedArgument(CommandLineOptions.ARG_NAME_INTRODUCTION_COLUMN_WIDTH);
+    if((arg != null) && arg.isPresent())
+    {
+      value = arg.getValue();
+    }
+    return value;
   }
 
 
@@ -1252,6 +1354,21 @@ public class CommandLineOptions
 
 
 
+  /** never returns {@code null} */
+  private String getValue(final String propertyName,final String defaultValue,
+          final Properties properties)
+  {
+    Validator.ensureNotNull(propertyName,properties,defaultValue);
+    String value = properties.getProperty(propertyName);
+    if(value == null)
+    {
+      value = defaultValue;
+    }
+    return value;
+  }
+
+
+
   private BooleanArgument newAbandonOnTimeoutArgument(final Properties properties)
           throws ArgumentException
   {
@@ -1263,10 +1380,11 @@ public class CommandLineOptions
      * should abandon an operation that has timed out. This argument is
      * optional, and can be specified exactly one time.
      */
-    final Character shortIdentifier = null;
+    final Character shortIdentifier = CommandLineOptions.ABANDON_ON_TIMEOUT_SHORT_IDENTIFIER;
     final String longIdentifier = CommandLineOptions.ARG_NAME_ABANDON_ON_TIMEOUT;
     final String description =
-            "Whether the LDAP SDK should abandon an operation that has timed out.";
+            getValue(CommandLineOptions.ARG_NAME_ABANDON_ON_TIMEOUT + "Description","",
+                    properties);
     return new BooleanArgument(shortIdentifier,longIdentifier,description);
   }
 
@@ -1504,6 +1622,32 @@ public class CommandLineOptions
                     + "server when creating the connection pool.";
     return new IntegerArgument(shortIdentifier,longIdentifier,isRequired,maxOccurrences,
             valuePlaceholder,description,Integer.valueOf(defaultInitialConnections));
+  }
+
+
+
+  private IntegerArgument newIntroductionColumnWidthArgument(final Properties properties)
+          throws ArgumentException
+  {
+    Validator.ensureNotNull(properties);
+    final int lowerBound =
+            Integer.parseInt(getValue(CommandLineOptions.ARG_NAME_INTRODUCTION_COLUMN_WIDTH,
+                    CommandLineOptions.INTRODUCTION_COLUMN_WIDTH_LOWER_BOUND_DEFAULT_VALUE,
+                    properties));
+    final int upperBound =
+            Integer.parseInt(getValue(CommandLineOptions.ARG_NAME_INTRODUCTION_COLUMN_WIDTH,
+                    CommandLineOptions.INTRODUCTION_COLUMN_WIDTH_UPPER_BOUND_DEFAULT_VALUE,
+                    properties));
+    final int defaultValue =
+            Integer.parseInt(getValue(CommandLineOptions.ARG_NAME_INTRODUCTION_COLUMN_WIDTH,
+                    CommandLineOptions.INTRODUCTION_COLUMN_WIDTH_DEFAULT_VALUE,properties));
+    return new IntegerArgument(CommandLineOptions.INTRODUCTION_COLUMN_WIDTH_SHORT_IDENTIFIER,
+            CommandLineOptions.ARG_NAME_INTRODUCTION_COLUMN_WIDTH,
+            CommandLineOptions.INTRODUCTION_COLUMN_WIDTH_IS_REQUIRED,
+            CommandLineOptions.INTRODUCTION_COLUMN_WIDTH_MAX_OCCURENCES,
+            CommandLineOptions.ARG_INTRODUCTION_COLUMN_WIDTH_VALUE_PLACEHOLDER,
+            CommandLineOptions.INTRODUCTION_COLUMN_WIDTH_DESCRIPTION,lowerBound,upperBound,
+            defaultValue);
   }
 
 
@@ -2004,7 +2148,22 @@ public class CommandLineOptions
             };
     propertiesFile.addFileNotFoundExceptionListener(fileNotFoundExceptionListener);
     final Properties properties = propertiesFile.getProperties();
-    final BooleanArgument abandonOnTimeArgument = newAbandonOnTimeoutArgument(properties);
+
+    /*
+     * Indicates whether the LDAP SDK should attempt to abandon any
+     * request for which no response is received in the maximum response
+     * timeout period.
+     */
+    final BooleanArgument abandonOnTimeoutArgument = newAbandonOnTimeoutArgument(properties);
+
+
+    /*
+     * The width of the introduction text columns.
+     */
+    final IntegerArgument introductionColumnWidthArgument =
+            newIntroductionColumnWidthArgument(properties);
+
+
     final StringArgument attributeArgument = newAttributeArgument(properties);
     final BooleanArgument autoReconnectArgument = newAutoReconnectArgument(properties);
     final StringArgument baseObjectArgument = newBaseObjectArgument(properties);
@@ -2041,13 +2200,14 @@ public class CommandLineOptions
     final Argument[] arguments =
             new Argument[]
             {
-                    abandonOnTimeArgument, attributeArgument, autoReconnectArgument,
+                    abandonOnTimeoutArgument, attributeArgument, autoReconnectArgument,
                     baseObjectArgument, bindWithDnRequiresPassword,
                     connectTimeoutMillisArgument, filterArgument, initialConnectionsArgument,
-                    maxConnectionsArgument, maxResponseTimeMillisArgument, numThreadsArgument,
-                    pageSizeArgument, reportCountArgument, reportIntervalArgument,
-                    scopeArgument, sizeLimitArgument, timeLimitArgument,
-                    usePropertiesFileArgument, useSchemaArgument, verboseArgument,
+                    introductionColumnWidthArgument, maxConnectionsArgument,
+                    maxResponseTimeMillisArgument, numThreadsArgument, pageSizeArgument,
+                    reportCountArgument, reportIntervalArgument, scopeArgument,
+                    sizeLimitArgument, timeLimitArgument, usePropertiesFileArgument,
+                    useSchemaArgument, verboseArgument,
             };
 
     addArguments(arguments);
@@ -2064,5 +2224,6 @@ public class CommandLineOptions
 
 
 
+  /** Logging facilities */
   private final Logger logger = Logger.getLogger(getClass().getName());
 }
