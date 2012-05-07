@@ -244,7 +244,45 @@ public class EffectiveRightsEntryDemo
    * {@inheritDoc}
    */
   @Override
-  public void addArguments(final ArgumentParser argumentParser) throws ArgumentException
+  public String getToolDescription()
+  {
+    return EffectiveRightsEntryDemo.TOOL_DESCRIPTION;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String getToolName()
+  {
+    return EffectiveRightsEntryDemo.TOOL_NAME;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String toString()
+  {
+    final int maxLen = 10;
+    return "EffectiveRightsEntryDemo [" +
+            (rightsMap != null ? "rightsMap=" + this.toString(rightsMap.entrySet(),maxLen) +
+                    ", " : "") +
+            (validRightsSet != null ? "validRightsSet=" + this.toString(validRightsSet,maxLen)
+                    : "") + "]";
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  protected void addArguments(final ArgumentParser argumentParser) throws ArgumentException
   {
     Validator.ensureNotNull(argumentParser);
     commandLineOptions =
@@ -259,7 +297,7 @@ public class EffectiveRightsEntryDemo
    * {@inheritDoc}
    */
   @Override
-  public ResultCode executeToolTasks()
+  protected ResultCode executeToolTasks()
   {
     introduction();
 
@@ -371,52 +409,6 @@ public class EffectiveRightsEntryDemo
     }
 
     return ResultCode.SUCCESS;
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public String getToolDescription()
-  {
-    return EffectiveRightsEntryDemo.TOOL_DESCRIPTION;
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public String getToolName()
-  {
-    return EffectiveRightsEntryDemo.TOOL_NAME;
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public String toString()
-  {
-    final int maxLen = 10;
-    return "EffectiveRightsEntryDemo [" +
-            (rightsMap != null ? "rightsMap=" + this.toString(rightsMap.entrySet(),maxLen) +
-                    ", " : "") +
-            (validRightsSet != null ? "validRightsSet=" + this.toString(validRightsSet,maxLen)
-                    : "") + "]";
-  }
-
-
-
-  @Override
-  protected int getIntroductionColumnWidth()
-  {
-    return 80;
   }
 
 
