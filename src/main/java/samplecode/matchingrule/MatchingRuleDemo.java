@@ -37,7 +37,6 @@ import com.unboundid.util.args.DNArgument;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -50,7 +49,6 @@ import samplecode.ToolCompletedProcessing;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
-import samplecode.listener.LdapExceptionEvent;
 import samplecode.listener.LdapExceptionListener;
 import samplecode.listener.ObservedByLdapExceptionListener;
 import samplecode.tools.AbstractTool;
@@ -202,7 +200,12 @@ public final class MatchingRuleDemo
           "Provides a demonstration of the use of matching rules "
                   + "by comparing a specified attribute between two entries. "
                   + "The attribute to be compared is specified by --attribute "
-                  + ", and the entries are specified by --entryDn1 and --entryDn2.";
+                  + ", and the entries are specified by --entryDn1 and --entryDn2."
+                  + "\n\nexample usage:\n\n"
+                  + "java samplecode.MatchingRuleDemo --filter '(&)' "
+                  + "--scope SUB --entryDn1 uid=user.0,ou=people, dc=example,dc=com "
+                  + "--entryDn2 uid=user.1,ou=people,dc=example,dc=com "
+                  + "--attribute description  --hostname localhost --port 1389";
 
 
 
@@ -371,27 +374,13 @@ public final class MatchingRuleDemo
 
 
   /**
-   * {@inheritDoc}
-   */
-  @Override
-  public synchronized void addLdapExceptionListener(
-          final LdapExceptionListener ldapExceptionListener)
-  {
-    if(ldapExceptionListener != null)
-    {
-      ldapExceptionListeners.add(ldapExceptionListener);
-    }
-  }
-
-
-
-  /**
-   * {@inheritDoc}
+   * /** {@inheritDoc}
    */
   @Override
   public ResultCode executeToolTasks()
   {
     introduction();
+
     /*
      * Retrieve the parameters provided to the entryDn1, entryDn2, and
      * attribute arguments:
@@ -546,32 +535,6 @@ public final class MatchingRuleDemo
 
 
 
-  /**
-   * {@inheritDoc}
-   */
-  @SuppressWarnings("unchecked")
-  @Override
-  public void fireLdapExceptionListener(final LDAPConnection ldapConnection,
-          final LDAPException ldapException)
-  {
-    Vector<LdapExceptionListener> copy;
-    synchronized(this)
-    {
-      copy = (Vector<LdapExceptionListener>)ldapExceptionListeners.clone();
-    }
-    if(copy.size() == 0)
-    {
-      return;
-    }
-    final LdapExceptionEvent ev = new LdapExceptionEvent(this,ldapConnection,ldapException);
-    for(final LdapExceptionListener l : copy)
-    {
-      l.ldapRequestFailed(ev);
-    }
-  }
-
-
-
   @Override
   public Logger getLogger()
   {
@@ -598,32 +561,6 @@ public final class MatchingRuleDemo
   public String getToolName()
   {
     return MatchingRuleDemo.TOOL_NAME;
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void ldapRequestFailed(final LdapExceptionEvent ldapExceptionEvent)
-  {
-    logger.log(Level.SEVERE,ldapExceptionEvent.getLdapException().getExceptionMessage());
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public synchronized void removeLdapExceptionListener(
-          final LdapExceptionListener ldapExceptionListener)
-  {
-    if(ldapExceptionListener != null)
-    {
-      ldapExceptionListeners.remove(ldapExceptionListener);
-    }
   }
 
 
@@ -664,14 +601,6 @@ public final class MatchingRuleDemo
    * clients that use the LDAPCommandLineTool class.
    */
   private MatchingRuleDemoCommandLineOptions commandLineOptions;
-
-
-
-  /**
-   * interested parties to {@code LdapExceptionEvents}
-   */
-  private volatile Vector<LdapExceptionListener> ldapExceptionListeners =
-          new Vector<LdapExceptionListener>();
 
 }
 
