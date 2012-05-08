@@ -13,7 +13,7 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
-package samplecode;
+package samplecode.controls;
 
 
 import com.unboundid.ldap.sdk.DN;
@@ -40,6 +40,11 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
 
+import samplecode.BasicToolCompletedProcessing;
+import samplecode.CommandLineOptions;
+import samplecode.SupportedFeature;
+import samplecode.SupportedFeatureException;
+import samplecode.ToolCompletedProcessing;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
@@ -53,7 +58,7 @@ import samplecode.annotation.Since;
  */
 @Author("terry.gardner@unboundid.com")
 @Since("Dec 4, 2011")
-@CodeVersion("1.24")
+@CodeVersion("1.25")
 public final class AssertionRequestControlDemo
         extends LDAPCommandLineTool
 {
