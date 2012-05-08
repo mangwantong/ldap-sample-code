@@ -13,7 +13,7 @@
  */
 
 
-package samplecode;
+package samplecode.modify;
 
 
 import com.unboundid.ldap.sdk.*;
@@ -35,6 +35,9 @@ import java.util.List;
 import java.util.logging.Logger;
 
 
+import samplecode.CommandLineOptions;
+import samplecode.SupportedFeature;
+import samplecode.SupportedFeatureException;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
