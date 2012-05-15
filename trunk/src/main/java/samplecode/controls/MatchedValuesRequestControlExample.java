@@ -13,7 +13,7 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
-package samplecode;
+package samplecode.controls;
 
 
 import com.unboundid.ldap.sdk.ExtendedResult;
@@ -44,9 +44,14 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
 
+import samplecode.CommandLineOptions;
+import samplecode.SupportedFeature;
+import samplecode.SupportedFeatureException;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
+import samplecode.tools.BasicToolCompletedProcessing;
+import samplecode.tools.ToolCompletedProcessing;
 
 
 /**
@@ -73,7 +78,7 @@ import samplecode.annotation.Since;
  */
 @Author("terry.gardner@unboundid.com")
 @Since("Dec 7, 2011")
-@CodeVersion("1.0")
+@CodeVersion("1.2")
 public final class MatchedValuesRequestControlExample
         extends LDAPCommandLineTool
 {

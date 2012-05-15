@@ -13,7 +13,7 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
-package samplecode;
+package samplecode.controls;
 
 
 import com.unboundid.ldap.sdk.LDAPConnection;
@@ -38,6 +38,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
+import samplecode.BasicLdapEntryDisplay;
+import samplecode.CommandLineOptions;
+import samplecode.Launchable;
+import samplecode.LdapEntryDisplay;
+import samplecode.SupportedFeature;
+import samplecode.SupportedFeatureException;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
@@ -45,6 +51,8 @@ import samplecode.listener.LdapExceptionEvent;
 import samplecode.listener.LdapExceptionListener;
 import samplecode.listener.ObservedByLdapExceptionListener;
 import samplecode.tools.AbstractTool;
+import samplecode.tools.BasicToolCompletedProcessing;
+import samplecode.tools.ToolCompletedProcessing;
 
 
 /**
@@ -58,7 +66,7 @@ import samplecode.tools.AbstractTool;
  */
 @Author("terry.gardner@unboundID.com")
 @Since("Oct 30, 2011")
-@CodeVersion("1.2")
+@CodeVersion("1.3")
 @Launchable
 public final class OperationPurposeRequestControlExample
         extends AbstractTool
