@@ -58,7 +58,6 @@ public final class PersistentSearchExample
         extends AbstractTool
 {
 
-
   /**
    * The description of this tool; used for help and diagnostic
    * output,and for other purposes.
@@ -165,6 +164,17 @@ public final class PersistentSearchExample
   public String getToolName()
   {
     return PersistentSearchExample.TOOL_NAME;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  protected String classSpecificPropertiesResourceName()
+  {
+    return "PersistentSearchExample.properties";
   }
 
 
