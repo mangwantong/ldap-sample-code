@@ -6,7 +6,7 @@
 
 
 
-package samplecode;
+package samplecode.search;
 
 
 import com.unboundid.asn1.ASN1OctetString;
@@ -31,6 +31,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
+import samplecode.CommandLineOptions;
+import samplecode.SupportedFeature;
+import samplecode.SupportedFeatureException;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
@@ -76,7 +79,7 @@ import samplecode.tools.AbstractTool;
  */
 @Author("terry.gardner@unboundid.com")
 @Since("Nov 23, 2011")
-@CodeVersion("1.4")
+@CodeVersion("1.5")
 public final class SimplePagedResultsRequestControlDemo
         extends AbstractTool
 {
