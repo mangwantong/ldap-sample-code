@@ -557,6 +557,17 @@ public final class MatchingRuleDemo
 
 
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  protected String classSpecificPropertiesResourceName()
+  {
+    return "MatchingRuleDemo.properties";
+  }
+
+
+
   @Override
   protected UnsolicitedNotificationHandler getUnsolicitedNotificationHandler()
   {

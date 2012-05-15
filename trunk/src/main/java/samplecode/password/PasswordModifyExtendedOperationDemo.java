@@ -92,7 +92,6 @@ public final class PasswordModifyExtendedOperationDemo
 
 {
 
-
   /**
    * The long identifier of the command line argument whose parameter is
    * taken as the value to which the user's password should be set. If
@@ -457,17 +456,6 @@ public final class PasswordModifyExtendedOperationDemo
    * {@inheritDoc}
    */
   @Override
-  public String getToolDescription()
-  {
-    return PasswordModifyExtendedOperationDemo.TOOL_DESCRIPTION;
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   public String getToolName()
   {
     return PasswordModifyExtendedOperationDemo.TOOL_NAME;
@@ -494,6 +482,17 @@ public final class PasswordModifyExtendedOperationDemo
     {
       ldapExceptionListeners.remove(ldapExceptionListener);
     }
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  protected String classSpecificPropertiesResourceName()
+  {
+    return "PasswordModifyExtendedoperationDemo.properties";
   }
 
 

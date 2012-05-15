@@ -52,7 +52,6 @@ public final class ScriptTool
         extends AbstractTool
 {
 
-
   /**
    * The description of this tool; this is used for help and diagnostic
    * output, and for other purposes.
@@ -272,9 +271,9 @@ public final class ScriptTool
    * {@inheritDoc}
    */
   @Override
-  public String getToolDescription()
+  public String getToolName()
   {
-    return ScriptTool.TOOL_DESCRIPTION;
+    return ScriptTool.TOOL_NAME;
   }
 
 
@@ -283,9 +282,9 @@ public final class ScriptTool
    * {@inheritDoc}
    */
   @Override
-  public String getToolName()
+  protected String classSpecificPropertiesResourceName()
   {
-    return ScriptTool.TOOL_NAME;
+    return "ScriptTool.properties";
   }
 
 
@@ -346,6 +345,8 @@ public final class ScriptTool
  * <blockquote>
  * 
  * <pre>
+ * 
+ * 
  * 
  * 
  * 

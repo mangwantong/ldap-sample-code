@@ -28,8 +28,11 @@ import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
 
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.Properties;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -129,6 +132,42 @@ public abstract class AbstractTool
 
 
   /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String getToolDescription()
+  {
+    try
+    {
+      return getToolDescription(classSpecificProperties());
+    }
+    catch(final IOException exception)
+    {
+      return "no description available: " + exception.getMessage();
+    }
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String getToolName()
+  {
+    try
+    {
+      return getToolName(classSpecificProperties());
+    }
+    catch(final IOException exception)
+    {
+      return "no name available: " + exception.getMessage();
+    }
+  }
+
+
+
+  /**
    * 
    * TODO: Provide a comment for this method.
    * 
@@ -170,6 +209,13 @@ public abstract class AbstractTool
     commandLineOptions = CommandLineOptions.newCommandLineOptions(argumentParser);
     return;
   }
+
+
+
+  /**
+   * return the class-specific properties resource name
+   */
+  protected abstract String classSpecificPropertiesResourceName();
 
 
 
@@ -372,8 +418,39 @@ public abstract class AbstractTool
 
 
 
-  /** @return the logger */
-  protected abstract Logger getLogger();
+  /**
+   * @return the logger
+   */
+  protected Logger getLogger()
+  {
+    return className != null ? Logger.getLogger(className) : Logger.getAnonymousLogger();
+  }
+
+
+
+  /**
+   * 
+   * Get the tool description text from the properties file associated
+   * with the class.
+   * 
+   * @param properties
+   *          properties from which the tool description text is
+   *          extracted
+   * @return the tool description text
+   */
+  protected String getToolDescription(final Properties properties)
+  {
+    final String toolDescription = properties.getProperty(toolDescriptionPropertyName());
+    return toolDescription;
+  }
+
+
+
+  protected String getToolName(final Properties properties)
+  {
+    final String toolName = properties.getProperty(toolNamePropertyName());
+    return toolName;
+  }
 
 
 
@@ -415,6 +492,27 @@ public abstract class AbstractTool
 
 
   /**
+   * @return the name/key of the property which specifies the tool
+   *         description
+   */
+  protected String toolDescriptionPropertyName()
+  {
+    return "toolDescription";
+  }
+
+
+
+  /**
+   * @return the name/key of the property which specifies the tool name
+   */
+  protected String toolNamePropertyName()
+  {
+    return "toolName";
+  }
+
+
+
+  /**
    * @param printStream
    *          a non-null print stream to which the message is
    *          transmitted.
@@ -440,6 +538,45 @@ public abstract class AbstractTool
 
 
   /**
+   * @return the class-specific properties for the class
+   * 
+   * @throws IOException
+   */
+  private Properties classSpecificProperties() throws IOException
+  {
+    final Properties properties = new Properties();
+    properties.load(classSpecificPropertiesInputStream());
+    return properties;
+  }
+
+
+
+  /**
+   * @return the input stream from which to read the class specific
+   *         properties
+   */
+  private InputStream classSpecificPropertiesInputStream()
+  {
+    final String resourceName = classSpecificPropertiesResourceName();
+    if(resourceName == null)
+    {
+      throw new IllegalStateException("resource name was null.");
+    }
+    final InputStream is = getClass().getClassLoader().getResourceAsStream(resourceName);
+    if(is == null)
+    {
+      final String msg =
+              String.format("Cannot create input stream from %s. "
+                      + "The resource %s should be found on the classpath.",resourceName,
+                      resourceName);
+      throw new IllegalStateException(msg);
+    }
+    return is;
+  }
+
+
+
+  /**
    * 
    * Creates a {@code AbstractTool} with default state.
    * 
@@ -460,6 +597,13 @@ public abstract class AbstractTool
   {
     super(outStream,errStream);
   }
+
+
+
+  /**
+   * The name of the class that implements {@code AbstractTool}.
+   */
+  protected String className;
 
 
 

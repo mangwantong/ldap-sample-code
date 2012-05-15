@@ -565,19 +565,9 @@ public final class ModifyIncrementDemo
    * {@inheritDoc}
    */
   @Override
-  public String getToolDescription()
+  public String getToolName()
   {
-    final StringBuilder builder = new StringBuilder();
-    builder.append("Provides a demonstration of the use of the ");
-    builder.append("modify-increment extension. The\n");
-    builder.append(getToolName());
-    builder.append(" requires the --entry argument and increments\n");
-    builder.append("the attributes specified by the --attribute ");
-    builder.append("command line arguments in that entry by the\n");
-    builder.append("value specified in the --incrementValue command line argument.\n");
-    builder.append("If the --incrementValue command line argument is not ");
-    builder.append("present, a default value is used.\n");
-    return builder.toString();
+    return "ModifyIncrementDemo";
   }
 
 
@@ -586,9 +576,9 @@ public final class ModifyIncrementDemo
    * {@inheritDoc}
    */
   @Override
-  public String getToolName()
+  protected String classSpecificPropertiesResourceName()
   {
-    return "ModifyIncrementDemo";
+    return "ModifyIncrementDemo.properties";
   }
 
 
