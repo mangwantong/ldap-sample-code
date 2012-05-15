@@ -489,6 +489,17 @@ public final class OperationPurposeRequestControlExample
 
 
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  protected String classSpecificPropertiesResourceName()
+  {
+    return "OperationPurposeRequestControlExample.properties";
+  }
+
+
+
   @Override
   protected UnsolicitedNotificationHandler getUnsolicitedNotificationHandler()
   {

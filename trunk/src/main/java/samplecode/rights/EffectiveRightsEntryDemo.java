@@ -244,17 +244,6 @@ public class EffectiveRightsEntryDemo
    * {@inheritDoc}
    */
   @Override
-  public String getToolDescription()
-  {
-    return EffectiveRightsEntryDemo.TOOL_DESCRIPTION;
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   public String getToolName()
   {
     return EffectiveRightsEntryDemo.TOOL_NAME;
@@ -289,6 +278,17 @@ public class EffectiveRightsEntryDemo
             EffectiveRightsEntryDemoCommandLineOptions
                     .newEffectiveRightsEntryDemoCommandLineOptions(argumentParser,
                             validRightsSet);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  protected String classSpecificPropertiesResourceName()
+  {
+    return "EffectiveRightsEntryDemo.properties";
   }
 
 
