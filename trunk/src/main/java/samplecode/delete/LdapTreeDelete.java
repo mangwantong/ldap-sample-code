@@ -40,13 +40,11 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
 
-import samplecode.BasicToolCompletedProcessing;
 import samplecode.CommandLineOptions;
 import samplecode.ControlHandler;
 import samplecode.ReadLdifFile;
 import samplecode.SampleCodeCollectionUtils;
 import samplecode.SupportedFeatureException;
-import samplecode.ToolCompletedProcessing;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
@@ -54,6 +52,8 @@ import samplecode.listener.LdapExceptionEvent;
 import samplecode.listener.LdapExceptionListener;
 import samplecode.listener.ProgressEvent;
 import samplecode.listener.ProgressListener;
+import samplecode.tools.BasicToolCompletedProcessing;
+import samplecode.tools.ToolCompletedProcessing;
 
 
 /**
