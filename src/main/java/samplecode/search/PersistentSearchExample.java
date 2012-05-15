@@ -15,7 +15,7 @@
  */
 
 
-package samplecode;
+package samplecode.search;
 
 
 import com.unboundid.ldap.sdk.AsyncRequestID;
@@ -41,6 +41,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
+import samplecode.CommandLineOptions;
+import samplecode.DefaultUnsolicitedNotificationHandler;
+import samplecode.SupportedFeature;
+import samplecode.SupportedFeatureException;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
