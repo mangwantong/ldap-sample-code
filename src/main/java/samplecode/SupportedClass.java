@@ -29,8 +29,8 @@ import samplecode.annotation.Since;
  */
 @Author("terry.gardner@unboundid.com")
 @Since("Dec 10, 2011")
-@CodeVersion("1.0")
-interface SupportedClass
+@CodeVersion("1.1")
+public interface SupportedClass
 {
 
   /**

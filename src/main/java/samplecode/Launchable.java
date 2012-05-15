@@ -31,7 +31,7 @@ import samplecode.annotation.Since;
 @Author("terry.gardner@unboundid.com")
 @Retention(RetentionPolicy.RUNTIME)
 @Since("1.1")
-@interface Launchable
+public @interface Launchable
 {
   // This block deliberately left empty.
 

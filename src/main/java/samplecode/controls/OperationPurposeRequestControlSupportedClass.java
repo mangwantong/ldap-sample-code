@@ -13,7 +13,7 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
-package samplecode;
+package samplecode.controls;
 
 
 import com.unboundid.ldap.sdk.Control;
@@ -23,6 +23,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 
+import samplecode.SupportedClass;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
@@ -35,6 +36,8 @@ import samplecode.annotation.Since;
  * <b>Example usage</b> <blockquote>
  * 
  * <pre>
+ * 
+ * 
  * 
  * 
  * 
@@ -51,7 +54,7 @@ import samplecode.annotation.Since;
  */
 @Author("terry.gardner@unboundid.com")
 @Since("Dec 10, 2011")
-@CodeVersion("1.0")
+@CodeVersion("1.1")
 class OperationPurposeRequestControlSupportedClass
         implements SupportedClass
 {
