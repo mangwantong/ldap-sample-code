@@ -66,19 +66,6 @@ public final class VirtualListViewDemo
         implements LdapExceptionListener,ObservedByLdapExceptionListener
 {
 
-
-  /**
-   * The description of the tool; this is used in self-documentation and
-   * help text.
-   */
-  private static final String TOOL_DESCRIPTION = "Provides a demonstration of the use of the "
-          + "virtual list view request and response controls. "
-          + "The VLV request and response controls are similar to "
-          + "the simple paged results request control except "
-          + "LDAP clients may access arbitrary pages of data.";
-
-
-
   /**
    * The name of the tool; this is used in self-documentation and help
    * text.
@@ -361,9 +348,9 @@ public final class VirtualListViewDemo
    * {@inheritDoc}
    */
   @Override
-  public String getToolDescription()
+  public String getToolName()
   {
-    return VirtualListViewDemo.TOOL_DESCRIPTION;
+    return VirtualListViewDemo.TOOL_NAME;
   }
 
 
@@ -372,9 +359,9 @@ public final class VirtualListViewDemo
    * {@inheritDoc}
    */
   @Override
-  public String getToolName()
+  protected String classSpecificPropertiesResourceName()
   {
-    return VirtualListViewDemo.TOOL_NAME;
+    return "VirtualListViewDemo.properties";
   }
 
 

@@ -18,16 +18,12 @@ package samplecode.controls;
 
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.Filter;
-import com.unboundid.ldap.sdk.LDAPConnection;
-import com.unboundid.ldap.sdk.LDAPConnectionOptions;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.Modification;
 import com.unboundid.ldap.sdk.ModificationType;
 import com.unboundid.ldap.sdk.ModifyRequest;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.controls.AssertionRequestControl;
-import com.unboundid.util.LDAPCommandLineTool;
-import com.unboundid.util.MinimalLogFormatter;
 import com.unboundid.util.Validator;
 import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
@@ -35,9 +31,7 @@ import com.unboundid.util.args.ArgumentParser;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.util.logging.Formatter;
-import java.util.logging.Level;
-import java.util.logging.LogRecord;
+import java.util.logging.Logger;
 
 
 import samplecode.BasicToolCompletedProcessing;
@@ -48,6 +42,7 @@ import samplecode.ToolCompletedProcessing;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
+import samplecode.tools.AbstractTool;
 
 
 /**
@@ -60,7 +55,7 @@ import samplecode.annotation.Since;
 @Since("Dec 4, 2011")
 @CodeVersion("1.25")
 public final class AssertionRequestControlDemo
-        extends LDAPCommandLineTool
+        extends AbstractTool
 {
 
   /**
@@ -78,22 +73,6 @@ public final class AssertionRequestControlDemo
    * command line argument.
    */
   public static final Character SHORT_ID_NEW_ATTRIBUTE_VALUE;
-
-
-
-  /**
-   * The description of this tool. This description is used in help and
-   * diagnostic output and for other purposes.
-   */
-  private static final String TOOL_DESCRIPTION;
-
-
-
-  /**
-   * The name of this tool. This name is used in help and diagnostic
-   * output and for other purposes.
-   */
-  private static final String TOOL_NAME;
 
 
 
@@ -215,24 +194,22 @@ public final class AssertionRequestControlDemo
   {
     final PrintStream outStream = System.out;
     final PrintStream errStream = System.err;
-    final MinimalLogFormatter loggingFormatter = new MinimalLogFormatter();
     final AssertionRequestControlDemo assertionRequestControlDemo =
-            AssertionRequestControlDemo.newAssertionRequestControlDemo(outStream,errStream,
-                    loggingFormatter);
+            AssertionRequestControlDemo.newAssertionRequestControlDemo(outStream,errStream);
     final ResultCode resultCode = assertionRequestControlDemo.runTool(args);
     final ToolCompletedProcessing completedProcessing =
             new BasicToolCompletedProcessing(assertionRequestControlDemo,resultCode);
-    completedProcessing.displayMessage(outStream,errStream);
+    completedProcessing.displayMessage(Logger.getLogger(AssertionRequestControlDemo.class
+            .getName()));
   }
 
 
 
   private static AssertionRequestControlDemo newAssertionRequestControlDemo(
-          final OutputStream outStream,final OutputStream errStream,
-          final Formatter loggingFormatter)
+          final OutputStream outStream,final OutputStream errStream)
   {
-    Validator.ensureNotNull(outStream,errStream,loggingFormatter);
-    return new AssertionRequestControlDemo(outStream,errStream,loggingFormatter);
+    Validator.ensureNotNull(outStream,errStream);
+    return new AssertionRequestControlDemo(outStream,errStream);
   }
 
 
@@ -240,22 +217,12 @@ public final class AssertionRequestControlDemo
   {
     ARG_NAME_NEW_ATTRIBUTE_VALUE = "newAttributeValue";
     SHORT_ID_NEW_ATTRIBUTE_VALUE = Character.valueOf('v');
-
-    TOOL_NAME = "AssertionRequestControlDemo";
-    TOOL_DESCRIPTION =
-            "Provides a demonstration of the use of the assertion request "
-                    + "control. The assertion request control allows an LDAP client to "
-                    + "specify that a request be executed if an assertion evaluates to true."
-                    + "The assertion request control is described in RFC4528.";
   }
 
 
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
-  public void addNonLDAPArguments(final ArgumentParser argumentParser) throws ArgumentException
+  protected void addArguments(final ArgumentParser argumentParser) throws ArgumentException
   {
     Validator.ensureNotNull(argumentParser);
     commandLineOptions = new AssertionRequestControlDemoCommandLineOptions(argumentParser);
@@ -263,31 +230,44 @@ public final class AssertionRequestControlDemo
 
 
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
-  public ResultCode doToolProcessing()
+  protected String classSpecificPropertiesResourceName()
   {
+    return "AssertionRequestControlDemo.properties";
+  }
+
+
+
+  @Override
+  protected ResultCode executeToolTasks()
+  {
+    introduction();
     ResultCode resultCode = null;
     try
     {
 
       /*
-       * Get a connection to the directory server by utilizing the basic
-       * command line arguments such as --hostname, --port, --bindDN,
-       * --bindPassword, and so forth.
+       * Obtain a pool of connections to the LDAP server from the
+       * LDAPCommandLineTool services,this requires specifying a
+       * connection to the LDAP server,a number of initial connections
+       * (--initialConnections) in the pool,and the maximum number of
+       * connections (--maxConnections) that the pool should create.
        */
-      final LDAPConnection ldapConnection = getConnection();
-      logRecord = new LogRecord(Level.INFO,"Connected to LDAP server.");
-      out(loggingFormatter.format(logRecord));
+      try
+      {
+        ldapConnection = connectToServer();
+        ldapConnectionPool = getLdapConnectionPool(ldapConnection);
+      }
+      catch(final LDAPException ldapException)
+      {
+        if(ldapConnection != null)
+        {
+          fireLdapExceptionListener(ldapConnection,ldapException);
+        }
+        return ldapException.getResultCode();
+      }
 
-      /*
-       * Set LDAP connection options.
-       */
-      final LDAPConnectionOptions ldapConnectionOptions =
-              commandLineOptions.newLDAPConnectionOptions();
-      ldapConnection.setConnectionOptions(ldapConnectionOptions);
+
 
       /*
        * Check whether the assertion request control is supported by the
@@ -298,8 +278,8 @@ public final class AssertionRequestControlDemo
       final String controlOID = AssertionRequestControl.ASSERTION_REQUEST_OID;
       supportedFeature.isControlSupported(controlOID);
       msg = String.format("OID %s is supported by this server.",controlOID);
-      logRecord = new LogRecord(Level.INFO,msg);
-      out(loggingFormatter.format(logRecord));
+      getLogger().info(msg);
+
 
       /*
        * Create the assertion request control using the filter specified
@@ -308,6 +288,7 @@ public final class AssertionRequestControlDemo
       final Filter filter = commandLineOptions.getFilter();
       final AssertionRequestControl assertionRequestControl =
               new AssertionRequestControl(filter.toString());
+
 
       /*
        * Attempt to modify the entry specified by the --bindDn command
@@ -326,14 +307,13 @@ public final class AssertionRequestControlDemo
         msg =
                 "A valid distinguished name must be supplied using the --bindDN "
                         + "command line argument. This demonstration cannot use the root DSE.";
-        final LogRecord record = new LogRecord(Level.SEVERE,msg);
-        out(loggingFormatter.format(record));
+        getLogger().severe(msg);
         return ResultCode.PARAM_ERROR;
       }
       final String bindDn = dn.toString();
       msg = String.format("Using bind DN '%s'",bindDn);
-      logRecord = new LogRecord(Level.INFO,msg);
-      out(loggingFormatter.format(logRecord));
+      getLogger().info(msg);
+
 
       /*
        * Use only the first --attributes parameter
@@ -343,13 +323,11 @@ public final class AssertionRequestControlDemo
       {
         final String msg =
                 String.format("An attribute name must be specified with the --attribute argument.");
-        logRecord = new LogRecord(Level.SEVERE,msg);
-        err(loggingFormatter.format(logRecord));
+        getLogger().severe(msg);
         return ResultCode.PARAM_ERROR;
       }
       msg = String.format("Using attribute '%s'",attributeName);
-      logRecord = new LogRecord(Level.INFO,msg);
-      out(loggingFormatter.format(logRecord));
+      getLogger().info(msg);
 
       /*
        * Retrieve the new value for the attribute from the parameter to
@@ -373,9 +351,7 @@ public final class AssertionRequestControlDemo
     }
     catch(final LDAPException ldapException)
     {
-      final LogRecord logRecord =
-              new LogRecord(Level.SEVERE,ldapException.getExceptionMessage());
-      err(loggingFormatter.format(logRecord));
+      getLogger().severe(ldapException.getExceptionMessage());
       resultCode = ldapException.getResultCode();
     }
     catch(final SupportedFeatureException e)
@@ -384,29 +360,8 @@ public final class AssertionRequestControlDemo
       resultCode = ResultCode.UNWILLING_TO_PERFORM;
     }
 
+
     return resultCode;
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public String getToolDescription()
-  {
-    return AssertionRequestControlDemo.TOOL_DESCRIPTION;
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public String getToolName()
-  {
-    return AssertionRequestControlDemo.TOOL_NAME;
   }
 
 
@@ -416,9 +371,9 @@ public final class AssertionRequestControlDemo
    * {@code System.out} for the output stream, {@code System.err} as the
    * error stream, and a {@code MinimalLogFormatter}.
    */
-  public AssertionRequestControlDemo()
+  private AssertionRequestControlDemo()
   {
-    this(System.out,System.err,new MinimalLogFormatter());
+    this(System.out,System.err);
   }
 
 
@@ -429,11 +384,10 @@ public final class AssertionRequestControlDemo
    * as the error stream, and a {@code loggingFormatter}.
    */
   private AssertionRequestControlDemo(
-          final OutputStream outStream,final OutputStream errStream,
-          final Formatter loggingFormatter)
+          final OutputStream outStream,final OutputStream errStream)
   {
     super(outStream,errStream);
-    this.loggingFormatter = loggingFormatter;
+    className = getClass().getName();
   }
 
 
@@ -444,20 +398,6 @@ public final class AssertionRequestControlDemo
    * argument parser and retrieving their parameters.
    */
   private AssertionRequestControlDemoCommandLineOptions commandLineOptions;
-
-
-
-  /**
-   * Provides logging services.
-   */
-  private final Formatter loggingFormatter;
-
-
-
-  /**
-   * The object used to log messages.
-   */
-  private LogRecord logRecord;
 
 
 

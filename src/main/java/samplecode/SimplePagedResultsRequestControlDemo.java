@@ -475,6 +475,17 @@ public final class SimplePagedResultsRequestControlDemo
 
 
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  protected String classSpecificPropertiesResourceName()
+  {
+    return "SimplePagedResultsrequestControlDemo.properties";
+  }
+
+
+
   @Override
   protected UnsolicitedNotificationHandler getUnsolicitedNotificationHandler()
   {

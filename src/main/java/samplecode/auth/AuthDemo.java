@@ -154,9 +154,9 @@ public final class AuthDemo
    * {@inheritDoc}
    */
   @Override
-  public String getToolDescription()
+  public String getToolName()
   {
-    return AuthDemo.TOOL_DESCRIPTION;
+    return AuthDemo.TOOL_NAME;
   }
 
 
@@ -165,9 +165,9 @@ public final class AuthDemo
    * {@inheritDoc}
    */
   @Override
-  public String getToolName()
+  protected String classSpecificPropertiesResourceName()
   {
-    return AuthDemo.TOOL_NAME;
+    return "AuthDemo.properties";
   }
 
 
@@ -268,7 +268,6 @@ public final class AuthDemo
     ldapConnection.close();
     return ResultCode.SUCCESS;
   }
-
 
 
 }

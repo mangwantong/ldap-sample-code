@@ -1186,6 +1186,17 @@ public final class LdapListenerExample
 
 
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  protected String classSpecificPropertiesResourceName()
+  {
+    return "LdaplistenerExample.properties";
+  }
+
+
+
   @Override
   protected Logger getLogger()
   {

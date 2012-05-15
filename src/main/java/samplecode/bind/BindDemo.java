@@ -268,24 +268,6 @@ public final class BindDemo
 
 
   /**
-   * The description of this tool; this is used in help output and for
-   * other purposes.
-   */
-  public static final String TOOL_DESCRIPTION =
-          "Demonstrates the use of the bind request, account usable request "
-                  + "control, and the operation purpose request control.";
-
-
-
-  /**
-   * The name of this tool; this is used in help output and for other
-   * purposes.
-   */
-  public static final String TOOL_NAME = "BindDemo";
-
-
-
-  /**
    * The response control handler is used to process any response
    * controls attached to the bind response.
    */
@@ -785,22 +767,6 @@ public final class BindDemo
 
 
   @Override
-  public String getToolDescription()
-  {
-    return BindDemo.TOOL_DESCRIPTION;
-  }
-
-
-
-  @Override
-  public String getToolName()
-  {
-    return BindDemo.TOOL_NAME;
-  }
-
-
-
-  @Override
   public UnsolicitedNotificationHandler getUnsolicitedNotificationHandler()
   {
     return new samplecode.DefaultUnsolicitedNotificationHandler(this);
@@ -859,6 +825,17 @@ public final class BindDemo
     return "BindDemo [" +
             (commandLineOptions != null ? "commandLineOptions=" + commandLineOptions : "") +
             "]";
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  protected String classSpecificPropertiesResourceName()
+  {
+    return "BindDemo.properties";
   }
 
 
