@@ -39,18 +39,18 @@ import java.util.logging.Logger;
 
 import samplecode.AttributeNotSupportedException;
 import samplecode.BasicLdapEntryDisplay;
-import samplecode.BasicToolCompletedProcessing;
 import samplecode.LdapEntryDisplay;
 import samplecode.SupportedFeature;
 import samplecode.SupportedFeatureException;
 import samplecode.SupportedUserAttribute;
-import samplecode.ToolCompletedProcessing;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
 import samplecode.listener.LdapExceptionListener;
 import samplecode.listener.ObservedByLdapExceptionListener;
 import samplecode.tools.AbstractTool;
+import samplecode.tools.BasicToolCompletedProcessing;
+import samplecode.tools.ToolCompletedProcessing;
 
 
 /**

@@ -31,10 +31,8 @@ import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 
-import samplecode.BasicToolCompletedProcessing;
 import samplecode.CommandLineOptions;
 import samplecode.ScriptGenerator;
-import samplecode.ToolCompletedProcessing;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
@@ -345,6 +343,7 @@ public final class ScriptTool
  * <blockquote>
  * 
  * <pre>
+ * 
  * 
  * 
  * 

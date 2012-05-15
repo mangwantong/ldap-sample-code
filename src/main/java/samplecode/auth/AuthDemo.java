@@ -24,14 +24,14 @@ import com.unboundid.ldap.sdk.ResultCode;
 import java.util.logging.Logger;
 
 
-import samplecode.BasicToolCompletedProcessing;
 import samplecode.SupportedFeatureException;
-import samplecode.ToolCompletedProcessing;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
 import samplecode.listener.DefaultLdapExceptionListener;
 import samplecode.tools.AbstractTool;
+import samplecode.tools.BasicToolCompletedProcessing;
+import samplecode.tools.ToolCompletedProcessing;
 
 
 /**

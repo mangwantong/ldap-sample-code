@@ -50,10 +50,8 @@ import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 
-import samplecode.BasicToolCompletedProcessing;
 import samplecode.CommandLineOptions;
 import samplecode.SupportedFeatureException;
-import samplecode.ToolCompletedProcessing;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
@@ -62,6 +60,8 @@ import samplecode.listener.LdapExceptionListener;
 import samplecode.listener.LdapSearchExceptionEvent;
 import samplecode.listener.LdapSearchExceptionListener;
 import samplecode.tools.AbstractTool;
+import samplecode.tools.BasicToolCompletedProcessing;
+import samplecode.tools.ToolCompletedProcessing;
 
 
 /**

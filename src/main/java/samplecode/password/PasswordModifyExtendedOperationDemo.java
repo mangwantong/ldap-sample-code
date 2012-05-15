@@ -35,11 +35,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
-import samplecode.BasicToolCompletedProcessing;
 import samplecode.CommandLineOptions;
 import samplecode.PasswordModifyExtendedOperationFailedException;
 import samplecode.SupportedFeatureException;
-import samplecode.ToolCompletedProcessing;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
@@ -47,6 +45,8 @@ import samplecode.listener.LdapExceptionEvent;
 import samplecode.listener.LdapExceptionListener;
 import samplecode.listener.ObservedByLdapExceptionListener;
 import samplecode.tools.AbstractTool;
+import samplecode.tools.BasicToolCompletedProcessing;
+import samplecode.tools.ToolCompletedProcessing;
 
 
 /**

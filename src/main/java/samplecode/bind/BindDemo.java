@@ -48,11 +48,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
-import samplecode.BasicToolCompletedProcessing;
 import samplecode.ResponseControlAware;
 import samplecode.SupportedFeature;
 import samplecode.SupportedFeatureException;
-import samplecode.ToolCompletedProcessing;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
@@ -62,6 +60,8 @@ import samplecode.listener.LdapSearchExceptionListener;
 import samplecode.listener.ObservedByLdapExceptionListener;
 import samplecode.listener.ObservedByLdapSearchExceptionListener;
 import samplecode.tools.AbstractTool;
+import samplecode.tools.BasicToolCompletedProcessing;
+import samplecode.tools.ToolCompletedProcessing;
 
 
 /**
