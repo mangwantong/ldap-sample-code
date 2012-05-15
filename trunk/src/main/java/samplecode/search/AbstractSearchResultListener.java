@@ -13,7 +13,7 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
-package samplecode;
+package samplecode.search;
 
 
 import com.unboundid.ldap.sdk.LDAPConnection;
@@ -21,6 +21,7 @@ import com.unboundid.ldap.sdk.SearchResultListener;
 import com.unboundid.util.Validator;
 
 
+import samplecode.CommandLineOptions;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
@@ -34,6 +35,9 @@ import samplecode.annotation.Since;
  * example usage: <blockquote>
  * 
  * <pre>
+ * 
+ * 
+ * 
  * 
  * class LocalSearchResultListener
  *         extends AbstractSearchResultListener
@@ -75,8 +79,8 @@ import samplecode.annotation.Since;
 @SuppressWarnings("serial")
 @Author("terry.gardner@unboundid.com")
 @Since("Dec 18, 2011")
-@CodeVersion("1.1")
-abstract class AbstractSearchResultListener
+@CodeVersion("1.2")
+public abstract class AbstractSearchResultListener
         implements SearchResultListener
 {
 
