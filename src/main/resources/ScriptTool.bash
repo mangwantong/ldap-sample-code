@@ -1,6 +1,5 @@
 #! /bin/bash
 
-
 set -u
 
 if which java>/dev/null 2>&1
