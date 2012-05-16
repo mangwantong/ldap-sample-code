@@ -30,13 +30,13 @@ import com.unboundid.util.Validator;
 import java.util.Vector;
 
 
-import samplecode.ControlHandler;
 import samplecode.SupportedFeature;
 import samplecode.SupportedFeatureException;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
 import samplecode.annotation.Singleton;
+import samplecode.controls.ControlHandler;
 import samplecode.listener.LdapExceptionEvent;
 import samplecode.listener.LdapExceptionListener;
 import samplecode.listener.ObservedByLdapExceptionListener;
@@ -54,7 +54,7 @@ import samplecode.listener.ObservedByLdapExceptionListener;
  */
 @Author("terry.gardner@unboundid.com")
 @Since("Dec 24, 2011")
-@CodeVersion("1.1")
+@CodeVersion("1.2")
 @NotMutable
 @Singleton
 public final class LdapDeleteBranch

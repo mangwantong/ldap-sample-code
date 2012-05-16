@@ -13,7 +13,7 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
-package samplecode;
+package samplecode.controls;
 
 
 import com.unboundid.ldap.sdk.Control;
@@ -30,7 +30,7 @@ import samplecode.annotation.Since;
  */
 @Author("terry.gardner@unboundid.com")
 @Since("01-Jan-2008")
-@CodeVersion("1.3")
+@CodeVersion("1.4")
 public interface ControlHandler
 {
 
