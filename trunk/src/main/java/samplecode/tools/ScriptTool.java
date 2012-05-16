@@ -35,6 +35,7 @@ import samplecode.CommandLineOptions;
 import samplecode.ScriptGenerator;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Launchable;
 import samplecode.annotation.Since;
 
 
@@ -45,7 +46,8 @@ import samplecode.annotation.Since;
  */
 @Author("terry.gardner@unboundid.com")
 @Since("Jan 1, 2012")
-@CodeVersion("1.1")
+@CodeVersion("1.2")
+@Launchable
 public final class ScriptTool
         extends AbstractTool
 {
@@ -343,6 +345,7 @@ public final class ScriptTool
  * <blockquote>
  * 
  * <pre>
+ * 
  * 
  * 
  * 

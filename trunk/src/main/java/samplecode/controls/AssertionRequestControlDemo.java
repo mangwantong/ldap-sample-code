@@ -39,6 +39,7 @@ import samplecode.SupportedFeature;
 import samplecode.SupportedFeatureException;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Launchable;
 import samplecode.annotation.Since;
 import samplecode.tools.AbstractTool;
 import samplecode.tools.BasicToolCompletedProcessing;
@@ -54,6 +55,7 @@ import samplecode.tools.ToolCompletedProcessing;
 @Author("terry.gardner@unboundid.com")
 @Since("Dec 4, 2011")
 @CodeVersion("1.25")
+@Launchable
 public final class AssertionRequestControlDemo
         extends AbstractTool
 {

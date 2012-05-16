@@ -61,6 +61,7 @@ import samplecode.SupportedFeature;
 import samplecode.SupportedFeatureException;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Launchable;
 import samplecode.annotation.Since;
 import samplecode.tools.AbstractTool;
 import samplecode.tools.BasicToolCompletedProcessing;
@@ -192,7 +193,8 @@ import samplecode.tools.ToolCompletedProcessing;
  */
 @Author("terry.gardner@unboundid.com")
 @Since("01-Nov-2011")
-@CodeVersion("1.8")
+@CodeVersion("1.9")
+@Launchable
 public final class LdapListenerExample
         extends AbstractTool
 {

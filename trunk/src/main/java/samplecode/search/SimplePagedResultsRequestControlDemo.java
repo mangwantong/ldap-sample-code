@@ -36,6 +36,7 @@ import samplecode.SupportedFeature;
 import samplecode.SupportedFeatureException;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Launchable;
 import samplecode.annotation.Since;
 import samplecode.listener.ExceptionListener;
 import samplecode.tools.AbstractTool;
@@ -79,7 +80,8 @@ import samplecode.tools.AbstractTool;
  */
 @Author("terry.gardner@unboundid.com")
 @Since("Nov 23, 2011")
-@CodeVersion("1.5")
+@CodeVersion("1.6")
+@Launchable
 public final class SimplePagedResultsRequestControlDemo
         extends AbstractTool
 {
