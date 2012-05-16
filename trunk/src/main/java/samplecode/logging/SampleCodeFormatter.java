@@ -9,9 +9,16 @@ import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
 
 
+import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
 
 
+/**
+ * A log line formatter for samplecode.
+ */
+@Author("terrygardner@unboundid.com")
+@Since("May, 2012")
 @CodeVersion("1.0")
 public class SampleCodeFormatter
         extends Formatter
