@@ -48,13 +48,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
-import samplecode.ResponseControlAware;
 import samplecode.SupportedFeature;
 import samplecode.SupportedFeatureException;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Launchable;
 import samplecode.annotation.Since;
+import samplecode.controls.ResponseControlAware;
 import samplecode.listener.LdapExceptionListener;
 import samplecode.listener.LdapSearchExceptionEvent;
 import samplecode.listener.LdapSearchExceptionListener;
@@ -76,7 +76,7 @@ import samplecode.tools.ToolCompletedProcessing;
  */
 @Author("terry.gardner@unboundid.com")
 @Since("01-Sep-2011")
-@CodeVersion("1.23")
+@CodeVersion("1.24")
 @Launchable
 public final class BindDemo
         extends AbstractTool
