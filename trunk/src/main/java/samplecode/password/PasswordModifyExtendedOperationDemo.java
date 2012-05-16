@@ -36,7 +36,6 @@ import java.util.logging.Logger;
 
 
 import samplecode.CommandLineOptions;
-import samplecode.PasswordModifyExtendedOperationFailedException;
 import samplecode.SupportedFeatureException;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
@@ -86,7 +85,7 @@ import samplecode.tools.ToolCompletedProcessing;
  */
 @Author("terry.gardner@unboundid.com")
 @Since("12-Nov-2011")
-@CodeVersion("1.27")
+@CodeVersion("1.28")
 @Launchable
 public final class PasswordModifyExtendedOperationDemo
         extends AbstractTool
