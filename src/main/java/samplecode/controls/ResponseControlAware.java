@@ -13,7 +13,7 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
-package samplecode;
+package samplecode.controls;
 
 
 import com.unboundid.ldap.sdk.LDAPException;
@@ -31,7 +31,7 @@ import samplecode.annotation.Since;
  */
 @Author("terry.gardner@unboundid.com")
 @Since("Dec 6, 2011")
-@CodeVersion("1.1")
+@CodeVersion("1.2")
 public interface ResponseControlAware
 {
 
