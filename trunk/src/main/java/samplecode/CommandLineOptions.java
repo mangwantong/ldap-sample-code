@@ -607,6 +607,11 @@ public class CommandLineOptions
 
 
 
+  private static final String VERBOSE_DESCRIPTION =
+          "If present, specifies that the tool should be verbose.";
+
+
+
   /**
    * Obtain an instance of the {@code CommandLineOptions} class.
    * 
@@ -2092,7 +2097,7 @@ public class CommandLineOptions
      */
     final Character shortIdentifier = null;
     final String longIdentifier = CommandLineOptions.ARG_NAME_VERBOSE;
-    final String description = "Whether the tool should be verbose.";
+    final String description = CommandLineOptions.VERBOSE_DESCRIPTION;
     return new BooleanArgument(shortIdentifier,longIdentifier,description);
   }
 
