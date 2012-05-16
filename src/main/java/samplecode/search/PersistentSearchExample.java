@@ -47,6 +47,7 @@ import samplecode.SupportedFeature;
 import samplecode.SupportedFeatureException;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Launchable;
 import samplecode.annotation.Since;
 import samplecode.tools.AbstractTool;
 
@@ -57,7 +58,8 @@ import samplecode.tools.AbstractTool;
  */
 @Author("terry.gardner@unboundid.com")
 @Since("Oct 13,2011")
-@CodeVersion("1.28")
+@CodeVersion("1.29")
+@Launchable
 public final class PersistentSearchExample
         extends AbstractTool
 {

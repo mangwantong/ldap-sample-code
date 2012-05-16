@@ -40,6 +40,7 @@ import samplecode.PasswordModifyExtendedOperationFailedException;
 import samplecode.SupportedFeatureException;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Launchable;
 import samplecode.annotation.Since;
 import samplecode.listener.LdapExceptionEvent;
 import samplecode.listener.LdapExceptionListener;
@@ -85,7 +86,8 @@ import samplecode.tools.ToolCompletedProcessing;
  */
 @Author("terry.gardner@unboundid.com")
 @Since("12-Nov-2011")
-@CodeVersion("1.26")
+@CodeVersion("1.27")
+@Launchable
 public final class PasswordModifyExtendedOperationDemo
         extends AbstractTool
         implements ObservedByLdapExceptionListener,LdapExceptionListener

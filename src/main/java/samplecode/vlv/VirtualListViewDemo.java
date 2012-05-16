@@ -45,6 +45,7 @@ import samplecode.SupportedFeatureException;
 import samplecode.SupportedUserAttribute;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Launchable;
 import samplecode.annotation.Since;
 import samplecode.listener.LdapExceptionListener;
 import samplecode.listener.ObservedByLdapExceptionListener;
@@ -60,7 +61,8 @@ import samplecode.tools.ToolCompletedProcessing;
  */
 @Author("terry.gardner@unboundid.com")
 @Since("Dec 4, 2011")
-@CodeVersion("1.3")
+@CodeVersion("1.4")
+@Launchable
 public final class VirtualListViewDemo
         extends AbstractTool
         implements LdapExceptionListener,ObservedByLdapExceptionListener

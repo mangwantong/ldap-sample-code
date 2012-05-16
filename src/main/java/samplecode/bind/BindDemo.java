@@ -53,6 +53,7 @@ import samplecode.SupportedFeature;
 import samplecode.SupportedFeatureException;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Launchable;
 import samplecode.annotation.Since;
 import samplecode.listener.LdapExceptionListener;
 import samplecode.listener.LdapSearchExceptionEvent;
@@ -75,7 +76,8 @@ import samplecode.tools.ToolCompletedProcessing;
  */
 @Author("terry.gardner@unboundid.com")
 @Since("01-Sep-2011")
-@CodeVersion("1.22")
+@CodeVersion("1.23")
+@Launchable
 public final class BindDemo
         extends AbstractTool
         implements LdapExceptionListener,ObservedByLdapExceptionListener,

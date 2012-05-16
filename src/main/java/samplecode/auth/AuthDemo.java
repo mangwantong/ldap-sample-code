@@ -27,6 +27,7 @@ import java.util.logging.Logger;
 import samplecode.SupportedFeatureException;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Launchable;
 import samplecode.annotation.Since;
 import samplecode.listener.DefaultLdapExceptionListener;
 import samplecode.tools.AbstractTool;
@@ -67,7 +68,8 @@ import samplecode.tools.ToolCompletedProcessing;
  */
 @Author("terry.gardner@unboundid.com")
 @Since("27-Nov-2011")
-@CodeVersion("2.1")
+@CodeVersion("2.2")
+@Launchable
 public final class AuthDemo
         extends AbstractTool
 {

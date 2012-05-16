@@ -13,15 +13,11 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
-package samplecode;
+package samplecode.annotation;
 
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-
-
-import samplecode.annotation.Author;
-import samplecode.annotation.Since;
 
 
 /**
@@ -30,7 +26,7 @@ import samplecode.annotation.Since;
  */
 @Author("terry.gardner@unboundid.com")
 @Retention(RetentionPolicy.RUNTIME)
-@Since("1.1")
+@Since("1.2")
 public @interface Launchable
 {
   // This block deliberately left empty.

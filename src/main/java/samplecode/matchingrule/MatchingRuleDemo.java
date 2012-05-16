@@ -44,6 +44,7 @@ import samplecode.CommandLineOptions;
 import samplecode.SupportedUserAttribute;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Launchable;
 import samplecode.annotation.Since;
 import samplecode.listener.LdapExceptionListener;
 import samplecode.listener.ObservedByLdapExceptionListener;
@@ -63,7 +64,8 @@ import samplecode.tools.ToolCompletedProcessing;
  */
 @Author("terry.gardner@unboundid.com")
 @Since("Nov 22, 2011")
-@CodeVersion("1.10")
+@CodeVersion("1.11")
+@Launchable
 public final class MatchingRuleDemo
         extends AbstractTool
         implements LdapExceptionListener,ObservedByLdapExceptionListener

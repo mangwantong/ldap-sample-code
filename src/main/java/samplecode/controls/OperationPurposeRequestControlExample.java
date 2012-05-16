@@ -40,12 +40,12 @@ import java.util.logging.Logger;
 
 import samplecode.BasicLdapEntryDisplay;
 import samplecode.CommandLineOptions;
-import samplecode.Launchable;
 import samplecode.LdapEntryDisplay;
 import samplecode.SupportedFeature;
 import samplecode.SupportedFeatureException;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Launchable;
 import samplecode.annotation.Since;
 import samplecode.listener.LdapExceptionEvent;
 import samplecode.listener.LdapExceptionListener;
@@ -66,7 +66,7 @@ import samplecode.tools.ToolCompletedProcessing;
  */
 @Author("terry.gardner@unboundID.com")
 @Since("Oct 30, 2011")
-@CodeVersion("1.3")
+@CodeVersion("1.4")
 @Launchable
 public final class OperationPurposeRequestControlExample
         extends AbstractTool
