@@ -41,13 +41,13 @@ import java.util.logging.LogRecord;
 
 
 import samplecode.CommandLineOptions;
-import samplecode.ReadLdifFile;
 import samplecode.SampleCodeCollectionUtils;
 import samplecode.SupportedFeatureException;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
 import samplecode.controls.ControlHandler;
+import samplecode.ldif.ReadLdifFile;
 import samplecode.listener.LdapExceptionEvent;
 import samplecode.listener.LdapExceptionListener;
 import samplecode.listener.ProgressEvent;
@@ -167,7 +167,7 @@ import samplecode.tools.ToolCompletedProcessing;
  */
 @Author("terry.gardner@unboundid.com")
 @Since("Nov 30, 2011")
-@CodeVersion("1.7")
+@CodeVersion("1.8")
 public final class LdapTreeDelete
         extends LDAPCommandLineTool
         implements LdapExceptionListener
