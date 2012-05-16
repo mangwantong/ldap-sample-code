@@ -31,12 +31,12 @@ import java.util.Vector;
 
 
 import samplecode.ControlHandler;
-import samplecode.Singleton;
 import samplecode.SupportedFeature;
 import samplecode.SupportedFeatureException;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
+import samplecode.annotation.Singleton;
 import samplecode.listener.LdapExceptionEvent;
 import samplecode.listener.LdapExceptionListener;
 import samplecode.listener.ObservedByLdapExceptionListener;

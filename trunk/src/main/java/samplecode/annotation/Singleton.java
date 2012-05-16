@@ -13,7 +13,7 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
-package samplecode;
+package samplecode.annotation;
 
 
 import java.lang.annotation.ElementType;
@@ -22,17 +22,13 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 
-import samplecode.annotation.Author;
-import samplecode.annotation.CodeVersion;
-import samplecode.annotation.Since;
-
 
 /**
  * Marks a type as a singleton.
  */
 @Author("terry.gardner@unboundid.com")
 @Since("Dec 29, 2011")
-@CodeVersion("1.0")
+@CodeVersion("1.1")
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Singleton
