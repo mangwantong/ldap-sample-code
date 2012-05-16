@@ -25,6 +25,7 @@ import com.unboundid.util.Validator;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
+import samplecode.annotation.Singleton;
 
 
 /**
@@ -33,7 +34,8 @@ import samplecode.annotation.Since;
  */
 @Author("terry.gardner@unboundid.com")
 @Since("Dec 4, 2011")
-@CodeVersion("1.1")
+@CodeVersion("1.2")
+@Singleton
 public final class SupportedUserAttribute
         extends AbstractSupportedAttribute
 {
