@@ -13,7 +13,7 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
-package samplecode;
+package samplecode.password;
 
 
 import com.unboundid.ldap.sdk.ResultCode;
@@ -30,7 +30,7 @@ import samplecode.annotation.Since;
  */
 @Author("terry.gardner@unboundid.com")
 @Since("Dec 28, 2011")
-@CodeVersion("1.0")
+@CodeVersion("1.1")
 @SuppressWarnings("serial")
 public class PasswordModifyExtendedOperationFailedException
         extends Exception

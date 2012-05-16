@@ -26,7 +26,6 @@ import com.unboundid.util.NotMutable;
 import com.unboundid.util.Validator;
 
 
-import samplecode.PasswordModifyExtendedOperationFailedException;
 import samplecode.SupportedFeature;
 import samplecode.SupportedFeatureException;
 import samplecode.annotation.Author;
@@ -39,7 +38,7 @@ import samplecode.annotation.Since;
  */
 @Author("terry.gardner@unboundid.com")
 @Since("Dec 28, 2011")
-@CodeVersion("1.1")
+@CodeVersion("1.2")
 @NotMutable
 public class ChangePassword
 {
