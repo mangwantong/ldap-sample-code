@@ -2084,6 +2084,10 @@ public class CommandLineOptions
 
 
 
+  /**
+   * returns a new, and optional, argument used to specify whether the
+   * tool should be verbose
+   */
   private BooleanArgument newVerboseArgument(final Properties properties)
           throws ArgumentException
   {
