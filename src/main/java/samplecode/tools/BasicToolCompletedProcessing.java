@@ -24,6 +24,7 @@ import com.unboundid.util.Validator;
 
 
 import java.io.PrintStream;
+import java.util.logging.Formatter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -43,7 +44,7 @@ import samplecode.annotation.Since;
  */
 @Author("terry.gardner@unboundid.com")
 @Since("Dec 24, 2011")
-@CodeVersion("1.1")
+@CodeVersion("1.2")
 public class BasicToolCompletedProcessing
         implements ToolCompletedProcessing
 {
@@ -91,13 +92,11 @@ public class BasicToolCompletedProcessing
     final LdapLogRecord ldapLogRecord = new BasicLdapLogRecord(createMsg());
     if(resultCode.equals(ResultCode.SUCCESS))
     {
-      outStream
-              .println(new MinimalLogFormatter().format(ldapLogRecord.getLogRecord(Level.INFO)));
+      outStream.println(formatter.format(ldapLogRecord.getLogRecord(Level.INFO)));
     }
     else
     {
-      errStream
-              .println(new MinimalLogFormatter().format(ldapLogRecord.getLogRecord(Level.INFO)));
+      errStream.println(formatter.format(ldapLogRecord.getLogRecord(Level.SEVERE)));
     }
   }
 
@@ -120,6 +119,10 @@ public class BasicToolCompletedProcessing
     this.tool = tool;
     this.resultCode = resultCode;
   }
+
+
+
+  private final Formatter formatter = new MinimalLogFormatter();
 
 
 
