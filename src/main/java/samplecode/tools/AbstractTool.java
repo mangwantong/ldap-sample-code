@@ -48,8 +48,11 @@ import samplecode.listener.ObservedByLdapExceptionListener;
 
 /**
  * A minimal implementation of the {@code LDAPCommandLineTool} class.
+ * <p>
+ * Clients should override {@code getToolName()} and
+ * {@code getToolDescription()} if a properties file is not available.
  */
-@CodeVersion("2.1")
+@CodeVersion("2.2")
 public abstract class AbstractTool
         extends LDAPCommandLineTool
         implements LdapExceptionListener,ObservedByLdapExceptionListener
