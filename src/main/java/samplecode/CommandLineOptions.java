@@ -1089,6 +1089,13 @@ public class CommandLineOptions
 
 
 
+  public String getPropertiesResourceName()
+  {
+    return propertiesResourceName;
+  }
+
+
+
   /**
    * Retrieve the parameter specified to the [@code --reporCount}
    * command line argument. This parameter is the maximum number of
@@ -1355,6 +1362,34 @@ public class CommandLineOptions
   {
     Validator.ensureNotNull(longIdentifier);
     return (T)argumentParser.getNamedArgument(longIdentifier);
+  }
+
+
+
+  private Properties getProperties()
+  {
+    final PropertiesFile propertiesFile = newPropertiesFile(getPropertiesResourceName());
+    final FileNotFoundExceptionListener fileNotFoundExceptionListener =
+            new FileNotFoundExceptionListener()
+            {
+
+              @Override
+              public void fileNotFound(final FileNotFoundExceptionEvent event)
+              {
+                logger.severe(event.getFileNotFoundException().getMessage());
+              }
+
+
+
+              @Override
+              public void ioExceptionOccurred(final IOExceptionEvent ioExceptionEvent)
+              {
+                logger.severe(ioExceptionEvent.getIoException().getMessage());
+              }
+
+            };
+    propertiesFile.addFileNotFoundExceptionListener(fileNotFoundExceptionListener);
+    return propertiesFile.getProperties();
   }
 
 
@@ -1841,8 +1876,7 @@ public class CommandLineOptions
 
   private PropertiesFile newPropertiesFile(final String name)
   {
-    Validator.ensureNotNull(name);
-    return PropertiesFile.of(name);
+    return name == null ? null : PropertiesFile.of(name);
   }
 
 
@@ -2122,6 +2156,10 @@ public class CommandLineOptions
 
 
   /**
+   * Preconditions:
+   * <p/>
+   * The {@code argumentParser} is not permitted to be {@code null}.
+   * 
    * @param argumentParser
    *          parses command line arguments
    * @throws ArgumentException
@@ -2133,30 +2171,7 @@ public class CommandLineOptions
   {
     Validator.ensureNotNull(argumentParser);
     this.argumentParser = argumentParser;
-
-    final String resourceName = CommandLineOptions.PROPERTIES_RESOURCE_NAME;
-    final PropertiesFile propertiesFile = newPropertiesFile(resourceName);
-    final FileNotFoundExceptionListener fileNotFoundExceptionListener =
-            new FileNotFoundExceptionListener()
-            {
-
-              @Override
-              public void fileNotFound(final FileNotFoundExceptionEvent event)
-              {
-                logger.severe(event.getFileNotFoundException().getMessage());
-              }
-
-
-
-              @Override
-              public void ioExceptionOccurred(final IOExceptionEvent ioExceptionEvent)
-              {
-                logger.severe(ioExceptionEvent.getIoException().getMessage());
-              }
-
-            };
-    propertiesFile.addFileNotFoundExceptionListener(fileNotFoundExceptionListener);
-    final Properties properties = propertiesFile.getProperties();
+    final Properties properties = getProperties();
 
     /*
      * Indicates whether the LDAP SDK should attempt to abandon any
@@ -2235,4 +2250,12 @@ public class CommandLineOptions
 
   /** Logging facilities */
   private final Logger logger = Logger.getLogger(getClass().getName());
+
+
+
+  /**
+   * The name of the properties resource. This field defaults to the
+   * value of {@link CommandLineOptions#PROPERTIES_RESOURCE_NAME}.
+   */
+  private final String propertiesResourceName = CommandLineOptions.PROPERTIES_RESOURCE_NAME;
 }
