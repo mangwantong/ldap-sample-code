@@ -335,7 +335,9 @@ public final class AssertionRequestControlDemo
        * Retrieve the new value for the attribute from the parameter to
        * the --newAttributeValue command line argument.
        */
-      final String newAttributeValue = commandLineOptions.getNewAttributeValue();
+      final String newAttributeValue =
+              ((AssertionRequestControlDemoCommandLineOptions)commandLineOptions)
+                      .getNewAttributeValue();
 
       /*
        * Construct the modification and transmit the modify request to
@@ -391,15 +393,6 @@ public final class AssertionRequestControlDemo
     super(outStream,errStream);
     className = getClass().getName();
   }
-
-
-
-  /**
-   * Provides services for use with command line parameters and
-   * arguments. Handles adding a fairly standard set of arguments to the
-   * argument parser and retrieving their parameters.
-   */
-  private AssertionRequestControlDemoCommandLineOptions commandLineOptions;
 
 
 

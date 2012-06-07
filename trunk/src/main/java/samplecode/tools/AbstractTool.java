@@ -359,6 +359,8 @@ public abstract class AbstractTool
 
   protected LDAPConnectionOptions getLdapConnectionOptions()
   {
+    Validator.ensureNotNullWithMessage(commandLineOptions,
+            "commandLineOptions should not be null");
     final LDAPConnectionOptions ldapConnectionOptions =
             commandLineOptions.newLDAPConnectionOptions();
 
