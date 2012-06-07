@@ -527,6 +527,7 @@ public final class BindDemo
       logger.log(Level.SEVERE,builder.toString());
       return ResultCode.PARAM_ERROR;
     }
+    logger.log(Level.INFO,"Using distinguished name \"" + commandLineOptions.getBindDn() + "\"");
 
 
     /*
@@ -538,6 +539,9 @@ public final class BindDemo
      */
     try
     {
+      final String msg =
+              String.format("Establishing connections to %s.",commandLineOptions.getHostname());
+      logger.log(Level.INFO,msg);
       ldapConnection = connectToServer();
       ldapConnectionPool = getLdapConnectionPool(ldapConnection);
     }
@@ -603,6 +607,8 @@ public final class BindDemo
       final SimpleBindRequest bindRequest =
               new SimpleBindRequest(commandLineOptions.getBindDn(),
                       commandLineOptions.getBindPassword(),controls);
+      logger.log(Level.INFO,
+              "transmitting bind request with operation purpose request control attached.");
       bindResult = ldapConnectionPool.bind(bindRequest);
     }
     catch(final LDAPException ldapException)
@@ -669,6 +675,7 @@ public final class BindDemo
     SearchResult searchResult;
     try
     {
+      logger.log(Level.INFO,"transmitting search request: " + searchRequest);
       searchResult = ldapConnectionPool.search(searchRequest);
     }
     catch(final LDAPSearchException ldapSearchException)
