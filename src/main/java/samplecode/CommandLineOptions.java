@@ -1004,6 +1004,41 @@ public class CommandLineOptions
 
 
   /**
+   * Gets the identifier named by {@code longIdentifier} from the
+   * argument parser. The longIdentifier argument is not permitted to be
+   * {@code null}.
+   * <p/>
+   * Usage:
+   * 
+   * <pre>
+   * 
+   * IntegerArgument portArg = getNamedArgument(&quot;port&quot;);
+   * int port;
+   * if(portArg != null &amp;&amp; portArg.isPresent())
+   * {
+   *   port = portArg.getValue();
+   * }
+   * else
+   * {
+   *   port = 389;
+   * }
+   * </pre>
+   * 
+   * @param longIdentifier
+   *          the long identifier, for example, {@code "port"}.
+   * 
+   * @return the argument associated with the long identifier
+   */
+  @SuppressWarnings("unchecked")
+  public <T extends Argument> T getNamedArgument(final String longIdentifier)
+  {
+    Validator.ensureNotNull(longIdentifier);
+    return (T)argumentParser.getNamedArgument(longIdentifier);
+  }
+
+
+
+  /**
    * Retrieves the number of threads as specified by the
    * {@code --numThreads} command line option.
    * 
@@ -1353,15 +1388,6 @@ public class CommandLineOptions
   public String toString()
   {
     return String.format("CommandLineOptions [argumentParser=%s]",argumentParser);
-  }
-
-
-
-  @SuppressWarnings("unchecked")
-  private <T extends Argument> T getNamedArgument(final String longIdentifier)
-  {
-    Validator.ensureNotNull(longIdentifier);
-    return (T)argumentParser.getNamedArgument(longIdentifier);
   }
 
 
