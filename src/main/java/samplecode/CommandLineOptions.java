@@ -591,6 +591,15 @@ public class CommandLineOptions
 
 
   /**
+   * The name of the property whose value is the description to use for
+   * the abandonOnTime command line argument.
+   */
+  public static final String PROP_NAME_ABANDON_ON_TIMEOUT_DESCRIPTION =
+          CommandLineOptions.ARG_NAME_ABANDON_ON_TIMEOUT + "Description";
+
+
+
+  /**
    * The name of the resource that contains properties for
    * {@code CommandLineOptions}.
    */
@@ -1420,7 +1429,48 @@ public class CommandLineOptions
 
 
 
-  /** never returns {@code null} */
+  /**
+   * Returns a {@link String} representation of the value of a property
+   * specified by {@code propertyName} or {@code defaultValue} if the
+   * property cannot be found.
+   * <p>
+   * For example, is a properties file contains: <blockquote>
+   * 
+   * <pre>
+   * hostname = ldap.example.com
+   * </pre>
+   * </blockquote> and the {@code getValue} method is invoked thus:
+   * 
+   * <blockquote>
+   * 
+   * <pre>
+   * String portString = getValue(&quot;port&quot;,&quot;389&quot;);
+   * </pre>
+   * 
+   * </blockquote>
+   * 
+   * {@code portString} will contain {@code "389"}.
+   * 
+   * @param propertyName
+   *          the name of a property in a Java properties fileNot
+   *          permitted to be {@code null}.
+   * 
+   * @param defaultValue
+   *          the value of the property to return in the event the
+   *          property specified by the {@code propertyName} parameter
+   *          is not present in the properties file.Not permitted to be
+   *          {@code null}.
+   * 
+   * @param properties
+   *          the properties object from which values are taken. Not
+   *          permitted to be {@code null}.
+   * 
+   * @return a {@link String} representation of the value of the
+   *         property whose key is specified by the {@code propertyName}
+   *         parameter if that property is present in the properties
+   *         file. If the property is not present in the properties
+   *         file, the {@code defaultValue} is returned.
+   */
   private String getValue(final String propertyName,final String defaultValue,
           final Properties properties)
   {
@@ -1438,7 +1488,6 @@ public class CommandLineOptions
   private BooleanArgument newAbandonOnTimeoutArgument(final Properties properties)
           throws ArgumentException
   {
-
     Validator.ensureNotNull(properties);
 
     /*
@@ -1448,10 +1497,8 @@ public class CommandLineOptions
      */
     final Character shortIdentifier = CommandLineOptions.ABANDON_ON_TIMEOUT_SHORT_IDENTIFIER;
     final String longIdentifier = CommandLineOptions.ARG_NAME_ABANDON_ON_TIMEOUT;
-    final String description =
-            getValue(CommandLineOptions.ARG_NAME_ABANDON_ON_TIMEOUT + "Description","",
-                    properties);
-    return new BooleanArgument(shortIdentifier,longIdentifier,description);
+    return new BooleanArgument(shortIdentifier,longIdentifier,getValue(
+            CommandLineOptions.PROP_NAME_ABANDON_ON_TIMEOUT_DESCRIPTION,"",properties));
   }
 
 
