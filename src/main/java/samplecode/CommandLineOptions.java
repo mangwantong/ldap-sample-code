@@ -1383,6 +1383,42 @@ public class CommandLineOptions
 
 
   /**
+   * Creates the argument that specifies whether operations should be
+   * abandoned when they timeout, for example, <blockquote>
+   * 
+   * <pre> CommandName --abandonOnTime</pre>
+   * 
+   * </blockquote>
+   * 
+   * @param properties
+   *          the properties which contain the default value - not
+   *          permitted to be {@code null}.
+   * 
+   * @return a {@link BooleanArgument} that allows the operator to
+   *         specify whether operations should be abandoned when they
+   *         timeout. Optional.
+   * 
+   * @throws ArgumentException
+   */
+  public BooleanArgument newAbandonOnTimeoutArgument(final Properties properties)
+          throws ArgumentException
+  {
+    Validator.ensureNotNull(properties);
+
+    /*
+     * Create the argument whose parameter is whether the LDAP SDK
+     * should abandon an operation that has timed out. This argument is
+     * optional, and can be specified exactly one time.
+     */
+    final Character shortIdentifier = CommandLineOptions.ABANDON_ON_TIMEOUT_SHORT_IDENTIFIER;
+    final String longIdentifier = CommandLineOptions.ARG_NAME_ABANDON_ON_TIMEOUT;
+    return new BooleanArgument(shortIdentifier,longIdentifier,getValue(
+            CommandLineOptions.PROP_NAME_ABANDON_ON_TIMEOUT_DESCRIPTION,"",properties));
+  }
+
+
+
+  /**
    * Creates the argument that specifies an attribute, for example,
    * <blockquote>
    * 
@@ -1547,24 +1583,6 @@ public class CommandLineOptions
             };
     propertiesFile.addFileNotFoundExceptionListener(fileNotFoundExceptionListener);
     return propertiesFile.getProperties();
-  }
-
-
-
-  private BooleanArgument newAbandonOnTimeoutArgument(final Properties properties)
-          throws ArgumentException
-  {
-    Validator.ensureNotNull(properties);
-
-    /*
-     * Create the argument whose parameter is whether the LDAP SDK
-     * should abandon an operation that has timed out. This argument is
-     * optional, and can be specified exactly one time.
-     */
-    final Character shortIdentifier = CommandLineOptions.ABANDON_ON_TIMEOUT_SHORT_IDENTIFIER;
-    final String longIdentifier = CommandLineOptions.ARG_NAME_ABANDON_ON_TIMEOUT;
-    return new BooleanArgument(shortIdentifier,longIdentifier,getValue(
-            CommandLineOptions.PROP_NAME_ABANDON_ON_TIMEOUT_DESCRIPTION,"",properties));
   }
 
 
