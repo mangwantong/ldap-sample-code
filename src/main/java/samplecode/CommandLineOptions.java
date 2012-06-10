@@ -608,6 +608,15 @@ public class CommandLineOptions
 
 
   /**
+   * The name of the property whose value is the description to use for
+   * the {@code --usePropertiesFile} command line argument.
+   */
+  public static final String PROP_NAME_USE_PROPERTIES_FILE_DESCRIPTION =
+          CommandLineOptions.ARG_NAME_USE_PROPERTIES_FILE + "Description";
+
+
+
+  /**
    * The name of the property that can be used to specify the
    * description of the use schema command line argument.
    */
@@ -1604,6 +1613,43 @@ public class CommandLineOptions
 
 
   /**
+   * Creates a command line argument that can be used to specify the
+   * properties file, for example, <blockquote>
+   * 
+   * <pre>--usePropertiesFile commandLineOptions.properties</pre>
+   * 
+   * </blockquote>
+   * 
+   * @param properties
+   *          properties file used for the value of the properties file.
+   * 
+   * @return a {@link StringArgument} that can be used to specify the
+   *         properties fil.
+   * 
+   * @throws ArgumentException
+   */
+  public StringArgument newUsePropertiesFileArgument(final Properties properties)
+          throws ArgumentException
+  {
+
+    /*
+     * Create the argument whose parameter is a properties filename.
+     */
+    final Character shortIdentifier = null;
+    final String longIdentifier = CommandLineOptions.ARG_NAME_USE_PROPERTIES_FILE;
+    final boolean isRequired = false;
+    final int maxOccurrences = 1;
+    final String valuePlaceholder = "{path-to-properties-file}";
+    final String description =
+            getValue(CommandLineOptions.PROP_NAME_USE_PROPERTIES_FILE_DESCRIPTION,
+                    "The path to a file containing Java properties.",properties);
+    return new StringArgument(shortIdentifier,longIdentifier,isRequired,maxOccurrences,
+            valuePlaceholder,description);
+  }
+
+
+
+  /**
    * @return the argument to the command line parser whose parameter is
    *         whether the LDAP SDK should try to use schema information,
    *         for example, to determine matching rules. This argument is
@@ -2275,25 +2321,6 @@ public class CommandLineOptions
                     + "search response.";
     return new IntegerArgument(shortIdentifier,longIdentifier,isRequired,maxOccurrences,
             valuePlaceholder,description,Integer.valueOf(defaultTimeLimit));
-  }
-
-
-
-  private StringArgument newUsePropertiesFileArgument(final Properties properties)
-          throws ArgumentException
-  {
-
-    /*
-     * Create the argument whose parameter is a properties filename.
-     */
-    final Character shortIdentifier = null;
-    final String longIdentifier = CommandLineOptions.ARG_NAME_USE_PROPERTIES_FILE;
-    final boolean isRequired = false;
-    final int maxOccurrences = 1;
-    final String valuePlaceholder = "{path-to-properties-file}";
-    final String description = "The path to a file containing Java properties.";
-    return new StringArgument(shortIdentifier,longIdentifier,isRequired,maxOccurrences,
-            valuePlaceholder,description);
   }
 
 
