@@ -600,6 +600,14 @@ public class CommandLineOptions
 
 
   /**
+   * The name of the property whose value is a sequence of attribute
+   * names or types separated by commas.
+   */
+  public static final String PROP_NAME_ATTRIBUTE = CommandLineOptions.ARG_NAME_ATTRIBUTE;
+
+
+
+  /**
    * The name of the resource that contains properties for
    * {@code CommandLineOptions}.
    */
@@ -1506,7 +1514,14 @@ public class CommandLineOptions
   private StringArgument newAttributeArgument(final Properties properties)
           throws ArgumentException
   {
+    Validator.ensureNotNull(properties);
 
+    /*
+     * Get the list of attributes from the properties, if present. The
+     * list of attributes is given as a sequence of strings wherein each
+     * list item is separated by a comma. TODO: Use the Apache
+     * Configuration Libraries.
+     */
     List<String> attributes;
     final String prop = properties.getProperty(CommandLineOptions.ARG_NAME_ATTRIBUTE);
     if(prop != null)
@@ -1518,21 +1533,18 @@ public class CommandLineOptions
       attributes = Arrays.asList(CommandLineOptions.DEFAULT_ATTRIBUTE_NAME);
     }
 
-    /*
-     * Create the argument whose parameter is the attribute to retrieve
-     * in a search. This command line argument is optional and may be
-     * specified zero, one, or more times.
-     */
+    final String description =
+            getValue(CommandLineOptions.PROP_NAME_ATTRIBUTE,
+                    "The attribute used in the search request or other request. "
+                            + "This command line argument "
+                            + "is not required, and can be specified "
+                            + "multiple times. If this command line "
+                            + "argument is not specified, the value '*' is used.",properties);
     final Character shortIdentifier = Character.valueOf('a');
     final String longIdentifier = CommandLineOptions.ARG_NAME_ATTRIBUTE;
     final boolean isRequired = false;
     final int maxOccurrences = 0;
     final String valuePlaceholder = "{attribute name or type}";
-    final String description =
-            "The attribute used in the search request or other request. "
-                    + "This command line argument "
-                    + "is not required, and can be specified multiple times. If this command line "
-                    + "argument is not specified, the value '*' is used.";
     return new StringArgument(shortIdentifier,longIdentifier,isRequired,maxOccurrences,
             valuePlaceholder,description,attributes);
   }
