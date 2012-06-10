@@ -132,7 +132,7 @@ import samplecode.listener.IOExceptionEvent;
  */
 @Author("terry.gardner@unboundid.com")
 @Since("Nov 28, 2011")
-@CodeVersion("1.75")
+@CodeVersion("2.0")
 public class CommandLineOptions
 {
 
@@ -1122,6 +1122,40 @@ public class CommandLineOptions
 
 
   /**
+   * Creates a {@link Properties} object using the resource name
+   * returned by {@link CommandLineOptions#getPropertiesResourceName()}.
+   * 
+   * @return a properties object.
+   */
+  public Properties getProperties()
+  {
+    final PropertiesFile propertiesFile = newPropertiesFile(getPropertiesResourceName());
+    final FileNotFoundExceptionListener fileNotFoundExceptionListener =
+            new FileNotFoundExceptionListener()
+            {
+
+              @Override
+              public void fileNotFound(final FileNotFoundExceptionEvent event)
+              {
+                logger.severe(event.getFileNotFoundException().getMessage());
+              }
+
+
+
+              @Override
+              public void ioExceptionOccurred(final IOExceptionEvent ioExceptionEvent)
+              {
+                logger.severe(ioExceptionEvent.getIoException().getMessage());
+              }
+
+            };
+    propertiesFile.addFileNotFoundExceptionListener(fileNotFoundExceptionListener);
+    return propertiesFile.getProperties();
+  }
+
+
+
+  /**
    * retrieves the value of the {@code --useProertiesFile} argument, if
    * present, otherwise {@code null}.
    * 
@@ -1558,34 +1592,6 @@ public class CommandLineOptions
   public String toString()
   {
     return String.format("CommandLineOptions [argumentParser=%s]",argumentParser);
-  }
-
-
-
-  private Properties getProperties()
-  {
-    final PropertiesFile propertiesFile = newPropertiesFile(getPropertiesResourceName());
-    final FileNotFoundExceptionListener fileNotFoundExceptionListener =
-            new FileNotFoundExceptionListener()
-            {
-
-              @Override
-              public void fileNotFound(final FileNotFoundExceptionEvent event)
-              {
-                logger.severe(event.getFileNotFoundException().getMessage());
-              }
-
-
-
-              @Override
-              public void ioExceptionOccurred(final IOExceptionEvent ioExceptionEvent)
-              {
-                logger.severe(ioExceptionEvent.getIoException().getMessage());
-              }
-
-            };
-    propertiesFile.addFileNotFoundExceptionListener(fileNotFoundExceptionListener);
-    return propertiesFile.getProperties();
   }
 
 
