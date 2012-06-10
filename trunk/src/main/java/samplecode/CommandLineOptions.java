@@ -1141,6 +1141,9 @@ public class CommandLineOptions
 
 
 
+  /**
+   * @return the name of the resource that contains properties
+   */
   public String getPropertiesResourceName()
   {
     return propertiesResourceName;
