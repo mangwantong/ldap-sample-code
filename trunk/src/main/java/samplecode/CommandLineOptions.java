@@ -132,7 +132,7 @@ import samplecode.listener.IOExceptionEvent;
  */
 @Author("terry.gardner@unboundid.com")
 @Since("Nov 28, 2011")
-@CodeVersion("1.70")
+@CodeVersion("1.75")
 public class CommandLineOptions
 {
 
@@ -1311,6 +1311,62 @@ public class CommandLineOptions
 
 
   /**
+   * Returns a {@link String} representation of the value of a property
+   * specified by {@code propertyName} or {@code defaultValue} if the
+   * property cannot be found.
+   * <p>
+   * For example, is a properties file contains: <blockquote>
+   * 
+   * <pre>
+   * hostname = ldap.example.com
+   * </pre>
+   * </blockquote> and the {@code getValue} method is invoked thus:
+   * 
+   * <blockquote>
+   * 
+   * <pre>
+   * String portString = getValue(&quot;port&quot;,&quot;389&quot;);
+   * </pre>
+   * 
+   * </blockquote>
+   * 
+   * {@code portString} will contain {@code "389"}.
+   * 
+   * @param propertyName
+   *          the name of a property in a Java properties fileNot
+   *          permitted to be {@code null}.
+   * 
+   * @param defaultValue
+   *          the value of the property to return in the event the
+   *          property specified by the {@code propertyName} parameter
+   *          is not present in the properties file.Not permitted to be
+   *          {@code null}.
+   * 
+   * @param properties
+   *          the properties object from which values are taken. Not
+   *          permitted to be {@code null}.
+   * 
+   * @return a {@link String} representation of the value of the
+   *         property whose key is specified by the {@code propertyName}
+   *         parameter if that property is present in the properties
+   *         file. If the property is not present in the properties
+   *         file, the {@code defaultValue} is returned.
+   */
+  public String getValue(final String propertyName,final String defaultValue,
+          final Properties properties)
+  {
+    Validator.ensureNotNull(propertyName,properties,defaultValue);
+    String value = properties.getProperty(propertyName);
+    if(value == null)
+    {
+      value = defaultValue;
+    }
+    return value;
+  }
+
+
+
+  /**
    * Whether the {@code --verbose} command line option is present.
    * 
    * @return Whether the {@code --verbose} command line option is
@@ -1491,62 +1547,6 @@ public class CommandLineOptions
             };
     propertiesFile.addFileNotFoundExceptionListener(fileNotFoundExceptionListener);
     return propertiesFile.getProperties();
-  }
-
-
-
-  /**
-   * Returns a {@link String} representation of the value of a property
-   * specified by {@code propertyName} or {@code defaultValue} if the
-   * property cannot be found.
-   * <p>
-   * For example, is a properties file contains: <blockquote>
-   * 
-   * <pre>
-   * hostname = ldap.example.com
-   * </pre>
-   * </blockquote> and the {@code getValue} method is invoked thus:
-   * 
-   * <blockquote>
-   * 
-   * <pre>
-   * String portString = getValue(&quot;port&quot;,&quot;389&quot;);
-   * </pre>
-   * 
-   * </blockquote>
-   * 
-   * {@code portString} will contain {@code "389"}.
-   * 
-   * @param propertyName
-   *          the name of a property in a Java properties fileNot
-   *          permitted to be {@code null}.
-   * 
-   * @param defaultValue
-   *          the value of the property to return in the event the
-   *          property specified by the {@code propertyName} parameter
-   *          is not present in the properties file.Not permitted to be
-   *          {@code null}.
-   * 
-   * @param properties
-   *          the properties object from which values are taken. Not
-   *          permitted to be {@code null}.
-   * 
-   * @return a {@link String} representation of the value of the
-   *         property whose key is specified by the {@code propertyName}
-   *         parameter if that property is present in the properties
-   *         file. If the property is not present in the properties
-   *         file, the {@code defaultValue} is returned.
-   */
-  private String getValue(final String propertyName,final String defaultValue,
-          final Properties properties)
-  {
-    Validator.ensureNotNull(propertyName,properties,defaultValue);
-    String value = properties.getProperty(propertyName);
-    if(value == null)
-    {
-      value = defaultValue;
-    }
-    return value;
   }
 
 
