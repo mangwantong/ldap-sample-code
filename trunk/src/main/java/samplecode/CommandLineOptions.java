@@ -1327,6 +1327,64 @@ public class CommandLineOptions
 
 
   /**
+   * Creates the argument that specifies an attribute, for example,
+   * <blockquote>
+   * 
+   * <pre> CommandName --attribute uid --attribute cn</pre>
+   * 
+   * </blockquote>
+   * 
+   * @param properties
+   *          the properties which contain the default attribute names -
+   *          not permitted to be {@code null}.
+   * 
+   * @return a {@link StringArgument} that allows the operator to
+   *         specify attribute names and types. May occur multiple
+   *         times.
+   * 
+   * @throws ArgumentException
+   */
+  public StringArgument newAttributeArgument(final Properties properties)
+          throws ArgumentException
+  {
+    Validator.ensureNotNull(properties);
+
+    /*
+     * Get the list of attributes from the properties, if present. The
+     * list of attributes is given as a sequence of strings wherein each
+     * list item is separated by a comma. TODO: Use the Apache
+     * Configuration Libraries.
+     */
+    List<String> attributes;
+    final String prop = properties.getProperty(CommandLineOptions.ARG_NAME_ATTRIBUTE);
+    if(prop != null)
+    {
+      attributes = stringToList(prop);
+    }
+    else
+    {
+      attributes = Arrays.asList(CommandLineOptions.DEFAULT_ATTRIBUTE_NAME);
+    }
+
+    final String description =
+            getValue(CommandLineOptions.PROP_NAME_ATTRIBUTE,
+                    "The attribute used in the search request or other request. "
+                            + "This command line argument "
+                            + "is not required, and can be specified "
+                            + "multiple times. If this command line "
+                            + "argument is not specified, the value '*' is used.",properties);
+    final Character shortIdentifier = Character.valueOf('a');
+    final String longIdentifier = CommandLineOptions.ARG_NAME_ATTRIBUTE;
+    final boolean isRequired = false;
+    final int maxOccurrences = 0;
+    final String valuePlaceholder = "{attribute name or type}";
+    return new StringArgument(shortIdentifier,longIdentifier,isRequired,maxOccurrences,
+            valuePlaceholder,description,attributes);
+  }
+
+
+
+  /**
    * Constructs a new {@code LDAPConnectionOptions} object with
    * parameters set to values specified by command line argument
    * parameters.
@@ -1507,46 +1565,6 @@ public class CommandLineOptions
     final String longIdentifier = CommandLineOptions.ARG_NAME_ABANDON_ON_TIMEOUT;
     return new BooleanArgument(shortIdentifier,longIdentifier,getValue(
             CommandLineOptions.PROP_NAME_ABANDON_ON_TIMEOUT_DESCRIPTION,"",properties));
-  }
-
-
-
-  private StringArgument newAttributeArgument(final Properties properties)
-          throws ArgumentException
-  {
-    Validator.ensureNotNull(properties);
-
-    /*
-     * Get the list of attributes from the properties, if present. The
-     * list of attributes is given as a sequence of strings wherein each
-     * list item is separated by a comma. TODO: Use the Apache
-     * Configuration Libraries.
-     */
-    List<String> attributes;
-    final String prop = properties.getProperty(CommandLineOptions.ARG_NAME_ATTRIBUTE);
-    if(prop != null)
-    {
-      attributes = stringToList(prop);
-    }
-    else
-    {
-      attributes = Arrays.asList(CommandLineOptions.DEFAULT_ATTRIBUTE_NAME);
-    }
-
-    final String description =
-            getValue(CommandLineOptions.PROP_NAME_ATTRIBUTE,
-                    "The attribute used in the search request or other request. "
-                            + "This command line argument "
-                            + "is not required, and can be specified "
-                            + "multiple times. If this command line "
-                            + "argument is not specified, the value '*' is used.",properties);
-    final Character shortIdentifier = Character.valueOf('a');
-    final String longIdentifier = CommandLineOptions.ARG_NAME_ATTRIBUTE;
-    final boolean isRequired = false;
-    final int maxOccurrences = 0;
-    final String valuePlaceholder = "{attribute name or type}";
-    return new StringArgument(shortIdentifier,longIdentifier,isRequired,maxOccurrences,
-            valuePlaceholder,description,attributes);
   }
 
 
