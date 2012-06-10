@@ -1586,6 +1586,29 @@ public class CommandLineOptions
 
 
   /**
+   * @return an optional argument used to specify whether the tool
+   *         should be verbose.
+   */
+  public BooleanArgument newVerboseArgument(final Properties properties)
+          throws ArgumentException
+  {
+    Validator.ensureNotNull(properties);
+
+    /*
+     * Add the argument to the command line parser whose parameter is
+     * whether the LDAP SDK should try to use schema information, for
+     * example, to determine matching rules. This argument is optional,
+     * and can be specified exactly one time.
+     */
+    final Character shortIdentifier = null;
+    final String longIdentifier = CommandLineOptions.ARG_NAME_VERBOSE;
+    final String description = CommandLineOptions.VERBOSE_DESCRIPTION;
+    return new BooleanArgument(shortIdentifier,longIdentifier,description);
+  }
+
+
+
+  /**
    * {@inheritDoc}
    */
   @Override
@@ -2243,29 +2266,6 @@ public class CommandLineOptions
     final String description =
             "Whether the LDAP SDK should attempt to use server schema "
                     + "information, for example, for matching rules.";
-    return new BooleanArgument(shortIdentifier,longIdentifier,description);
-  }
-
-
-
-  /**
-   * returns a new, and optional, argument used to specify whether the
-   * tool should be verbose
-   */
-  private BooleanArgument newVerboseArgument(final Properties properties)
-          throws ArgumentException
-  {
-    Validator.ensureNotNull(properties);
-
-    /*
-     * Add the argument to the command line parser whose parameter is
-     * whether the LDAP SDK should try to use schema information, for
-     * example, to determine matching rules. This argument is optional,
-     * and can be specified exactly one time.
-     */
-    final Character shortIdentifier = null;
-    final String longIdentifier = CommandLineOptions.ARG_NAME_VERBOSE;
-    final String description = CommandLineOptions.VERBOSE_DESCRIPTION;
     return new BooleanArgument(shortIdentifier,longIdentifier,description);
   }
 
