@@ -1586,6 +1586,31 @@ public class CommandLineOptions
 
 
   /**
+   * @return the argument to the command line parser whose parameter is
+   *         whether the LDAP SDK should try to use schema information,
+   *         for example, to determine matching rules. This argument is
+   *         optional, and can be specified exactly one time.
+   */
+  public BooleanArgument newUseSchemaArgument(final Properties properties)
+          throws ArgumentException
+  {
+    /*
+     * Add the argument to the command line parser whose parameter is
+     * whether the LDAP SDK should try to use schema information, for
+     * example, to determine matching rules. This argument is optional,
+     * and can be specified exactly one time.
+     */
+    final Character shortIdentifier = null;
+    final String longIdentifier = CommandLineOptions.ARG_NAME_USE_SCHEMA;
+    final String description =
+            "Whether the LDAP SDK should attempt to use server schema "
+                    + "information, for example, for matching rules.";
+    return new BooleanArgument(shortIdentifier,longIdentifier,description);
+  }
+
+
+
+  /**
    * @return an optional argument used to specify whether the tool
    *         should be verbose.
    */
@@ -2248,25 +2273,6 @@ public class CommandLineOptions
     final String description = "The path to a file containing Java properties.";
     return new StringArgument(shortIdentifier,longIdentifier,isRequired,maxOccurrences,
             valuePlaceholder,description);
-  }
-
-
-
-  private BooleanArgument newUseSchemaArgument(final Properties properties)
-          throws ArgumentException
-  {
-    /*
-     * Add the argument to the command line parser whose parameter is
-     * whether the LDAP SDK should try to use schema information, for
-     * example, to determine matching rules. This argument is optional,
-     * and can be specified exactly one time.
-     */
-    final Character shortIdentifier = null;
-    final String longIdentifier = CommandLineOptions.ARG_NAME_USE_SCHEMA;
-    final String description =
-            "Whether the LDAP SDK should attempt to use server schema "
-                    + "information, for example, for matching rules.";
-    return new BooleanArgument(shortIdentifier,longIdentifier,description);
   }
 
 
