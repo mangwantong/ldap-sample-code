@@ -608,6 +608,15 @@ public class CommandLineOptions
 
 
   /**
+   * The name of the property that can be used to specify the
+   * description of the use schema command line argument.
+   */
+  public static final String PROP_NAME_USE_SCHEMA_DESCRIPTION =
+          CommandLineOptions.ARG_NAME_USE_SCHEMA + "Description";
+
+
+
+  /**
    * The name of the property that specifies the description to use for
    * the verbose argument.
    */
@@ -1612,8 +1621,9 @@ public class CommandLineOptions
     final Character shortIdentifier = null;
     final String longIdentifier = CommandLineOptions.ARG_NAME_USE_SCHEMA;
     final String description =
-            "Whether the LDAP SDK should attempt to use server schema "
-                    + "information, for example, for matching rules.";
+            getValue(CommandLineOptions.PROP_NAME_USE_SCHEMA_DESCRIPTION,
+                    "Whether the LDAP SDK should attempt to use server schema "
+                            + "information, for example, for matching rules.",properties);
     return new BooleanArgument(shortIdentifier,longIdentifier,description);
   }
 
