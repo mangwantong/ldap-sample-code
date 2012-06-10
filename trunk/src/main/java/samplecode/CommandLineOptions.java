@@ -608,6 +608,15 @@ public class CommandLineOptions
 
 
   /**
+   * The name of the property that specifies the description to use for
+   * the verbose argument.
+   */
+  public static final String PROP_NAME_VERBOSE_DESCRIPTION =
+          CommandLineOptions.ARG_NAME_VERBOSE + "Description";
+
+
+
+  /**
    * The name of the resource that contains properties for
    * {@code CommandLineOptions}.
    */
@@ -1627,7 +1636,9 @@ public class CommandLineOptions
      */
     final Character shortIdentifier = null;
     final String longIdentifier = CommandLineOptions.ARG_NAME_VERBOSE;
-    final String description = CommandLineOptions.VERBOSE_DESCRIPTION;
+    final String description =
+            getValue(CommandLineOptions.PROP_NAME_VERBOSE_DESCRIPTION,
+                    CommandLineOptions.VERBOSE_DESCRIPTION,properties);
     return new BooleanArgument(shortIdentifier,longIdentifier,description);
   }
 
