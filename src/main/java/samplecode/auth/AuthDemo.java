@@ -42,7 +42,7 @@ import samplecode.tools.ToolCompletedProcessing;
  * Example usage:
  * 
  * <pre>
- * java -cp your-classpath samplecode.AuthDemo \
+ * java -cp your-classpath samplecode.auth.AuthDemo \
  *   --hostname localhost --port 1389 \
  *   --bindDn "uid=user.0,ou=people,dc=example,dc=com" \
  *   --bindPasswordFile ~/.pwdFile --useStartTLS --trustAll
