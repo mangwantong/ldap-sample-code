@@ -1541,6 +1541,32 @@ public class CommandLineOptions
 
 
   /**
+   * @param properties
+   *          properties file used for the value of the properties file.
+   * 
+   * @return the command line argument that indicates whether the LDAP
+   *         SDK should automatically reconnect when a connection is
+   *         lost.
+   */
+  public BooleanArgument newAutoReconnectArgument(final Properties properties)
+          throws ArgumentException
+  {
+
+    /*
+     * Create the argument whose parameter is whether the LDAP SDK
+     * should automatically reconnect when a connection is lost. This
+     * argument is optional, and can be specified exactly one time.
+     */
+    final Character shortIdentifier = null;
+    final String longIdentifier = CommandLineOptions.ARG_NAME_AUTO_RECONNECT;
+    final String description =
+            "Whether the LDAP SDK should automatically reconnect when a connection is lost.";
+    return new BooleanArgument(shortIdentifier,longIdentifier,description);
+  }
+
+
+
+  /**
    * Constructs a new {@code LDAPConnectionOptions} object with
    * parameters set to values specified by command line argument
    * parameters.
@@ -1650,6 +1676,9 @@ public class CommandLineOptions
 
 
   /**
+   * @param properties
+   *          properties file used for the value of the properties file.
+   * 
    * @return the argument to the command line parser whose parameter is
    *         whether the LDAP SDK should try to use schema information,
    *         for example, to determine matching rules. This argument is
@@ -1676,6 +1705,9 @@ public class CommandLineOptions
 
 
   /**
+   * @param properties
+   *          properties file used for the value of the properties file.
+   * 
    * @return an optional argument used to specify whether the tool
    *         should be verbose.
    */
@@ -1707,24 +1739,6 @@ public class CommandLineOptions
   public String toString()
   {
     return String.format("CommandLineOptions [argumentParser=%s]",argumentParser);
-  }
-
-
-
-  private BooleanArgument newAutoReconnectArgument(final Properties properties)
-          throws ArgumentException
-  {
-
-    /*
-     * Create the argument whose parameter is whether the LDAP SDK
-     * should automatically reconnect when a connection is lost. This
-     * argument is optional, and can be specified exactly one time.
-     */
-    final Character shortIdentifier = null;
-    final String longIdentifier = CommandLineOptions.ARG_NAME_AUTO_RECONNECT;
-    final String description =
-            "Whether the LDAP SDK should automatically reconnect when a connection is lost.";
-    return new BooleanArgument(shortIdentifier,longIdentifier,description);
   }
 
 
