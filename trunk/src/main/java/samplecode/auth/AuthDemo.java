@@ -209,7 +209,7 @@ public final class AuthDemo
     authorizedIdentity.addLdapExceptionListener(new DefaultLdapExceptionListener());
 
 
-    /**
+    /*
      * String representation of messages that provide informative or
      * instructional messages.
      */
