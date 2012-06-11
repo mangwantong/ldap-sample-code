@@ -2339,6 +2339,14 @@ public class CommandLineOptions
 
 
 
+  /**
+   * Splits the provided string into fields separated by commas in a
+   * very simple-minded way.
+   * 
+   * @param prop
+   * 
+   * @return
+   */
   private List<String> stringToList(final String prop)
   {
     Validator.ensureNotNull(prop);
