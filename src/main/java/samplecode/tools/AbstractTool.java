@@ -79,6 +79,8 @@ public abstract class AbstractTool
   @Override
   public void addNonLDAPArguments(final ArgumentParser argumentParser) throws ArgumentException
   {
+    Validator.ensureNotNull(argumentParser);
+    commandLineOptions = CommandLineOptions.newCommandLineOptions(argumentParser);
     addArguments(argumentParser);
   }
 
@@ -206,11 +208,13 @@ public abstract class AbstractTool
 
 
 
+  /**
+   * @param argumentParser
+   * @throws ArgumentException
+   */
   protected void addArguments(final ArgumentParser argumentParser) throws ArgumentException
   {
-    Validator.ensureNotNull(argumentParser);
-    commandLineOptions = CommandLineOptions.newCommandLineOptions(argumentParser);
-    return;
+
   }
 
 
