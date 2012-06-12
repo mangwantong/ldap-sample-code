@@ -302,23 +302,28 @@ public final class LdapListenerExample
      * 
      * @param commandLineOptions
      *          The object that manages command line options.
+     * 
      * @param ldapCommandLineTool
      *          The object that provides the command line framework.
+     * 
      * @return a new and distinct {@code InMemoryDirectoryServices}
      *         object.
+     * 
      * @throws LDAPException
      *           If errors related to an LDAP request, connection, DNs,
      *           or other LDAP-related exceptions occur.
+     * 
      * @throws LDIFException
      *           When there is something wrong with the file containing
      *           LDIF, or the file does not exist, or something of that
      *           sort.
+     * 
      * @throws IOException
      *           If an error occurs when reading the file containing
      *           LDIF
      */
     private static InMemoryDirectoryServices newLdapListenerExampleDemo(
-            final LocalCommandLineOptions commandLineOptions,
+            final CommandLineOptions commandLineOptions,
             final LDAPCommandLineTool ldapCommandLineTool) throws LDAPException,LDIFException,
             IOException
     {
@@ -529,7 +534,8 @@ public final class LdapListenerExample
      *           LDIF
      */
     private InMemoryDirectoryServices(
-            final LocalCommandLineOptions commandLineOptions,
+
+            final CommandLineOptions commandLineOptions,
             final LDAPCommandLineTool ldapCommandLineTool)
             throws LDAPException,LDIFException,IOException
     {
@@ -543,7 +549,7 @@ public final class LdapListenerExample
       /*
        * Get the requested naming context.
        */
-      namingContext = commandLineOptions.getNamingContext();
+      namingContext = LdapListenerExample.dnArgument.getValue();
 
       /*
        * Create a configuration for the in-memory server.
@@ -599,7 +605,8 @@ public final class LdapListenerExample
       /*
        * Get the list of schema files.
        */
-      final SchemaFiles schFiles = new SchemaFiles(commandLineOptions.getSchemaFiles());
+      final SchemaFiles schFiles =
+              new SchemaFiles(LdapListenerExample.schemaFileArgument.getValues());
       try
       {
         cfg.setSchema(schFiles.getSchema());
@@ -762,73 +769,6 @@ public final class LdapListenerExample
 
 
 
-    /**
-     * Retrieve the parameters to the command line argument
-     * {@code --controlOID} in the form of a list of strings.
-     * 
-     * @return Parameters of {@code --controlOID}
-     */
-    private List<String> getControlOIDs()
-    {
-      final StringArgument stringArgument =
-              (StringArgument)getArgumentParser().getNamedArgument(
-                      LocalCommandLineOptions.ARG_NAME_CONTROL_OID);
-      return stringArgument.getValues();
-    }
-
-
-
-    /**
-     * Retreive the file specified to the {@code --ldifFile} command
-     * line argument.
-     * 
-     * @return The parameter provided to the {@code --ldifFile} command
-     *         line argument.
-     */
-    private File getLdifFile()
-    {
-      final FileArgument fileArgument =
-              (FileArgument)getArgumentParser().getNamedArgument(
-                      LocalCommandLineOptions.ARG_NAME_LDIF_FILE);
-      return fileArgument.getValue();
-    }
-
-
-
-    /**
-     * Retreive the string specified to the {@code --namingContext}
-     * command line argument.
-     * 
-     * @return The parameter provided to the {@code --namingContext}
-     *         command line argument.
-     */
-    private DN getNamingContext()
-    {
-      final DNArgument dnArgument =
-              (DNArgument)getArgumentParser().getNamedArgument(
-                      LocalCommandLineOptions.ARG_NAME_NAMING_CONTEXT);
-      return dnArgument.getValue();
-    }
-
-
-
-    /**
-     * Retreive the files specified to the {@code --schemaFile} command
-     * line argument.
-     * 
-     * @return The parameter(s) provided to the {@code --schemaFile}
-     *         command line argument.
-     */
-    private List<File> getSchemaFiles()
-    {
-      final FileArgument fileArgument =
-              (FileArgument)getArgumentParser().getNamedArgument(
-                      LocalCommandLineOptions.ARG_NAME_SCHEMA_FILE);
-      return fileArgument.getValues();
-    }
-
-
-
     private LocalCommandLineOptions(
             final ArgumentParser argumentParser)
             throws ArgumentException
@@ -955,6 +895,14 @@ public final class LdapListenerExample
 
 
 
+  private static DNArgument dnArgument;
+
+
+
+  private static FileArgument schemaFileArgument;
+
+
+
   /**
    * <ul>
    * <li>{@code --namingContext|-n} - the naming context to use for the
@@ -983,6 +931,7 @@ public final class LdapListenerExample
   }
 
 
+
   /**
    * Initialize static fields.
    */
@@ -1009,7 +958,104 @@ public final class LdapListenerExample
   public void addArguments(final ArgumentParser argumentParser) throws ArgumentException
   {
     Validator.ensureNotNull(argumentParser);
-    commandLineOptions = new LocalCommandLineOptions(argumentParser);
+
+    /*
+     * Add the argument to the command line argument parser whose value
+     * is the distinguished name to use as the naming context of the
+     * directory server.
+     */
+    Character shortIdentifier = LocalCommandLineOptions.SHORT_ID_NAMING_CONTEXT;
+    String longIdentifier = LocalCommandLineOptions.ARG_NAME_NAMING_CONTEXT;
+    boolean isRequired = true;
+    int maxOccurrences = 1;
+    String valuePlaceholder = "{distinguishedName}";
+    final StringBuilder builder = new StringBuilder();
+    builder.append("The naming context to use when creating ");
+    builder.append("the in-memory directory server. This parameter is required ");
+    builder.append("and must be specified exactly once. The value specified must be ");
+    builder.append("in valid distinguished name syntax.");
+    String description = builder.toString();
+    DN[] defaultDnValues;
+    try
+    {
+      defaultDnValues = new DN[]
+      {
+        new DN("dc=example,dc=com")
+      };
+    }
+    catch(final LDAPException ldapException)
+    {
+      throw new ArgumentException(ldapException.getMessage());
+    }
+    LdapListenerExample.dnArgument =
+            new DNArgument(shortIdentifier,longIdentifier,isRequired,maxOccurrences,
+                    valuePlaceholder,description,Arrays.asList(defaultDnValues));
+    argumentParser.addArgument(LdapListenerExample.dnArgument);
+
+    /*
+     * Add the argument whose parameter(s) are the schema files to load
+     * for the in-memory directory server. This argument is specified by
+     * --schemaFile DN and is optional, and can occur multiple times.
+     */
+    shortIdentifier = LocalCommandLineOptions.SHORT_ID_SCHEMA_FILE;
+    longIdentifier = LocalCommandLineOptions.ARG_NAME_SCHEMA_FILE;
+    isRequired = false;
+    maxOccurrences = 0;
+    valuePlaceholder = "{filename}";
+    builder.delete(0,builder.capacity());
+    builder.append("The path to a file containing LDIF that should be loaded into the ");
+    builder.append("in-memory directory server schema. This parameter is optional and ");
+    builder.append("may be specified zero, one or more times. Any path name referenced ");
+    builder.append("the --schemaFile parameter must exist and be readable.");
+    description = builder.toString();
+    LdapListenerExample.schemaFileArgument =
+            new FileArgument(shortIdentifier,longIdentifier,isRequired,maxOccurrences,
+                    valuePlaceholder,description);
+    argumentParser.addArgument(LdapListenerExample.schemaFileArgument);
+
+    /*
+     * Add the argument whose parameter(s) are the LDIF files to load
+     * for the in-memory directory server. This argument is specified by
+     * --ldifFile DN and is required, and can occur one times.
+     */
+    shortIdentifier = LocalCommandLineOptions.SHORT_ID_LDIF_FILE;
+    longIdentifier = LocalCommandLineOptions.ARG_NAME_LDIF_FILE;
+    isRequired = true;
+    maxOccurrences = 1;
+    valuePlaceholder = "{filename}";
+    builder.delete(0,builder.capacity());
+    builder.append("A file containing entries in LDIF format ");
+    builder.append("to be loaded into the directory server.");
+    builder.append("This parameter is required and may be specified one time.");
+    builder.append("Any pathname referenced by the --ldifFile argument must exist ");
+    builder.append("and must be readable.");
+    description = builder.toString();
+    ldifFileArgument =
+            new FileArgument(shortIdentifier,longIdentifier,isRequired,maxOccurrences,
+                    valuePlaceholder,description);
+    argumentParser.addArgument(ldifFileArgument);
+
+    /*
+     * Add the command line argument to the argument parser whose
+     * parameter is a dot-separated series of octets that represent a
+     * control OID. This parameter is optional, and may be specified
+     * zero, one or more times.
+     */
+    shortIdentifier = LocalCommandLineOptions.SHORT_ID_CONTROL_OID;
+    longIdentifier = LocalCommandLineOptions.ARG_NAME_CONTROL_OID;
+    isRequired = false;
+    maxOccurrences = 0;
+    valuePlaceholder = "{object identifier}";
+    builder.delete(0,builder.capacity());
+    builder.append("A series of dot-separated octets that ");
+    builder.append("are a control OID that should be checked ");
+    builder.append("against the root DSE. This parameter ");
+    builder.append("is optional, and may be specified zero, one, or more times.");
+    description = builder.toString();
+    controlOidArgument =
+            new StringArgument(shortIdentifier,longIdentifier,isRequired,maxOccurrences,
+                    valuePlaceholder,description);
+    argumentParser.addArgument(controlOidArgument);
   }
 
 
@@ -1029,11 +1075,11 @@ public final class LdapListenerExample
      * are to be added to the in-memory directory server. This file must
      * exist.
      */
-    final File ldifFile = commandLineOptions.getLdifFile();
+    final File ldifFile = ldifFileArgument.getValue();
     if(!ldifFile.exists())
     {
       final StringBuilder builder = new StringBuilder();
-      builder.append("The in-memory directory server dmeonstration tool ");
+      builder.append("The in-memory directory server demonstration tool ");
       builder.append("requires an existing file from which to load entries ");
       builder.append("into the in-memory directory server. The file specified '");
       builder.append(ldifFile.getAbsolutePath());
@@ -1116,7 +1162,7 @@ public final class LdapListenerExample
        * demonstration will check as to whether the controlOIDs are
        * supported by the in-memory server.
        */
-      final List<String> controlOIDs = commandLineOptions.getControlOIDs();
+      final List<String> controlOIDs = controlOidArgument.getValues();
 
       /*
        * See which request controls are supported by the server.
@@ -1238,5 +1284,9 @@ public final class LdapListenerExample
 
 
 
-  private LocalCommandLineOptions commandLineOptions;
+  private StringArgument controlOidArgument;
+
+
+
+  private FileArgument ldifFileArgument;
 }
