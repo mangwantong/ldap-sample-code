@@ -1438,10 +1438,8 @@ public class CommandLineOptions
    */
   public boolean isVerbose()
   {
-    final BooleanArgument arg =
-            (BooleanArgument)argumentParser
-                    .getNamedArgument(CommandLineOptions.ARG_NAME_VERBOSE);
-    return arg.isPresent();
+    return ((BooleanArgument)argumentParser
+            .getNamedArgument(CommandLineOptions.ARG_NAME_VERBOSE)).isPresent();
   }
 
 
