@@ -445,16 +445,16 @@ public abstract class AbstractTool
    */
   protected String getToolDescription(final Properties properties)
   {
-    final String toolDescription = properties.getProperty(toolDescriptionPropertyName());
-    return toolDescription;
+    final String description = properties.getProperty(toolDescriptionPropertyName());
+    return description == null ? "no description available." : description;
   }
 
 
 
   protected String getToolName(final Properties properties)
   {
-    final String toolName = properties.getProperty(toolNamePropertyName());
-    return toolName;
+    final String name = properties.getProperty(toolNamePropertyName());
+    return name == null ? "no name available." : name;
   }
 
 
@@ -488,9 +488,10 @@ public abstract class AbstractTool
     }
     else
     {
-      width = 96;
+      width =
+              Integer.parseInt(CommandLineOptions.INTRODUCTION_COLUMN_WIDTH_UPPER_BOUND_DEFAULT_VALUE);
     }
-    wrapOut(indentation,width,getToolName() + ": " + getToolDescription());
+    wrapOut(indentation,width,getToolName() + ":\n\n" + getToolDescription());
     out();
   }
 
@@ -543,40 +544,59 @@ public abstract class AbstractTool
 
 
   /**
-   * @return the class-specific properties for the class
-   * 
-   * @throws IOException
+   * @return the class-specific properties for the classs
    */
   private Properties classSpecificProperties() throws IOException
   {
     final Properties properties = new Properties();
-    properties.load(classSpecificPropertiesInputStream());
+    final InputStream inputStream =
+            classSpecificPropertiesInputStream(classSpecificPropertiesResourceName());
+    if(inputStream != null)
+    {
+      properties.load(inputStream);
+    }
     return properties;
   }
 
 
 
   /**
-   * @return the input stream from which to read the class specific
-   *         properties
+   * Get the input stream from which class-specific properties might be
+   * read. Following is an example of a class-specific resources file:
+   * <p>
+   * <blockquote>
+   * 
+   * <pre>
+   * toolDescription = The AuthDemo class provides a demonstration of  \
+   *              the Authorization Identity Request Control and       \
+   *              the Who Am I? extended operation. The class displays \
+   *              the authZid of the connection state using the        \
+   *              distinguished name supplied to the --bindDN          \
+   *              command line argument.
+   * toolName = AuthDemo
+   * </pre>
+   * </blockquote>
+   * 
+   * 
+   * @param classSpecificPropertiesResourceName
+   *          the name of the resource from which properties might be
+   *          read. classSpecificPropertiesResourceName ispermitted to
+   *          be {@code null}.
+   * 
+   * @return the input stream or {@code null} if the resource cannot be
+   *         located.
    */
-  private InputStream classSpecificPropertiesInputStream()
+  private InputStream classSpecificPropertiesInputStream(
+          final String classSpecificPropertiesResourceName)
   {
-    final String resourceName = classSpecificPropertiesResourceName();
-    if(resourceName == null)
+    InputStream classSpecificPropertiesInputStream = null;
+    final String resourceName = classSpecificPropertiesResourceName;
+    if((resourceName != null) && (classSpecificPropertiesResourceName != null))
     {
-      throw new IllegalStateException("resource name was null.");
+      classSpecificPropertiesInputStream =
+              getClass().getClassLoader().getResourceAsStream(resourceName);
     }
-    final InputStream is = getClass().getClassLoader().getResourceAsStream(resourceName);
-    if(is == null)
-    {
-      final String msg =
-              String.format("Cannot create input stream from %s. "
-                      + "The resource %s should be found on the classpath.",resourceName,
-                      resourceName);
-      throw new IllegalStateException(msg);
-    }
-    return is;
+    return classSpecificPropertiesInputStream;
   }
 
 
