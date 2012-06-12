@@ -31,23 +31,47 @@ import samplecode.annotation.Since;
 
 
 /**
- * Handles simple authentication on a connection to an LDAP server.
+ * Provides a static method that changes the authentication state of an
+ * existing connection to a server.
  */
 @Author("terry.gardner@unboundid.com")
 @Since("Dec 11, 2011")
-@CodeVersion("1.0")
-final class SimpleBindExample
+@CodeVersion("1.1")
+public final class SimpleBindExample
 {
 
-  BindResult authenticate(final LDAPConnection ldapConnection,final DN dn,
+  /**
+   * Changes the authentication state of the connection specified by
+   * {@code ldapConnection} to the authorization ID specified by the
+   * {@code dn} and {@code password}.
+   * 
+   * @param ldapConnection
+   *          an existing connection to a server -
+   *          {@code ldapConnection} is not permitted to be {@code null}
+   * 
+   * @param dn
+   *          the distinguished name to which the authorization identity
+   *          of the connection will be set - {@code dn} is not
+   *          permitted to be {@code null}
+   * 
+   * @param password
+   *          the credentials of the {@code dn} - {@code password} is
+   *          not permitted to be {@code null}.
+   * 
+   * @param responseTimeout
+   *          the time in milliseconds before the authentication attempt
+   *          times out.
+   * 
+   * @return the result of the simple bind request.
+   */
+  public static BindResult authenticate(final LDAPConnection ldapConnection,final DN dn,
           final String password,final int responseTimeout) throws LDAPException
   {
     Validator.ensureNotNull(ldapConnection,dn,password);
-    final SimpleBindRequest simpleBindRequest = new SimpleBindRequest(dn,password);
     final LDAPConnectionOptions connectionOptions = new LDAPConnectionOptions();
     connectionOptions.setResponseTimeoutMillis(responseTimeout);
     ldapConnection.setConnectionOptions(connectionOptions);
-    return ldapConnection.bind(simpleBindRequest);
+    return ldapConnection.bind(new SimpleBindRequest(dn,password));
   }
 
 }
