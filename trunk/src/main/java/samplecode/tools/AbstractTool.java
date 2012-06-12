@@ -173,14 +173,11 @@ public abstract class AbstractTool
 
 
   /**
-   * 
-   * TODO: Provide a comment for this method.
-   * 
    * @return Whether the tool is verbose in its output.
    */
   public boolean isVerbose()
   {
-    return verbose;
+    return commandLineOptions.isVerbose();
   }
 
 
@@ -214,7 +211,7 @@ public abstract class AbstractTool
    */
   protected void addArguments(final ArgumentParser argumentParser) throws ArgumentException
   {
-
+    // This block deliberately left empty
   }
 
 
@@ -342,6 +339,16 @@ public abstract class AbstractTool
     final LDAPConnection c = getConnection();
     c.setConnectionOptions(getLdapConnectionOptions());
     return c;
+  }
+
+
+
+  protected void displayServerInformation()
+  {
+    logger.log(
+            Level.INFO,
+            String.format("Will attempt to connect to server %s:%d",
+                    commandLineOptions.getHostname(),commandLineOptions.getPort()));
   }
 
 
@@ -679,9 +686,4 @@ public abstract class AbstractTool
    * server
    */
   protected long responseTimeoutMillis;
-
-
-
-  /** Whether the tool is verbose during execution */
-  private boolean verbose;
 }

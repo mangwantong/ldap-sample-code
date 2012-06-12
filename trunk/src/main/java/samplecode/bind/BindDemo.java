@@ -510,7 +510,10 @@ public final class BindDemo
   public ResultCode executeToolTasks()
   {
     introduction();
-
+    if(isVerbose())
+    {
+      displayServerInformation();
+    }
 
     /*
      * The tool requires a valid distinguished name with which to bind
