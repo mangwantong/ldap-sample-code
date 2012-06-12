@@ -102,7 +102,7 @@ function getAssertionRequestControlDemoCommandPath()
 
 function getAssertionRequestControlDemoVerboseArgument()
 {
-    echo 
+    echo --verbose
 }
 
 function getAssertionRequestControlDemoArguments()
@@ -146,7 +146,7 @@ function getAuthDemoCommandPath()
 
 function getAuthDemoVerboseArgument()
 {
-    echo 
+    echo --verbose
 }
 
 function getAuthDemoArguments()
@@ -190,7 +190,7 @@ function getBindDemoCommandPath()
 
 function getBindDemoVerboseArgument()
 {
-    echo 
+    echo --verbose
 }
 
 function getBindDemoArguments()
@@ -235,7 +235,7 @@ function getCompareDemoCommandPath()
 
 function getCompareDemoVerboseArgument()
 {
-    echo 
+    echo --verbose
 }
 
 function getCompareDemoArguments()
@@ -288,7 +288,7 @@ function getEffectiveRightsEntryDemoCommandPath()
 
 function getEffectiveRightsEntryDemoVerboseArgument()
 {
-    echo 
+    echo --verbose
 }
 
 function getEffectiveRightsEntryDemoArguments()
@@ -343,7 +343,7 @@ function getLdapListenerExampleDemoCommandPath()
 
 function getLdapListenerExampleDemoVerboseArgument()
 {
-    echo 
+    echo --verbose
 }
 
 function getLdapListenerExampleDemoArguments()
@@ -409,7 +409,7 @@ function getMatchingRuleDemoCommandPath()
 
 function getMatchingRuleDemoVerboseArgument()
 {
-    echo 
+    echo --verbose
 }
 
 function getMatchingRuleDemoArguments()
@@ -477,7 +477,7 @@ function getModifyIncrementDemoCommandPath()
 
 function getModifyIncrementDemoVerboseArgument()
 {
-    echo 
+    echo --verbose
 }
 
 function getModifyIncrementDemoArguments()
@@ -545,7 +545,7 @@ function getVirtualListViewDemoCommandPath()
 
 function getVirtualListViewDemoVerboseArgument()
 {
-    echo 
+    echo --verbose
 }
 
 function getVirtualListViewDemoArguments()

@@ -177,6 +177,11 @@ public final class AuthDemo
   private ResultCode authDemo() throws SupportedFeatureException
   {
 
+    if(isVerbose())
+    {
+      displayServerInformation();
+    }
+
 
     /*
      * Obtain a pool of connections to the LDAP server from the
