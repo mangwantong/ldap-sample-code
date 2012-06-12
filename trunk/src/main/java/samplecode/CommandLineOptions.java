@@ -386,6 +386,46 @@ public class CommandLineOptions
 
 
   /**
+   * The description used for the {@code --baseObject} command line
+   * option.
+   */
+  public static final String BASE_OBJECT_ARG_DESCRIPTION =
+          "The base object used in the search request.";
+
+
+
+  /**
+   * Whether the {@code --baseObject} command line option is required.
+   */
+  public static final boolean BASE_OBJECT_ARG_IS_REQUIRED = false;
+
+
+
+  /**
+   * The maximum number of times the {@code --baseObject} command line
+   * option may occur on the command line.
+   */
+  public static final int BASE_OBJECT_ARG_MAX_OCCURRENCES = 1;
+
+
+
+  /**
+   * The place-holder used for the {@code --baseObject} command line
+   * option.
+   */
+  public static final String BASE_OBJECT_ARG_PLACEHOLDER = "{distinguishedName}";
+
+
+
+  /**
+   * The short identifier used for the {@code --baseObject} command line
+   * option.
+   */
+  public static final Character BASE_OBJECT_ARG_SHORT_IDENTIFIER = new Character('b');
+
+
+
+  /**
    * The value of the {@code abandonOnTimeout} property in the event
    * that:
    * <ul>
@@ -545,7 +585,7 @@ public class CommandLineOptions
 
   /**
    * The description of the the {@code --introductionColumnWidth}
-   * command line options.
+   * command line option.
    */
   public static final String INTRODUCTION_COLUMN_WIDTH_DESCRIPTION =
           "Specifies the maximum width of the introduction lines.";
@@ -1762,12 +1802,12 @@ public class CommandLineOptions
      * and can be specified zero, one, or more times. This command line
      * argument has no default value.
      */
-    final Character shortIdentifier = Character.valueOf('b');
+    final Character shortIdentifier = CommandLineOptions.BASE_OBJECT_ARG_SHORT_IDENTIFIER;
     final String longIdentifier = CommandLineOptions.ARG_NAME_BASE_OBJECT;
-    final boolean isRequired = false;
-    final int maxOccurrences = 1;
-    final String valuePlaceholder = "{distinguishedName}";
-    final String description = "The base object used in the search request.";
+    final boolean isRequired = CommandLineOptions.BASE_OBJECT_ARG_IS_REQUIRED;
+    final int maxOccurrences = CommandLineOptions.BASE_OBJECT_ARG_MAX_OCCURRENCES;
+    final String valuePlaceholder = CommandLineOptions.BASE_OBJECT_ARG_PLACEHOLDER;
+    final String description = CommandLineOptions.BASE_OBJECT_ARG_DESCRIPTION;
     return new StringArgument(shortIdentifier,longIdentifier,isRequired,maxOccurrences,
             valuePlaceholder,description,baseObject);
 
