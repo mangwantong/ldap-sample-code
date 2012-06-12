@@ -27,6 +27,7 @@ import com.unboundid.ldap.sdk.controls.AssertionRequestControl;
 import com.unboundid.util.Validator;
 import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
+import com.unboundid.util.args.StringArgument;
 
 
 import java.io.OutputStream;
@@ -227,7 +228,24 @@ public final class AssertionRequestControlDemo
   protected void addArguments(final ArgumentParser argumentParser) throws ArgumentException
   {
     Validator.ensureNotNull(argumentParser);
-    commandLineOptions = new AssertionRequestControlDemoCommandLineOptions(argumentParser);
+
+    /*
+     * Add to the command line argument parser the command line argument
+     * that specifies a new value the attribute that is named by the
+     * --attribute command line argument.
+     */
+    final Character shortIdentifier = AssertionRequestControlDemo.SHORT_ID_NEW_ATTRIBUTE_VALUE;
+    final String longIdentifier = AssertionRequestControlDemo.ARG_NAME_NEW_ATTRIBUTE_VALUE;
+    final boolean isRequired = true;
+    final int maxOccurrences = 1;
+    final String valuePlaceholder = "{attribute-value}";
+    final String description =
+            "The value to which the attribute specified by "
+                    + "--attribute final command line argument final is set.";
+    newAttributeValueArgument =
+            new StringArgument(shortIdentifier,longIdentifier,isRequired,maxOccurrences,
+                    valuePlaceholder,description);
+    argumentParser.addArgument(newAttributeValueArgument);
   }
 
 
@@ -335,9 +353,7 @@ public final class AssertionRequestControlDemo
        * Retrieve the new value for the attribute from the parameter to
        * the --newAttributeValue command line argument.
        */
-      final String newAttributeValue =
-              ((AssertionRequestControlDemoCommandLineOptions)commandLineOptions)
-                      .getNewAttributeValue();
+      final String newAttributeValue = newAttributeValueArgument.getValue();
 
       /*
        * Construct the modification and transmit the modify request to
@@ -400,4 +416,8 @@ public final class AssertionRequestControlDemo
    * String representation of messages.
    */
   private String msg;
+
+
+
+  private StringArgument newAttributeValueArgument;
 }
