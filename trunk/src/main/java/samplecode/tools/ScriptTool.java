@@ -31,7 +31,6 @@ import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 
-import samplecode.CommandLineOptions;
 import samplecode.ScriptGenerator;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
@@ -225,7 +224,15 @@ public final class ScriptTool
   public void addArguments(final ArgumentParser argumentParser) throws ArgumentException
   {
     Validator.ensureNotNullWithMessage(argumentParser,"argument parser was null.");
-    commandLineOptions = new ScriptToolCommandLineOptions(argumentParser);
+
+    classNameArgument = newClassNameArgument();
+    classPathArgument = newClassPathArgument();
+    directoryArgument = newDirectoryArgument();
+    spaceSeparatedJVMOptionsArgument = newJvmOptionsArgument();
+    argumentParser.addArgument(classNameArgument);
+    argumentParser.addArgument(classPathArgument);
+    argumentParser.addArgument(directoryArgument);
+    argumentParser.addArgument(spaceSeparatedJVMOptionsArgument);
   }
 
 
@@ -237,10 +244,10 @@ public final class ScriptTool
   public ResultCode executeToolTasks()
   {
     introduction();
-    final String className = commandLineOptions.getClassName();
-    final String classPath = commandLineOptions.getClassPath();
-    final String spaceSeparatedJVMOptions = commandLineOptions.getJvmOptions();
-    final String directory = commandLineOptions.getDirectory();
+    final String className = classNameArgument.getValue();
+    final String classPath = classPathArgument.getValue();
+    final String spaceSeparatedJVMOptions = spaceSeparatedJVMOptionsArgument.getValue();
+    final String directory = directoryArgument.getValue();
     final ScriptGenerator gen =
             new ScriptGenerator(className,classPath,spaceSeparatedJVMOptions,directory);
     try
@@ -296,75 +303,6 @@ public final class ScriptTool
   }
 
 
-
-  /**
-   * Constructs a {@code ScriptTool}.
-   */
-  public ScriptTool()
-  {
-    super(System.out,System.err);
-
-  }
-
-
-
-  /**
-   * Provides support for custom and standard command line arguments
-   */
-  private ScriptToolCommandLineOptions commandLineOptions;
-
-}
-
-
-/**
- * provides support for the standard command line arguments and also for
- * custom arguments required by {@code ScriptTool}. Provides the
- * following custom arguments:
- * <p/>
- * <ul>
- * <li>{@code --classname} - The string argument that is used to specify
- * the fully-qualified class name for which {@code ScriptTool} creates
- * an executable script. {@code --className} is required, and can be
- * specified exactly one time.</li>
- * <li>{@code --classPath} - The string argument that is used to specify
- * the class path that {@code ScriptTool} inserts into an executable
- * script. {@code --classPath} is required, and can be specified exactly
- * one time.</li>
- * <li>{@code --jvmOptions} - The string argument that is used to
- * specify the directory where {@code ScriptTool} creates an executable
- * script. {@code --directory} is required, and can be specified exactly
- * one time.</li>
- * <li>{@code --directory} - The string argument that is used to specify
- * the JVM Options yjsy {@code ScriptTool} inserts into an executable
- * script. {@code --jvmOptions} is required, and can be specified
- * exactly one time.</li>
- * </ul>
- * <p/>
- * <b>Usage Example:</b>
- * <p/>
- * <blockquote>
- * 
- * <pre>
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * public void addNonLDAPArguments(final ArgumentParser argumentParser) throws ArgumentException
- * {
- *   Validator.ensureNotNullWithMessage(argumentParser,&quot;argument parser was null.&quot;);
- *   commandLineOptions = new ScriptToolCommandLineOptions(argumentParser);
- * }
- * </pre>
- * 
- * </blockquote>
- */
-class ScriptToolCommandLineOptions
-        extends CommandLineOptions
-{
 
   /**
    * @return the full-qualified class name for which a script is to be
@@ -477,25 +415,12 @@ class ScriptToolCommandLineOptions
 
 
   /**
-   * Creates a {@code ScriptToolCommandLineOptions} with default state.
-   * 
-   * @param argumentParser
-   *          parses command line arguments. {@code argumentParser} is
-   *          not permitted to be {@code null}.
-   * @throws ArgumentException
-   *           if the definition of an argument is not acceptable.
+   * Constructs a {@code ScriptTool}.
    */
-  ScriptToolCommandLineOptions(
-          final ArgumentParser argumentParser)
-          throws ArgumentException
+  public ScriptTool()
   {
-    super(argumentParser);
-    classNameArgument = newClassNameArgument();
-    classPathArgument = newClassPathArgument();
-    directoryArgument = newDirectoryArgument();
-    spaceSeparatedJVMOptionsArgument = newJvmOptionsArgument();
-    addArguments(classNameArgument,classPathArgument,directoryArgument,
-            spaceSeparatedJVMOptionsArgument);
+    super(System.out,System.err);
+
   }
 
 
@@ -506,7 +431,7 @@ class ScriptToolCommandLineOptions
    * script. {@code --className} is required, and can be specified
    * exactly one time.
    */
-  private final StringArgument classNameArgument;
+  private StringArgument classNameArgument;
 
 
 
@@ -516,7 +441,7 @@ class ScriptToolCommandLineOptions
    * {@code --classPath} is required, and can be specified exactly one
    * time.
    */
-  private final StringArgument classPathArgument;
+  private StringArgument classPathArgument;
 
 
 
@@ -526,7 +451,7 @@ class ScriptToolCommandLineOptions
    * {@code --directory} is required, and can be specified exactly one
    * time.
    */
-  private final StringArgument directoryArgument;
+  private StringArgument directoryArgument;
 
 
 
@@ -536,5 +461,5 @@ class ScriptToolCommandLineOptions
    * {@code --jvmOptions} is required, and can be specified exactly one
    * time.
    */
-  private final StringArgument spaceSeparatedJVMOptionsArgument;
+  private StringArgument spaceSeparatedJVMOptionsArgument;
 }
