@@ -14,6 +14,7 @@ import java.util.logging.Level;
 
 
 import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Launchable;
 import samplecode.annotation.Since;
 import samplecode.tools.AbstractTool;
 
@@ -23,6 +24,7 @@ import samplecode.tools.AbstractTool;
  */
 @Since("01-JAN-2012")
 @CodeVersion("1.1")
+@Launchable
 public final class CompareDemo
         extends AbstractTool
 {
