@@ -167,7 +167,7 @@ import samplecode.tools.AbstractTool;
  */
 @Author("terry.gardner@unboundid.com")
 @Since("Dec 1, 2011")
-@CodeVersion("1.2")
+@CodeVersion("2.11")
 @Launchable
 public final class ModifyIncrementDemo
         extends AbstractTool
@@ -446,11 +446,6 @@ public final class ModifyIncrementDemo
     Validator.ensureNotNull(argumentParser);
 
     /*
-     * Create the object which provides command line argument services.
-     */
-    commandLineOptions = CommandLineOptions.newCommandLineOptions(argumentParser);
-
-    /*
      * Add the command line argument whose parameter is the increment
      * value (which can be positive or negative) by which to increment
      * the value of the attributes specified by the --attribute command
@@ -611,7 +606,5 @@ public final class ModifyIncrementDemo
   }
 
 
-
-  private CommandLineOptions commandLineOptions;
 
 }
