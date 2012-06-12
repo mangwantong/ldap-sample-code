@@ -26,7 +26,6 @@ import com.unboundid.ldap.sdk.UnsolicitedNotificationHandler;
 import com.unboundid.ldap.sdk.unboundidds.controls.AttributeRight;
 import com.unboundid.ldap.sdk.unboundidds.controls.EffectiveRightsEntry;
 import com.unboundid.ldap.sdk.unboundidds.controls.GetEffectiveRightsRequestControl;
-import com.unboundid.util.MinimalLogFormatter;
 import com.unboundid.util.Validator;
 import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
@@ -44,22 +43,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Formatter;
-import java.util.logging.Level;
-import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 
-import samplecode.CommandLineOptions;
 import samplecode.SupportedFeatureException;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Launchable;
 import samplecode.annotation.Since;
-import samplecode.listener.LdapExceptionEvent;
-import samplecode.listener.LdapExceptionListener;
-import samplecode.listener.LdapSearchExceptionEvent;
-import samplecode.listener.LdapSearchExceptionListener;
 import samplecode.tools.AbstractTool;
 import samplecode.tools.BasicToolCompletedProcessing;
 import samplecode.tools.ToolCompletedProcessing;
@@ -178,6 +169,72 @@ public class EffectiveRightsEntryDemo
 {
 
   /**
+   * The isRequired parameter of the {code Argument} whose parameter is
+   * the DN of an entry.
+   */
+  public static final boolean ARG_IS_REQUIRED_ENTRY = true;
+
+
+
+  /**
+   * The long identifier of the {code Argument} whose parameter is the
+   * name of an attribute.
+   */
+  public static final String ARG_NAME_ATTRIBUTE = "attribute";
+
+
+
+  /**
+   * The long identifier of the {code Argument} whose parameter is the
+   * name of an authentication identity.
+   */
+  public static final String ARG_NAME_AUTHZID = "authZid";
+
+
+
+  /**
+   * The long identifier of the {code Argument} whose parameter is the
+   * DN of an entry.
+   */
+  public static final String ARG_NAME_ENTRY = "entry";
+
+
+
+  /**
+   * The long identifier of the {code Argument} whose parameter is the
+   * name of an attribute right to check. The parameter must be compare,
+   * proxy, read, search, selfwrite_add, selfwrite_delete, or write.
+   */
+  public static final String ARG_NAME_RIGHT = "right";
+
+
+
+  /**
+   * The short identifier of the {code Argument} whose parameter is the
+   * name of an authentication identity.
+   */
+  public static final Character SHORT_ID_AUTHZID = Character.valueOf('z');
+
+
+
+  /**
+   * The short identifier of the {code Argument} whose parameter is the
+   * DN of an entry.
+   */
+  public static final Character SHORT_ID_ENTRY = Character.valueOf('e');
+
+
+
+  /**
+   * The short identifier of the {code Argument} whose parameter is the
+   * name of an attribute right to check. The parameter must be compare,
+   * proxy, read, search, selfwrite_add, selfwrite_delete, or write.
+   */
+  public static final Character SHORT_ID_RIGHT = Character.valueOf('r');
+
+
+
+  /**
    * The description of this tool; it used for help and diagnostic
    * output and for other purposes.
    */
@@ -276,10 +333,59 @@ public class EffectiveRightsEntryDemo
   protected void addArguments(final ArgumentParser argumentParser) throws ArgumentException
   {
     Validator.ensureNotNull(argumentParser);
-    commandLineOptions =
-            EffectiveRightsEntryDemoCommandLineOptions
-                    .newEffectiveRightsEntryDemoCommandLineOptions(argumentParser,
-                            validRightsSet);
+
+    /*
+     * Add the command line option to the parser whose parameter is the
+     * distinguished name of an entry. This command line option is
+     * required.
+     */
+    Character shortIdentifier = EffectiveRightsEntryDemo.SHORT_ID_ENTRY;
+    String longIdentifier = EffectiveRightsEntryDemo.ARG_NAME_ENTRY;
+    final boolean isRequired = EffectiveRightsEntryDemo.ARG_IS_REQUIRED_ENTRY;
+    String valuePlaceholder = "{DN}";
+    int maxOccurrences = 1;
+    final StringBuilder builder = new StringBuilder();
+    builder.append("The distinguished name of the entry upon which ");
+    builder.append("the effective rights test is conducted.");
+    String description = builder.toString();
+    entryArgument =
+            new DNArgument(shortIdentifier,longIdentifier,isRequired,maxOccurrences,
+                    valuePlaceholder,description);
+    argumentParser.addArgument(entryArgument);
+
+    /*
+     * Add the command line option to the parser whose parameter(s) is
+     * the rights to test. This command line option is required.
+     */
+    shortIdentifier = EffectiveRightsEntryDemo.SHORT_ID_RIGHT;
+    longIdentifier = EffectiveRightsEntryDemo.ARG_NAME_RIGHT;
+    valuePlaceholder =
+            "{compare, proxy, read, search, selfwrite_add, selfwrite_delete, or write}";
+    maxOccurrences = 0;
+    builder.delete(0,builder.capacity());
+    builder.append("This command line argument specifies one of the following ");
+    builder.append("proxy, read, search, selfwrite_add, selfwrite_delete, or write. ");
+    builder.append("This argument is required and can be specified multiple times.");
+    description = builder.toString();
+    rightArgument =
+            new StringArgument(shortIdentifier,longIdentifier,isRequired,maxOccurrences,
+                    valuePlaceholder,description,validRightsSet);
+    argumentParser.addArgument(rightArgument);
+
+    /*
+     * Add the command line option to the parser whose parameter is the
+     * authentication ID to use when checking for effective rights. This
+     * command line option is required.
+     */
+    shortIdentifier = EffectiveRightsEntryDemo.SHORT_ID_AUTHZID;
+    longIdentifier = EffectiveRightsEntryDemo.ARG_NAME_AUTHZID;
+    valuePlaceholder = "{DN}";
+    maxOccurrences = 1;
+    description = "The authentication ID to use when checking effective rights on the entry.";
+    authZIDArgument =
+            new DNArgument(shortIdentifier,longIdentifier,isRequired,maxOccurrences,
+                    valuePlaceholder,description);
+    argumentParser.addArgument(authZIDArgument);
   }
 
 
@@ -308,7 +414,9 @@ public class EffectiveRightsEntryDemo
      * the authentication ID to use when checking effective rights on
      * entry.
      */
-    final DN authZid = commandLineOptions.getAuthZID();
+    final DN authZid =
+            ((DNArgument)commandLineOptions.getArgumentParser().getNamedArgument(
+                    EffectiveRightsEntryDemo.SHORT_ID_AUTHZID)).getValue();
 
     /*
      * Get the command line option from the parser whose parameter(s) is
@@ -320,13 +428,17 @@ public class EffectiveRightsEntryDemo
      * Get the command line option from the parser whose parameter is
      * the distinguished name of an entry.
      */
-    final DN entryDn = commandLineOptions.getEntry();
+    final DN entryDn =
+            ((DNArgument)commandLineOptions.getArgumentParser().getNamedArgument(
+                    EffectiveRightsEntryDemo.SHORT_ID_ENTRY)).getValue();
 
     /*
      * Get the command line option from the parser whose parameter(s)
      * are the names of rights.
      */
-    final List<String> rights = commandLineOptions.getRights();
+    final List<String> rights =
+            ((StringArgument)commandLineOptions.getArgumentParser().getNamedArgument(
+                    EffectiveRightsEntryDemo.SHORT_ID_RIGHT)).getValues();
 
     /*
      * Obtain a pool of connections to the LDAP server from the
@@ -375,11 +487,6 @@ public class EffectiveRightsEntryDemo
 
     CheckEffectiveRights effectiveRights;
     effectiveRights = new CheckEffectiveRights(ldapConnection);
-    effectiveRights.addLdapExceptionListener(new EffectiveRightsEntryDemoLdapExceptionListener(
-            System.err));
-    effectiveRights
-            .addLdapSearchExceptionListener(new EffectiveRightsEntryDemoLdapSearchExceptionListener(
-                    System.err));
 
     for(final String a : attributes)
     {
@@ -522,8 +629,18 @@ public class EffectiveRightsEntryDemo
 
 
 
-  // Handles command line arguments for EffectiveRightsEntryDemo
-  private EffectiveRightsEntryDemoCommandLineOptions commandLineOptions;
+  // The command line argument whose value is the authZid
+  private DNArgument authZIDArgument;
+
+
+
+  // The command line argument whose value is the entry.
+  private DNArgument entryArgument;
+
+
+
+  // The command line argument whose value is a right.
+  private StringArgument rightArgument;
 
 
 
@@ -535,296 +652,4 @@ public class EffectiveRightsEntryDemo
   // The set of rights for which to test.
   private final Set<String> validRightsSet = new HashSet<String>(Arrays.asList("compare",
           "proxy","read","search","selfwrite_add","selfwrite_delete","write"));
-}
-
-
-/**
- * Provides support for command line arguments required by the effective
- * rights demo class.
- */
-@Author("terry.gardner@unboundid.com")
-@Since("Dec 22, 2011")
-@CodeVersion("1.1")
-final class EffectiveRightsEntryDemoCommandLineOptions
-        extends CommandLineOptions
-{
-
-  /**
-   * The isRequired parameter of the {code Argument} whose parameter is
-   * the DN of an entry.
-   */
-  public static final boolean ARG_IS_REQUIRED_ENTRY = true;
-
-
-
-  /**
-   * The long identifier of the {code Argument} whose parameter is the
-   * name of an attribute.
-   */
-  public static final String ARG_NAME_ATTRIBUTE = "attribute";
-
-
-
-  /**
-   * The long identifier of the {code Argument} whose parameter is the
-   * name of an authentication identity.
-   */
-  public static final String ARG_NAME_AUTHZID = "authZid";
-
-
-
-  /**
-   * The long identifier of the {code Argument} whose parameter is the
-   * DN of an entry.
-   */
-  public static final String ARG_NAME_ENTRY = "entry";
-
-
-
-  /**
-   * The long identifier of the {code Argument} whose parameter is the
-   * name of an attribute right to check. The parameter must be compare,
-   * proxy, read, search, selfwrite_add, selfwrite_delete, or write.
-   */
-  public static final String ARG_NAME_RIGHT = "right";
-
-
-
-  /**
-   * The short identifier of the {code Argument} whose parameter is the
-   * name of an authentication identity.
-   */
-  public static final Character SHORT_ID_AUTHZID = Character.valueOf('z');
-
-
-
-  /**
-   * The short identifier of the {code Argument} whose parameter is the
-   * DN of an entry.
-   */
-  public static final Character SHORT_ID_ENTRY = Character.valueOf('e');
-
-
-
-  /**
-   * The short identifier of the {code Argument} whose parameter is the
-   * name of an attribute right to check. The parameter must be compare,
-   * proxy, read, search, selfwrite_add, selfwrite_delete, or write.
-   */
-  public static final Character SHORT_ID_RIGHT = Character.valueOf('r');
-
-
-
-  /**
-   * Creates a new {@code EffectiveRightsEntryDemoCommandLineOptions}.
-   * 
-   * @param argumentParser
-   *          handles the parsing of command line arguments.
-   * @param validRightsSet
-   *          a set of valid rights
-   * @throws ArgumentException
-   *           when a command line argument cannot br created or added
-   *           to the parser.
-   * @return a new {@code EffectiveRightsEntryDemoCommandLineOptions}.
-   */
-  public static EffectiveRightsEntryDemoCommandLineOptions
-          newEffectiveRightsEntryDemoCommandLineOptions(final ArgumentParser argumentParser,
-                  final Set<String> validRightsSet) throws ArgumentException
-  {
-    Validator.ensureNotNull(argumentParser,validRightsSet);
-    return new EffectiveRightsEntryDemoCommandLineOptions(argumentParser,validRightsSet);
-  }
-
-
-
-  /**
-   * Retrieves the authZid.
-   * 
-   * @return the authZid.
-   */
-  public DN getAuthZID()
-  {
-    return authZIDArgument.getValue();
-  }
-
-
-
-  /**
-   * Retrieves the entry.
-   * 
-   * @return the entry.
-   */
-  public DN getEntry()
-  {
-    return entryArgument.getValue();
-  }
-
-
-
-  /**
-   * Retrieves the list of rights.
-   * 
-   * @return the list of rights.
-   */
-  public List<String> getRights()
-  {
-    return rightArgument.getValues();
-  }
-
-
-
-  /**
-   * Creates a {@code EffectiveRightsEntryDemoCommandLineOptions} with
-   * default state.
-   * 
-   * @param argumentParser
-   *          handles the parsing of command line arguments.
-   * @throws ArgumentException
-   *           when a command line argument cannot br created or added
-   *           to the parser.
-   */
-  private EffectiveRightsEntryDemoCommandLineOptions(
-          final ArgumentParser argumentParser,final Set<String> validRightsSet)
-          throws ArgumentException
-  {
-    super(argumentParser);
-
-    /*
-     * Add the command line option to the parser whose parameter is the
-     * distinguished name of an entry. This command line option is
-     * required.
-     */
-    Character shortIdentifier = EffectiveRightsEntryDemoCommandLineOptions.SHORT_ID_ENTRY;
-    String longIdentifier = EffectiveRightsEntryDemoCommandLineOptions.ARG_NAME_ENTRY;
-    final boolean isRequired = EffectiveRightsEntryDemoCommandLineOptions.ARG_IS_REQUIRED_ENTRY;
-    String valuePlaceholder = "{DN}";
-    int maxOccurrences = 1;
-    final StringBuilder builder = new StringBuilder();
-    builder.append("The distinguished name of the entry upon which ");
-    builder.append("the effective rights test is conducted.");
-    String description = builder.toString();
-    entryArgument =
-            new DNArgument(shortIdentifier,longIdentifier,isRequired,maxOccurrences,
-                    valuePlaceholder,description);
-    argumentParser.addArgument(entryArgument);
-
-    /*
-     * Add the command line option to the parser whose parameter(s) is
-     * the rights to test. This command line option is required.
-     */
-    shortIdentifier = EffectiveRightsEntryDemoCommandLineOptions.SHORT_ID_RIGHT;
-    longIdentifier = EffectiveRightsEntryDemoCommandLineOptions.ARG_NAME_RIGHT;
-    valuePlaceholder =
-            "{compare, proxy, read, search, selfwrite_add, selfwrite_delete, or write}";
-    maxOccurrences = 0;
-    builder.delete(0,builder.capacity());
-    builder.append("This command line argument specifies one of the following ");
-    builder.append("proxy, read, search, selfwrite_add, selfwrite_delete, or write. ");
-    builder.append("This argument is required and can be specified multiple times.");
-    description = builder.toString();
-    rightArgument =
-            new StringArgument(shortIdentifier,longIdentifier,isRequired,maxOccurrences,
-                    valuePlaceholder,description,validRightsSet);
-    argumentParser.addArgument(rightArgument);
-
-    /*
-     * Add the command line option to the parser whose parameter is the
-     * authentication ID to use when checking for effective rights. This
-     * command line option is required.
-     */
-    shortIdentifier = EffectiveRightsEntryDemoCommandLineOptions.SHORT_ID_AUTHZID;
-    longIdentifier = EffectiveRightsEntryDemoCommandLineOptions.ARG_NAME_AUTHZID;
-    valuePlaceholder = "{DN}";
-    maxOccurrences = 1;
-    description = "The authentication ID to use when checking effective rights on the entry.";
-    authZIDArgument =
-            new DNArgument(shortIdentifier,longIdentifier,isRequired,maxOccurrences,
-                    valuePlaceholder,description);
-    argumentParser.addArgument(authZIDArgument);
-  }
-
-
-
-  // The command line argument whose value is the authZid
-  private final DNArgument authZIDArgument;
-
-
-
-  // The command line argument whose value is the entry.
-  private final DNArgument entryArgument;
-
-
-
-  // The command line argument whose value is a right.
-  private final StringArgument rightArgument;
-
-}
-
-
-final class EffectiveRightsEntryDemoLdapExceptionListener
-        implements LdapExceptionListener
-{
-
-  @Override
-  public void ldapRequestFailed(final LdapExceptionEvent ldapExceptionEvent)
-  {
-    Validator.ensureNotNull(ldapExceptionEvent);
-    final String helpfulMessage = ldapExceptionEvent.getLdapException().getExceptionMessage();
-    final LogRecord record = new LogRecord(Level.SEVERE,helpfulMessage);
-    errorPrintStream.println(formatter.format(record));
-  }
-
-
-
-  EffectiveRightsEntryDemoLdapExceptionListener(
-          final PrintStream errorPrintStream)
-  {
-    Validator.ensureNotNull(errorPrintStream);
-    this.errorPrintStream = errorPrintStream;
-  }
-
-
-
-  private final PrintStream errorPrintStream;
-
-
-
-  private final Formatter formatter = new MinimalLogFormatter();
-
-}
-
-
-final class EffectiveRightsEntryDemoLdapSearchExceptionListener
-        implements LdapSearchExceptionListener
-{
-
-  @Override
-  public void searchRequestFailed(final LdapSearchExceptionEvent ldapSearchExceptionEvent)
-  {
-    Validator.ensureNotNull(ldapSearchExceptionEvent);
-    final String helpfulMessage =
-            ldapSearchExceptionEvent.getLdapSearchException().getExceptionMessage();
-    final LogRecord record = new LogRecord(Level.SEVERE,helpfulMessage);
-    errorPrintStream.println(formatter.format(record));
-  }
-
-
-
-  EffectiveRightsEntryDemoLdapSearchExceptionListener(
-          final PrintStream errorPrintStream)
-  {
-    Validator.ensureNotNull(errorPrintStream);
-    this.errorPrintStream = errorPrintStream;
-  }
-
-
-
-  private final PrintStream errorPrintStream;
-
-
-
-  private final Formatter formatter = new MinimalLogFormatter();
-
-
-
 }
