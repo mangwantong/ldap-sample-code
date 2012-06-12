@@ -217,6 +217,22 @@ public final class MatchingRuleDemo
 
 
   /**
+   * The long identifier of the argument whose parameter is the name of
+   * entry number 1.
+   */
+  private static final String ARG_NAME_ENTRY_DN_1 = "entryDn1";
+
+
+
+  /**
+   * The long identifier of the argument whose parameter is the name of
+   * entry number 2.
+   */
+  private static final String ARG_NAME_ENTRY_DN_2 = "entryDn2";
+
+
+
+  /**
    * Launch the Matching Rules Demonstration application.
    * <p/>
    * The following example compares the {@code description} attribute
@@ -367,8 +383,33 @@ public final class MatchingRuleDemo
   public void addArguments(final ArgumentParser argumentParser) throws ArgumentException
   {
     Validator.ensureNotNull(argumentParser);
-    commandLineOptions = new MatchingRuleDemoCommandLineOptions(argumentParser);
 
+    /**
+     * Add the argument whose parameter is the DN of an entry to be
+     * compared with entry 2
+     */
+    String longIdentifier = MatchingRuleDemo.ARG_NAME_ENTRY_DN_1;
+    boolean isRequired = true;
+    final int maxOccurrences = 1;
+    final String valuePlaceholder = "{distinguishedName}";
+    String description = "The distinguished name to be compared with entry-2";
+    final DNArgument entryDn1 =
+            new DNArgument(null,longIdentifier,isRequired,maxOccurrences,valuePlaceholder,
+                    description);
+    argumentParser.addArgument(entryDn1);
+
+    /**
+     * Add the argument whose parameter is the DN of an entry to be
+     * compared with entry 1. This argument is required, and it must
+     * only appear once on the command lien.
+     */
+    longIdentifier = MatchingRuleDemo.ARG_NAME_ENTRY_DN_2;
+    isRequired = true;
+    description = "The distinguished name to be compared with entry-1";
+    final DNArgument entryDn2 =
+            new DNArgument(null,longIdentifier,isRequired,maxOccurrences,valuePlaceholder,
+                    description);
+    argumentParser.addArgument(entryDn2);
   }
 
 
@@ -385,8 +426,8 @@ public final class MatchingRuleDemo
      * Retrieve the parameters provided to the entryDn1, entryDn2, and
      * attribute arguments:
      */
-    final DN entryDn1 = ((MatchingRuleDemoCommandLineOptions)commandLineOptions).getEntryDn1();
-    final DN entryDn2 = ((MatchingRuleDemoCommandLineOptions)commandLineOptions).getEntryDn2();
+    final DN entryDn1 = getEntryDn1();
+    final DN entryDn2 = getEntryDn2();
 
     /*
      * Retreive the first attribute name specified by the command line
@@ -578,6 +619,22 @@ public final class MatchingRuleDemo
 
 
 
+  private DN getEntryDn1()
+  {
+    return ((DNArgument)commandLineOptions.getArgumentParser().getNamedArgument(
+            MatchingRuleDemo.ARG_NAME_ENTRY_DN_1)).getValue();
+  }
+
+
+
+  private DN getEntryDn2()
+  {
+    return ((DNArgument)commandLineOptions.getArgumentParser().getNamedArgument(
+            MatchingRuleDemo.ARG_NAME_ENTRY_DN_2)).getValue();
+  }
+
+
+
   /**
    * Prepares {@code MatchingRuleDemo} for use by a client - the
    * {@code System.out} and {@code System.err OutputStreams} are used.
@@ -597,89 +654,5 @@ public final class MatchingRuleDemo
           final OutputStream outStream,final OutputStream errStream)
   {
     super(outStream,errStream);
-  }
-
-}
-
-
-/**
- * Provides support for the comand line arguments used by the matching
- * rule demo class.
- */
-@Author("terry.gardner@unboundid.com")
-@Since("Dec 19, 2011")
-@CodeVersion("1.7")
-class MatchingRuleDemoCommandLineOptions
-        extends CommandLineOptions
-{
-
-  /**
-   * The long identifier of the argument whose parameter is the name of
-   * entry number 1.
-   */
-  private static final String ARG_NAME_ENTRY_DN_1 = "entryDn1";
-
-
-
-  /**
-   * The long identifier of the argument whose parameter is the name of
-   * entry number 2.
-   */
-  private static final String ARG_NAME_ENTRY_DN_2 = "entryDn2";
-
-
-
-  DN getEntryDn1()
-  {
-    final DNArgument arg =
-            (DNArgument)getArgumentParser().getNamedArgument(
-                    MatchingRuleDemoCommandLineOptions.ARG_NAME_ENTRY_DN_1);
-    return arg.getValue();
-  }
-
-
-
-  DN getEntryDn2()
-  {
-    final DNArgument arg =
-            (DNArgument)getArgumentParser().getNamedArgument(
-                    MatchingRuleDemoCommandLineOptions.ARG_NAME_ENTRY_DN_2);
-    return arg.getValue();
-  }
-
-
-
-  MatchingRuleDemoCommandLineOptions(
-          final ArgumentParser argumentParser)
-          throws ArgumentException
-  {
-    super(argumentParser);
-
-    /**
-     * Add the argument whose parameter is the DN of an entry to be
-     * compared with entry 2
-     */
-    String longIdentifier = MatchingRuleDemoCommandLineOptions.ARG_NAME_ENTRY_DN_1;
-    boolean isRequired = true;
-    final int maxOccurrences = 1;
-    final String valuePlaceholder = "{distinguishedName}";
-    String description = "The distinguished name to be compared with entry-2";
-    final DNArgument entryDn1 =
-            new DNArgument(null,longIdentifier,isRequired,maxOccurrences,valuePlaceholder,
-                    description);
-    argumentParser.addArgument(entryDn1);
-
-    /**
-     * Add the argument whose parameter is the DN of an entry to be
-     * compared with entry 1. This argument is required, and it must
-     * only appear once on the command lien.
-     */
-    longIdentifier = MatchingRuleDemoCommandLineOptions.ARG_NAME_ENTRY_DN_2;
-    isRequired = true;
-    description = "The distinguished name to be compared with entry-1";
-    final DNArgument entryDn2 =
-            new DNArgument(null,longIdentifier,isRequired,maxOccurrences,valuePlaceholder,
-                    description);
-    argumentParser.addArgument(entryDn2);
   }
 }
