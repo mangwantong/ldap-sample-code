@@ -675,7 +675,10 @@ public final class BindDemo
     SearchResult searchResult;
     try
     {
-      logger.log(Level.INFO,"transmitting search request: " + searchRequest);
+      if(commandLineOptions.isVerbose())
+      {
+        logger.log(Level.INFO,"transmitting search request: " + searchRequest);
+      }
       searchResult = ldapConnectionPool.search(searchRequest);
     }
     catch(final LDAPSearchException ldapSearchException)
