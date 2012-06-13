@@ -648,6 +648,15 @@ public class CommandLineOptions
 
 
   /**
+   * The key to the property whose value is the description of attribute
+   * commanf line argument
+   */
+  public static final String PROP_NAME_ATTRIBUTE_DESCRIPTION =
+          CommandLineOptions.ARG_NAME_ATTRIBUTE + "Description";
+
+
+
+  /**
    * The name of the property whose value is the description to use for
    * the {@code --usePropertiesFile} command line argument.
    */
@@ -1514,8 +1523,13 @@ public class CommandLineOptions
      */
     final Character shortIdentifier = CommandLineOptions.ABANDON_ON_TIMEOUT_SHORT_IDENTIFIER;
     final String longIdentifier = CommandLineOptions.ARG_NAME_ABANDON_ON_TIMEOUT;
-    return new BooleanArgument(shortIdentifier,longIdentifier,getValue(
-            CommandLineOptions.PROP_NAME_ABANDON_ON_TIMEOUT_DESCRIPTION,"",properties));
+    return new BooleanArgument(shortIdentifier,longIdentifier,1,new StringPropertyValue(
+            properties,CommandLineOptions.PROP_NAME_ABANDON_ON_TIMEOUT_DESCRIPTION,
+            "A flag that indicates whether to attempt "
+                    + "to abandon any request for which no "
+                    + "response is received after waiting for the "
+                    + "maximum response timeout. By default, "
+                    + "no abandon request will be sent.").getValue());
   }
 
 
@@ -1559,21 +1573,15 @@ public class CommandLineOptions
     {
       attributes = Arrays.asList(CommandLineOptions.DEFAULT_ATTRIBUTE_NAME);
     }
-
-    final String description =
-            getValue(CommandLineOptions.PROP_NAME_ATTRIBUTE,
+    return new StringArgument(Character.valueOf('a'),CommandLineOptions.ARG_NAME_ATTRIBUTE,
+            false,0,"{attribute name or type}",new StringPropertyValue(properties,
+                    CommandLineOptions.PROP_NAME_ATTRIBUTE_DESCRIPTION,
                     "The attribute used in the search request or other request. "
                             + "This command line argument "
                             + "is not required, and can be specified "
                             + "multiple times. If this command line "
-                            + "argument is not specified, the value '*' is used.",properties);
-    final Character shortIdentifier = Character.valueOf('a');
-    final String longIdentifier = CommandLineOptions.ARG_NAME_ATTRIBUTE;
-    final boolean isRequired = false;
-    final int maxOccurrences = 0;
-    final String valuePlaceholder = "{attribute name or type}";
-    return new StringArgument(shortIdentifier,longIdentifier,isRequired,maxOccurrences,
-            valuePlaceholder,description,attributes);
+                            + "argument is not specified, the value '*' is used.").getValue(),
+            attributes);
   }
 
 
