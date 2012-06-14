@@ -199,6 +199,10 @@ public final class VirtualListViewDemo
     ResultCode resultCode = ResultCode.SUCCESS;
 
     introduction();
+    if(isVerbose())
+    {
+      displayServerInformation();
+    }
 
     /*
      * Obtain a pool of connections to the LDAP server from the
@@ -220,7 +224,6 @@ public final class VirtualListViewDemo
 
     try
     {
-
       /*
        * Determine whether the VirtualListViewRequestControl and the
        * ServerSideSortRequestControl are supported by the server to
