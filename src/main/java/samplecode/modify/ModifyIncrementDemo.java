@@ -501,6 +501,10 @@ public final class ModifyIncrementDemo
   public ResultCode executeToolTasks()
   {
     introduction();
+    if(isVerbose())
+    {
+      displayServerInformation();
+    }
 
     /*
      * Retrieve the distinguished name parameter of the command line
