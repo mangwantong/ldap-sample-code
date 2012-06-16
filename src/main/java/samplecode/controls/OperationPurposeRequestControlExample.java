@@ -27,13 +27,10 @@ import com.unboundid.ldap.sdk.UnsolicitedNotificationHandler;
 import com.unboundid.ldap.sdk.unboundidds.controls.OperationPurposeRequestControl;
 import com.unboundid.util.LDAPCommandLineTool;
 import com.unboundid.util.Validator;
-import com.unboundid.util.args.ArgumentException;
-import com.unboundid.util.args.ArgumentParser;
 
 
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.util.ResourceBundle;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -435,25 +432,6 @@ public final class OperationPurposeRequestControlExample
    * {@inheritDoc}
    */
   @Override
-  public void addArguments(final ArgumentParser argumentParser) throws ArgumentException
-  {
-    if(argumentParser == null)
-    {
-      throw new NullPointerException("null argument parser is not allowed.");
-    }
-    // TODO: Add support for Locale when creating the resource bundle.
-    commandLineOptions =
-            CommandLineOptions.newCommandLineOptions(argumentParser,CommandLineOptions
-                    .createDefaultArguments(ResourceBundle
-                            .getBundle(CommandLineOptions.RESOURCE_BUNDLE_BASE_NAME)));
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   public ResultCode executeToolTasks()
   {
     introduction();
@@ -541,10 +519,5 @@ public final class OperationPurposeRequestControlExample
   }
 
 
-
-  /**
-   * Manages common command line options.
-   */
-  private CommandLineOptions commandLineOptions;
 
 }

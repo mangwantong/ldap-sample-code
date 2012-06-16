@@ -744,7 +744,8 @@ public class CommandLineOptions
   public int getMaxResponseTimeMillis()
   {
     return ((IntegerArgument)argumentParser
-            .getNamedArgument(CommandLineOptions.ARG_NAME_MAX_RESPONSE_TIME_MILLIS)).getValue();
+            .getNamedArgument(CommandLineOptions.ARG_NAME_MAX_RESPONSE_TIME_MILLIS)).getValue()
+            .intValue();
   }
 
 
