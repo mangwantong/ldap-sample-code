@@ -526,6 +526,53 @@ function executeModifyIncrementDemo()
 
 
 #
+# Functions supporting the ModifyDnDemo
+#
+function getModifyDnDemoColumnWidth()
+{
+    echo $(getIntroductionColumnWidthArgumentIdentifier) ${SAMPLECODE_LDAPLISTENEREXAMPLEDEMO_COLUMN_WIDTH:-96}
+}
+
+function getModifyDnDemoLdapConnectionArguments()
+{
+    echo ${SAMPLECODE_LDAPLISTENEREXAMPLEDEMO_LDAP_CONNECTION_ARGUMENTS:-$(getLdapConnectionArguments)}
+}
+
+function getModifyDnDemoCommandPath()
+{
+    echo "${scriptDirectory}/ModifyDnDemo.bash"
+}
+
+function getModifyDnDemoVerboseArgument()
+{
+    echo --verbose
+}
+
+function getModifyDnDemoArguments()
+{
+    args="";
+    args="${args} $(getModifyDnDemoLdapConnectionArguments)"
+    args="${args} $(getModifyDnDemoColumnWidth)"
+    args="${args} $(getModifyDnDemoVerboseArgument)"
+    args="${args} --baseObject $(getNamingContext)"
+    echo ${args}
+}
+
+function executeModifyDnDemo()
+{
+    command="$(getModifyDnDemoCommandPath) $(getModifyDnDemoArguments)"
+    displayCommand "${command}"
+    ${command}
+}
+
+
+
+
+
+
+
+
+#
 # Functions supporting the VirtualListViewDemo
 #
 function getVirtualListViewDemoColumnWidth()
@@ -656,6 +703,7 @@ declare functions="${functions} executeEffectiveRightsEntryDemo"
 declare functions="${functions} executeLdapListenerExampleDemo"
 declare functions="${functions} executeMatchingRuleDemo"
 declare functions="${functions} executeModifyIncrementDemo"
+declare functions="${functions} executeModifyDnDemo"
 declare functions="${functions} executeVirtualListViewDemo"
 
 # mvn targets
@@ -666,4 +714,5 @@ cd ${ws}
 if [ "${DO_BUILD}" = "yes" ]; then
     build|filterBuildOutput
 fi
+GenerateAllDemos.bash
 executeAllDemos
