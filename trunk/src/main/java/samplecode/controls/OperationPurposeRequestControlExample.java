@@ -33,6 +33,7 @@ import com.unboundid.util.args.ArgumentParser;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.ResourceBundle;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -189,7 +190,8 @@ public final class OperationPurposeRequestControlExample
           final String baseObject = namingContext;
           final SearchScope scope = SearchScope.BASE;
           final String filter = "(&)";
-          final String[] requestedAttributes = commandLineOptions.getRequestedAttributes();
+          final String[] requestedAttributes =
+                  commandLineOptions.getRequestedAttributes().toArray(new String[0]);
           SearchRequest searchRequest;
           try
           {
@@ -439,7 +441,11 @@ public final class OperationPurposeRequestControlExample
     {
       throw new NullPointerException("null argument parser is not allowed.");
     }
-    commandLineOptions = CommandLineOptions.newCommandLineOptions(argumentParser);
+    // TODO: Add support for Locale when creating the resource bundle.
+    commandLineOptions =
+            CommandLineOptions.newCommandLineOptions(argumentParser,CommandLineOptions
+                    .createDefaultArguments(ResourceBundle
+                            .getBundle(CommandLineOptions.RESOURCE_BUNDLE_BASE_NAME)));
   }
 
 
@@ -492,7 +498,7 @@ public final class OperationPurposeRequestControlExample
   @Override
   public void ldapRequestFailed(final LdapExceptionEvent ldapExceptionEvent)
   {
-    logger.log(Level.SEVERE,ldapExceptionEvent.getLdapException().getExceptionMessage());
+    getLogger().log(Level.SEVERE,ldapExceptionEvent.getLdapException().getExceptionMessage());
   }
 
 

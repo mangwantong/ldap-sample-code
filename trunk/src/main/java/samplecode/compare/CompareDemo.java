@@ -11,6 +11,7 @@ import com.unboundid.util.args.StringArgument;
 
 
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 import samplecode.annotation.CodeVersion;
@@ -28,7 +29,6 @@ import samplecode.tools.AbstractTool;
 public final class CompareDemo
         extends AbstractTool
 {
-
 
   private static final String ASSERTION_ARG_DESCRIPTION =
           "The assertion to use in the compare request";
@@ -89,6 +89,17 @@ public final class CompareDemo
    * {@inheritDoc}
    */
   @Override
+  public Logger getLogger()
+  {
+    return Logger.getLogger(getClass().getName());
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   protected String classSpecificPropertiesResourceName()
   {
     return "CompareDemo.properties";
@@ -108,7 +119,7 @@ public final class CompareDemo
       dn = commandLineOptions.getBaseObject();
       if(dn == null)
       {
-        logger.log(Level.SEVERE,String.format("The --baseObject argument is required."));
+        getLogger().log(Level.SEVERE,String.format("The --baseObject argument is required."));
         return ResultCode.PARAM_ERROR;
       }
     }
@@ -129,7 +140,7 @@ public final class CompareDemo
     final String attributeName = attributeArgument.getValue();
     if((attributeName == null) || (attributeName.length() == 0))
     {
-      logger.log(Level.SEVERE,String.format("The --attribute argument is required."));
+      getLogger().log(Level.SEVERE,String.format("The --attribute argument is required."));
       return ResultCode.PARAM_ERROR;
     }
 
@@ -143,7 +154,7 @@ public final class CompareDemo
     final String assertionValue = assertionArgument.getValue();
     if((assertionValue == null) || (assertionValue.length() == 0))
     {
-      logger.log(Level.SEVERE,String.format("The --assertion argument is required."));
+      getLogger().log(Level.SEVERE,String.format("The --assertion argument is required."));
       return ResultCode.PARAM_ERROR;
     }
 
@@ -155,11 +166,11 @@ public final class CompareDemo
     try
     {
       final CompareResult compareResult = getConnection().compare(req);
-      logger.log(Level.INFO,compareResult.compareMatched() ? "matched" : "did not match");
+      getLogger().log(Level.INFO,compareResult.compareMatched() ? "matched" : "did not match");
     }
     catch(final LDAPException exception)
     {
-      logger.log(Level.SEVERE,exception.getExceptionMessage());
+      getLogger().log(Level.SEVERE,exception.getExceptionMessage());
       return exception.getResultCode();
     }
 

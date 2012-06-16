@@ -435,7 +435,8 @@ public final class MatchingRuleDemo
      * multiple times however this demonstration only uses the first
      * occurrences.
      */
-    final String attributeName = commandLineOptions.getRequestedAttributes()[0];
+    final String attributeName =
+            commandLineOptions.getRequestedAttributes().toArray(new String[0])[0];
     Validator.ensureFalse(attributeName.length() == 0,
             "This tool requires that the attribute name " + "have a length greater than zero.");
 
@@ -544,7 +545,7 @@ public final class MatchingRuleDemo
       }
       else
       {
-        logger.log(Level.INFO,"no entries were returned.");
+        getLogger().log(Level.INFO,"no entries were returned.");
       }
     }
     catch(final LDAPException ldapException)

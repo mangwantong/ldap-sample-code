@@ -26,16 +26,43 @@ import samplecode.annotation.Since;
 
 /**
  * Support for property-backed data values where the type of value is
- * {@link String}.
+ * {@link Integer}.
  */
-@Since("13-Jun-2012")
+@Since("14-Jun-2012")
 @CodeVersion("1.0")
 @Author("Terry Gardner")
-public final class StringPropertyValue
-        extends PropertyValue<String>
+public class IntegerPropertyValue
+        extends PropertyValue<Integer>
 {
 
+  @Override
+  public Integer getValue()
+  {
+    final String propAsString = properties.getProperty(key);
+    Integer value;
+    if(propAsString != null)
+    {
+      try
+      {
+        value = Integer.parseInt(propAsString);
+      }
+      catch(final NumberFormatException nex)
+      {
+        value = defaultValue;
+      }
+    }
+    else
+    {
+      value = defaultValue;
+    }
+    return value;
+  }
+
+
+
   /**
+   * Creates a {@code IntegerPropertyValue} with default state.
+   * 
    * @param properties
    *          the properties that back the data value; not permitted to
    *          be {@code null}
@@ -45,34 +72,12 @@ public final class StringPropertyValue
    *          {@code null}
    * 
    * @param defaultValue
-   *          returned from {@link StringPropertyValue#getValue()} when
+   *          returned from {@link IntegerPropertyValue#getValue()} when
    *          the {@code key} is not associated with a value, that is,
    *          the {@code key} does not exist.
-   * 
-   * @return a new {@code StringPropertyValue} object.
    */
-  public static StringPropertyValue newStringPropertyValue(final Properties properties,
-          final String key,final String defaultValue)
-  {
-    return new StringPropertyValue(properties,key,defaultValue);
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public String getValue()
-  {
-    final String propAsString = properties.getProperty(key);
-    return propAsString == null ? defaultValue : propAsString;
-  }
-
-
-
-  private StringPropertyValue(
-          final Properties properties,final String key,final String defaultValue)
+  public IntegerPropertyValue(
+          final Properties properties,final String key,final Integer defaultValue)
   {
     super(properties,key,defaultValue);
   }

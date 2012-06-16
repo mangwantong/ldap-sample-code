@@ -519,7 +519,8 @@ public final class ModifyIncrementDemo
      * Retrieve the array of requested attributes from the parameter of
      * the command line argument(s).
      */
-    final String[] requestedAttributes = commandLineOptions.getRequestedAttributes();
+    final String[] requestedAttributes =
+            commandLineOptions.getRequestedAttributes().toArray(new String[0]);
 
     /*
      * Retrieve the increment value from the parameter of the command

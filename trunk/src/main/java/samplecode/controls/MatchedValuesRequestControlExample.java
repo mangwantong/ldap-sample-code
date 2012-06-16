@@ -39,6 +39,7 @@ import com.unboundid.util.args.FilterArgument;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.ResourceBundle;
 import java.util.logging.Formatter;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
@@ -290,7 +291,11 @@ public final class MatchedValuesRequestControlExample
   public void addNonLDAPArguments(final ArgumentParser argumentParser) throws ArgumentException
   {
     Validator.ensureNotNull(argumentParser);
-    commandLineOptions = CommandLineOptions.newCommandLineOptions(argumentParser);
+    // TODO: add support for locale when creating resource bundle
+    commandLineOptions =
+            CommandLineOptions.newCommandLineOptions(argumentParser,CommandLineOptions
+                    .createDefaultArguments(ResourceBundle
+                            .getBundle(CommandLineOptions.RESOURCE_BUNDLE_BASE_NAME)));
 
     /*
      * The command line argument which specifies the filter to use to
@@ -386,7 +391,8 @@ public final class MatchedValuesRequestControlExample
       final String baseObject = commandLineOptions.getBaseObject();
       final SearchScope scope = commandLineOptions.getSearchScope();
       final Filter filter = commandLineOptions.getFilter();
-      final String[] requestedAttributes = commandLineOptions.getRequestedAttributes();
+      final String[] requestedAttributes =
+              commandLineOptions.getRequestedAttributes().toArray(new String[0]);
       final SearchRequest searchRequest =
               new SearchRequest(baseObject,scope,filter,requestedAttributes);
 

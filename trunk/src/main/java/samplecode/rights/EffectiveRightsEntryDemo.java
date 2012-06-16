@@ -303,6 +303,17 @@ public class EffectiveRightsEntryDemo
    * {@inheritDoc}
    */
   @Override
+  public Logger getLogger()
+  {
+    return Logger.getLogger(getClass().getName());
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public String getToolName()
   {
     return EffectiveRightsEntryDemo.TOOL_NAME;
@@ -422,7 +433,8 @@ public class EffectiveRightsEntryDemo
      * Get the command line option from the parser whose parameter(s) is
      * the name of an attribute.
      */
-    final List<String> attributes = Arrays.asList(commandLineOptions.getRequestedAttributes());
+    final List<String> attributes =
+            Arrays.asList(commandLineOptions.getRequestedAttributes().toArray(new String[0]));
 
     /*
      * Get the command line option from the parser whose parameter is
@@ -518,14 +530,6 @@ public class EffectiveRightsEntryDemo
     }
 
     return ResultCode.SUCCESS;
-  }
-
-
-
-  @Override
-  protected Logger getLogger()
-  {
-    return Logger.getLogger(getClass().getName());
   }
 
 
