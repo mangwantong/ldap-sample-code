@@ -35,121 +35,38 @@ import com.unboundid.util.args.StringArgument;
 
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
-import java.util.logging.Logger;
+import java.util.ResourceBundle;
 
 
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
-import samplecode.listener.FileNotFoundExceptionEvent;
-import samplecode.listener.FileNotFoundExceptionListener;
-import samplecode.listener.IOExceptionEvent;
+import samplecode.args.BooleanPropertiesBackedArgument;
+import samplecode.args.FilterPropertiesBackedArgument;
+import samplecode.args.IntegerPropertiesBackedArgument;
+import samplecode.args.SearchScopePropertiesBackedArgument;
+import samplecode.args.StringPropertiesBackedArgument;
 
 
 /**
  * Provides services related to managing command line options for
- * clients that use the LDAPCommandLineTool class. Default values for
- * command line arguments that are not required and not provided are
- * taken from the Java properties file
- * {@code "commandLineOptions.properties"} which must be located on the
- * {@code CLASSPATH}.
- * <p/>
- * When this class is instantiated, it creates the following command
- * line arguments:<blockquote>
- * 
- * <pre>
- * --abandonOnTimeout
- *     Whether the LDAP SDK should abandon an operation that has timed out.
- * -a, --attribute {attribute name or type}
- *     The attribute used in the search request or other request. This command
- *     line argument is not required, and can be specified multiple times. If this
- *     command line argument is not specified, the value '*' is used.
- * --autoReconnect
- *     Whether the LDAP SDK should automatically reconnect when a connection is
- *     lost.
- * -b, --baseObject {distinguishedName}
- *     The base object used in the search request.
- * --bindWithDnRequiresPassword
- *     Indicates whether the SDK should allow simple bind operations that contain
- *     a bind DN but no password. Binds of this type may represent a security
- *     vulnerability in client applications because they may cause the client to
- *     believe that the user is properly authenticated when the server considers
- *     it to be an unauthenticated connection.
- * --connectTimeoutMillis {connect-timeout-millis-integer}
- *     Specifies the maximum length of time in milliseconds that a connection
- *     attempt should be allowed to continue before giving up. A value of zero
- *     indicates that there should be no connect timeout.
- * -f, --filter {filter}
- *     The search filter used in the search request.
- * -i, --initialConnections {positiveInteger}
- *     The number of initial connections to establish to directory server when
- *     creating the connection pool.
- * --maxConnections {max-response-time-in-milliseconds}
- *     The maximum length of time in milliseconds that an operation should be
- *     allowed to block, with 0 or less meaning no timeout is enforced. This
- *     command line argument is optional and has a default value of zero.
- * --maxResponseTimeMillis {max-response-time-in-milliseconds}
- *     The maximum length of time in milliseconds that an operation should be
- *     allowed to block, with 0 or less meaning no timeout is enforced. This
- *     command line argument is optional and has a default value of zero.
- * --numThreads {number-of-threads}
- *     Specifies the number of threads to use when running the application.
- * --pageSize {positiveInteger}
- *     The search page size
- * --reportCount {positive-integer}
- *     Specifies the maximum number of reports. This command line argument is
- *     applicable to tools that display repeated reports. The time between
- *     repeated reports is specified by the --reportInterval command line
- *     argument.
- * --reportInterval {positive-integer}
- *     The report interval in milliseconds.
- * -s, --scope {searchScope}
- *     The scope of the search request; allowed values are BASE, ONE, and SUB
- * --sizeLimit {positiveInteger}
- *     The client-request maximum number of results which are returned to the
- *     client. If the number of entries which match the search parameter is
- *     greater than the client-requested size limit or the server-imposed size
- *     limit a SIZE_LIMIT_EXCEEDED code is returned in the result code in the
- *     search response.
- * --timeLimit {positiveInteger}
- *     The client-request maximum time that the directory server will devote to
- *     processing the search request. If the client-requested time limit or the
- *     server-imposed time limit a TIME_LIMIT_EXCEEDED code is returned in the
- *     result code in the search response.
- * --usePropertiesFile {path-to-properties-file}
- *     The path to a file containing Java properties.
- * --useSchema
- *     Whether the LDAP SDK should attempt to use server schema information, for
- *     example, for matching rules.
- * --verbose
- *     Whether the tool should be verbose.
- * </pre>
- * 
- * </blockquote>
+ * clients that use the LDAPCommandLineTool class.
  */
 @Author("terry.gardner@unboundid.com")
 @Since("Nov 28, 2011")
-@CodeVersion("2.0")
+@CodeVersion("2.1")
 public class CommandLineOptions
 {
 
-  /**
-   * The short identifier for the {@code --abandonOnTimeout} command
-   * line option.
-   */
-  public static final Character ABANDON_ON_TIMEOUT_SHORT_IDENTIFIER = null;
-
 
 
   /**
-   * The value place-holder for the {@code --introductionColumnWidth}
-   * command line options.
+   * The base name of the resource bundle that contains resource data
+   * used by the samplecode project.
    */
-  public static final String ARG_INTRODUCTION_COLUMN_WIDTH_VALUE_PLACEHOLDER =
-          "{integer-column-width}";
+  public static final String RESOURCE_BUNDLE_BASE_NAME = "samplecode";
 
 
 
@@ -159,7 +76,7 @@ public class CommandLineOptions
    * the operation times out. This command line argument is optional and
    * can occur exactly once.
    */
-  public static final String ARG_NAME_ABANDON_ON_TIMEOUT = "abandonOnTimeout";
+  private static final String ARG_NAME_ABANDON_ON_TIMEOUT = "abandonOnTimeout";
 
 
 
@@ -168,17 +85,17 @@ public class CommandLineOptions
    * the name or type of an attribute to retrieve. This command line
    * argument is optional and can occur multiple times.
    */
-  public static final String ARG_NAME_ATTRIBUTE = "attribute";
+  private static final String ARG_NAME_ATTRIBUTE = "attribute";
 
 
 
   /**
    * The long identifier of the command line argument whose parameter is
-   * an indicator of whether the LDAP SDK should automatically
-   * recconnect when a connection is lost. This command line argument is
-   * optional and can occur exactly once.
+   * an indicator of whether the LDAP SDK should automatically reconnect
+   * when a connection is lost. This command line argument is optional
+   * and can occur exactly once.
    */
-  public static final String ARG_NAME_AUTO_RECONNECT = "autoReconnect";
+  private static final String ARG_NAME_AUTO_RECONNECT = "autoReconnect";
 
 
 
@@ -187,7 +104,7 @@ public class CommandLineOptions
    * the base object used in searches and other operations where a
    * distinguished name is required.
    */
-  public static final String ARG_NAME_BASE_OBJECT = "baseObject";
+  private static final String ARG_NAME_BASE_OBJECT = "baseObject";
 
 
 
@@ -195,7 +112,7 @@ public class CommandLineOptions
    * The long identifier of the command line argument whose value is the
    * distinguished name used to bind to directory server.
    */
-  public static final String ARG_NAME_BIND_DN = "bindDn";
+  private static final String ARG_NAME_BIND_DN = "bindDn";
 
 
 
@@ -203,7 +120,7 @@ public class CommandLineOptions
    * The long identifier of the command line argument whose value is the
    * bind password.
    */
-  public static final String ARG_NAME_BIND_PASSWORD = "bindPassword";
+  private static final String ARG_NAME_BIND_PASSWORD = "bindPassword";
 
 
 
@@ -211,7 +128,7 @@ public class CommandLineOptions
    * The long identifier of the command line argument which is present
    * indicates that simple bind requests using a DN require a password.
    */
-  public static final String ARG_NAME_BIND_WITH_DN_REQUIRES_PASSWORD =
+  private static final String ARG_NAME_BIND_WITH_DN_REQUIRES_PASSWORD =
           "bindWithDnRequiresPassword";
 
 
@@ -222,7 +139,7 @@ public class CommandLineOptions
    * not required, has a default value of 60 seconds and can occur
    * exactly one time.
    */
-  public static final String ARG_NAME_CONNECT_TIMEOUT_MILLIS = "connectTimeoutMillis";
+  private static final String ARG_NAME_CONNECT_TIMEOUT_MILLIS = "connectTimeoutMillis";
 
 
 
@@ -230,7 +147,7 @@ public class CommandLineOptions
    * The long identifier of the command line argument whose parameter is
    * the filter used in searches.
    */
-  public static final String ARG_NAME_FILTER = "filter";
+  private static final String ARG_NAME_FILTER = "filter";
 
 
 
@@ -240,7 +157,7 @@ public class CommandLineOptions
    * connection. This command line argument is optional and can occur
    * one time.
    */
-  public static final String ARG_NAME_HOSTNAME = "hostname";
+  private static final String ARG_NAME_HOSTNAME = "hostname";
 
 
 
@@ -250,7 +167,7 @@ public class CommandLineOptions
    * creating a connection pool. This parameter is not required, has a
    * default value, and may be specified exactly once.
    */
-  public static final String ARG_NAME_INITIAL_CONNECTIONS = "initialConnections";
+  private static final String ARG_NAME_INITIAL_CONNECTIONS = "initialConnections";
 
 
 
@@ -258,7 +175,7 @@ public class CommandLineOptions
    * The long identifier of the command line argument whose parameter is
    * the length in characters of the introduction column.
    */
-  public static final String ARG_NAME_INTRODUCTION_COLUMN_WIDTH = "introductionColumnWidth";
+  private static final String ARG_NAME_INTRODUCTION_COLUMN_WIDTH = "introductionColumnWidth";
 
 
 
@@ -268,7 +185,7 @@ public class CommandLineOptions
    * parameter has a default value, is not required, and can be
    * specified exactly one time.
    */
-  public static final String ARG_NAME_MAX_CONNECTIONS = "maxConnections";
+  private static final String ARG_NAME_MAX_CONNECTIONS = "maxConnections";
 
 
 
@@ -279,7 +196,7 @@ public class CommandLineOptions
    * enforced. This command line argument is optional and can occur
    * exactly one time.
    */
-  public static final String ARG_NAME_MAX_RESPONSE_TIME_MILLIS = "maxResponseTimeMillis";
+  private static final String ARG_NAME_MAX_RESPONSE_TIME_MILLIS = "maxResponseTimeMillis";
 
 
 
@@ -288,7 +205,7 @@ public class CommandLineOptions
    * the number of threads to use for a tool. This command line argument
    * is optional and can occur exactly once.
    */
-  public static final String ARG_NAME_NUM_THREADS = "numThreads";
+  private static final String ARG_NAME_NUM_THREADS = "numThreads";
 
 
 
@@ -298,7 +215,7 @@ public class CommandLineOptions
    * This parameter has a default value, is not required, and can be
    * specified exactly one time.
    */
-  public static final String ARG_NAME_PAGE_SIZE = "pageSize";
+  private static final String ARG_NAME_PAGE_SIZE = "pageSize";
 
 
 
@@ -307,7 +224,7 @@ public class CommandLineOptions
    * the port to which the LDAP SDK will connect. This command line
    * argument is optional and can occur one time.
    */
-  public static final String ARG_NAME_PORT = "port";
+  private static final String ARG_NAME_PORT = "port";
 
 
 
@@ -320,7 +237,7 @@ public class CommandLineOptions
    * required, has a default value, and can be specified exactly one
    * time.
    */
-  public static final String ARG_NAME_REPORT_COUNT = "reportCount";
+  private static final String ARG_NAME_REPORT_COUNT = "reportCount";
 
 
 
@@ -329,7 +246,7 @@ public class CommandLineOptions
    * the reporting interval in milliseconds. This command line argument
    * is optional and can occur one time.
    */
-  public static final String ARG_NAME_REPORT_INTERVAL = "reportInterval";
+  private static final String ARG_NAME_REPORT_INTERVAL = "reportInterval";
 
 
 
@@ -338,7 +255,7 @@ public class CommandLineOptions
    * the scope of a search request. This command line argument has a
    * default value, is optional and can occur exactly one time.
    */
-  public static final String ARG_NAME_SCOPE = "scope";
+  private static final String ARG_NAME_SCOPE = "scope";
 
 
 
@@ -346,15 +263,11 @@ public class CommandLineOptions
    * The long identifier of the command line argument whose parameter is
    * the client requested size limit.
    */
-  public static final String ARG_NAME_SIZE_LIMIT = "sizeLimit";
+  private static final String ARG_NAME_SIZE_LIMIT = "sizeLimit";
 
 
 
-  /**
-   * The long identifier of the command line argument whose parameter is
-   * the client requested time limit.
-   */
-  public static final String ARG_NAME_TIME_LIMIT = "timeLimit";
+  private static final String ARG_NAME_TIME_LIMIT = "timeLimit";
 
 
 
@@ -362,7 +275,7 @@ public class CommandLineOptions
    * The long identifier of the command line argument whose parameter is
    * the name of a properties file.
    */
-  public static final String ARG_NAME_USE_PROPERTIES_FILE = "usePropertiesFile";
+  private static final String ARG_NAME_USE_PROPERTIES_FILE = "usePropertiesFile";
 
 
 
@@ -372,7 +285,7 @@ public class CommandLineOptions
    * information. This command line argument is optional and can occur
    * exactly once.
    */
-  public static final String ARG_NAME_USE_SCHEMA = "useSchema";
+  private static final String ARG_NAME_USE_SCHEMA = "useSchema";
 
 
 
@@ -381,346 +294,92 @@ public class CommandLineOptions
    * an indicator of whether the should be verbose. This command line
    * argument is optional and can occur exactly once.
    */
-  public static final String ARG_NAME_VERBOSE = "verbose";
+  private static final String ARG_NAME_VERBOSE = "verbose";
 
 
 
   /**
-   * The description used for the {@code --baseObject} command line
-   * option.
+   * a set of useful arguments.
+   * 
+   * @param resourceBundle
+   *          the resource bundle used for argument parameters
+   * 
+   * @return a set of useful arguments
+   * 
+   * @throws ArgumentException
+   *           when a problem occurs creating an argument.
    */
-  public static final String BASE_OBJECT_ARG_DESCRIPTION =
-          "The base object used in the search request.";
+  public static final Argument[] createDefaultArguments(final ResourceBundle resourceBundle)
+          throws ArgumentException
+  {
+    return new Argument[]
+    {
+            BooleanPropertiesBackedArgument.newBooleanPropertiesBackedArgument(resourceBundle,
+                    CommandLineOptions.ARG_NAME_ABANDON_ON_TIMEOUT).getArgument(),
+            StringPropertiesBackedArgument.newStringPropertiesBackedArgument(resourceBundle,
+                    CommandLineOptions.ARG_NAME_ATTRIBUTE).getArgument(),
+            BooleanPropertiesBackedArgument.newBooleanPropertiesBackedArgument(resourceBundle,
+                    CommandLineOptions.ARG_NAME_AUTO_RECONNECT).getArgument(),
+            StringPropertiesBackedArgument.newStringPropertiesBackedArgument(resourceBundle,
+                    CommandLineOptions.ARG_NAME_BASE_OBJECT).getArgument(),
+            BooleanPropertiesBackedArgument.newBooleanPropertiesBackedArgument(resourceBundle,
+                    CommandLineOptions.ARG_NAME_BIND_WITH_DN_REQUIRES_PASSWORD).getArgument(),
+            IntegerPropertiesBackedArgument.newIntegerPropertiesBackedArgument(resourceBundle,
+                    CommandLineOptions.ARG_NAME_CONNECT_TIMEOUT_MILLIS).getArgument(),
+            FilterPropertiesBackedArgument.newFilterPropertiesBackedArgument(resourceBundle,
+                    CommandLineOptions.ARG_NAME_FILTER).getArgument(),
+            IntegerPropertiesBackedArgument.newIntegerPropertiesBackedArgument(resourceBundle,
+                    CommandLineOptions.ARG_NAME_INITIAL_CONNECTIONS).getArgument(),
+            IntegerPropertiesBackedArgument.newIntegerPropertiesBackedArgument(resourceBundle,
+                    CommandLineOptions.ARG_NAME_INTRODUCTION_COLUMN_WIDTH).getArgument(),
+            IntegerPropertiesBackedArgument.newIntegerPropertiesBackedArgument(resourceBundle,
+                    CommandLineOptions.ARG_NAME_MAX_CONNECTIONS).getArgument(),
+            IntegerPropertiesBackedArgument.newIntegerPropertiesBackedArgument(resourceBundle,
+                    CommandLineOptions.ARG_NAME_MAX_RESPONSE_TIME_MILLIS).getArgument(),
+            IntegerPropertiesBackedArgument.newIntegerPropertiesBackedArgument(resourceBundle,
+                    CommandLineOptions.ARG_NAME_NUM_THREADS).getArgument(),
+            IntegerPropertiesBackedArgument.newIntegerPropertiesBackedArgument(resourceBundle,
+                    CommandLineOptions.ARG_NAME_PAGE_SIZE).getArgument(),
+            IntegerPropertiesBackedArgument.newIntegerPropertiesBackedArgument(resourceBundle,
+                    CommandLineOptions.ARG_NAME_REPORT_COUNT).getArgument(),
+            IntegerPropertiesBackedArgument.newIntegerPropertiesBackedArgument(resourceBundle,
+                    CommandLineOptions.ARG_NAME_REPORT_INTERVAL).getArgument(),
+            SearchScopePropertiesBackedArgument.newSearchScopePropertiesBackedArgument(
+                    resourceBundle,CommandLineOptions.ARG_NAME_SCOPE).getArgument(),
+            IntegerPropertiesBackedArgument.newIntegerPropertiesBackedArgument(resourceBundle,
+                    CommandLineOptions.ARG_NAME_SIZE_LIMIT).getArgument(),
+            IntegerPropertiesBackedArgument.newIntegerPropertiesBackedArgument(resourceBundle,
+                    CommandLineOptions.ARG_NAME_TIME_LIMIT).getArgument(),
+            StringPropertiesBackedArgument.newStringPropertiesBackedArgument(resourceBundle,
+                    CommandLineOptions.ARG_NAME_USE_PROPERTIES_FILE).getArgument(),
+            BooleanPropertiesBackedArgument.newBooleanPropertiesBackedArgument(resourceBundle,
+                    CommandLineOptions.ARG_NAME_USE_SCHEMA).getArgument(),
+            BooleanPropertiesBackedArgument.newBooleanPropertiesBackedArgument(resourceBundle,
+                    CommandLineOptions.ARG_NAME_VERBOSE).getArgument(),
+    };
+  }
 
 
 
   /**
-   * Whether the {@code --baseObject} command line option is required.
-   */
-  public static final boolean BASE_OBJECT_ARG_IS_REQUIRED = false;
-
-
-
-  /**
-   * The maximum number of times the {@code --baseObject} command line
-   * option may occur on the command line.
-   */
-  public static final int BASE_OBJECT_ARG_MAX_OCCURRENCES = 1;
-
-
-
-  /**
-   * The place-holder used for the {@code --baseObject} command line
-   * option.
-   */
-  public static final String BASE_OBJECT_ARG_PLACEHOLDER = "{distinguishedName}";
-
-
-
-  /**
-   * The short identifier used for the {@code --baseObject} command line
-   * option.
-   */
-  public static final Character BASE_OBJECT_ARG_SHORT_IDENTIFIER = new Character('b');
-
-
-
-  /**
-   * The value of the {@code abandonOnTimeout} property in the event
-   * that:
-   * <ul>
-   * <li>The command line argument {@code --abandonOnTimeout} is not
-   * present</li>
-   * <li>There is no property named {@code abandonOnTimeout} in the
-   * properties file</li>
-   * <li>There is no properties file</li>
-   * </ul>
-   */
-  public static final boolean DEFAULT_ABANDON_ON_TIMEOUT = true;
-
-
-
-  /**
-   * The default attribute value; used in the event that the command
-   * line argument {@@code --attribute} is not provided.
-   */
-  public static final String DEFAULT_ATTRIBUTE_NAME = "*";
-
-
-
-  /**
-   * The default attribute value; used in the event that the command
-   * line argument {@@code --attribute} is not provided, no
-   * property exists, or the properties file cannot be loaded.
-   */
-  public static final String DEFAULT_BASE_OBJECT = "";
-
-
-
-  /**
-   * The default value of the {@code --connectTimeoutMillis} command
-   * line argument; the default value is used if the command line
-   * argument {@code --connectTimeoutMillis} is not present. This
-   * command line argument's parameter is used as the connection
-   * timeout.
-   */
-  public static final int DEFAULT_CONNECT_TIMEOUT_MILLIS = 60000;
-
-
-
-  /**
-   * The default value of the {@code --filter} command line argument;
-   * the default value is used if the command line argument
-   * {@code --filter} is not present. This command line argument's
-   * parameter is used as the search filter.
-   */
-  public static final String DEFAULT_FILTER = "(&)";
-
-
-
-  /**
-   * The default value of the [@code --initialConnections} command line
-   * option; the default value is used if the command line option
-   * {@code --initialConnections} is not present. This value is used for
-   * the default number of initial connections to directory server.
-   */
-  public static final int DEFAULT_INITIAL_CONNECTIONS = 2;
-
-
-
-  /**
-   * The default value of the [@code --maxConnections} command line
-   * option; the default value is used if the command line option
-   * {@code --maxConnections} is not present. This value is used for the
-   * default maximum number of connections to directory server.
-   */
-  public static final int DEFAULT_MAX_CONNECTIONS = 3;
-
-
-
-  /**
-   * The default value of the {@code --maxResponseTimeMillis} command
-   * line argument; used if the command line argument is not present.
-   * This value is used to specify a client-requested maximum allowable
-   * block time.
-   */
-  public static final Integer DEFAULT_MAX_RESPONSE_TIME_MILLIS = Integer.valueOf(0);
-
-
-
-  /**
-   * The default number of threads to use when no command line argument
-   * {@code --numThreads} is provided.
-   */
-  public static final int DEFAULT_NUM_THREADS = 1;
-
-
-
-  /**
-   * The default value of the [@code --pageSize} command line option;
-   * the default value is used if the command line option
-   * {@code --pageSize} is not present. This value is used for the page
-   * size of a simple paged search request control.
-   */
-  public static final int DEFAULT_PAGE_SIZE = 10;
-
-
-
-  /**
-   * The default value of the {@code --reportCount} command line
-   * argument; the default value is used if the command line argument
-   * {@code --reportCount} is not present. The parameter is used for
-   * tools that use repeating reports.
-   */
-  public static final Integer DEFAULT_REPORT_COUNT = Integer.valueOf(Integer.MAX_VALUE);
-
-
-
-  /**
-   * The default value of the {@code --reportInterval} command line
-   * argument; the default value is used if the command line argument
-   * {@code --reportInterval} is not present. The parameter is used for
-   * tools that display repeating reports.
-   */
-  public static final Integer DEFAULT_REPORT_INTERVAL = Integer.valueOf(1000);
-
-
-
-  /**
-   * The default value of the [@code --scope} command line option; the
-   * default value is used if the command line option {@code --scope} is
-   * not present. This value is used for the search scope.
-   */
-  public static final SearchScope DEFAULT_SEARCH_SCOPE = SearchScope.BASE;
-
-
-
-  /**
-   * The default value of the [@code --sizeLimit} command line option;
-   * the default value is used if the command line option
-   * {@code --sizeLimit} is not present. This value is used for the
-   * search size limit.
-   */
-  public static final int DEFAULT_SIZE_LIMIT = 1;
-
-
-
-  /**
-   * The default value of the [@code --timeLimit} command line option;
-   * the default value is used if the command line option
-   * {@code --timeLimit} is not present. This value is used for the
-   * search time limit.
-   */
-  public static final int DEFAULT_TIME_LIMIT = 10;
-
-
-
-  /**
-   * The default value of the {@code --introductionColumnWidth} command
-   * line option.
-   */
-  public static final String INTRODUCTION_COLUMN_WIDTH_DEFAULT_VALUE = "72";
-
-
-
-  /**
-   * The description of the the {@code --introductionColumnWidth}
-   * command line option.
-   */
-  public static final String INTRODUCTION_COLUMN_WIDTH_DESCRIPTION =
-          "Specifies the maximum width of the introduction lines.";
-
-
-
-  /**
-   * The introduction column width command line option is not required.
-   */
-  public static final boolean INTRODUCTION_COLUMN_WIDTH_IS_REQUIRED = false;
-
-
-
-  /**
-   * The default value of the lower bound of the
-   * {@code --introductionColumnWidth} command line option.
-   */
-  public static final String INTRODUCTION_COLUMN_WIDTH_LOWER_BOUND_DEFAULT_VALUE = "8";
-
-
-
-  /**
-   * The maximum number of occurrences of the
-   * {@code --introductionColumnWith} command line option.
-   */
-  public final static int INTRODUCTION_COLUMN_WIDTH_MAX_OCCURENCES = 1;
-
-
-
-  /**
-   * The short identifier for the introduction column width argument
-   */
-  public final static Character INTRODUCTION_COLUMN_WIDTH_SHORT_IDENTIFIER = null;
-
-
-
-  /**
-   * The default value of the upper bound of the
-   * {@code --introductionColumnWidth} command line option.
-   */
-  public static final String INTRODUCTION_COLUMN_WIDTH_UPPER_BOUND_DEFAULT_VALUE = "96";
-
-
-
-  /**
-   * The name of the property whose value is the description to use for
-   * the abandonOnTime command line argument.
-   */
-  public static final String PROP_NAME_ABANDON_ON_TIMEOUT_DESCRIPTION =
-          CommandLineOptions.ARG_NAME_ABANDON_ON_TIMEOUT + "Description";
-
-
-
-  /**
-   * The name of the property whose value is a sequence of attribute
-   * names or types separated by commas.
-   */
-  public static final String PROP_NAME_ATTRIBUTE = CommandLineOptions.ARG_NAME_ATTRIBUTE;
-
-
-
-  /**
-   * The key to the property whose value is the description of attribute
-   * commanf line argument
-   */
-  public static final String PROP_NAME_ATTRIBUTE_DESCRIPTION =
-          CommandLineOptions.ARG_NAME_ATTRIBUTE + "Description";
-
-
-
-  /**
-   * The name of the property whose value is the description to use for
-   * the {@code --usePropertiesFile} command line argument.
-   */
-  public static final String PROP_NAME_USE_PROPERTIES_FILE_DESCRIPTION =
-          CommandLineOptions.ARG_NAME_USE_PROPERTIES_FILE + "Description";
-
-
-
-  /**
-   * The name of the property that can be used to specify the
-   * description of the use schema command line argument.
-   */
-  public static final String PROP_NAME_USE_SCHEMA_DESCRIPTION =
-          CommandLineOptions.ARG_NAME_USE_SCHEMA + "Description";
-
-
-
-  /**
-   * The name of the property that specifies the description to use for
-   * the verbose argument.
-   */
-  public static final String PROP_NAME_VERBOSE_DESCRIPTION =
-          CommandLineOptions.ARG_NAME_VERBOSE + "Description";
-
-
-
-  /**
-   * The name of the resource that contains properties for
-   * {@code CommandLineOptions}.
-   */
-  public static final String PROPERTIES_RESOURCE_NAME = "commandLineOptions.properties";
-
-
-
-  /**
-   * The long identifier of the command line argument whose parameter is
-   * the reporting interval in milliseconds. This command line argument
-   * is optional and can occur one time.
-   */
-  public static final Character SHORT_ID_REPORT_INTERVAL = null;
-
-
-
-  private static final String VERBOSE_DESCRIPTION =
-          "If present, specifies that the tool should be verbose.";
-
-
-
-  /**
-   * Obtain an instance of the {@code CommandLineOptions} class.
+   * Obtain an instance of the {@code CommandLineOptions} class that
+   * will use the specified set of arguments.
    * 
    * @param argumentParser
    *          The argumentParser from the command line tool.
+   * 
    * @return A CommandLineOptions object initialized with the
    *         {@code argumentParser} parameter.
+   * 
    * @throws ArgumentException
    *           If an error occurs while creating or adding a command
    *           line argument.
    */
-  public static CommandLineOptions newCommandLineOptions(final ArgumentParser argumentParser)
-          throws ArgumentException
+  public static CommandLineOptions newCommandLineOptions(final ArgumentParser argumentParser,
+          final Argument[] arguments) throws ArgumentException
   {
     Validator.ensureNotNull(argumentParser);
-    return new CommandLineOptions(argumentParser);
+    return new CommandLineOptions(arguments,argumentParser);
   }
 
 
@@ -772,6 +431,7 @@ public class CommandLineOptions
    * 
    * @param longIdentifier
    *          The long identifier of a command line option.
+   * 
    * @return The value of the command line argument named by the
    *         {@code longIdentifier}.
    */
@@ -1083,15 +743,8 @@ public class CommandLineOptions
    */
   public int getMaxResponseTimeMillis()
   {
-    int maxResponseTimeMillis = CommandLineOptions.DEFAULT_MAX_RESPONSE_TIME_MILLIS.intValue();
-    final IntegerArgument arg =
-            (IntegerArgument)argumentParser
-                    .getNamedArgument(CommandLineOptions.ARG_NAME_MAX_RESPONSE_TIME_MILLIS);
-    if((arg != null) && arg.isPresent())
-    {
-      maxResponseTimeMillis = arg.getValue().intValue();
-    }
-    return maxResponseTimeMillis;
+    return ((IntegerArgument)argumentParser
+            .getNamedArgument(CommandLineOptions.ARG_NAME_MAX_RESPONSE_TIME_MILLIS)).getValue();
   }
 
 
@@ -1104,7 +757,7 @@ public class CommandLineOptions
    * Usage:
    * 
    * <pre>
-   * 
+   *
    * IntegerArgument portArg = getNamedArgument(&quot;port&quot;);
    * int port;
    * if(portArg != null &amp;&amp; portArg.isPresent())
@@ -1140,15 +793,8 @@ public class CommandLineOptions
    */
   public int getNumThreads()
   {
-    int numThreads = CommandLineOptions.DEFAULT_NUM_THREADS;
-    final IntegerArgument arg =
-            (IntegerArgument)argumentParser
-                    .getNamedArgument(CommandLineOptions.ARG_NAME_NUM_THREADS);
-    if((arg != null) && arg.isPresent())
-    {
-      numThreads = arg.getValue().intValue();
-    }
-    return numThreads;
+    return ((IntegerArgument)argumentParser
+            .getNamedArgument(CommandLineOptions.ARG_NAME_NUM_THREADS)).getValue();
   }
 
 
@@ -1198,40 +844,6 @@ public class CommandLineOptions
 
 
   /**
-   * Creates a {@link Properties} object using the resource name
-   * returned by {@link CommandLineOptions#getPropertiesResourceName()}.
-   * 
-   * @return a properties object.
-   */
-  public Properties getProperties()
-  {
-    final PropertiesFile propertiesFile = newPropertiesFile(getPropertiesResourceName());
-    final FileNotFoundExceptionListener fileNotFoundExceptionListener =
-            new FileNotFoundExceptionListener()
-            {
-
-              @Override
-              public void fileNotFound(final FileNotFoundExceptionEvent event)
-              {
-                logger.severe(event.getFileNotFoundException().getMessage());
-              }
-
-
-
-              @Override
-              public void ioExceptionOccurred(final IOExceptionEvent ioExceptionEvent)
-              {
-                logger.severe(ioExceptionEvent.getIoException().getMessage());
-              }
-
-            };
-    propertiesFile.addFileNotFoundExceptionListener(fileNotFoundExceptionListener);
-    return propertiesFile.getProperties();
-  }
-
-
-
-  /**
    * retrieves the value of the {@code --useProertiesFile} argument, if
    * present, otherwise {@code null}.
    * 
@@ -1247,16 +859,6 @@ public class CommandLineOptions
       propertiesFile = ((StringArgument)argument).getValue();
     }
     return propertiesFile;
-  }
-
-
-
-  /**
-   * @return the name of the resource that contains properties
-   */
-  public String getPropertiesResourceName()
-  {
-    return propertiesResourceName;
   }
 
 
@@ -1292,15 +894,9 @@ public class CommandLineOptions
    */
   public int getReportInterval()
   {
-    int reportInterval = CommandLineOptions.DEFAULT_REPORT_INTERVAL.intValue();
-    final IntegerArgument arg =
-            (IntegerArgument)argumentParser
-                    .getNamedArgument(CommandLineOptions.ARG_NAME_REPORT_INTERVAL);
-    if((arg != null) && arg.isPresent())
-    {
-      reportInterval = arg.getValue().intValue();
-    }
-    return reportInterval;
+    return ((IntegerArgument)argumentParser
+            .getNamedArgument(CommandLineOptions.ARG_NAME_REPORT_INTERVAL)).getValue()
+            .intValue();
   }
 
 
@@ -1318,27 +914,10 @@ public class CommandLineOptions
    *         option {@code --attribute}, or a default value is the
    *         {@code --attribute} command line option is not present.
    */
-  public String[] getRequestedAttributes()
+  public List<String> getRequestedAttributes()
   {
-    final StringArgument arg =
-            (StringArgument)argumentParser
-                    .getNamedArgument(CommandLineOptions.ARG_NAME_ATTRIBUTE);
-    String[] requestedAttributes;
-    if(arg.isPresent())
-    {
-      requestedAttributes = new String[0];
-      final List<String> listOfArgumentValues = arg.getValues();
-      requestedAttributes = listOfArgumentValues.toArray(new String[0]);
-
-    }
-    else
-    {
-      requestedAttributes = new String[]
-      {
-        CommandLineOptions.DEFAULT_ATTRIBUTE_NAME
-      };
-    }
-    return requestedAttributes;
+    return ((StringArgument)argumentParser
+            .getNamedArgument(CommandLineOptions.ARG_NAME_ATTRIBUTE)).getValues();
   }
 
 
@@ -1394,15 +973,8 @@ public class CommandLineOptions
    */
   public int getTimeLimit()
   {
-    int timeLimit = 10;
-    final IntegerArgument arg =
-            (IntegerArgument)argumentParser
-                    .getNamedArgument(CommandLineOptions.ARG_NAME_TIME_LIMIT);
-    if((arg != null) && arg.isPresent())
-    {
-      timeLimit = arg.getValue().intValue();
-    }
-    return timeLimit;
+    return ((IntegerArgument)argumentParser
+            .getNamedArgument(CommandLineOptions.ARG_NAME_TIME_LIMIT)).getValue().intValue();
   }
 
 
@@ -1489,99 +1061,6 @@ public class CommandLineOptions
   {
     return ((BooleanArgument)argumentParser
             .getNamedArgument(CommandLineOptions.ARG_NAME_VERBOSE)).isPresent();
-  }
-
-
-
-  /**
-   * Creates the argument that specifies whether operations should be
-   * abandoned when they timeout, for example, <blockquote>
-   * 
-   * <pre> CommandName --abandonOnTime</pre>
-   * 
-   * </blockquote>
-   * 
-   * @param properties
-   *          the properties which contain the default value - not
-   *          permitted to be {@code null}.
-   * 
-   * @return a {@link BooleanArgument} that allows the operator to
-   *         specify whether operations should be abandoned when they
-   *         timeout. Optional.
-   * 
-   * @throws ArgumentException
-   */
-  public BooleanArgument newAbandonOnTimeoutArgument(final Properties properties)
-          throws ArgumentException
-  {
-    Validator.ensureNotNull(properties);
-
-    /*
-     * Create the argument whose parameter is whether the LDAP SDK
-     * should abandon an operation that has timed out. This argument is
-     * optional, and can be specified exactly one time.
-     */
-    final Character shortIdentifier = CommandLineOptions.ABANDON_ON_TIMEOUT_SHORT_IDENTIFIER;
-    final String longIdentifier = CommandLineOptions.ARG_NAME_ABANDON_ON_TIMEOUT;
-    return new BooleanArgument(shortIdentifier,longIdentifier,1,new StringPropertyValue(
-            properties,CommandLineOptions.PROP_NAME_ABANDON_ON_TIMEOUT_DESCRIPTION,
-            "A flag that indicates whether to attempt "
-                    + "to abandon any request for which no "
-                    + "response is received after waiting for the "
-                    + "maximum response timeout. By default, "
-                    + "no abandon request will be sent.").getValue());
-  }
-
-
-
-  /**
-   * Creates the argument that specifies an attribute, for example,
-   * <blockquote>
-   * 
-   * <pre> CommandName --attribute uid --attribute cn</pre>
-   * 
-   * </blockquote>
-   * 
-   * @param properties
-   *          the properties which contain the default attribute names -
-   *          not permitted to be {@code null}.
-   * 
-   * @return a {@link StringArgument} that allows the operator to
-   *         specify attribute names and types. May occur multiple
-   *         times.
-   * 
-   * @throws ArgumentException
-   */
-  public StringArgument newAttributeArgument(final Properties properties)
-          throws ArgumentException
-  {
-    Validator.ensureNotNull(properties);
-
-    /*
-     * Get the list of attributes from the properties, if present. The
-     * list of attributes is given as a sequence of strings wherein each
-     * list item is separated by a comma. TODO: Use the Apache
-     * Configuration Libraries.
-     */
-    List<String> attributes;
-    final String prop = properties.getProperty(CommandLineOptions.ARG_NAME_ATTRIBUTE);
-    if(prop != null)
-    {
-      attributes = stringToList(prop);
-    }
-    else
-    {
-      attributes = Arrays.asList(CommandLineOptions.DEFAULT_ATTRIBUTE_NAME);
-    }
-    return new StringArgument(Character.valueOf('a'),CommandLineOptions.ARG_NAME_ATTRIBUTE,
-            false,0,"{attribute name or type}",new StringPropertyValue(properties,
-                    CommandLineOptions.PROP_NAME_ATTRIBUTE_DESCRIPTION,
-                    "The attribute used in the search request or other request. "
-                            + "This command line argument "
-                            + "is not required, and can be specified "
-                            + "multiple times. If this command line "
-                            + "argument is not specified, the value '*' is used.").getValue(),
-            attributes);
   }
 
 
@@ -1685,729 +1164,6 @@ public class CommandLineOptions
 
 
   /**
-   * Creates a command line argument that can be used to specify the
-   * properties file, for example, <blockquote>
-   * 
-   * <pre>--usePropertiesFile commandLineOptions.properties</pre>
-   * 
-   * </blockquote>
-   * 
-   * @param properties
-   *          properties file used for the value of the properties file.
-   * 
-   * @return a {@link StringArgument} that can be used to specify the
-   *         properties fil.
-   * 
-   * @throws ArgumentException
-   */
-  public StringArgument newUsePropertiesFileArgument(final Properties properties)
-          throws ArgumentException
-  {
-
-    /*
-     * Create the argument whose parameter is a properties filename.
-     */
-    final Character shortIdentifier = null;
-    final String longIdentifier = CommandLineOptions.ARG_NAME_USE_PROPERTIES_FILE;
-    final boolean isRequired = false;
-    final int maxOccurrences = 1;
-    final String valuePlaceholder = "{path-to-properties-file}";
-    final String description =
-            getValue(CommandLineOptions.PROP_NAME_USE_PROPERTIES_FILE_DESCRIPTION,
-                    "The path to a file containing Java properties.",properties);
-    return new StringArgument(shortIdentifier,longIdentifier,isRequired,maxOccurrences,
-            valuePlaceholder,description);
-  }
-
-
-
-  /**
-   * @param properties
-   *          properties file used for the value of the properties file.
-   * 
-   * @return the argument to the command line parser whose parameter is
-   *         whether the LDAP SDK should try to use schema information,
-   *         for example, to determine matching rules. This argument is
-   *         optional, and can be specified exactly one time.
-   */
-  public BooleanArgument newUseSchemaArgument(final Properties properties)
-          throws ArgumentException
-  {
-    /*
-     * Add the argument to the command line parser whose parameter is
-     * whether the LDAP SDK should try to use schema information, for
-     * example, to determine matching rules. This argument is optional,
-     * and can be specified exactly one time.
-     */
-    final Character shortIdentifier = null;
-    final String longIdentifier = CommandLineOptions.ARG_NAME_USE_SCHEMA;
-    final String description =
-            getValue(CommandLineOptions.PROP_NAME_USE_SCHEMA_DESCRIPTION,
-                    "Whether the LDAP SDK should attempt to use server schema "
-                            + "information, for example, for matching rules.",properties);
-    return new BooleanArgument(shortIdentifier,longIdentifier,description);
-  }
-
-
-
-  /**
-   * @param properties
-   *          properties file used for the value of the properties file.
-   * 
-   * @return an optional argument used to specify whether the tool
-   *         should be verbose.
-   */
-  public BooleanArgument newVerboseArgument(final Properties properties)
-          throws ArgumentException
-  {
-    Validator.ensureNotNull(properties);
-
-    /*
-     * Add the argument to the command line parser whose parameter is
-     * whether the LDAP SDK should try to use schema information, for
-     * example, to determine matching rules. This argument is optional,
-     * and can be specified exactly one time.
-     */
-    final Character shortIdentifier = null;
-    final String longIdentifier = CommandLineOptions.ARG_NAME_VERBOSE;
-    final String description =
-            getValue(CommandLineOptions.PROP_NAME_VERBOSE_DESCRIPTION,
-                    CommandLineOptions.VERBOSE_DESCRIPTION,properties);
-    return new BooleanArgument(shortIdentifier,longIdentifier,description);
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public String toString()
-  {
-    return String.format("CommandLineOptions [argumentParser=%s]",argumentParser);
-  }
-
-
-
-  private StringArgument newBaseObjectArgument(final Properties properties)
-          throws ArgumentException
-  {
-
-    String baseObject;
-    final String prop = properties.getProperty(CommandLineOptions.ARG_NAME_BASE_OBJECT);
-    if(prop != null)
-    {
-      baseObject = prop;
-    }
-    else
-    {
-      baseObject = CommandLineOptions.DEFAULT_BASE_OBJECT;
-    }
-
-    /*
-     * Add the argument to the command line parser whose parameter is
-     * the base object to use in a search. This argument is optional,
-     * and can be specified zero, one, or more times. This command line
-     * argument has no default value.
-     */
-    final Character shortIdentifier = CommandLineOptions.BASE_OBJECT_ARG_SHORT_IDENTIFIER;
-    final String longIdentifier = CommandLineOptions.ARG_NAME_BASE_OBJECT;
-    final boolean isRequired = CommandLineOptions.BASE_OBJECT_ARG_IS_REQUIRED;
-    final int maxOccurrences = CommandLineOptions.BASE_OBJECT_ARG_MAX_OCCURRENCES;
-    final String valuePlaceholder = CommandLineOptions.BASE_OBJECT_ARG_PLACEHOLDER;
-    final String description = CommandLineOptions.BASE_OBJECT_ARG_DESCRIPTION;
-    return new StringArgument(shortIdentifier,longIdentifier,isRequired,maxOccurrences,
-            valuePlaceholder,description,baseObject);
-
-  }
-
-
-
-  private BooleanArgument newBindWithDnRequiresPasswordArgument(final Properties properties)
-          throws ArgumentException
-  {
-    Validator.ensureNotNull(properties);
-    /*
-     * Add the command line argument whose presence indicates whether
-     * the SDK should allow simple bind operations that contain a bind
-     * DN but no password.
-     */
-    final Character shortIdentifier = null;
-    final String longIdentifier = CommandLineOptions.ARG_NAME_BIND_WITH_DN_REQUIRES_PASSWORD;
-    final String description =
-            "Indicates whether the SDK should allow simple bind "
-                    + "operations that contain a bind DN but no "
-                    + "password. Binds of this type may represent "
-                    + "a security vulnerability in client applications "
-                    + "because they may cause the client to believe "
-                    + "that the user is properly authenticated when "
-                    + "the server considers it to be an unauthenticated connection.";
-    return new BooleanArgument(shortIdentifier,longIdentifier,description);
-  }
-
-
-
-  private IntegerArgument newConnectTimeoutMillisArgument(final Properties properties)
-          throws ArgumentException
-  {
-    Validator.ensureNotNull(properties);
-
-    final int connectTimeoutMillis;
-    final String prop =
-            properties.getProperty(CommandLineOptions.ARG_NAME_CONNECT_TIMEOUT_MILLIS);
-    if(prop != null)
-    {
-      int value;
-      try
-      {
-        value = Integer.parseInt(prop);
-      }
-      catch(final NumberFormatException numberFormatException)
-      {
-        value = CommandLineOptions.DEFAULT_CONNECT_TIMEOUT_MILLIS;
-      }
-      connectTimeoutMillis = value;
-    }
-    else
-    {
-      connectTimeoutMillis = CommandLineOptions.DEFAULT_CONNECT_TIMEOUT_MILLIS;
-    }
-
-    /*
-     * Add the argument to the command line parser whose parameter is
-     * the connection timeout in milliseconds. This argument is
-     * optional, and can be specified exactly one time. This command
-     * line argument has a default value of
-     * CommandLineOptions.DEFAULT_CONNECT_TIMEOUT_MILLIS.
-     */
-    final Character shortIdentifier = null;
-    final String longIdentifier = CommandLineOptions.ARG_NAME_CONNECT_TIMEOUT_MILLIS;
-    final boolean isRequired = false;
-    final int maxOccurrences = 1;
-    final String valuePlaceholder = "{connect-timeout-millis-integer}";
-    final String description =
-            "Specifies the maximum length of time in milliseconds that "
-                    + "a connection attempt should be allowed to continue before "
-                    + "giving up. A value of zero indicates that there should "
-                    + "be no connect timeout.";
-    return new IntegerArgument(shortIdentifier,longIdentifier,isRequired,maxOccurrences,
-            valuePlaceholder,description,Integer.valueOf(connectTimeoutMillis));
-  }
-
-
-
-  private FilterArgument newFilterArgument(final Properties properties)
-          throws ArgumentException,LDAPException
-  {
-    Validator.ensureNotNull(properties);
-
-    final Filter filterDefaultValue;
-    final String filterAsString = properties.getProperty(CommandLineOptions.ARG_NAME_FILTER);
-    if(filterAsString != null)
-    {
-      filterDefaultValue = Filter.create(filterAsString);
-    }
-    else
-    {
-      filterDefaultValue = Filter.create(CommandLineOptions.DEFAULT_FILTER);
-    }
-
-    /*
-     * Add the argument to the command line parser whose parameter is
-     * the filter to use in a search. This parameter is optional, and
-     * may be specified zero, more of more times.
-     */
-    final Character shortIdentifier = Character.valueOf('f');
-    final String longIdentifier = CommandLineOptions.ARG_NAME_FILTER;
-    final boolean isRequired = false;
-    final int maxOccurrences = 0;
-    final String valuePlaceholder = "{filter}";
-    final String description = "The search filter used in the search request.";
-    return new FilterArgument(shortIdentifier,longIdentifier,isRequired,maxOccurrences,
-            valuePlaceholder,description,filterDefaultValue);
-  }
-
-
-
-  private IntegerArgument newInitialConnectionsArgument(final Properties properties)
-          throws ArgumentException
-  {
-    Validator.ensureNotNull(properties);
-
-    int defaultInitialConnections;
-    final String prop = properties.getProperty(CommandLineOptions.ARG_NAME_INITIAL_CONNECTIONS);
-    if(prop != null)
-    {
-      try
-      {
-        defaultInitialConnections = Integer.parseInt(prop);
-      }
-      catch(final NumberFormatException numberFormatException)
-      {
-        defaultInitialConnections = CommandLineOptions.DEFAULT_INITIAL_CONNECTIONS;
-      }
-    }
-    else
-    {
-      defaultInitialConnections = CommandLineOptions.DEFAULT_INITIAL_CONNECTIONS;
-    }
-
-    /*
-     * Add the argument to the command line parser whose parameter is
-     * the number of initial connections to establish in the connection
-     * pool.
-     */
-    final Character shortIdentifier = Character.valueOf('i');
-    final String longIdentifier = CommandLineOptions.ARG_NAME_INITIAL_CONNECTIONS;
-    final boolean isRequired = false;
-    final int maxOccurrences = 1;
-    final String valuePlaceholder = "{positiveInteger}";
-    final String description =
-            "The number of initial connections to establish to directory "
-                    + "server when creating the connection pool.";
-    return new IntegerArgument(shortIdentifier,longIdentifier,isRequired,maxOccurrences,
-            valuePlaceholder,description,Integer.valueOf(defaultInitialConnections));
-  }
-
-
-
-  private IntegerArgument newIntroductionColumnWidthArgument(final Properties properties)
-          throws ArgumentException
-  {
-    Validator.ensureNotNull(properties);
-    final int lowerBound =
-            Integer.parseInt(getValue(CommandLineOptions.ARG_NAME_INTRODUCTION_COLUMN_WIDTH,
-                    CommandLineOptions.INTRODUCTION_COLUMN_WIDTH_LOWER_BOUND_DEFAULT_VALUE,
-                    properties));
-    final int upperBound =
-            Integer.parseInt(getValue(CommandLineOptions.ARG_NAME_INTRODUCTION_COLUMN_WIDTH,
-                    CommandLineOptions.INTRODUCTION_COLUMN_WIDTH_UPPER_BOUND_DEFAULT_VALUE,
-                    properties));
-    final int defaultValue =
-            Integer.parseInt(getValue(CommandLineOptions.ARG_NAME_INTRODUCTION_COLUMN_WIDTH,
-                    CommandLineOptions.INTRODUCTION_COLUMN_WIDTH_DEFAULT_VALUE,properties));
-    return new IntegerArgument(CommandLineOptions.INTRODUCTION_COLUMN_WIDTH_SHORT_IDENTIFIER,
-            CommandLineOptions.ARG_NAME_INTRODUCTION_COLUMN_WIDTH,
-            CommandLineOptions.INTRODUCTION_COLUMN_WIDTH_IS_REQUIRED,
-            CommandLineOptions.INTRODUCTION_COLUMN_WIDTH_MAX_OCCURENCES,
-            CommandLineOptions.ARG_INTRODUCTION_COLUMN_WIDTH_VALUE_PLACEHOLDER,
-            CommandLineOptions.INTRODUCTION_COLUMN_WIDTH_DESCRIPTION,lowerBound,upperBound,
-            defaultValue);
-  }
-
-
-
-  private IntegerArgument newMaxConnectionsArgument(final Properties properties)
-          throws ArgumentException
-  {
-    Validator.ensureNotNull(properties);
-
-    int defaultMaxConnections;
-    final String prop = properties.getProperty(CommandLineOptions.ARG_NAME_MAX_CONNECTIONS);
-    if(prop != null)
-    {
-      int value;
-      try
-      {
-        value = Integer.parseInt(prop);
-      }
-      catch(final NumberFormatException numberFormatException)
-      {
-        value = CommandLineOptions.DEFAULT_MAX_CONNECTIONS;
-      }
-      defaultMaxConnections = value;
-    }
-    else
-    {
-      defaultMaxConnections = CommandLineOptions.DEFAULT_MAX_CONNECTIONS;
-    }
-
-    /*
-     * Add to the argument parser the command line argument whose
-     * parameter is the maximum length of time in milliseconds that an
-     * operation should be allowed to block, with 0 or less meaning no
-     * timeout is enforced. This command line argument is optional and
-     * has a default value of zero.
-     */
-    final Character shortIdentifier = null;
-    final String longIdentifier = CommandLineOptions.ARG_NAME_MAX_CONNECTIONS;
-    final boolean isRequired = false;
-    final int maxOccurrences = 1;
-    final String valuePlaceholder = "{max-response-time-in-milliseconds}";
-    final String description =
-            "The maximum length of time in milliseconds that an "
-                    + "operation should be allowed to block, with 0 or less meaning no "
-                    + "timeout is enforced. This command line argument is optional and "
-                    + "has a default value of zero.";
-    return new IntegerArgument(shortIdentifier,longIdentifier,isRequired,maxOccurrences,
-            valuePlaceholder,description,Integer.valueOf(defaultMaxConnections));
-  }
-
-
-
-  private IntegerArgument newMaxResponseTimeMillisArgument(final Properties properties)
-          throws ArgumentException
-  {
-    Validator.ensureNotNull(properties);
-
-    int defaultMaxConnections;
-    final String prop =
-            properties.getProperty(CommandLineOptions.ARG_NAME_MAX_RESPONSE_TIME_MILLIS);
-    if(prop != null)
-    {
-      int value;
-      try
-      {
-        value = Integer.parseInt(prop);
-      }
-      catch(final NumberFormatException numberFormatException)
-      {
-        value = CommandLineOptions.DEFAULT_MAX_RESPONSE_TIME_MILLIS;
-      }
-      defaultMaxConnections = value;
-    }
-    else
-    {
-      defaultMaxConnections = CommandLineOptions.DEFAULT_MAX_RESPONSE_TIME_MILLIS;
-    }
-
-    /*
-     * Add to the argument parser the command line argument whose
-     * parameter is the maximum length of time in milliseconds that an
-     * operation should be allowed to block, with 0 or less meaning no
-     * timeout is enforced. This command line argument is optional and
-     * has a default value of zero.
-     */
-    final Character shortIdentifier = null;
-    final String longIdentifier = CommandLineOptions.ARG_NAME_MAX_RESPONSE_TIME_MILLIS;
-    final boolean isRequired = false;
-    final int maxOccurrences = 1;
-    final String valuePlaceholder = "{max-response-time-in-milliseconds}";
-    final String description =
-            "The maximum length of time in milliseconds that an "
-                    + "operation should be allowed to block, with 0 or less meaning no "
-                    + "timeout is enforced. This command line argument is optional and "
-                    + "has a default value of zero.";
-    return new IntegerArgument(shortIdentifier,longIdentifier,isRequired,maxOccurrences,
-            valuePlaceholder,description,Integer.valueOf(defaultMaxConnections));
-  }
-
-
-
-  private IntegerArgument newNumThreadsArgument(final Properties properties)
-          throws ArgumentException
-  {
-    Validator.ensureNotNull(properties);
-
-    int defaultNumThreads;
-    final String prop = properties.getProperty(CommandLineOptions.ARG_NAME_NUM_THREADS);
-    if(prop != null)
-    {
-      int value;
-      try
-      {
-        value = Integer.parseInt(prop);
-      }
-      catch(final NumberFormatException numberFormatException)
-      {
-        value = CommandLineOptions.DEFAULT_NUM_THREADS;
-      }
-      defaultNumThreads = value;
-    }
-    else
-    {
-      defaultNumThreads = CommandLineOptions.DEFAULT_NUM_THREADS;
-    }
-
-    /*
-     * Add the argument to the command line parser whose parameter is
-     * the number of threads to use. This argument is optional, and can
-     * be specified exactly one time. This command line argument has a
-     * default value of DEFAULT_NUM_THREADS.
-     */
-    final Character shortIdentifier = null;
-    final String longIdentifier = CommandLineOptions.ARG_NAME_NUM_THREADS;
-    final boolean isRequired = false;
-    final int maxOccurrences = 1;
-    final String valuePlaceholder = "{number-of-threads}";
-    final String description =
-            "Specifies the number of threads to use when running the application.";
-    return new IntegerArgument(shortIdentifier,longIdentifier,isRequired,maxOccurrences,
-            valuePlaceholder,description,defaultNumThreads);
-  }
-
-
-
-  private IntegerArgument newPageSizeArgument(final Properties properties)
-          throws ArgumentException
-  {
-    Validator.ensureNotNull(properties);
-
-    int defaultPageSize;
-    final String prop = properties.getProperty(CommandLineOptions.ARG_NAME_PAGE_SIZE);
-    if(prop != null)
-    {
-      int value;
-      try
-      {
-        value = Integer.parseInt(prop);
-      }
-      catch(final NumberFormatException numberFormatException)
-      {
-        value = CommandLineOptions.DEFAULT_PAGE_SIZE;
-      }
-      defaultPageSize = value;
-    }
-    else
-    {
-      defaultPageSize = CommandLineOptions.DEFAULT_PAGE_SIZE;
-    }
-
-    /*
-     * Add the argument to the command line parser whose parameter is
-     * the page size
-     */
-    final Character shortIdentifier = null;
-    final String longIdentifier = CommandLineOptions.ARG_NAME_PAGE_SIZE;
-    final boolean isRequired = false;
-    final int maxOccurrences = 1;
-    final String valuePlaceholder = "{positiveInteger}";
-    final String description = "The search page size";
-    return new IntegerArgument(shortIdentifier,longIdentifier,isRequired,maxOccurrences,
-            valuePlaceholder,description,Integer.valueOf(defaultPageSize));
-  }
-
-
-
-  private PropertiesFile newPropertiesFile(final String name)
-  {
-    return name == null ? null : PropertiesFile.of(name);
-  }
-
-
-
-  private IntegerArgument newReportCountArgument(final Properties properties)
-          throws ArgumentException
-  {
-    Validator.ensureNotNull(properties);
-
-    int defaultReportCount;
-    final String prop = properties.getProperty(CommandLineOptions.ARG_NAME_REPORT_COUNT);
-    if(prop != null)
-    {
-      int value;
-      try
-      {
-        value = Integer.parseInt(prop);
-      }
-      catch(final NumberFormatException numberFormatException)
-      {
-        value = CommandLineOptions.DEFAULT_REPORT_COUNT;
-      }
-      defaultReportCount = value;
-    }
-    else
-    {
-      defaultReportCount = CommandLineOptions.DEFAULT_REPORT_COUNT;
-    }
-
-    /*
-     * The command line argument whose parameter is the maximum number
-     * of reports.
-     */
-    final Character shortIdentifier = null;
-    final String longIdentifier = CommandLineOptions.ARG_NAME_REPORT_COUNT;
-    final boolean isRequired = false;
-    final int maxOccurrences = 1;
-    final String valuePlaceholder = "{positive-integer}";
-    final String description =
-            "Specifies the maximum number of reports. This command line "
-                    + "argument is applicable to tools that display repeated "
-                    + "reports. The time between repeated reports is specified by "
-                    + "the --reportInterval command line argument.";
-    return new IntegerArgument(shortIdentifier,longIdentifier,isRequired,maxOccurrences,
-            valuePlaceholder,description,defaultReportCount);
-  }
-
-
-
-  private IntegerArgument newReportIntervalArgument(final Properties properties)
-          throws ArgumentException
-  {
-    Validator.ensureNotNull(properties);
-
-    int defaultReportInterval;
-    final String prop = properties.getProperty(CommandLineOptions.ARG_NAME_REPORT_INTERVAL);
-    if(prop != null)
-    {
-      int value;
-      try
-      {
-        value = Integer.parseInt(prop);
-      }
-      catch(final NumberFormatException numberFormatException)
-      {
-        value = CommandLineOptions.DEFAULT_REPORT_INTERVAL;
-      }
-      defaultReportInterval = value;
-    }
-    else
-    {
-      defaultReportInterval = CommandLineOptions.DEFAULT_REPORT_INTERVAL;
-    }
-
-    /*
-     * Add to the argument parser the command line argument whose
-     * parameter is the report interval in milliseconds.
-     */
-    final Character shortIdentifier = CommandLineOptions.SHORT_ID_REPORT_INTERVAL;
-    final String longIdentifier = CommandLineOptions.ARG_NAME_REPORT_INTERVAL;
-    final boolean isRequired = false;
-    final int maxOccurrences = 1;
-    final String valuePlaceholder = "{positive-integer}";
-    final String description = "The report interval in milliseconds.";
-    return new IntegerArgument(shortIdentifier,longIdentifier,isRequired,maxOccurrences,
-            valuePlaceholder,description,defaultReportInterval);
-  }
-
-
-
-  private ScopeArgument newScopeArgument(final Properties properties) throws ArgumentException
-  {
-    Validator.ensureNotNull(properties);
-
-    /*
-     * Add the argument to the command line parser whose parameter is
-     * the search scope.
-     */
-    final Character shortIdentifier = Character.valueOf('s');
-    final String longIdentifier = CommandLineOptions.ARG_NAME_SCOPE;
-    final boolean isRequired = false;
-    final String valuePlaceholder = "{searchScope}";
-    final String description =
-            "The scope of the search request; allowed values are BASE, ONE, and SUB";
-    return new ScopeArgument(shortIdentifier,longIdentifier,isRequired,valuePlaceholder,
-            description);
-  }
-
-
-
-  private IntegerArgument newSizeLimitArgumentArgument(final Properties properties)
-          throws ArgumentException
-  {
-    Validator.ensureNotNull(properties);
-
-    int defaultSizeLimit;
-    final String prop = properties.getProperty(CommandLineOptions.ARG_NAME_SIZE_LIMIT);
-    if(prop != null)
-    {
-      int value;
-      try
-      {
-        value = Integer.parseInt(prop);
-      }
-      catch(final NumberFormatException numberFormatException)
-      {
-        value = CommandLineOptions.DEFAULT_SIZE_LIMIT;
-      }
-      defaultSizeLimit = value;
-    }
-    else
-    {
-      defaultSizeLimit = CommandLineOptions.DEFAULT_SIZE_LIMIT;
-    }
-
-    /*
-     * Add the argument to the command line parser whose parameter is
-     * the search size limit.
-     */
-    final Character shortIdentifier = null;
-    final String longIdentifier = CommandLineOptions.ARG_NAME_SIZE_LIMIT;
-    final boolean isRequired = false;
-    final int maxOccurrences = 1;
-    final String valuePlaceholder = "{positiveInteger}";
-    final String description =
-            "The client-request maximum number of results "
-                    + "which are returned to the client. If the number of entries "
-                    + "which match the search parameter is greater than the "
-                    + "client-requested size limit or the server-imposed size limit "
-                    + "a SIZE_LIMIT_EXCEEDED code is returned in the result code in the "
-                    + "search response.";
-    return new IntegerArgument(shortIdentifier,longIdentifier,isRequired,maxOccurrences,
-            valuePlaceholder,description,Integer.valueOf(defaultSizeLimit));
-  }
-
-
-
-  private IntegerArgument newTimeLimitArgumentArgument(final Properties properties)
-          throws ArgumentException
-  {
-    Validator.ensureNotNull(properties);
-
-    int defaultTimeLimit;
-    final String prop = properties.getProperty(CommandLineOptions.ARG_NAME_TIME_LIMIT);
-    if(prop != null)
-    {
-      int value;
-      try
-      {
-        value = Integer.parseInt(prop);
-      }
-      catch(final NumberFormatException numberFormatException)
-      {
-        value = CommandLineOptions.DEFAULT_TIME_LIMIT;
-      }
-      defaultTimeLimit = value;
-    }
-    else
-    {
-      defaultTimeLimit = CommandLineOptions.DEFAULT_TIME_LIMIT;
-    }
-
-    /*
-     * Add the argument to the command line parser whose parameter is
-     * the search size limit.
-     */
-    final Character shortIdentifier = null;
-    final String longIdentifier = CommandLineOptions.ARG_NAME_TIME_LIMIT;
-    final boolean isRequired = false;
-    final int maxOccurrences = 1;
-    final String valuePlaceholder = "{positiveInteger}";
-    final String description =
-            "The client-request maximum time that the directory server will "
-                    + "devote to processing the search request. If the "
-                    + "client-requested time limit or the server-imposed time limit "
-                    + "a TIME_LIMIT_EXCEEDED code is returned in the result code in the "
-                    + "search response.";
-    return new IntegerArgument(shortIdentifier,longIdentifier,isRequired,maxOccurrences,
-            valuePlaceholder,description,Integer.valueOf(defaultTimeLimit));
-  }
-
-
-
-  /**
-   * Splits the provided string into fields separated by commas in a
-   * very simple-minded way.
-   * 
-   * @param prop
-   * 
-   * @return
-   */
-  private List<String> stringToList(final String prop)
-  {
-    Validator.ensureNotNull(prop);
-    final List<String> stringToList = SampleCodeCollectionUtils.newArrayList();
-    final String[] components = prop.split(",");
-    for(final String component : components)
-    {
-      stringToList.add(component);
-    }
-    return stringToList;
-  }
-
-
-
-  /**
    * Preconditions:
    * <p/>
    * The {@code argumentParser} is not permitted to be {@code null}.
@@ -2417,77 +1173,14 @@ public class CommandLineOptions
    * @throws ArgumentException
    *           if an argument cannot be parsed or added.
    */
-  public CommandLineOptions(
-          final ArgumentParser argumentParser)
+  protected CommandLineOptions(
+          final Argument[] arguments,final ArgumentParser argumentParser)
           throws ArgumentException
   {
     Validator.ensureNotNull(argumentParser);
+
     this.argumentParser = argumentParser;
-    final Properties properties = getProperties();
-
-    /*
-     * Indicates whether the LDAP SDK should attempt to abandon any
-     * request for which no response is received in the maximum response
-     * timeout period.
-     */
-    final BooleanArgument abandonOnTimeoutArgument = newAbandonOnTimeoutArgument(properties);
-
-
-    /*
-     * The width of the introduction text columns.
-     */
-    final IntegerArgument introductionColumnWidthArgument =
-            newIntroductionColumnWidthArgument(properties);
-
-
-    final StringArgument attributeArgument = newAttributeArgument(properties);
-    final BooleanArgument autoReconnectArgument = newAutoReconnectArgument(properties);
-    final StringArgument baseObjectArgument = newBaseObjectArgument(properties);
-    final IntegerArgument connectTimeoutMillisArgument =
-            newConnectTimeoutMillisArgument(properties);
-    FilterArgument filterArgument;
-    try
-    {
-      filterArgument = newFilterArgument(properties);
-    }
-    catch(final LDAPException exception)
-    {
-      System.err.println(exception);
-      return;
-    }
-    final IntegerArgument initialConnectionsArgument =
-            newInitialConnectionsArgument(properties);
-    final IntegerArgument maxConnectionsArgument = newMaxConnectionsArgument(properties);
-    final IntegerArgument maxResponseTimeMillisArgument =
-            newMaxResponseTimeMillisArgument(properties);
-    final IntegerArgument numThreadsArgument = newNumThreadsArgument(properties);
-    final IntegerArgument pageSizeArgument = newPageSizeArgument(properties);
-    final IntegerArgument reportCountArgument = newReportCountArgument(properties);
-    final IntegerArgument reportIntervalArgument = newReportIntervalArgument(properties);
-    final ScopeArgument scopeArgument = newScopeArgument(properties);
-    final IntegerArgument sizeLimitArgument = newSizeLimitArgumentArgument(properties);
-    final IntegerArgument timeLimitArgument = newTimeLimitArgumentArgument(properties);
-    final StringArgument usePropertiesFileArgument = newUsePropertiesFileArgument(properties);
-    final BooleanArgument useSchemaArgument = newUseSchemaArgument(properties);
-    final BooleanArgument verboseArgument = newVerboseArgument(properties);
-    final BooleanArgument bindWithDnRequiresPassword =
-            newBindWithDnRequiresPasswordArgument(properties);
-
-    final Argument[] arguments =
-            new Argument[]
-            {
-                    abandonOnTimeoutArgument, attributeArgument, autoReconnectArgument,
-                    baseObjectArgument, bindWithDnRequiresPassword,
-                    connectTimeoutMillisArgument, filterArgument, initialConnectionsArgument,
-                    introductionColumnWidthArgument, maxConnectionsArgument,
-                    maxResponseTimeMillisArgument, numThreadsArgument, pageSizeArgument,
-                    reportCountArgument, reportIntervalArgument, scopeArgument,
-                    sizeLimitArgument, timeLimitArgument, usePropertiesFileArgument,
-                    useSchemaArgument, verboseArgument,
-            };
-
     addArguments(arguments);
-
   }
 
 
@@ -2497,17 +1190,4 @@ public class CommandLineOptions
    * {@code LDAPCommandLineTool} class.
    */
   private final ArgumentParser argumentParser;
-
-
-
-  /** Logging facilities */
-  private final Logger logger = Logger.getLogger(getClass().getName());
-
-
-
-  /**
-   * The name of the properties resource. This field defaults to the
-   * value of {@link CommandLineOptions#PROPERTIES_RESOURCE_NAME}.
-   */
-  private final String propertiesResourceName = CommandLineOptions.PROPERTIES_RESOURCE_NAME;
 }

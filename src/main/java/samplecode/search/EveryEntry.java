@@ -38,6 +38,7 @@ import com.unboundid.util.args.StringArgument;
 
 import java.io.PrintStream;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -567,7 +568,8 @@ final class EveryEntryCommandLineOptions
           final ArgumentParser argumentParser)
           throws ArgumentException
   {
-    super(argumentParser);
+    super(CommandLineOptions.createDefaultArguments(ResourceBundle
+            .getBundle(CommandLineOptions.RESOURCE_BUNDLE_BASE_NAME)),argumentParser);
     final Argument searchResultListenerArgument = newSearchResultListenerArgument();
     addArguments(searchResultListenerArgument);
   }
@@ -706,7 +708,8 @@ final class EveryEntryImpl
     final String baseObject = commandLineOptions.getBaseObject();
     final SearchScope scope = commandLineOptions.getSearchScope();
     final Filter filter = commandLineOptions.getFilter();
-    final String[] requestedAttributes = commandLineOptions.getRequestedAttributes();
+    final String[] requestedAttributes =
+            commandLineOptions.getRequestedAttributes().toArray(new String[0]);
     sr = new SearchRequest(searchResultListener,baseObject,scope,filter,requestedAttributes);
     final int sizeLimit = commandLineOptions.getSizeLimit();
     sr.setSizeLimit(sizeLimit);

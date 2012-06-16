@@ -33,6 +33,7 @@ import com.unboundid.ldap.sdk.controls.VirtualListViewResponseControl;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -243,7 +244,8 @@ public final class VirtualListViewDemo
        * the new sort key, check that the attribute is supported by the
        * server schema.
        */
-      final String[] requestedAttributes = commandLineOptions.getRequestedAttributes();
+      final List<String> requestedAttributesList = commandLineOptions.getRequestedAttributes();
+      final String[] requestedAttributes = requestedAttributesList.toArray(new String[0]);
       final SortKey[] sortKeys = new SortKey[requestedAttributes.length];
       int i = 0;
       for(final String a : requestedAttributes)
@@ -323,7 +325,7 @@ public final class VirtualListViewDemo
     catch(final SupportedFeatureException supportedFeatureException)
     {
       // a request control is not supported by this server.
-      logger.log(Level.SEVERE,supportedFeatureException.getMessage());
+      getLogger().log(Level.SEVERE,supportedFeatureException.getMessage());
       resultCode = ResultCode.UNWILLING_TO_PERFORM;
     }
     catch(final AttributeNotSupportedException attributeNotSupportedException)
@@ -333,7 +335,7 @@ public final class VirtualListViewDemo
               String.format("attribute '%s' is not supported, "
                       + "that is, is not defined in the server schema.",
                       attributeNotSupportedException.getAttributeName());
-      logger.log(Level.SEVERE,msg);
+      getLogger().log(Level.SEVERE,msg);
       resultCode = ResultCode.PROTOCOL_ERROR;
     }
     return resultCode;
@@ -341,10 +343,13 @@ public final class VirtualListViewDemo
 
 
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Logger getLogger()
   {
-    return Logger.getLogger(getClass().getName());
+    return Logger.getLogger(getClass().getCanonicalName());
   }
 
 

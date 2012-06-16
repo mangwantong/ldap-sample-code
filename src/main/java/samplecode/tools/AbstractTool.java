@@ -33,6 +33,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Properties;
+import java.util.ResourceBundle;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -80,7 +81,11 @@ public abstract class AbstractTool
   public void addNonLDAPArguments(final ArgumentParser argumentParser) throws ArgumentException
   {
     Validator.ensureNotNull(argumentParser);
-    commandLineOptions = CommandLineOptions.newCommandLineOptions(argumentParser);
+    // TODO: Add support for Locale when creating resource bundle.
+    commandLineOptions =
+            CommandLineOptions.newCommandLineOptions(argumentParser,CommandLineOptions
+                    .createDefaultArguments(ResourceBundle
+                            .getBundle(CommandLineOptions.RESOURCE_BUNDLE_BASE_NAME)));
     addArguments(argumentParser);
   }
 
@@ -124,14 +129,24 @@ public abstract class AbstractTool
 
 
   /**
-   * Get the response time in milliseconds. TODO: Better documentatian
-   * of this method
-   * 
-   * @return response time in milliseconds
+   * @return the logger
    */
-  public long getResponseTimeout()
+  public abstract Logger getLogger();
+
+
+
+  /**
+   * 
+   * A value which specifies the default timeout in milliseconds that
+   * the SDK should wait for a response from the server before failing.
+   * By default, a timeout of 300,000 milliseconds (5 minutes) will be
+   * used.
+   * 
+   * @return the maximum response time in milliseconds
+   */
+  public long getResponseTimeMillis()
   {
-    return responseTimeoutMillis;
+    return commandLineOptions.getMaxResponseTimeMillis();
   }
 
 
@@ -185,7 +200,7 @@ public abstract class AbstractTool
   @Override
   public void ldapRequestFailed(final LdapExceptionEvent ldapExceptionEvent)
   {
-    logger.log(Level.SEVERE,ldapExceptionEvent.getLdapException().getExceptionMessage());
+    getLogger().log(Level.SEVERE,ldapExceptionEvent.getLdapException().getExceptionMessage());
   }
 
 
@@ -345,7 +360,7 @@ public abstract class AbstractTool
 
   protected void displayServerInformation()
   {
-    logger.log(
+    getLogger().log(
             Level.INFO,
             String.format("Will attempt to connect to server %s:%d",
                     commandLineOptions.getHostname(),commandLineOptions.getPort()));
@@ -372,15 +387,13 @@ public abstract class AbstractTool
   {
     Validator.ensureNotNullWithMessage(commandLineOptions,
             "commandLineOptions should not be null");
+
     final LDAPConnectionOptions ldapConnectionOptions =
             commandLineOptions.newLDAPConnectionOptions();
 
     // unsolicited notification handler
     ldapConnectionOptions
             .setUnsolicitedNotificationHandler(getUnsolicitedNotificationHandler());
-
-    // max request response time in milliseconds
-    ldapConnectionOptions.setResponseTimeoutMillis(responseTimeoutMillis);
 
     return ldapConnectionOptions;
   }
@@ -435,16 +448,6 @@ public abstract class AbstractTool
 
 
   /**
-   * @return the logger
-   */
-  protected Logger getLogger()
-  {
-    return className != null ? Logger.getLogger(className) : Logger.getAnonymousLogger();
-  }
-
-
-
-  /**
    * 
    * Get the tool description text from the properties file associated
    * with the class.
@@ -491,16 +494,10 @@ public abstract class AbstractTool
 
     // TODO: Add support for a configurable introduction indentation
     final int indentation = 0;
-    int width;
-
+    int width = 144;
     if(commandLineOptions != null)
     {
       width = commandLineOptions.getIntroductionColumnWidth();
-    }
-    else
-    {
-      width =
-              Integer.parseInt(CommandLineOptions.INTRODUCTION_COLUMN_WIDTH_UPPER_BOUND_DEFAULT_VALUE);
     }
     wrapOut(indentation,width,getToolName() + ":\n\n" + getToolDescription());
     out();
@@ -538,7 +535,7 @@ public abstract class AbstractTool
    */
   protected void verbose(final PrintStream printStream,final String msg)
   {
-    logger.log(Level.FINE,msg);
+    getLogger().log(Level.FINE,msg);
   }
 
 
@@ -549,7 +546,7 @@ public abstract class AbstractTool
    */
   protected void verbose(final String msg)
   {
-    logger.log(Level.FINE,msg);
+    getLogger().log(Level.FINE,msg);
   }
 
 
@@ -673,17 +670,4 @@ public abstract class AbstractTool
    */
   protected volatile Vector<LdapSearchExceptionListener> ldapSearchExceptionListeners =
           new Vector<LdapSearchExceptionListener>();
-
-
-
-  /** logging faciities */
-  protected final Logger logger = getLogger();
-
-
-
-  /**
-   * maximum amount of time to spend waiting for a response from the
-   * server
-   */
-  protected long responseTimeoutMillis;
 }

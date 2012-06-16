@@ -50,6 +50,7 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.logging.Formatter;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
@@ -418,8 +419,8 @@ public final class LdapListenerExample
       final SearchScope scope = commandLineOptions.getSearchScope();
       final Filter filter = commandLineOptions.getFilter();
       final SearchRequest searchRequest =
-              new SearchRequest(baseObject,scope,filter,
-                      commandLineOptions.getRequestedAttributes());
+              new SearchRequest(baseObject,scope,filter,commandLineOptions
+                      .getRequestedAttributes().toArray(new String[0]));
       final SearchResult searchResult = ldapConnectionPool.search(searchRequest);
       if((searchResult != null) && (searchResult.getEntryCount() > 0))
       {
@@ -773,7 +774,8 @@ public final class LdapListenerExample
             final ArgumentParser argumentParser)
             throws ArgumentException
     {
-      super(argumentParser);
+      super(CommandLineOptions.createDefaultArguments(ResourceBundle
+              .getBundle(CommandLineOptions.RESOURCE_BUNDLE_BASE_NAME)),argumentParser);
 
       /*
        * Add the argument to the command line argument parser whose
@@ -874,7 +876,6 @@ public final class LdapListenerExample
                       valuePlaceholder,description);
       argumentParser.addArgument(stringArgument);
     }
-
   }
 
 
@@ -1216,6 +1217,17 @@ public final class LdapListenerExample
    * {@inheritDoc}
    */
   @Override
+  public Logger getLogger()
+  {
+    return Logger.getLogger(getClass().getName());
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public String getToolDescription()
   {
     return "Demonstrates the use of the in-memory directory server.";
@@ -1241,14 +1253,6 @@ public final class LdapListenerExample
   protected String classSpecificPropertiesResourceName()
   {
     return "LdaplistenerExample.properties";
-  }
-
-
-
-  @Override
-  protected Logger getLogger()
-  {
-    return Logger.getLogger(getClass().getName());
   }
 
 

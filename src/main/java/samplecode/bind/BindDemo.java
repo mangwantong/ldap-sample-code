@@ -321,12 +321,12 @@ public final class BindDemo
         if(passwordExpiredControl == null)
         {
           msg = "PasswordExpiredControl was not included in the bind response";
-          logger.log(Level.INFO,msg);
+          getLogger().log(Level.INFO,msg);
         }
         else
         {
           msg = "PasswordExpiredControl included in the bind response";
-          logger.log(Level.INFO,msg);
+          getLogger().log(Level.INFO,msg);
         }
 
         /*
@@ -341,12 +341,12 @@ public final class BindDemo
         if(passwordExpiringControl == null)
         {
           msg = "PasswordExpiringControl not included in the bind response";
-          logger.log(Level.INFO,msg);
+          getLogger().log(Level.INFO,msg);
         }
         else
         {
           msg = "PasswordExpiringControl included in the bind response";
-          logger.log(Level.INFO,msg);
+          getLogger().log(Level.INFO,msg);
         }
       }
 
@@ -354,7 +354,10 @@ public final class BindDemo
 
 
 
-    private final Logger logger = Logger.getLogger(getClass().getName());
+    Logger getLogger()
+    {
+      return Logger.getLogger(getClass().getName());
+    }
 
 
 
@@ -369,9 +372,9 @@ public final class BindDemo
    * 
    * <pre>
    * Demonstrate the use of the bind request
-   * 
+   *
    * Usage:  BindDemo {options}
-   * 
+   *
    * Available options include:
    * -h,--hostname {host}
    *     The IP address or resolvable name to use to connect to the directory
@@ -379,7 +382,7 @@ public final class BindDemo
    *     be used.
    * -p,--port {port}
    *     The port to use to connect to the directory server.  If this is not
-   *     provided,then a default value of 389 will be used. 
+   *     provided,then a default value of 389 will be used.
    * -D,--bindDN {dn}
    *     The DN to use to bind to the directory server when performing simple
    *     authentication.
@@ -527,10 +530,11 @@ public final class BindDemo
       builder.append(getToolName());
       builder.append(" requires a valid bind DN (--bindDn) to proceed. ");
       builder.append("The --bindDn command line argument did not appear.");
-      logger.log(Level.SEVERE,builder.toString());
+      getLogger().log(Level.SEVERE,builder.toString());
       return ResultCode.PARAM_ERROR;
     }
-    logger.log(Level.INFO,"Using distinguished name \"" + commandLineOptions.getBindDn() + "\"");
+    getLogger().log(Level.INFO,
+            "Using distinguished name \"" + commandLineOptions.getBindDn() + "\"");
 
 
     /*
@@ -544,7 +548,7 @@ public final class BindDemo
     {
       final String msg =
               String.format("Establishing connections to %s.",commandLineOptions.getHostname());
-      logger.log(Level.INFO,msg);
+      getLogger().log(Level.INFO,msg);
       ldapConnection = connectToServer();
       ldapConnectionPool = getLdapConnectionPool(ldapConnection);
     }
@@ -574,18 +578,18 @@ public final class BindDemo
       msg =
               String.format("The request control '%s' is supported.",
                       AccountUsableRequestControl.ACCOUNT_USABLE_REQUEST_OID);
-      logger.log(Level.INFO,msg);
+      getLogger().log(Level.INFO,msg);
       msg =
               String.format("The request control '%s' is supported.",
                       OperationPurposeRequestControl.OPERATION_PURPOSE_REQUEST_OID);
-      logger.log(Level.INFO,msg);
+      getLogger().log(Level.INFO,msg);
     }
     catch(final SupportedFeatureException supportedFeatureException)
     {
       msg =
               String.format("object identifier %s not supported by directory server.",
                       supportedFeatureException.getControlOID());
-      logger.log(Level.INFO,msg);
+      getLogger().log(Level.INFO,msg);
       return ResultCode.UNAVAILABLE_CRITICAL_EXTENSION;
     }
     catch(final LDAPException ldapException)
@@ -610,7 +614,7 @@ public final class BindDemo
       final SimpleBindRequest bindRequest =
               new SimpleBindRequest(commandLineOptions.getBindDn(),
                       commandLineOptions.getBindPassword(),controls);
-      logger.log(Level.INFO,
+      getLogger().log(Level.INFO,
               "transmitting bind request with operation purpose request control attached.");
       bindResult = ldapConnectionPool.bind(bindRequest);
     }
@@ -655,7 +659,7 @@ public final class BindDemo
       searchRequest =
               new SearchRequest(commandLineOptions.getBaseObject(),
                       commandLineOptions.getSearchScope(),commandLineOptions.getFilter(),
-                      commandLineOptions.getRequestedAttributes());
+                      commandLineOptions.getRequestedAttributes().toArray(new String[0]));
       searchRequest.setSizeLimit(commandLineOptions.getSizeLimit());
       searchRequest.setTimeLimitSeconds(commandLineOptions.getTimeLimit());
       final boolean criticality = true;
@@ -680,7 +684,7 @@ public final class BindDemo
     {
       if(commandLineOptions.isVerbose())
       {
-        logger.log(Level.INFO,"transmitting search request: " + searchRequest);
+        getLogger().log(Level.INFO,"transmitting search request: " + searchRequest);
       }
       searchResult = ldapConnectionPool.search(searchRequest);
     }
@@ -705,7 +709,7 @@ public final class BindDemo
           final AccountUsableDisplay accountUsableDisplay =
                   new AccountUsableDisplay(accountUsableResponseControl);
           msg = accountUsableDisplay.msg();
-          logger.log(Level.INFO,msg);
+          getLogger().log(Level.INFO,msg);
         }
         catch(final LDAPException ldapException)
         {
@@ -728,13 +732,13 @@ public final class BindDemo
         {
           final ControlDisplayValues controlDisplayValues = new ControlDisplayValues(control);
           msg = (String)controlDisplayValues.msg();
-          logger.log(Level.INFO,msg);
+          getLogger().log(Level.INFO,msg);
         }
       }
       else
       {
         msg = "no response controls attached to search response.";
-        logger.log(Level.INFO,msg);
+        getLogger().log(Level.INFO,msg);
       }
     }
 
@@ -828,8 +832,8 @@ public final class BindDemo
   @Override
   public void searchRequestFailed(final LdapSearchExceptionEvent ldapSearchExceptionEvent)
   {
-    logger.log(Level.SEVERE,ldapSearchExceptionEvent.getLdapSearchException()
-            .getExceptionMessage());
+    getLogger().log(Level.SEVERE,
+            ldapSearchExceptionEvent.getLdapSearchException().getExceptionMessage());
   }
 
 

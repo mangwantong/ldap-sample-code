@@ -37,6 +37,7 @@ import com.unboundid.util.args.ArgumentParser;
 
 
 import java.io.OutputStream;
+import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -112,8 +113,12 @@ public final class PersistentSearchExample
   @Override
   public void addArguments(final ArgumentParser argumentParser) throws ArgumentException
   {
+    // TODO: Locale
     Validator.ensureNotNull(argumentParser);
-    commandLineOptions = CommandLineOptions.newCommandLineOptions(argumentParser);
+    commandLineOptions =
+            CommandLineOptions.newCommandLineOptions(argumentParser,CommandLineOptions
+                    .createDefaultArguments(ResourceBundle
+                            .getBundle(CommandLineOptions.RESOURCE_BUNDLE_BASE_NAME)));
   }
 
 
@@ -131,7 +136,7 @@ public final class PersistentSearchExample
     }
     catch(final LDAPException ldapException)
     {
-      logger.log(Level.SEVERE,ldapException.getMessage());
+      getLogger().log(Level.SEVERE,ldapException.getMessage());
       return ldapException.getResultCode();
     }
 
@@ -227,7 +232,7 @@ public final class PersistentSearchExample
     }
     catch(final SupportedFeatureException ex)
     {
-      logger.log(Level.SEVERE,ex.getMessage());
+      getLogger().log(Level.SEVERE,ex.getMessage());
       return ResultCode.UNWILLING_TO_PERFORM;
     }
 
@@ -237,7 +242,7 @@ public final class PersistentSearchExample
     final SearchRequest searchRequest =
             new SearchRequest(asyncSearchListener,commandLineOptions.getBaseObject(),
                     commandLineOptions.getSearchScope(),commandLineOptions.getFilter(),
-                    commandLineOptions.getRequestedAttributes());
+                    commandLineOptions.getRequestedAttributes().toArray(new String[0]));
     final int sizeLimit = commandLineOptions.getSizeLimit();
     searchRequest.setSizeLimit(sizeLimit);
     final int timeLimit = commandLineOptions.getTimeLimit();

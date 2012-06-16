@@ -27,6 +27,7 @@ import com.unboundid.util.args.ArgumentParser;
 
 
 import java.io.OutputStream;
+import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -135,7 +136,8 @@ public final class SimplePagedResultsRequestControlDemo
       final String baseObject = commandLineOptions.getBaseObject();
       final SearchScope scope = commandLineOptions.getSearchScope();
       final Filter filter = commandLineOptions.getFilter();
-      final String[] requestedAttributes = commandLineOptions.getRequestedAttributes();
+      final String[] requestedAttributes =
+              commandLineOptions.getRequestedAttributes().toArray(new String[0]);
       SearchRequest searchRequest;
       searchRequest = new SearchRequest(baseObject,scope,filter,requestedAttributes);
       final int sizeLimit = commandLineOptions.getSizeLimit();
@@ -380,7 +382,11 @@ public final class SimplePagedResultsRequestControlDemo
   public void addArguments(final ArgumentParser argumentParser) throws ArgumentException
   {
     Validator.ensureNotNull(argumentParser);
-    commandLineOptions = CommandLineOptions.newCommandLineOptions(argumentParser);
+    // TODO: Locale
+    commandLineOptions =
+            CommandLineOptions.newCommandLineOptions(argumentParser,CommandLineOptions
+                    .createDefaultArguments(ResourceBundle
+                            .getBundle(CommandLineOptions.RESOURCE_BUNDLE_BASE_NAME)));
   }
 
 
@@ -426,7 +432,7 @@ public final class SimplePagedResultsRequestControlDemo
                 final String msg =
                         String.format("%s is not supported by this server.",
                                 SimplePagedResultsControl.PAGED_RESULTS_OID);
-                logger.log(Level.SEVERE,msg);
+                getLogger().log(Level.SEVERE,msg);
               }
 
             };
@@ -441,7 +447,7 @@ public final class SimplePagedResultsRequestControlDemo
     {
       final String msg =
               String.format("LDAP Exception: %s",ldapException.getExceptionMessage());
-      logger.log(Level.SEVERE,msg);
+      getLogger().log(Level.SEVERE,msg);
       return ResultCode.OPERATIONS_ERROR;
     }
 

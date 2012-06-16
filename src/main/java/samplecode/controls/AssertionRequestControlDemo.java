@@ -35,7 +35,6 @@ import java.io.PrintStream;
 import java.util.logging.Logger;
 
 
-import samplecode.CommandLineOptions;
 import samplecode.SupportedFeature;
 import samplecode.SupportedFeatureException;
 import samplecode.annotation.Author;
@@ -224,6 +223,17 @@ public final class AssertionRequestControlDemo
 
 
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Logger getLogger()
+  {
+    return Logger.getLogger(getClass().getName());
+  }
+
+
+
   @Override
   protected void addArguments(final ArgumentParser argumentParser) throws ArgumentException
   {
@@ -338,14 +348,8 @@ public final class AssertionRequestControlDemo
       /*
        * Use only the first --attributes parameter
        */
-      final String attributeName = commandLineOptions.getRequestedAttributes()[0];
-      if(attributeName.equals(CommandLineOptions.DEFAULT_ATTRIBUTE_NAME))
-      {
-        final String msg =
-                String.format("An attribute name must be specified with the --attribute argument.");
-        getLogger().severe(msg);
-        return ResultCode.PARAM_ERROR;
-      }
+      final String attributeName =
+              commandLineOptions.getRequestedAttributes().toArray(new String[0])[0];
       msg = String.format("Using attribute '%s'",attributeName);
       getLogger().info(msg);
 

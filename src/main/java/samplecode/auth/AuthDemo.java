@@ -231,7 +231,7 @@ public final class AuthDemo
     }
     String authId =
             authorizedIdentity
-                    .getAuthorizationIdentityWhoAmIExtendedOperation(getResponseTimeout());
+                    .getAuthorizationIdentityWhoAmIExtendedOperation(getResponseTimeMillis());
     if(authId != null)
     {
       msg = String.format("AuthorizationID from the Who am I? extended request: '%s'",authId);
@@ -259,7 +259,7 @@ public final class AuthDemo
     final String bindPassword = commandLineOptions.getBindPassword();
     authId =
             authorizedIdentity.getAuthorizationIdentityFromBindRequest(bindDn,bindPassword,
-                    getResponseTimeout());
+                    getResponseTimeMillis());
     if(authId != null)
     {
       msg =

@@ -30,6 +30,7 @@ import com.unboundid.util.args.StringArgument;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.ResourceBundle;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -289,7 +290,11 @@ public final class PasswordModifyExtendedOperationDemo
     /*
      * Create the command line options processor.
      */
-    commandLineOptions = CommandLineOptions.newCommandLineOptions(argumentParser);
+    // TODO: add support for Locale when creating resource bundle
+    commandLineOptions =
+            CommandLineOptions.newCommandLineOptions(argumentParser,CommandLineOptions
+                    .createDefaultArguments(ResourceBundle
+                            .getBundle(CommandLineOptions.RESOURCE_BUNDLE_BASE_NAME)));
 
     /*
      * Create and add to the argumentParser the argument whose parameter
@@ -467,7 +472,7 @@ public final class PasswordModifyExtendedOperationDemo
   @Override
   public void ldapRequestFailed(final LdapExceptionEvent ldapExceptionEvent)
   {
-    logger.log(Level.SEVERE,ldapExceptionEvent.getLdapException().getExceptionMessage());
+    getLogger().log(Level.SEVERE,ldapExceptionEvent.getLdapException().getExceptionMessage());
   }
 
 
