@@ -31,18 +31,13 @@ import com.unboundid.ldap.sdk.SearchResultReference;
 import com.unboundid.ldap.sdk.UnsolicitedNotificationHandler;
 import com.unboundid.ldap.sdk.controls.PersistentSearchChangeType;
 import com.unboundid.ldap.sdk.controls.PersistentSearchRequestControl;
-import com.unboundid.util.Validator;
-import com.unboundid.util.args.ArgumentException;
-import com.unboundid.util.args.ArgumentParser;
 
 
 import java.io.OutputStream;
-import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
-import samplecode.CommandLineOptions;
 import samplecode.DefaultUnsolicitedNotificationHandler;
 import samplecode.SupportedFeature;
 import samplecode.SupportedFeatureException;
@@ -64,22 +59,6 @@ import samplecode.tools.AbstractTool;
 public final class PersistentSearchExample
         extends AbstractTool
 {
-
-  /**
-   * The description of this tool; used for help and diagnostic
-   * output,and for other purposes.
-   */
-  private static final String TOOL_DESCRIPTION =
-          "Demonstrates the use of LDAP change notification using "
-                  + "persistent search and the UnboundID LDAP SDK.";
-
-
-
-  /**
-   * The name of this tool; used for help and diagnostic output,and for
-   * other purposes.
-   */
-  private static final String TOOL_NAME = "PersistentSearchExample";
 
 
 
@@ -103,22 +82,6 @@ public final class PersistentSearchExample
       builder.append(resultCode);
       persistentSearchExample.out(builder.toString());
     }
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void addArguments(final ArgumentParser argumentParser) throws ArgumentException
-  {
-    // TODO: Locale
-    Validator.ensureNotNull(argumentParser);
-    commandLineOptions =
-            CommandLineOptions.newCommandLineOptions(argumentParser,CommandLineOptions
-                    .createDefaultArguments(ResourceBundle
-                            .getBundle(CommandLineOptions.RESOURCE_BUNDLE_BASE_NAME)));
   }
 
 
@@ -153,28 +116,6 @@ public final class PersistentSearchExample
   public Logger getLogger()
   {
     return Logger.getLogger(getClass().getName());
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public String getToolDescription()
-  {
-    return PersistentSearchExample.TOOL_DESCRIPTION;
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public String getToolName()
-  {
-    return PersistentSearchExample.TOOL_NAME;
   }
 
 
@@ -323,13 +264,6 @@ public final class PersistentSearchExample
       out(builder.toString());
     }
   };
-
-
-
-  /**
-   * Provides command line argument services.
-   */
-  private CommandLineOptions commandLineOptions;
 
 
 

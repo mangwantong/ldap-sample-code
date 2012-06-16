@@ -69,12 +69,6 @@ public final class VirtualListViewDemo
         implements LdapExceptionListener,ObservedByLdapExceptionListener
 {
 
-  /**
-   * The name of the tool; this is used in self-documentation and help
-   * text.
-   */
-  private static final String TOOL_NAME = "VirtualListViewDemo";
-
 
 
   /**
@@ -358,31 +352,9 @@ public final class VirtualListViewDemo
    * {@inheritDoc}
    */
   @Override
-  public String getToolName()
-  {
-    return VirtualListViewDemo.TOOL_NAME;
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   protected String classSpecificPropertiesResourceName()
   {
     return "VirtualListViewDemo.properties";
-  }
-
-
-
-  /**
-   * Prepares {@code VirtualListViewDemo} for use by a client - the
-   * {@code System.out} and {@code System.err OutputStreams} are used.
-   */
-  public VirtualListViewDemo()
-  {
-    this(System.out,System.err);
   }
 
 

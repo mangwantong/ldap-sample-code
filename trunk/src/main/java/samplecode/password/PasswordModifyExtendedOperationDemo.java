@@ -30,13 +30,11 @@ import com.unboundid.util.args.StringArgument;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.util.ResourceBundle;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
-import samplecode.CommandLineOptions;
 import samplecode.SupportedFeatureException;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
@@ -57,36 +55,10 @@ import samplecode.tools.ToolCompletedProcessing;
  * specified by the {@code --newPassword} command line argument or if
  * {@code --newPassword} is not specified,has the server generate a new
  * password (which is returned in the extended response).
- * <p>
- * Sample invocation:<blockquote>
- * 
- * <pre>
- * java -cp CLASSPATH \
- *  samplecode.PasswordModifyExtendedOperationDemo \
- *  --hostname hostname \
- *  --port port \
- *  --bindDn DN \
- *  --bindPassword existingPassword \
- *  --newPassword newPassword
- * </pre>
- * 
- * </blockquote> Alternatively,to have the server generate a
- * password:<blockquote>
- * 
- * <pre>
- * java -cp CLASSPATH \
- *  samplecode.PasswordModifyExtendedOperationDemo \
- *  --hostname hostname \
- *  --port port \
- *  --bindDn DN \
- *  --bindPassword existingPassword
- * </pre>
- * 
- * </blockquote>
  */
 @Author("terry.gardner@unboundid.com")
 @Since("12-Nov-2011")
-@CodeVersion("1.28")
+@CodeVersion("3.0")
 @Launchable
 public final class PasswordModifyExtendedOperationDemo
         extends AbstractTool
@@ -103,23 +75,7 @@ public final class PasswordModifyExtendedOperationDemo
    * {@code newPassword} is used,and the server is expected to generate
    * a new password and include it in the response.
    */
-  public static final String ARG_NAME_NEW_PASSWORD;
-
-
-
-  /**
-   * The description of this tool. This value is used in help messages
-   * and for other purposes.
-   */
-  public static final String TOOL_DESCRIPTION;
-
-
-
-  /**
-   * The name of this tool. This value is used in help messages and for
-   * other purposes.
-   */
-  public static final String TOOL_NAME;
+  public static final String ARG_NAME_NEW_PASSWORD = "newPassword";
 
 
 
@@ -263,19 +219,6 @@ public final class PasswordModifyExtendedOperationDemo
 
 
 
-  static
-  {
-    ARG_NAME_NEW_PASSWORD = "newPassword";
-    TOOL_NAME = "PasswordModifyExtendedOperationDemo";
-    TOOL_DESCRIPTION =
-            "Demonstrates the use of the PasswordModifyExtendedRequest "
-                    + "by changing the existing password specified by the "
-                    + "--bindPassword command line argument to the password "
-                    + "specified by the --newPassword command line argument.";
-  }
-
-
-
   /**
    * {@inheritDoc}
    * <p>
@@ -286,15 +229,6 @@ public final class PasswordModifyExtendedOperationDemo
   public void addArguments(final ArgumentParser argumentParser) throws ArgumentException
   {
     Validator.ensureNotNull(argumentParser);
-
-    /*
-     * Create the command line options processor.
-     */
-    // TODO: add support for Locale when creating resource bundle
-    commandLineOptions =
-            CommandLineOptions.newCommandLineOptions(argumentParser,CommandLineOptions
-                    .createDefaultArguments(ResourceBundle
-                            .getBundle(CommandLineOptions.RESOURCE_BUNDLE_BASE_NAME)));
 
     /*
      * Create and add to the argumentParser the argument whose parameter
@@ -458,17 +392,6 @@ public final class PasswordModifyExtendedOperationDemo
 
 
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public String getToolName()
-  {
-    return PasswordModifyExtendedOperationDemo.TOOL_NAME;
-  }
-
-
-
   @Override
   public void ldapRequestFailed(final LdapExceptionEvent ldapExceptionEvent)
   {
@@ -537,14 +460,6 @@ public final class PasswordModifyExtendedOperationDemo
   {
     super(outStream,errStream);
   }
-
-
-
-  /**
-   * The command line options processor which handles basic command line
-   * options.
-   */
-  private CommandLineOptions commandLineOptions;
 
 
 

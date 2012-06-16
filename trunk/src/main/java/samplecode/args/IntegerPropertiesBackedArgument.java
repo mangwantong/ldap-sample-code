@@ -6,7 +6,6 @@ import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.IntegerArgument;
 
 
-import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
@@ -18,23 +17,6 @@ import java.util.ResourceBundle;
 public class IntegerPropertiesBackedArgument
         extends PropertiesBackedArgument<IntegerArgument,Integer>
 {
-
-  /**
-   * Tests the IntegerPropertiesBackedArgument class
-   * 
-   * @throws ArgumentException
-   */
-  public static void main(final String... args) throws ArgumentException
-  {
-    final String bundleName = "samplecode";
-    final Locale locale = Locale.ENGLISH;
-    final ResourceBundle rb = ResourceBundle.getBundle(bundleName,locale);
-    final String name = "sizeLimit";
-    final IntegerPropertiesBackedArgument arg =
-            IntegerPropertiesBackedArgument.newIntegerPropertiesBackedArgument(rb,name);
-    final IntegerArgument integerArgument = arg.getArgument();
-    System.out.println(integerArgument);
-  }
 
 
 

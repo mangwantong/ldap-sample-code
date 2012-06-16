@@ -27,7 +27,6 @@ import com.unboundid.util.args.ArgumentParser;
 
 
 import java.io.OutputStream;
-import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -382,11 +381,6 @@ public final class SimplePagedResultsRequestControlDemo
   public void addArguments(final ArgumentParser argumentParser) throws ArgumentException
   {
     Validator.ensureNotNull(argumentParser);
-    // TODO: Locale
-    commandLineOptions =
-            CommandLineOptions.newCommandLineOptions(argumentParser,CommandLineOptions
-                    .createDefaultArguments(ResourceBundle
-                            .getBundle(CommandLineOptions.RESOURCE_BUNDLE_BASE_NAME)));
   }
 
 
@@ -526,12 +520,5 @@ public final class SimplePagedResultsRequestControlDemo
   {
     super(outStream,errStream);
   }
-
-
-
-  /**
-   * Provides services necessary for handling the command line options.
-   */
-  private CommandLineOptions commandLineOptions;
 
 }
