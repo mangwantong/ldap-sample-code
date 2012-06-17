@@ -34,7 +34,7 @@ import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Launchable;
 import samplecode.annotation.Since;
-import samplecode.exception.LdapException;
+import samplecode.exception.ExceptionMsgFactory;
 import samplecode.tools.AbstractTool;
 
 
@@ -148,12 +148,7 @@ public final class ModifyDnDemo
     }
     catch(final LDAPException exception)
     {
-      final LdapException messageGenerator =
-              samplecode.exception.ExceptionMsgFactory.getLdapExceptionMsg(exception);
-      if(messageGenerator != null)
-      {
-        getLogger().log(Level.SEVERE,messageGenerator.msg());
-      }
+      getLogger().log(Level.SEVERE,ExceptionMsgFactory.getLdapExceptionMsg(exception).msg());
       return exception.getResultCode();
     }
     return ldapResult.getResultCode();
