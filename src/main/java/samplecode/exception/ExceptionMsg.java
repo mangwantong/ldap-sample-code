@@ -13,7 +13,10 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
-package samplecode;
+package samplecode.exception;
+
+
+import com.unboundid.ldap.sdk.LDAPException;
 
 
 import samplecode.annotation.Author;
@@ -45,9 +48,13 @@ import samplecode.annotation.Since;
  */
 @Author("terry.gardner@unboundid.com")
 @Since("Dec 5, 2011")
-@CodeVersion("1.1")
+@CodeVersion("2.0")
 public interface ExceptionMsg
 {
+
+  LDAPException getLdapException();
+
+
 
   /**
    * Retrieve the message associated with the error.

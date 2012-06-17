@@ -34,17 +34,20 @@ import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Launchable;
 import samplecode.annotation.Since;
+import samplecode.exception.LdapException;
 import samplecode.tools.AbstractTool;
 
 
 /** Demonstrates how to use the modify DN request */
 @Author("terry.gardner@unboundID.com")
 @Since("Oct 30, 2011")
-@CodeVersion("1.4")
+@CodeVersion("1.5")
 @Launchable
 public final class ModifyDnDemo
         extends AbstractTool
 {
+
+
 
   /**
    * The long identifier of the argument used to specify to delete the
@@ -89,7 +92,7 @@ public final class ModifyDnDemo
   @Override
   public Logger getLogger()
   {
-    return Logger.getLogger("samplecode");
+    return Logger.getLogger(getClass().getSimpleName());
   }
 
 
@@ -145,7 +148,9 @@ public final class ModifyDnDemo
     }
     catch(final LDAPException exception)
     {
-      getLogger().log(Level.SEVERE,exception.getMessage());
+      final LdapException msg =
+              samplecode.exception.ExceptionMsgFactory.getLdapExceptionMsg(exception);
+      getLogger().log(Level.SEVERE,msg.msg());
       return exception.getResultCode();
     }
     return ldapResult.getResultCode();
