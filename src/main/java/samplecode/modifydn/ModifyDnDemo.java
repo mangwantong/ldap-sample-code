@@ -148,9 +148,12 @@ public final class ModifyDnDemo
     }
     catch(final LDAPException exception)
     {
-      final LdapException msg =
+      final LdapException messageGenerator =
               samplecode.exception.ExceptionMsgFactory.getLdapExceptionMsg(exception);
-      getLogger().log(Level.SEVERE,msg.msg());
+      if(messageGenerator != null)
+      {
+        getLogger().log(Level.SEVERE,messageGenerator.msg());
+      }
       return exception.getResultCode();
     }
     return ldapResult.getResultCode();
