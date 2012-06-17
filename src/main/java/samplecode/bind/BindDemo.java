@@ -19,7 +19,6 @@ package samplecode.bind;
 
 import com.unboundid.ldap.sdk.BindResult;
 import com.unboundid.ldap.sdk.Control;
-import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPResult;
@@ -27,14 +26,10 @@ import com.unboundid.ldap.sdk.LDAPSearchException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchRequest;
 import com.unboundid.ldap.sdk.SearchResult;
-import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SimpleBindRequest;
 import com.unboundid.ldap.sdk.UnsolicitedNotificationHandler;
 import com.unboundid.ldap.sdk.controls.PasswordExpiredControl;
 import com.unboundid.ldap.sdk.controls.PasswordExpiringControl;
-import com.unboundid.ldap.sdk.unboundidds.controls.AccountUsableRequestControl;
-import com.unboundid.ldap.sdk.unboundidds.controls.AccountUsableResponseControl;
-import com.unboundid.ldap.sdk.unboundidds.controls.OperationPurposeRequestControl;
 import com.unboundid.util.CommandLineTool;
 import com.unboundid.util.Validator;
 
@@ -48,8 +43,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
-import samplecode.SupportedFeature;
-import samplecode.SupportedFeatureException;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Launchable;
@@ -84,117 +77,6 @@ public final class BindDemo
         ObservedByLdapSearchExceptionListener,LdapSearchExceptionListener
 {
 
-  /**
-   * Displays the contents of the {@code AccountUsableResponseControl}
-   * response control in a human-readable form.
-   */
-  private class AccountUsableDisplay
-  {
-
-    /**
-     * Display the contents of the [@code AccountUsableResponseControl}
-     * in a human-readable form.
-     * 
-     * @return A string representation of the
-     *         {@code AccountUsableResponseControl}.
-     */
-    private String msg()
-    {
-      final DN bindDn = commandLineOptions.getBindDn();
-      final StringBuilder builder = new StringBuilder();
-      msg = String.format("The account '%s'",bindDn);
-      builder.append(msg);
-
-      /*
-       * Whether the account is usable:
-       */
-      if(accountUsableResponseControl.isUsable())
-      {
-        msg = " is usable,";
-        builder.append(msg);
-      }
-      else
-      {
-        for(final String reason : accountUsableResponseControl.getUnusableReasons())
-        {
-          builder.append(" is not usable: ");
-          builder.append(reason);
-          builder.append(",");
-        }
-      }
-
-      /*
-       * Remaining grace logins:
-       */
-      msg =
-              String.format(" remaining grace logins: %d,",
-                      Integer.valueOf(accountUsableResponseControl.getRemainingGraceLogins()));
-      builder.append(msg);
-
-      /*
-       * Seconds until password expiration:
-       */
-      msg =
-              String.format(" seconds until password expiration: %d,",
-                      Integer.valueOf(accountUsableResponseControl.getSecondsUntilExpiration()));
-      builder.append(msg);
-
-      /*
-       * Seconds until password expiration:
-       */
-      msg =
-              String.format(" seconds until password unlock: %d",
-                      Integer.valueOf(accountUsableResponseControl.getSecondsUntilUnlock()));
-      builder.append(msg);
-
-      /*
-       * Whether account is inactive
-       */
-      if(accountUsableResponseControl.passwordIsExpired())
-      {
-        builder.append(",is inactive");
-      }
-
-      /*
-       * Whether the account password must be changed:
-       */
-      if(accountUsableResponseControl.mustChangePassword())
-      {
-        builder.append(",the account password must be changed");
-      }
-
-      /*
-       * Whether password is expired:
-       */
-      if(accountUsableResponseControl.passwordIsExpired())
-      {
-        builder.append(",password is expired");
-      }
-
-      return builder.toString();
-    }
-
-
-
-    /**
-     * Initializes the {@code AccountUsableDisplay} with the specified
-     * {@code accountUsableResponseControl}.
-     * 
-     * @param accountUsableResponseControl
-     *          The control to display in a human-readable form.
-     */
-    private AccountUsableDisplay(
-            final AccountUsableResponseControl accountUsableResponseControl)
-    {
-      this.accountUsableResponseControl = accountUsableResponseControl;
-    }
-
-
-
-    private final AccountUsableResponseControl accountUsableResponseControl;
-  }
-
-
 
 
   /**
@@ -224,15 +106,6 @@ public final class BindDemo
       }
       else if(control instanceof PasswordExpiringControl)
       {
-        control.toString(builder);
-      }
-      else if(control instanceof AccountUsableResponseControl)
-      {
-        /*
-         * The AccountUsableResponseControl is available in the
-         * Commercial Edition of the UnboundID LDAP SDK. This control
-         * was designed by Sun and is not based on an RFC or draft.
-         */
         control.toString(builder);
       }
       return builder.toString();
@@ -559,63 +432,17 @@ public final class BindDemo
     }
 
 
-    /*
-     * Check that the server supports the AccountUsableRequestControl
-     * and the OperationPurposeRequestControl. in the event that one or
-     * the other is not supported,return an indication the demonstration
-     * is unwilling to proceed. If you are using the standard edition of
-     * the UnboundID LDAP SDK,remove all references to
-     * OperationPurposeRequestControl.
-     */
-    try
-    {
-      final SupportedFeature supportedFeature =
-              SupportedFeature.newSupportedFeature(ldapConnectionPool);
-      String controlOID = AccountUsableRequestControl.ACCOUNT_USABLE_REQUEST_OID;
-      supportedFeature.isControlSupported(controlOID);
-      controlOID = OperationPurposeRequestControl.OPERATION_PURPOSE_REQUEST_OID;
-      supportedFeature.isControlSupported(controlOID);
-      msg =
-              String.format("The request control '%s' is supported.",
-                      AccountUsableRequestControl.ACCOUNT_USABLE_REQUEST_OID);
-      getLogger().log(Level.INFO,msg);
-      msg =
-              String.format("The request control '%s' is supported.",
-                      OperationPurposeRequestControl.OPERATION_PURPOSE_REQUEST_OID);
-      getLogger().log(Level.INFO,msg);
-    }
-    catch(final SupportedFeatureException supportedFeatureException)
-    {
-      msg =
-              String.format("object identifier %s not supported by directory server.",
-                      supportedFeatureException.getControlOID());
-      getLogger().log(Level.INFO,msg);
-      return ResultCode.UNAVAILABLE_CRITICAL_EXTENSION;
-    }
-    catch(final LDAPException ldapException)
-    {
-      fireLdapExceptionListener(ldapConnection,ldapException);
-      return ldapException.getResultCode();
-    }
-
 
     /*
-     * Authenticate to directory server. If you are using the standard
-     * edition of the UnboundID LDAP SDK,remove all references to
-     * OperationPurposeRequestControl.
+     * Authenticate to directory server.
      */
-    final Control[] controls = new Control[]
-    {
-      newOperationPurposeRequestControl(getToolName(),getToolDescription())
-    };
     BindResult bindResult;
     try
     {
       final SimpleBindRequest bindRequest =
               new SimpleBindRequest(commandLineOptions.getBindDn(),
-                      commandLineOptions.getBindPassword(),controls);
-      getLogger().log(Level.INFO,
-              "transmitting bind request with operation purpose request control attached.");
+                      commandLineOptions.getBindPassword());
+      getLogger().log(Level.INFO,"transmitting bind request");
       bindResult = ldapConnectionPool.bind(bindRequest);
     }
     catch(final LDAPException ldapException)
@@ -662,12 +489,6 @@ public final class BindDemo
                       commandLineOptions.getRequestedAttributes().toArray(new String[0]));
       searchRequest.setSizeLimit(commandLineOptions.getSizeLimit());
       searchRequest.setTimeLimitSeconds(commandLineOptions.getTimeLimit());
-      final boolean criticality = true;
-      final AccountUsableRequestControl accountUsableRequestControl =
-              new AccountUsableRequestControl(criticality);
-      searchRequest.addControl(accountUsableRequestControl);
-      searchRequest.addControl(newOperationPurposeRequestControl(getToolName(),
-              getToolDescription()));
     }
     catch(final LDAPException ldapException)
     {
@@ -694,30 +515,6 @@ public final class BindDemo
       return ldapSearchException.getResultCode();
     }
 
-
-    /*
-     * Check for the account usable response control:
-     */
-    if(searchResult != null)
-    {
-      for(final SearchResultEntry searchResultEntry : searchResult.getSearchEntries())
-      {
-        try
-        {
-          final AccountUsableResponseControl accountUsableResponseControl =
-                  AccountUsableResponseControl.get(searchResultEntry);
-          final AccountUsableDisplay accountUsableDisplay =
-                  new AccountUsableDisplay(accountUsableResponseControl);
-          msg = accountUsableDisplay.msg();
-          getLogger().log(Level.INFO,msg);
-        }
-        catch(final LDAPException ldapException)
-        {
-          fireLdapExceptionListener(ldapConnection,ldapException);
-          return ldapException.getResultCode();
-        }
-      }
-    }
 
 
     /*
@@ -855,17 +652,6 @@ public final class BindDemo
   protected String classSpecificPropertiesResourceName()
   {
     return "BindDemo.properties";
-  }
-
-
-
-  private Control newOperationPurposeRequestControl(final String applicationName,
-          final String requestPurpose)
-  {
-    final String applicationVersion = "1.0";
-    final int codeLocationFrames = 1;
-    return new OperationPurposeRequestControl(applicationName,applicationVersion,
-            codeLocationFrames,requestPurpose);
   }
 
 

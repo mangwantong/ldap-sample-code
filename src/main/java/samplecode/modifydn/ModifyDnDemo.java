@@ -16,12 +16,10 @@
 package samplecode.modifydn;
 
 
-import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.ModifyDNRequest;
 import com.unboundid.ldap.sdk.ResultCode;
-import com.unboundid.ldap.sdk.unboundidds.controls.OperationPurposeRequestControl;
 import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
 import com.unboundid.util.args.BooleanArgument;
@@ -137,12 +135,8 @@ public final class ModifyDnDemo
             (Boolean)commandLineOptions.get(ModifyDnDemo.ARG_NAME_DELETE_OLD_RDN);
     final String newSuperiorDn =
             (String)commandLineOptions.get(ModifyDnDemo.ARG_NAME_NEW_SUPERIOR_DN);
-    final Control[] controls = new Control[]
-    {
-      new OperationPurposeRequestControl(getToolName(),"1.0",0,getToolDescription())
-    };
     final ModifyDNRequest modifyDnRequest =
-            new ModifyDNRequest(existingDn,newDn,deleteOldRdn,newSuperiorDn,controls);
+            new ModifyDNRequest(existingDn,newDn,deleteOldRdn,newSuperiorDn);
     LDAPResult ldapResult;
     try
     {
