@@ -59,13 +59,7 @@ import samplecode.tools.ToolCompletedProcessing;
 
 
 /**
- * Provides a demonstration of authenticating to a directory server and
- * displaying the 'usability' of a user account using the UnboundID LDAP
- * SDK.
- * <p>
- * Caveats: The auth ID must be allowed to send request control OIDs
- * {@code '1.3.6.1.4.1.30221.2.5.19'} and
- * {@code '1.3.6.1.4.1.42.2.27.9.5.8'}
+ * Provides a demonstration of authenticating to a directory server.
  */
 @Author("terry.gardner@unboundid.com")
 @Since("01-Sep-2011")
@@ -77,8 +71,6 @@ public final class BindDemo
         ObservedByLdapSearchExceptionListener,LdapSearchExceptionListener
 {
 
-
-
   /**
    * Provides services necessary to display the state of a
    * {@code Control}.
@@ -88,7 +80,7 @@ public final class BindDemo
 
     /**
      * Display the control in a generic fashion.
-     * 
+     *
      * @return A string representation of the value of the control.
      */
     public Object msg()
@@ -124,7 +116,7 @@ public final class BindDemo
     /**
      * Constructs a {@code ControlDisplayValues} object from the
      * specified control.
-     * 
+     *
      * @param control
      *          An LDAP control,which may not be {@code null}.
      */
@@ -242,7 +234,7 @@ public final class BindDemo
 
   /**
    * <blockquote>
-   * 
+   *
    * <pre>
    * Demonstrate the use of the bind request
    *
@@ -319,9 +311,9 @@ public final class BindDemo
    * -H,-?,--help
    *     Display usage information for this program.
    * </pre>
-   * 
+   *
    * </blockquote>
-   * 
+   *
    * @param args
    *          JVM command line options.
    * @see CommandLineTool
@@ -365,7 +357,7 @@ public final class BindDemo
    * handlers to be invoked when response controls have been added to
    * the response by the server. No {@code null} response controls
    * handlers can be added to the list of response control handlers.
-   * 
+   *
    * @param responseControlHandler
    *          A response control handler to be invoked when response
    *          controls have been added to the response by the server. If
@@ -475,10 +467,8 @@ public final class BindDemo
 
 
     /*
-     * Construct a search request with AccountUsableRequestControl
-     * attached. Set a size limit with the value from the {@code
-     * --sizeLimit} command line argument and a time limit with the
-     * value from the {@code --timeLimit} command line argument.
+     * Construct a search request. Set a size limit with the value from the {@code --sizeLimit} command line argument and a time limit with
+     * the value from the {@code --timeLimit} command line argument.
      */
     final SearchRequest searchRequest;
     try
@@ -609,7 +599,7 @@ public final class BindDemo
    * Removes the specified {@code responseControlHandler} from the list
    * of handlers to be invoked when response controls have been added to
    * the response by the server.
-   * 
+   *
    * @param responseControlHandler
    *          A response control handler that must have been previously
    *          added to the list of response control handlers. If
