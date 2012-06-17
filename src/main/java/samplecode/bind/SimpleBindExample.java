@@ -34,7 +34,7 @@ import samplecode.annotation.Since;
 
 
 /**
- * Provides a static method that changes the authentication state of an
+ * Provides a method that changes the authentication state of an
  * existing connection to a server.
  */
 @Author("terry.gardner@unboundid.com")
