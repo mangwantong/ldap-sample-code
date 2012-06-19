@@ -34,6 +34,8 @@ import samplecode.annotation.Since;
  * 
  * <pre>
  * 
+ * 
+ * 
  * public final class NumberFormatExceptionMsg
  *         implements ExceptionMsg
  * {
@@ -52,6 +54,10 @@ import samplecode.annotation.Since;
 public interface ExceptionMsg
 {
 
+  /**
+   * @return the {@link LDAPException} associated with this exception
+   *         msg
+   */
   LDAPException getLdapException();
 
 
@@ -59,7 +65,7 @@ public interface ExceptionMsg
   /**
    * Retrieve the message associated with the error.
    * 
-   * @return A helpful message.
+   * @return a helpful message.
    */
   String msg();
 }
