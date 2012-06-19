@@ -21,18 +21,18 @@ import samplecode.annotation.Since;
 @Author("terry.gardner@unboundID.com")
 @Since("Jun 17, 2012")
 @CodeVersion("1.0")
-public class BindException
+public class ClientSideConnectExceptionMessageGenerator
         extends LdapException
 {
 
-  private static final String PROP_NAME_BIND_EXCEPTION = "bindExceptionMessage";
+  private static final String PROP_NAME_CONNECT_EXCEPTION = "clientSideConnectExceptionMessage";
 
 
 
   /**
-   * Creates a new {@code BindException} object using the provided
-   * {@code ldapException} object (which must not be null). Example
-   * usage: <blockquote>
+   * Creates a new {@code ClientSideConnectExceptionMessageGenerator}
+   * object using the provided {@code ldapException} object (which must
+   * not be null). Example usage: <blockquote>
    * 
    * <pre>
    * try
@@ -49,14 +49,12 @@ public class BindException
    * </pre>
    * 
    * </blockquote>
-   * 
-   * @param resourceBundle
    */
-  public static LdapException newBindException(final ResourceBundle resourceBundle,
-          final LDAPException ldapException)
+  public static LdapException newClientSideConnectExceptionMessageGenerator(
+          final ResourceBundle resourceBundle,final LDAPException ldapException)
   {
     Validator.ensureNotNull(ldapException);
-    return new BindException(resourceBundle,ldapException);
+    return new ClientSideConnectExceptionMessageGenerator(resourceBundle,ldapException);
   }
 
 
@@ -64,14 +62,17 @@ public class BindException
   @Override
   public String msg()
   {
+    // TODO: add ResourceBundle support.
     final LDAPResult result = getLdapException().toLDAPResult();
-    return String.format(getResourceBundle().getString(BindException.PROP_NAME_BIND_EXCEPTION),
-            result.getResultCode());
+    return String.format(
+            getResourceBundle().getString(
+                    ClientSideConnectExceptionMessageGenerator.PROP_NAME_CONNECT_EXCEPTION),
+            getLdapException().getExceptionMessage(),result.getResultCode());
   }
 
 
 
-  private BindException(
+  private ClientSideConnectExceptionMessageGenerator(
           final ResourceBundle resourceBundle,final LDAPException ldapException)
   {
     super(resourceBundle,ldapException);

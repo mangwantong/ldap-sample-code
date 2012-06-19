@@ -43,6 +43,7 @@ import java.util.logging.LogRecord;
 
 import samplecode.CommandLineOptions;
 import samplecode.SampleCodeCollectionUtils;
+import samplecode.StaticData;
 import samplecode.SupportedFeatureException;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
@@ -351,8 +352,8 @@ public final class LdapTreeDelete
     // TODO: Add support for Locale when creating resource bundle.
     commandLineOptions =
             CommandLineOptions.newCommandLineOptions(argumentParser,CommandLineOptions
-                    .createDefaultArguments(ResourceBundle
-                            .getBundle(CommandLineOptions.RESOURCE_BUNDLE_BASE_NAME)));
+                    .createDefaultArguments(ResourceBundle.getBundle(StaticData
+                            .getResourceBundleBaseName())));
 
     Character shortIdentifier = LdapTreeDelete.SHORT_NAME_LDIF_FILE;
     String longIdentifier = LdapTreeDelete.ARG_NAME_LDIF_FILE;

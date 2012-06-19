@@ -272,6 +272,10 @@ public final class AssertionRequestControlDemo
   protected ResultCode executeToolTasks()
   {
     introduction();
+    if(isVerbose())
+    {
+      displayArguments();
+    }
     ResultCode resultCode = null;
     try
     {

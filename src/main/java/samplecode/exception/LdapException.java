@@ -5,6 +5,9 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.util.Validator;
 
 
+import java.util.ResourceBundle;
+
+
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
@@ -33,9 +36,24 @@ public class LdapException
   public String msg()
   {
     final String msg =
-            String.format("An LDAP exception has occurred. The result code was %s",
-                    ldapException.getResultCode());
+            String.format("An LDAP exception has occurred. The exception was %s",ldapException);
     return msg;
+  }
+
+
+
+  @Override
+  public String toString()
+  {
+    return String.format("LdapException [resourceBundle=%s, ldapException=%s]",resourceBundle,
+            ldapException);
+  }
+
+
+
+  protected ResourceBundle getResourceBundle()
+  {
+    return resourceBundle;
   }
 
 
@@ -44,17 +62,24 @@ public class LdapException
    * Creates an {@code LdapException} object from the provided
    * {@code ldapException} object - which is not permitted to be
    * {@code null}.
+   * 
+   * @param resourceBundle
    */
   protected LdapException(
-          final LDAPException ldapException)
+          final ResourceBundle resourceBundle,final LDAPException ldapException)
   {
-    Validator.ensureNotNull(ldapException);
+    Validator.ensureNotNull(ldapException,resourceBundle);
     this.ldapException = ldapException;
+    this.resourceBundle = resourceBundle;
   }
 
 
 
   /** The {@link LDAPException} that was thrown. */
   private final LDAPException ldapException;
+
+
+
+  private final ResourceBundle resourceBundle;
 
 }

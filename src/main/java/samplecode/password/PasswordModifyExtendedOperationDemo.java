@@ -21,7 +21,6 @@ import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPConnectionOptions;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
-import com.unboundid.ldap.sdk.UnsolicitedNotificationHandler;
 import com.unboundid.util.Validator;
 import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
@@ -30,8 +29,6 @@ import com.unboundid.util.args.StringArgument;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.util.Vector;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
@@ -40,12 +37,9 @@ import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Launchable;
 import samplecode.annotation.Since;
-import samplecode.listener.LdapExceptionEvent;
-import samplecode.listener.LdapExceptionListener;
+import samplecode.listener.DefaultLdapExceptionListener;
 import samplecode.listener.ObservedByLdapExceptionListener;
 import samplecode.tools.AbstractTool;
-import samplecode.tools.BasicToolCompletedProcessing;
-import samplecode.tools.ToolCompletedProcessing;
 
 
 /**
@@ -58,11 +52,11 @@ import samplecode.tools.ToolCompletedProcessing;
  */
 @Author("terry.gardner@unboundid.com")
 @Since("12-Nov-2011")
-@CodeVersion("3.0")
+@CodeVersion("3.1")
 @Launchable
 public final class PasswordModifyExtendedOperationDemo
         extends AbstractTool
-        implements ObservedByLdapExceptionListener,LdapExceptionListener
+        implements ObservedByLdapExceptionListener
 
 {
 
@@ -209,12 +203,18 @@ public final class PasswordModifyExtendedOperationDemo
     final PrintStream errStream = System.err;
     final PasswordModifyExtendedOperationDemo passwordModifyExtendedOperationDemo =
             new PasswordModifyExtendedOperationDemo(outStream,errStream);
-    passwordModifyExtendedOperationDemo
-            .addLdapExceptionListener(passwordModifyExtendedOperationDemo);
-    final ResultCode resultCode = passwordModifyExtendedOperationDemo.runTool(args);
-    final ToolCompletedProcessing completedProcessing =
-            new BasicToolCompletedProcessing(passwordModifyExtendedOperationDemo,resultCode);
-    completedProcessing.displayMessage(outStream,errStream);
+    passwordModifyExtendedOperationDemo.runTool(args);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Logger getLogger()
+  {
+    return Logger.getLogger(getClass().getName());
   }
 
 
@@ -226,7 +226,7 @@ public final class PasswordModifyExtendedOperationDemo
    * adds the {@code --newPassword} command line argument.
    */
   @Override
-  public void addArguments(final ArgumentParser argumentParser) throws ArgumentException
+  protected void addArguments(final ArgumentParser argumentParser) throws ArgumentException
   {
     Validator.ensureNotNull(argumentParser);
 
@@ -258,13 +258,9 @@ public final class PasswordModifyExtendedOperationDemo
    * {@inheritDoc}
    */
   @Override
-  public synchronized void addLdapExceptionListener(
-          final LdapExceptionListener ldapExceptionListener)
+  protected String classSpecificPropertiesResourceName()
   {
-    if(ldapExceptionListener != null)
-    {
-      ldapExceptionListeners.add(ldapExceptionListener);
-    }
+    return "PasswordModifyExtendedoperationDemo.properties";
   }
 
 
@@ -273,8 +269,9 @@ public final class PasswordModifyExtendedOperationDemo
    * {@inheritDoc}
    */
   @Override
-  public ResultCode executeToolTasks()
+  protected ResultCode executeToolTasks()
   {
+    addLdapExceptionListener(new DefaultLdapExceptionListener(getLogger()));
     introduction();
 
     /*
@@ -332,14 +329,6 @@ public final class PasswordModifyExtendedOperationDemo
     {
       fireLdapExceptionListener(ldapConnection,ldapException);
       resultCode = ldapException.getResultCode();
-      builder.delete(0,builder.capacity());
-      builder.append(getToolName());
-      final String hostname = commandLineOptions.getHostname();
-      final Integer port = Integer.valueOf(commandLineOptions.getPort());
-      builder.append(String.format(" failed to change password at server ldap://%s:%d",
-              hostname,port));
-      builder.append(String.format("; result from server was %s.",resultCode));
-      err(builder.toString());
     }
     catch(final SupportedFeatureException e)
     {
@@ -350,86 +339,6 @@ public final class PasswordModifyExtendedOperationDemo
       resultCode = passwordModifyExtendedOperationFailedException.getResultCode();
     }
     return resultCode;
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @SuppressWarnings("unchecked")
-  @Override
-  public void fireLdapExceptionListener(final LDAPConnection ldapConnection,
-          final LDAPException ldapException)
-  {
-    Validator.ensureNotNull(ldapException);
-    Vector<LdapExceptionListener> copy;
-    synchronized(this)
-    {
-      copy = (Vector<LdapExceptionListener>)ldapExceptionListeners.clone();
-    }
-    if(copy.size() == 0)
-    {
-      return;
-    }
-    final LdapExceptionEvent ev = new LdapExceptionEvent(this,ldapConnection,ldapException);
-    for(final LdapExceptionListener l : copy)
-    {
-      l.ldapRequestFailed(ev);
-    }
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public Logger getLogger()
-  {
-    return Logger.getLogger(getClass().getName());
-  }
-
-
-
-  @Override
-  public void ldapRequestFailed(final LdapExceptionEvent ldapExceptionEvent)
-  {
-    getLogger().log(Level.SEVERE,ldapExceptionEvent.getLdapException().getExceptionMessage());
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public synchronized void removeLdapExceptionListener(
-          final LdapExceptionListener ldapExceptionListener)
-  {
-    if(ldapExceptionListener != null)
-    {
-      ldapExceptionListeners.remove(ldapExceptionListener);
-    }
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  protected String classSpecificPropertiesResourceName()
-  {
-    return "PasswordModifyExtendedoperationDemo.properties";
-  }
-
-
-
-  @Override
-  protected UnsolicitedNotificationHandler getUnsolicitedNotificationHandler()
-  {
-    return new samplecode.DefaultUnsolicitedNotificationHandler(this);
   }
 
 
@@ -462,11 +371,5 @@ public final class PasswordModifyExtendedOperationDemo
   }
 
 
-
-  /**
-   * interested parties to {@code LdapExceptionEvents}
-   */
-  private volatile Vector<LdapExceptionListener> ldapExceptionListeners =
-          new Vector<LdapExceptionListener>();
 
 }

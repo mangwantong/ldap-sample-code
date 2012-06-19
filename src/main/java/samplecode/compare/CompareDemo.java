@@ -113,6 +113,10 @@ public final class CompareDemo
   @Override
   protected ResultCode executeToolTasks()
   {
+    if(isVerbose())
+    {
+      displayArguments();
+    }
     String dn;
     try
     {

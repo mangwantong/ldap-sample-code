@@ -68,37 +68,11 @@ import samplecode.tools.ToolCompletedProcessing;
  */
 @Author("terry.gardner@unboundid.com")
 @Since("27-Nov-2011")
-@CodeVersion("2.2")
+@CodeVersion("2.3")
 @Launchable
 public final class AuthDemo
         extends AbstractTool
 {
-
-
-
-  /**
-   * The description of this tool; this is used in help output and for
-   * other purposes.
-   */
-  public static final String TOOL_DESCRIPTION =
-          "Provides a demonstration of the use of the account usable request "
-                  + "and the Who Am I? extended operation. The account "
-                  + "usable request control and the Who Am I? extended "
-                  + "request use the authentication state of the connection "
-                  + "to the LDAP server, that is, the connection authentication "
-                  + "state as set by the --bindDn|-D command line argument "
-                  + "and the --bindPassword|-w command line argument. "
-                  + "The account usable request "
-                  + "control was designed by Sun Microsystems and is not based on any "
-                  + "RFC or draft.";
-
-
-
-  /**
-   * The name of this tool; this is used in help output and for other
-   * purposes.
-   */
-  public static final String TOOL_NAME = "AuthDemo";
 
 
 
@@ -124,49 +98,6 @@ public final class AuthDemo
    * {@inheritDoc}
    */
   @Override
-  public ResultCode executeToolTasks()
-  {
-    introduction();
-    ResultCode resultCode = ResultCode.SUCCESS;
-    try
-    {
-      resultCode = authDemo();
-    }
-    catch(final SupportedFeatureException exception)
-    {
-      final String msg =
-              String.format("feature or control not supported: %s",exception.getMessage());
-      getLogger().severe(msg);
-      resultCode = ResultCode.UNWILLING_TO_PERFORM;
-    }
-    return resultCode;
-  }
-
-
-
-  @Override
-  public Logger getLogger()
-  {
-    return Logger.getLogger(getClass().getName());
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public String getToolName()
-  {
-    return AuthDemo.TOOL_NAME;
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   protected String classSpecificPropertiesResourceName()
   {
     return "AuthDemo.properties";
@@ -174,14 +105,18 @@ public final class AuthDemo
 
 
 
-  private ResultCode authDemo() throws SupportedFeatureException
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  protected ResultCode executeToolTasks()
   {
-
+    introduction();
     if(isVerbose())
     {
-      displayServerInformation();
+      displayArguments();
     }
-
+    addLdapExceptionListener(new DefaultLdapExceptionListener(getLogger()));
 
     /*
      * Obtain a pool of connections to the LDAP server from the
@@ -195,11 +130,12 @@ public final class AuthDemo
       ldapConnection = connectToServer();
       ldapConnectionPool = getLdapConnectionPool(ldapConnection);
     }
-    catch(final LDAPException ldapException)
+    catch(final LDAPException x)
     {
-      fireLdapExceptionListener(ldapConnection,ldapException);
-      return ldapException.getResultCode();
+      fireLdapExceptionListener(ldapConnection,x);
+      return x.getResultCode();
     }
+
 
 
     /*
@@ -211,7 +147,7 @@ public final class AuthDemo
       verbose("Creating the authorized identity object.");
     }
     final AuthorizedIdentity authorizedIdentity = new AuthorizedIdentity(ldapConnection);
-    authorizedIdentity.addLdapExceptionListener(new DefaultLdapExceptionListener());
+    authorizedIdentity.addLdapExceptionListener(new DefaultLdapExceptionListener(getLogger()));
 
 
     /*
@@ -229,9 +165,17 @@ public final class AuthDemo
     {
       verbose("Getting the authorization identity using the Who Am I? extended request.");
     }
-    String authId =
-            authorizedIdentity
-                    .getAuthorizationIdentityWhoAmIExtendedOperation(getResponseTimeMillis());
+    String authId;
+    try
+    {
+      authId =
+              authorizedIdentity
+                      .getAuthorizationIdentityWhoAmIExtendedOperation(getResponseTimeMillis());
+    }
+    catch(final SupportedFeatureException exception1)
+    {
+      return ResultCode.UNWILLING_TO_PERFORM;
+    }
     if(authId != null)
     {
       msg = String.format("AuthorizationID from the Who am I? extended request: '%s'",authId);
@@ -257,9 +201,16 @@ public final class AuthDemo
     }
     final String bindDn = bindDnAsDn.toString();
     final String bindPassword = commandLineOptions.getBindPassword();
-    authId =
-            authorizedIdentity.getAuthorizationIdentityFromBindRequest(bindDn,bindPassword,
-                    getResponseTimeMillis());
+    try
+    {
+      authId =
+              authorizedIdentity.getAuthorizationIdentityFromBindRequest(bindDn,bindPassword,
+                      getResponseTimeMillis());
+    }
+    catch(final SupportedFeatureException exception)
+    {
+      return ResultCode.UNWILLING_TO_PERFORM;
+    }
     if(authId != null)
     {
       msg =
@@ -275,6 +226,15 @@ public final class AuthDemo
     ldapConnection.close();
     return ResultCode.SUCCESS;
   }
+
+
+
+  @Override
+  protected Logger getLogger()
+  {
+    return Logger.getLogger(getClass().getName());
+  }
+
 
 
 }

@@ -48,6 +48,7 @@ import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Launchable;
 import samplecode.annotation.Since;
+import samplecode.listener.DefaultLdapExceptionListener;
 import samplecode.listener.LdapExceptionListener;
 import samplecode.listener.ObservedByLdapExceptionListener;
 import samplecode.tools.AbstractTool;
@@ -189,14 +190,37 @@ public final class VirtualListViewDemo
    * {@inheritDoc}
    */
   @Override
-  public ResultCode executeToolTasks()
+  public Logger getLogger()
   {
+    return Logger.getLogger(getClass().getCanonicalName());
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  protected String classSpecificPropertiesResourceName()
+  {
+    return "VirtualListViewDemo.properties";
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  protected ResultCode executeToolTasks()
+  {
+    addLdapExceptionListener(new DefaultLdapExceptionListener(getLogger()));
     ResultCode resultCode = ResultCode.SUCCESS;
 
     introduction();
     if(isVerbose())
     {
-      displayServerInformation();
+      displayArguments();
     }
 
     /*
@@ -333,28 +357,6 @@ public final class VirtualListViewDemo
       resultCode = ResultCode.PROTOCOL_ERROR;
     }
     return resultCode;
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public Logger getLogger()
-  {
-    return Logger.getLogger(getClass().getCanonicalName());
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  protected String classSpecificPropertiesResourceName()
-  {
-    return "VirtualListViewDemo.properties";
   }
 
 

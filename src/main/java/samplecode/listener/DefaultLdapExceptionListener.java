@@ -15,28 +15,54 @@
  */
 package samplecode.listener;
 
-import java.util.logging.Level;
-import java.util.logging.LogRecord;
 
-import com.unboundid.util.MinimalLogFormatter;
+import com.unboundid.util.Validator;
+
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 
 /**
- * A minimal {@code LdapExceptionListener} that prints messages on the standard
- * output stream.
+ * A minimal {@code LdapExceptionListener} that displays messages.
  */
-public class DefaultLdapExceptionListener implements LdapExceptionListener {
+public class DefaultLdapExceptionListener
+        implements LdapExceptionListener
+{
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void ldapRequestFailed(final LdapExceptionEvent ldapExceptionEvent) {
-	final String helpfulMessage =
-		String.format("An LDAPException has occurred" + ": %s",
-			ldapExceptionEvent.getLdapException()
-				.getExceptionMessage());
-	final LogRecord record = new LogRecord(Level.SEVERE, helpfulMessage);
-	System.err.println(new MinimalLogFormatter().format(record));
-    }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void ldapRequestFailed(final LdapExceptionEvent ldapExceptionEvent)
+  {
+    ldapRequestFailed(ldapExceptionEvent,Level.SEVERE);
+  }
+
+
+
+  private void ldapRequestFailed(final LdapExceptionEvent ev,final Level level)
+  {
+    logger.log(Level.SEVERE,ev.getLdapException().getMessage());
+  }
+
+
+
+  /**
+   * Create the exception listener using the {@code logger} provided by
+   * the client. The {@code logger} is not permitted to be {@code null}.
+   */
+  public DefaultLdapExceptionListener(
+          final Logger logger)
+  {
+    Validator.ensureNotNull(logger);
+    this.logger = logger;
+  }
+
+
+
+  /** logging facilities */
+  private final Logger logger;
 
 }

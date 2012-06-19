@@ -16,6 +16,8 @@
 package samplecode.tools;
 
 
+import com.unboundid.ldap.sdk.DN;
+import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPConnectionOptions;
 import com.unboundid.ldap.sdk.LDAPConnectionPool;
@@ -24,23 +26,36 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.UnsolicitedNotificationHandler;
 import com.unboundid.util.LDAPCommandLineTool;
 import com.unboundid.util.Validator;
+import com.unboundid.util.args.Argument;
 import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
+import com.unboundid.util.args.BooleanArgument;
+import com.unboundid.util.args.DNArgument;
+import com.unboundid.util.args.FileArgument;
+import com.unboundid.util.args.FilterArgument;
+import com.unboundid.util.args.IntegerArgument;
+import com.unboundid.util.args.ScopeArgument;
+import com.unboundid.util.args.StringArgument;
 
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.List;
 import java.util.Properties;
-import java.util.ResourceBundle;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
 import samplecode.CommandLineOptions;
+import samplecode.SampleCodeCollectionUtils;
+import samplecode.StaticData;
 import samplecode.annotation.CodeVersion;
+import samplecode.exception.ExceptionMsgFactory;
+import samplecode.exception.LdapException;
 import samplecode.listener.LdapExceptionEvent;
 import samplecode.listener.LdapExceptionListener;
 import samplecode.listener.LdapSearchExceptionListener;
@@ -81,11 +96,9 @@ public abstract class AbstractTool
   public void addNonLDAPArguments(final ArgumentParser argumentParser) throws ArgumentException
   {
     Validator.ensureNotNull(argumentParser);
-    // TODO: Add support for Locale when creating resource bundle.
     commandLineOptions =
-            CommandLineOptions.newCommandLineOptions(argumentParser,CommandLineOptions
-                    .createDefaultArguments(ResourceBundle
-                            .getBundle(CommandLineOptions.RESOURCE_BUNDLE_BASE_NAME)));
+            CommandLineOptions.newCommandLineOptions(argumentParser,
+                    CommandLineOptions.createDefaultArguments(StaticData.getResourceBundle()));
     addArguments(argumentParser);
   }
 
@@ -125,13 +138,6 @@ public abstract class AbstractTool
       l.ldapRequestFailed(ev);
     }
   }
-
-
-
-  /**
-   * @return the logger
-   */
-  public abstract Logger getLogger();
 
 
 
@@ -200,7 +206,9 @@ public abstract class AbstractTool
   @Override
   public void ldapRequestFailed(final LdapExceptionEvent ldapExceptionEvent)
   {
-    getLogger().log(Level.SEVERE,ldapExceptionEvent.getLdapException().getExceptionMessage());
+    final LdapException messageGenerator =
+            ExceptionMsgFactory.getMessageGenerator(ldapExceptionEvent.getLdapException());
+    getLogger().log(Level.SEVERE,messageGenerator.msg());
   }
 
 
@@ -358,6 +366,79 @@ public abstract class AbstractTool
 
 
 
+  protected void displayArguments()
+  {
+    for(final Argument arg : commandLineOptions.getArgumentParser().getNamedArguments())
+    {
+      if(arg.isPresent())
+      {
+        final List<String> msgs = SampleCodeCollectionUtils.newArrayList();
+        if(arg instanceof BooleanArgument)
+        {
+          for(int i = 0; i < arg.getNumOccurrences(); ++i)
+          {
+            msgs.add("--" + arg.getLongIdentifier());
+          }
+        }
+        else if(arg instanceof DNArgument)
+        {
+          final DNArgument a = DNArgument.class.cast(arg);
+          for(final DN value : a.getValues())
+          {
+            msgs.add(String.format("--%s %s",a.getLongIdentifier(),value));
+          }
+        }
+        else if(arg instanceof FileArgument)
+        {
+          final FileArgument a = FileArgument.class.cast(arg);
+          for(final File value : a.getValues())
+          {
+            msgs.add(String.format("--%s %s",a.getLongIdentifier(),value));
+          }
+        }
+        else if(arg instanceof FilterArgument)
+        {
+          final FilterArgument a = FilterArgument.class.cast(arg);
+          for(final Filter value : a.getValues())
+          {
+            msgs.add(String.format("--%s %s",a.getLongIdentifier(),value));
+          }
+        }
+        else if(arg instanceof ScopeArgument)
+        {
+          final ScopeArgument a = ScopeArgument.class.cast(arg);
+          msgs.add(String.format("--%s %s",a.getLongIdentifier(),a.getValue()));
+        }
+        else if(arg instanceof StringArgument)
+        {
+          final StringArgument a = StringArgument.class.cast(arg);
+          for(final String value : a.getValues())
+          {
+            msgs.add(String.format("--%s %s",a.getLongIdentifier(),value));
+          }
+        }
+        else if(arg instanceof IntegerArgument)
+        {
+          final IntegerArgument a = IntegerArgument.class.cast(arg);
+          for(final Integer value : a.getValues())
+          {
+            msgs.add(String.format("--%s %s",a.getLongIdentifier(),value));
+          }
+        }
+        else
+        {
+          msgs.add("");
+        }
+        for(final String string : msgs)
+        {
+          getLogger().log(Level.INFO,string);
+        }
+      }
+    }
+  }
+
+
+
   protected void displayServerInformation()
   {
     getLogger().log(
@@ -448,6 +529,13 @@ public abstract class AbstractTool
 
 
   /**
+   * @return the logger
+   */
+  protected abstract Logger getLogger();
+
+
+
+  /**
    * 
    * Get the tool description text from the properties file associated
    * with the class.
@@ -492,14 +580,16 @@ public abstract class AbstractTool
   protected void introduction()
   {
 
-    // TODO: Add support for a configurable introduction indentation
+    // TODO: Add support for a configurable introduction indentation and
+    // add support for resource bundles
+
     final int indentation = 0;
     int width = 144;
     if(commandLineOptions != null)
     {
       width = commandLineOptions.getIntroductionColumnWidth();
     }
-    wrapOut(indentation,width,getToolName() + ":\n\n" + getToolDescription());
+    wrapOut(indentation,width,getToolName() + ":\n" + getToolDescription());
     out();
   }
 
@@ -583,6 +673,7 @@ public abstract class AbstractTool
    *              command line argument.
    * toolName = AuthDemo
    * </pre>
+   * 
    * </blockquote>
    * 
    * 
@@ -616,7 +707,7 @@ public abstract class AbstractTool
    */
   protected AbstractTool()
   {
-    super(System.out,System.err);
+    this(System.out,System.err);
   }
 
 
@@ -670,4 +761,7 @@ public abstract class AbstractTool
    */
   protected volatile Vector<LdapSearchExceptionListener> ldapSearchExceptionListeners =
           new Vector<LdapSearchExceptionListener>();
+
+
+
 }

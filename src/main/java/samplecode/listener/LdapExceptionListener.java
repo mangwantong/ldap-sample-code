@@ -43,4 +43,5 @@ public interface LdapExceptionListener
    */
   void ldapRequestFailed(LdapExceptionEvent ldapExceptionEvent);
 
+
 }
