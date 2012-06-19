@@ -58,6 +58,7 @@ import java.util.logging.Logger;
 
 
 import samplecode.CommandLineOptions;
+import samplecode.StaticData;
 import samplecode.SupportedFeature;
 import samplecode.SupportedFeatureException;
 import samplecode.annotation.Author;
@@ -774,8 +775,8 @@ public final class LdapListenerExample
             final ArgumentParser argumentParser)
             throws ArgumentException
     {
-      super(CommandLineOptions.createDefaultArguments(ResourceBundle
-              .getBundle(CommandLineOptions.RESOURCE_BUNDLE_BASE_NAME)),argumentParser);
+      super(CommandLineOptions.createDefaultArguments(ResourceBundle.getBundle(StaticData
+              .getResourceBundleBaseName())),argumentParser);
 
       /*
        * Add the argument to the command line argument parser whose

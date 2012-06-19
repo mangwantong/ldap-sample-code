@@ -74,37 +74,7 @@ public final class PersistentSearchExample
     final OutputStream errStream = System.err;
     final PersistentSearchExample persistentSearchExample =
             new PersistentSearchExample(outStream,errStream);
-    final ResultCode resultCode = persistentSearchExample.runTool(args);
-    if(resultCode != null)
-    {
-      final StringBuilder builder = new StringBuilder(persistentSearchExample.getToolName());
-      builder.append(" has completed processing. The result code was: ");
-      builder.append(resultCode);
-      persistentSearchExample.out(builder.toString());
-    }
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public ResultCode executeToolTasks()
-  {
-    introduction();
-    try
-    {
-      demonstratePersistentSearch();
-    }
-    catch(final LDAPException ldapException)
-    {
-      getLogger().log(Level.SEVERE,ldapException.getMessage());
-      return ldapException.getResultCode();
-    }
-
-    ldapConnection.close();
-    return ResultCode.SUCCESS;
+    persistentSearchExample.runTool(args);
   }
 
 
@@ -127,6 +97,33 @@ public final class PersistentSearchExample
   protected String classSpecificPropertiesResourceName()
   {
     return "PersistentSearchExample.properties";
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  protected ResultCode executeToolTasks()
+  {
+    introduction();
+    if(isVerbose())
+    {
+      displayArguments();
+    }
+    try
+    {
+      demonstratePersistentSearch();
+    }
+    catch(final LDAPException ldapException)
+    {
+      getLogger().log(Level.SEVERE,ldapException.getMessage());
+      return ldapException.getResultCode();
+    }
+
+    ldapConnection.close();
+    return ResultCode.SUCCESS;
   }
 
 

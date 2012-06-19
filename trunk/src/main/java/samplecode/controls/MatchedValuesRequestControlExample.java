@@ -46,6 +46,7 @@ import java.util.logging.LogRecord;
 
 
 import samplecode.CommandLineOptions;
+import samplecode.StaticData;
 import samplecode.SupportedFeature;
 import samplecode.SupportedFeatureException;
 import samplecode.annotation.Author;
@@ -294,8 +295,8 @@ public final class MatchedValuesRequestControlExample
     // TODO: add support for locale when creating resource bundle
     commandLineOptions =
             CommandLineOptions.newCommandLineOptions(argumentParser,CommandLineOptions
-                    .createDefaultArguments(ResourceBundle
-                            .getBundle(CommandLineOptions.RESOURCE_BUNDLE_BASE_NAME)));
+                    .createDefaultArguments(ResourceBundle.getBundle(StaticData
+                            .getResourceBundleBaseName())));
 
     /*
      * The command line argument which specifies the filter to use to

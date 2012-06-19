@@ -80,7 +80,7 @@ public final class BindDemo
 
     /**
      * Display the control in a generic fashion.
-     *
+     * 
      * @return A string representation of the value of the control.
      */
     public Object msg()
@@ -116,7 +116,7 @@ public final class BindDemo
     /**
      * Constructs a {@code ControlDisplayValues} object from the
      * specified control.
-     *
+     * 
      * @param control
      *          An LDAP control,which may not be {@code null}.
      */
@@ -234,12 +234,12 @@ public final class BindDemo
 
   /**
    * <blockquote>
-   *
+   * 
    * <pre>
    * Demonstrate the use of the bind request
-   *
+   * 
    * Usage:  BindDemo {options}
-   *
+   * 
    * Available options include:
    * -h,--hostname {host}
    *     The IP address or resolvable name to use to connect to the directory
@@ -311,9 +311,9 @@ public final class BindDemo
    * -H,-?,--help
    *     Display usage information for this program.
    * </pre>
-   *
+   * 
    * </blockquote>
-   *
+   * 
    * @param args
    *          JVM command line options.
    * @see CommandLineTool
@@ -357,7 +357,7 @@ public final class BindDemo
    * handlers to be invoked when response controls have been added to
    * the response by the server. No {@code null} response controls
    * handlers can be added to the list of response control handlers.
-   *
+   * 
    * @param responseControlHandler
    *          A response control handler to be invoked when response
    *          controls have been added to the response by the server. If
@@ -380,7 +380,7 @@ public final class BindDemo
     introduction();
     if(isVerbose())
     {
-      displayServerInformation();
+      displayArguments();
     }
 
     /*
@@ -467,8 +467,10 @@ public final class BindDemo
 
 
     /*
-     * Construct a search request. Set a size limit with the value from the {@code --sizeLimit} command line argument and a time limit with
-     * the value from the {@code --timeLimit} command line argument.
+     * Construct a search request. Set a size limit with the value from
+     * the {@code --sizeLimit} command line argument and a time limit
+     * with the value from the {@code --timeLimit} command line
+     * argument.
      */
     final SearchRequest searchRequest;
     try
@@ -599,7 +601,7 @@ public final class BindDemo
    * Removes the specified {@code responseControlHandler} from the list
    * of handlers to be invoked when response controls have been added to
    * the response by the server.
-   *
+   * 
    * @param responseControlHandler
    *          A response control handler that must have been previously
    *          added to the list of response control handlers. If

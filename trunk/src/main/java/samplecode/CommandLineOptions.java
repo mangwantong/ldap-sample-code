@@ -63,14 +63,6 @@ public class CommandLineOptions
 
 
   /**
-   * The base name of the resource bundle that contains resource data
-   * used by the samplecode project.
-   */
-  public static final String RESOURCE_BUNDLE_BASE_NAME = "samplecode";
-
-
-
-  /**
    * The long identifier of the command line argument whose parameter is
    * an indicator of whether the LDAP SDK should abandon an operation if
    * the operation times out. This command line argument is optional and
@@ -303,6 +295,8 @@ public class CommandLineOptions
    * 
    * @param resourceBundle
    *          the resource bundle used for argument parameters
+   * 
+   * 
    * 
    * @return a set of useful arguments
    * 
@@ -758,7 +752,7 @@ public class CommandLineOptions
    * Usage:
    * 
    * <pre>
-   *
+   * 
    * IntegerArgument portArg = getNamedArgument(&quot;port&quot;);
    * int port;
    * if(portArg != null &amp;&amp; portArg.isPresent())
@@ -1006,11 +1000,18 @@ public class CommandLineOptions
    * <pre>
    * hostname = ldap.example.com
    * </pre>
+   * 
    * </blockquote> and the {@code getValue} method is invoked thus:
    * 
    * <blockquote>
    * 
    * <pre>
+   * 
+   * 
+   * 
+   * 
+   * 
+   * 
    * String portString = getValue(&quot;port&quot;,&quot;389&quot;);
    * </pre>
    * 

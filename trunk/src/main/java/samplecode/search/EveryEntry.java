@@ -44,13 +44,16 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
+import java.util.logging.Logger;
 
 
 import samplecode.CommandLineOptions;
 import samplecode.SampleCodeCollectionUtils;
+import samplecode.StaticData;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
+import samplecode.listener.DefaultLdapExceptionListener;
 import samplecode.listener.ErrorListener;
 import samplecode.listener.LdapExceptionEvent;
 import samplecode.listener.LdapExceptionListener;
@@ -382,7 +385,8 @@ public final class EveryEntry
         impl =
                 new EveryEntryImpl(searchListenerClassname,commandLineOptions,ldapConnection,
                         getErr(),errorListeners);
-        impl.addLdapExceptionListener(new EveryEntryLdapExceptionListener());
+        impl.addLdapExceptionListener(new DefaultLdapExceptionListener(Logger
+                .getLogger(getClass().getName())));
         executorService.submit(impl);
       }
       catch(final LDAPException ldapException)
@@ -568,8 +572,8 @@ final class EveryEntryCommandLineOptions
           final ArgumentParser argumentParser)
           throws ArgumentException
   {
-    super(CommandLineOptions.createDefaultArguments(ResourceBundle
-            .getBundle(CommandLineOptions.RESOURCE_BUNDLE_BASE_NAME)),argumentParser);
+    super(CommandLineOptions.createDefaultArguments(ResourceBundle.getBundle(StaticData
+            .getResourceBundleBaseName())),argumentParser);
     final Argument searchResultListenerArgument = newSearchResultListenerArgument();
     addArguments(searchResultListenerArgument);
   }
@@ -872,27 +876,6 @@ final class EveryEntryImpl
 
 }
 
-
-@NotMutable
-final class EveryEntryLdapExceptionListener
-        implements LdapExceptionListener
-{
-
-  @Override
-  public void ldapRequestFailed(final LdapExceptionEvent ldapExceptionEvent)
-  {
-    System.err.println(formatter.format(new LogRecord(Level.SEVERE,ldapExceptionEvent
-            .getLdapException().getExceptionMessage())));
-  }
-
-
-
-  /**
-   * Provides services for clients that require messages to be formatted
-   * in a standardized way.
-   */
-  private final MinimalLogFormatter formatter = new MinimalLogFormatter();
-}
 
 
 /**

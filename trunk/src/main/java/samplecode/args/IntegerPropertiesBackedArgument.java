@@ -52,8 +52,8 @@ public class IntegerPropertiesBackedArgument
       final int upperBound = getUpperBound().intValue();
       arg =
               new IntegerArgument(getShortIdentifier(),getLongIdentifier(),isRequired(),
-                      getMaxOccurrences(),getValuePlaceholder(),getDescription(),upperBound,
-                      lowerBound,getDefaultValue());
+                      getMaxOccurrences(),getValuePlaceholder(),getDescription(),lowerBound,
+                      upperBound,getDefaultValue());
     }
     catch(final MissingResourceException ex)
     {

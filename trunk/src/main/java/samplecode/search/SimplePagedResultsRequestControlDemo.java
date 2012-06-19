@@ -394,9 +394,9 @@ public final class SimplePagedResultsRequestControlDemo
 
     introduction();
 
-    if(commandLineOptions == null)
+    if(isVerbose())
     {
-      throw new IllegalStateException();
+      displayArguments();
     }
 
     ResultCode resultCode;

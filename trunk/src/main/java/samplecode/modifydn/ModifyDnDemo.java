@@ -26,7 +26,6 @@ import com.unboundid.util.args.BooleanArgument;
 import com.unboundid.util.args.StringArgument;
 
 
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
@@ -34,7 +33,7 @@ import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Launchable;
 import samplecode.annotation.Since;
-import samplecode.exception.ExceptionMsgFactory;
+import samplecode.listener.DefaultLdapExceptionListener;
 import samplecode.tools.AbstractTool;
 
 
@@ -132,6 +131,7 @@ public final class ModifyDnDemo
   @Override
   protected ResultCode executeToolTasks()
   {
+    addLdapExceptionListener(new DefaultLdapExceptionListener(getLogger()));
     final String existingDn = (String)commandLineOptions.get(ModifyDnDemo.ARG_NAME_EXISTING_DN);
     final String newDn = (String)commandLineOptions.get(ModifyDnDemo.ARG_NAME_NEW_DN);
     final boolean deleteOldRdn =
@@ -148,7 +148,7 @@ public final class ModifyDnDemo
     }
     catch(final LDAPException exception)
     {
-      getLogger().log(Level.SEVERE,ExceptionMsgFactory.getLdapExceptionMsg(exception).msg());
+      fireLdapExceptionListener(ldapConnection,exception);
       return exception.getResultCode();
     }
     return ldapResult.getResultCode();
