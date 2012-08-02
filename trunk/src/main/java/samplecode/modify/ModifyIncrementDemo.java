@@ -12,9 +12,7 @@
  * not, see <http://www.gnu.org/licenses>.
  */
 
-
 package samplecode.modify;
-
 
 import com.unboundid.ldap.sdk.*;
 import com.unboundid.ldap.sdk.controls.PostReadRequestControl;
@@ -28,12 +26,10 @@ import com.unboundid.util.args.ArgumentParser;
 import com.unboundid.util.args.DNArgument;
 import com.unboundid.util.args.IntegerArgument;
 
-
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
-
 
 import samplecode.CommandLineOptions;
 import samplecode.SupportedFeature;
@@ -43,7 +39,6 @@ import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Launchable;
 import samplecode.annotation.Since;
 import samplecode.tools.AbstractTool;
-
 
 /**
  * Provides a demonstration of the use of the modify-increment extension
@@ -170,19 +165,16 @@ import samplecode.tools.AbstractTool;
 @CodeVersion("2.11")
 @Launchable
 public final class ModifyIncrementDemo
-        extends AbstractTool
-{
+        extends AbstractTool {
 
   /**
    * Provides the services necessary to demonstrate the modify-increment
    * extension to the modify request.
    */
-  private static class ModifyEntry
-  {
+  private static class ModifyEntry {
 
     private void increment(final DN entryDn,final String attribute,final int incrementValue)
-            throws LDAPException
-    {
+            throws LDAPException {
       Validator.ensureNotNull(entryDn,attribute);
 
       /*
@@ -200,8 +192,7 @@ public final class ModifyIncrementDemo
       final SearchScope scope = commandLineOptions.getSearchScope();
       final Filter filter = commandLineOptions.getFilter();
       final SearchRequest searchRequest =
-              new SearchRequest(baseObject,scope,filter,new String[]
-              {
+              new SearchRequest(baseObject,scope,filter,new String[] {
                 SearchRequest.NO_ATTRIBUTES
               });
 
@@ -209,8 +200,7 @@ public final class ModifyIncrementDemo
        * Search for the entry specified by the entryDn.
        */
       final SearchResult searchResult = ldapConnection.search(searchRequest);
-      if(searchResult.getEntryCount() == 0)
-      {
+      if(searchResult.getEntryCount() == 0) {
 
         /*
          * NB: This will not be reached if the base object did not
@@ -239,8 +229,7 @@ public final class ModifyIncrementDemo
        * If the pre-read request control is supported by the server, add
        * the control to the modify request.
        */
-      try
-      {
+      try {
 
         final String controlOID = PreReadRequestControl.PRE_READ_REQUEST_OID;
         supportedControl.isControlSupported(controlOID);
@@ -254,9 +243,7 @@ public final class ModifyIncrementDemo
         final PreReadRequestControl control = new PreReadRequestControl(isCritical,attribute);
         modifyRequest.addControl(control);
 
-      }
-      catch(final SupportedFeatureException ex)
-      {
+      } catch(final SupportedFeatureException ex) {
         // The request control is not supported.
       }
 
@@ -264,10 +251,9 @@ public final class ModifyIncrementDemo
        * If the post-read request control is supported by the server,
        * add the control to the modify request.
        */
-      try
-      {
+      try {
 
-        final String controlOID = PreReadRequestControl.PRE_READ_REQUEST_OID;
+        final String controlOID = PostReadRequestControl.POST_READ_REQUEST_OID;
         supportedControl.isControlSupported(controlOID);
 
         /*
@@ -279,9 +265,7 @@ public final class ModifyIncrementDemo
         final PostReadRequestControl control = new PostReadRequestControl(isCritical,attribute);
         modifyRequest.addControl(control);
 
-      }
-      catch(final SupportedFeatureException ex)
-      {
+      } catch(final SupportedFeatureException ex) {
         // The request control is not supported.
       }
 
@@ -296,11 +280,9 @@ public final class ModifyIncrementDemo
        */
       final PreReadResponseControl preReadResponseControl =
               PreReadResponseControl.get(ldapResult);
-      if((preReadResponseControl != null) && preReadResponseControl.hasValue())
-      {
+      if((preReadResponseControl != null) && preReadResponseControl.hasValue()) {
         final Entry entry = preReadResponseControl.getEntry();
-        if(entry != null)
-        {
+        if(entry != null) {
           final Attribute attr = entry.getAttribute(attribute);
           final StringBuilder builder = new StringBuilder();
           builder.append("Before modification the value of ");
@@ -321,11 +303,9 @@ public final class ModifyIncrementDemo
        */
       final PostReadResponseControl postReadResponseControl =
               PostReadResponseControl.get(ldapResult);
-      if((postReadResponseControl != null) && postReadResponseControl.hasValue())
-      {
+      if((postReadResponseControl != null) && postReadResponseControl.hasValue()) {
         final Entry entry = postReadResponseControl.getEntry();
-        if(entry != null)
-        {
+        if(entry != null) {
           final Attribute attr = entry.getAttribute(attribute);
           final StringBuilder builder = new StringBuilder();
           builder.append("After modification the value of ");
@@ -342,27 +322,18 @@ public final class ModifyIncrementDemo
 
     }
 
-
-
     private ModifyEntry(
             final LDAPCommandLineTool ldapCommandLineTool,
-            final CommandLineOptions commandLineOptions)
-    {
+            final CommandLineOptions commandLineOptions) {
       Validator.ensureNotNull(ldapCommandLineTool,commandLineOptions);
       this.commandLineOptions = commandLineOptions;
       this.ldapCommandLineTool = ldapCommandLineTool;
     }
 
-
-
     private final CommandLineOptions commandLineOptions;
-
-
 
     private final LDAPCommandLineTool ldapCommandLineTool;
   }
-
-
 
   /**
    * The long identifier of the command line argument which is used to
@@ -370,8 +341,6 @@ public final class ModifyIncrementDemo
    * --attribute command lien arguments are incremented.
    */
   public static final String ARG_NAME_ENTRY = "entry";
-
-
 
   /**
    * The long identifier of the command line argument that is used to
@@ -381,15 +350,11 @@ public final class ModifyIncrementDemo
    */
   public static final String ARG_NAME_INCREMENT_VALUE = "incrementValue";
 
-
-
   /**
    * The default value by which the attributes are incremented using the
    * modify-increment extension.
    */
   public static final Integer DEFAULT_INCREMENT_VALUE = Integer.valueOf(1);
-
-
 
   /**
    * The short identifier of the command line argument which is used to
@@ -397,8 +362,6 @@ public final class ModifyIncrementDemo
    * --attribute command lien arguments are incremented.
    */
   public static final Character SHORT_ID_ENTRY = Character.valueOf('e');
-
-
 
   /**
    * The short identifier of the command line argument that is used to
@@ -408,8 +371,6 @@ public final class ModifyIncrementDemo
    */
   public static final Character SHORT_ID_INCREMENT_VALUE = Character.valueOf('n');
 
-
-
   /**
    * Execute the modify-increment demonstration.
    * 
@@ -417,8 +378,7 @@ public final class ModifyIncrementDemo
    *          The command line arguments, less the JVM specific
    *          arguments.
    */
-  public static void main(final String... args)
-  {
+  public static void main(final String... args) {
     final OutputStream outStream = System.out;
     final OutputStream errStream = System.err;
     final ModifyIncrementDemo modifyIncrementDemo =
@@ -426,8 +386,7 @@ public final class ModifyIncrementDemo
     final String msg = modifyIncrementDemo.getToolDescription();
     modifyIncrementDemo.out(msg);
     final ResultCode resultCode = modifyIncrementDemo.runTool(args);
-    if(resultCode != null)
-    {
+    if(resultCode != null) {
       final StringBuilder builder = new StringBuilder(modifyIncrementDemo.getToolName());
       builder.append(" has completed processing. The result code was: ");
       builder.append(resultCode);
@@ -435,14 +394,11 @@ public final class ModifyIncrementDemo
     }
   }
 
-
-
   /**
    * {@inheritDoc}
    */
   @Override
-  public void addArguments(final ArgumentParser argumentParser) throws ArgumentException
-  {
+  public void addArguments(final ArgumentParser argumentParser) throws ArgumentException {
     Validator.ensureNotNull(argumentParser);
 
     /*
@@ -492,17 +448,13 @@ public final class ModifyIncrementDemo
     argumentParser.addArgument(dnArgument);
   }
 
-
-
   /**
    * {@inheritDoc}
    */
   @Override
-  public ResultCode executeToolTasks()
-  {
+  public ResultCode executeToolTasks() {
     introduction();
-    if(isVerbose())
-    {
+    if(isVerbose()) {
       displayServerInformation();
     }
 
@@ -533,18 +485,12 @@ public final class ModifyIncrementDemo
 
     final ModifyEntry modifyEntry = new ModifyEntry(this,commandLineOptions);
     ResultCode resultCode = null;
-    for(final String attribute : requestedAttributes)
-    {
-      try
-      {
+    for(final String attribute : requestedAttributes) {
+      try {
         modifyEntry.increment(entryDn,attribute,incrementValue);
-      }
-      catch(final LDAPSearchException ldapSearchException)
-      {
+      } catch(final LDAPSearchException ldapSearchException) {
         resultCode = ldapSearchException.getResultCode();
-      }
-      catch(final LDAPException ldapException)
-      {
+      } catch(final LDAPException ldapException) {
         resultCode = ldapException.getResultCode();
 
       }
@@ -553,63 +499,43 @@ public final class ModifyIncrementDemo
     return resultCode;
   }
 
-
-
   @Override
-  public Logger getLogger()
-  {
+  public Logger getLogger() {
     return Logger.getLogger(getClass().getName());
   }
 
-
-
   /**
    * {@inheritDoc}
    */
   @Override
-  public String getToolName()
-  {
+  public String getToolName() {
     return "ModifyIncrementDemo";
   }
 
-
-
   /**
    * {@inheritDoc}
    */
   @Override
-  protected String classSpecificPropertiesResourceName()
-  {
+  protected String classSpecificPropertiesResourceName() {
     return "ModifyIncrementDemo.properties";
   }
 
-
-
   @Override
-  protected UnsolicitedNotificationHandler getUnsolicitedNotificationHandler()
-  {
+  protected UnsolicitedNotificationHandler getUnsolicitedNotificationHandler() {
     return new samplecode.DefaultUnsolicitedNotificationHandler(this);
   }
-
-
 
   /**
    * Prepares {@code ModifyIncrementDemo} for use by a client - the
    * {@code System.out} and {@code System.err OutputStreams} are used.
    */
-  public ModifyIncrementDemo()
-  {
+  public ModifyIncrementDemo() {
     this(System.out,System.err);
   }
 
-
-
   private ModifyIncrementDemo(
-          final OutputStream outStream,final OutputStream errStream)
-  {
+          final OutputStream outStream,final OutputStream errStream) {
     super(outStream,errStream);
   }
-
-
 
 }
