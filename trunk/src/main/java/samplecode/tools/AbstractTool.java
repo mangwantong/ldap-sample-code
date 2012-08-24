@@ -18,6 +18,7 @@ package samplecode.tools;
 import com.unboundid.ldap.sdk.*;
 import com.unboundid.util.LDAPCommandLineTool;
 import com.unboundid.util.args.*;
+import org.apache.commons.lang.WordUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import samplecode.CommandLineOptions;
@@ -123,6 +124,21 @@ public abstract class AbstractTool extends LDAPCommandLineTool
     return executeToolTasks();
   }
 
+  protected void addRequiredArgumentSet(final ArgumentParser argumentParser,
+          final Argument... requiredArguments)
+  {
+    if(argumentParser == null)
+    {
+      throw new IllegalArgumentException("argumentParser must not be null.");
+    }
+    final List<Argument> requiredArgumentList = SampleCodeCollectionUtils.newArrayList();
+    for(Argument argument : requiredArguments)
+    {
+      requiredArgumentList.add(argument);
+    }
+    argumentParser.addRequiredArgumentSet(requiredArgumentList);
+  }
+
   protected String getRequiredArgumentsMessage(final ArgumentParser argumentParser)
   {
     if(argumentParser == null)
@@ -143,10 +159,11 @@ public abstract class AbstractTool extends LDAPCommandLineTool
           break;
         }
         final Argument argument = i.next();
-        final String fmt = String.format("--%-24s",argument.getLongIdentifier());
+        final String fmt = String.format("--%s\n",argument.getLongIdentifier());
         sb.append(fmt);
-        sb.append(argument.getDescription());
-        sb.append(lineSeparator);
+        final String wrappedDescription = WordUtils.wrap(argument.getDescription(),84,null,false);
+        sb.append(wrappedDescription);
+        sb.append(lineSeparator); sb.append(lineSeparator);
       }
     }
     return sb.toString();
