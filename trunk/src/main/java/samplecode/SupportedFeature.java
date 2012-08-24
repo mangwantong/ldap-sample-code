@@ -15,36 +15,32 @@
  */
 package samplecode;
 
-
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPConnectionPool;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.RootDSE;
 import com.unboundid.util.Validator;
-
-
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
-
 
 /**
  * Used to validate whether a directory server supports a request
  * control or extended operation. Requires an {@code LDAPConnectionPool}
  * or {@code LDAPConnection} with a connection to directory server. The
  * connection is not altered or closed.
- * <p>
+ * <p/>
  * Clients should use this class to check whether a request control,
  * feature, or extension is supported by directory server before using
  * the control, feature, or extensions.
- * <p>
+ * <p/>
  * This class has no public constructor; use
  * {@link SupportedFeature#newSupportedFeature(LDAPConnectionPool)} or
  * {@link SupportedFeature#newSupportedFeature(LDAPConnection)} to
  * obtain an instance of the object.
- * <p>
+ * <p/>
  * Usage example:<blockquote>
- * 
+ * <p/>
  * <pre>
  * SupportedControl supportedControl = SupportedControl.newSupportedControl(ldapConnectionPool);
  * try
@@ -57,61 +53,55 @@ import samplecode.annotation.Since;
  *   // The request control is not supported.
  * }
  * </pre>
- * 
+ * <p/>
  * </blockquote>
  */
-@Author("terry.gardner@unboundid.com")
-@Since("Nov 28, 2011")
-@CodeVersion("1.0")
+@Author("terry.gardner@unboundid.com") @Since("Nov 28, 2011") @CodeVersion("1.0")
 public final class SupportedFeature
 {
 
   /**
    * Gets a new {@code SupportedControl} object.
-   * 
-   * @param ldapConnection
-   *          A valid connection to a directory server to be used to
-   *          determine is a request control is supported.
-   *          {@code ldapConnection} is not permitted to be {@code null}
-   *          .
+   *
+   * @param ldapConnection A valid connection to a directory server to be used to
+   *                       determine is a request control is supported.
+   *                       {@code ldapConnection} is not permitted to be {@code null}
+   *                       .
    * @return A new {@code SupportedControl} object.
-   * @throws LDAPException
    */
   public static SupportedFeature newSupportedFeature(final LDAPConnection ldapConnection)
           throws LDAPException
   {
-    Validator.ensureNotNull(ldapConnection);
+    if(ldapConnection == null)
+    {
+      throw new IllegalArgumentException("ldapConnection must not be null.");
+    }
     return new SupportedFeature(ldapConnection);
   }
-
-
 
   /**
    * Gets a new {@code SupportedControl} object. This convenience method
    * gets a connection from the specified {@code ldapConnectionPool}.
-   * 
-   * @param ldapConnectionPool
-   *          A valid pool of connections to be used to determine is a
-   *          request control is supported. {@code ldapConnectionPool}
-   *          is not permitted to be {@code null}.
+   *
+   * @param ldapConnectionPool A valid pool of connections to be used to determine is a
+   *                           request control is supported. {@code ldapConnectionPool}
+   *                           is not permitted to be {@code null}.
    * @return A new {@code SupportedControl} object.
    * @throws LDAPException
    */
-  public static SupportedFeature
-          newSupportedFeature(final LDAPConnectionPool ldapConnectionPool) throws LDAPException
+  public static SupportedFeature newSupportedFeature(
+          final LDAPConnectionPool ldapConnectionPool) throws LDAPException
   {
     Validator.ensureNotNull(ldapConnectionPool);
     return SupportedFeature.newSupportedFeature(ldapConnectionPool.getConnection());
   }
 
-
-
   /**
    * Checks that the request control named by the specified {@code oid}
    * is supported by the server.
-   * <p>
+   * <p/>
    * Usage example:<blockquote>
-   * 
+   * <p/>
    * <pre>
    * SupportedControlOrExtendedOperation supportedControl =
    *         SupportedControlOrExtendedOperation(ldapConnectionPool);
@@ -125,36 +115,35 @@ public final class SupportedFeature
    *   // The request control is not supported.
    * }
    * </pre>
-   * 
+   * <p/>
    * </blockquote>
-   * 
-   * @param controlOID
-   *          The OID of a request control to determine if the server
-   *          supports.
-   * @throws SupportedFeatureException
-   *           If the request control with {@code controlOID} is not
-   *           supported by the server.
+   *
+   * @param controlOID The OID of a request control to determine if the server
+   *                   supports.
+   * @throws SupportedFeatureException If the request control with {@code controlOID} is not
+   *                                   supported by the server.
    */
   public void isControlSupported(final String controlOID) throws SupportedFeatureException
   {
-    Validator.ensureNotNull(controlOID);
+    if(controlOID == null)
+    {
+      throw new IllegalArgumentException("controlOID must not be null.");
+    }
     if(!rootDSE.supportsControl(controlOID))
     {
       final String exceptionMsg =
               String.format("The request control '%s' is not supported by this server.",
                       controlOID);
-      throw new SupportedFeatureException(exceptionMsg,controlOID);
+      throw new SupportedFeatureException(exceptionMsg, controlOID);
     }
   }
-
-
 
   /**
    * Checks that the extended operation named by the specified
    * {@code oid} is supported by the server.
-   * <p>
+   * <p/>
    * Usage example:<blockquote>
-   * 
+   * <p/>
    * <pre>
    * SupportedControlOrExtendedOperation supportedControl =
    *         SupportedControlOrExtendedOperation(ldapConnectionPool);
@@ -168,30 +157,29 @@ public final class SupportedFeature
    *   // The request control is not supported.
    * }
    * </pre>
-   * 
+   * <p/>
    * </blockquote>
-   * 
-   * @param extensionOID
-   *          The OID of an extended operation to determine if the
-   *          server supports.
-   * @throws SupportedFeatureException
-   *           If the extended operation with {@code extensionOID} is
-   *           not supported by the server.
+   *
+   * @param extensionOID The OID of an extended operation to determine if the
+   *                     server supports.
+   * @throws SupportedFeatureException If the extended operation with {@code extensionOID} is
+   *                                   not supported by the server.
    */
   public void isExtendedOperationSupported(final String extensionOID)
           throws SupportedFeatureException
   {
-    Validator.ensureNotNull(extensionOID);
+    if(extensionOID == null)
+    {
+      throw new IllegalArgumentException("extensionOID must not be null.");
+    }
     if(!rootDSE.supportsExtendedOperation(extensionOID))
     {
       final String exceptionMsg =
               String.format("The extended operation '%s' is not supported by this server.",
                       extensionOID);
-      throw new SupportedFeatureException(exceptionMsg,extensionOID);
+      throw new SupportedFeatureException(exceptionMsg, extensionOID);
     }
   }
-
-
 
   @Override
   public String toString()
@@ -199,16 +187,10 @@ public final class SupportedFeature
     return "SupportedFeature [" + (rootDSE != null ? "rootDSE=" + rootDSE : "") + "]";
   }
 
-
-
-  private SupportedFeature(
-          final LDAPConnection ldapConnection)
-          throws LDAPException
+  private SupportedFeature(final LDAPConnection ldapConnection) throws LDAPException
   {
     rootDSE = ldapConnection.getRootDSE();
   }
-
-
 
   /**
    * A representation of the root DSE.
