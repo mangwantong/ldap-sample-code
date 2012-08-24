@@ -15,23 +15,11 @@
  */
 package samplecode.password;
 
-
-import com.unboundid.ldap.sdk.DN;
-import com.unboundid.ldap.sdk.LDAPConnection;
-import com.unboundid.ldap.sdk.LDAPConnectionOptions;
-import com.unboundid.ldap.sdk.LDAPException;
-import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.*;
 import com.unboundid.util.Validator;
 import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
 import com.unboundid.util.args.StringArgument;
-
-
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.util.logging.Logger;
-
-
 import samplecode.SupportedFeatureException;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
@@ -41,6 +29,8 @@ import samplecode.listener.DefaultLdapExceptionListener;
 import samplecode.listener.ObservedByLdapExceptionListener;
 import samplecode.tools.AbstractTool;
 
+import java.io.OutputStream;
+import java.io.PrintStream;
 
 /**
  * Demonstrates the use of the {@code PasswordModifyExtendedRequest} by
@@ -50,12 +40,8 @@ import samplecode.tools.AbstractTool;
  * {@code --newPassword} is not specified,has the server generate a new
  * password (which is returned in the extended response).
  */
-@Author("terry.gardner@unboundid.com")
-@Since("12-Nov-2011")
-@CodeVersion("3.1")
-@Launchable
-public final class PasswordModifyExtendedOperationDemo
-        extends AbstractTool
+@Author("terry.gardner@unboundid.com") @Since("12-Nov-2011") @CodeVersion("3.1") @Launchable
+public final class PasswordModifyExtendedOperationDemo extends AbstractTool
         implements ObservedByLdapExceptionListener
 
 {
@@ -71,19 +57,17 @@ public final class PasswordModifyExtendedOperationDemo
    */
   public static final String ARG_NAME_NEW_PASSWORD = "newPassword";
 
-
-
   /**
    * Provides a demonstration of the password modify extended operation.
    * <blockquote>
-   * 
+   * <p/>
    * <pre>
    * Demonstrates the use of the PasswordModifyExtendedRequest by changing the
    * existing password specified by the --bindPassword command line argument to the
    * password specified by the --newPassword command line argument.
-   * 
+   *
    * Usage:  PasswordModifyExtendedOperationDemo {options}
-   * 
+   *
    * Available options include:
    * -h,--hostname {host}
    *     The IP address or resolvable name to use to connect to the directory
@@ -190,38 +174,24 @@ public final class PasswordModifyExtendedOperationDemo
    * -H,-?,--help
    *     Display usage information for this program.
    * </pre>
-   * 
+   * <p/>
    * </blockquote>
-   * 
-   * @param args
-   *          The command-line arguments less the JVM specific
-   *          arguments.
+   *
+   * @param args The command-line arguments less the JVM specific
+   *             arguments.
    */
   public static void main(final String... args)
   {
     final PrintStream outStream = System.out;
     final PrintStream errStream = System.err;
     final PasswordModifyExtendedOperationDemo passwordModifyExtendedOperationDemo =
-            new PasswordModifyExtendedOperationDemo(outStream,errStream);
+            new PasswordModifyExtendedOperationDemo(outStream, errStream);
     passwordModifyExtendedOperationDemo.runTool(args);
   }
 
-
-
   /**
    * {@inheritDoc}
-   */
-  @Override
-  public Logger getLogger()
-  {
-    return Logger.getLogger(getClass().getName());
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   * <p>
+   * <p/>
    * Installs the standard command line arguments processor and then
    * adds the {@code --newPassword} command line argument.
    */
@@ -242,17 +212,14 @@ public final class PasswordModifyExtendedOperationDemo
     final int maxOccurrences = 1;
     final String valuePlaceholder = "{new-password}";
     final String description =
-            "The parameter of this argument is used as the new password. "
-                    + "If this command line argument is not present "
-                    + "the server must generate a new password "
-                    + "and return the new password in the response.";
+            "The parameter of this argument is used as the new password. " + "If this command" +
+                    " line argument is not present " + "the server must generate a new " +
+                    "password " + "and return the new password in the response.";
     final StringArgument stringArgument =
-            new StringArgument(shortIdentifier,longIdentifier,isRequired,maxOccurrences,
-                    valuePlaceholder,description);
+            new StringArgument(shortIdentifier, longIdentifier, isRequired, maxOccurrences,
+                    valuePlaceholder, description);
     argumentParser.addArgument(stringArgument);
   }
-
-
 
   /**
    * {@inheritDoc}
@@ -262,8 +229,6 @@ public final class PasswordModifyExtendedOperationDemo
   {
     return "PasswordModifyExtendedoperationDemo.properties";
   }
-
-
 
   /**
    * {@inheritDoc}
@@ -283,9 +248,9 @@ public final class PasswordModifyExtendedOperationDemo
     final DN distinguishedName = commandLineOptions.getBindDn();
     final StringBuilder builder = new StringBuilder();
     builder.append("No bindDn was specified on the command line. ");
-    builder.append(String.format(" %s requires a valid bindDn.",getToolName()));
+    builder.append(String.format(" %s requires a valid bindDn.", getToolName()));
     builder.append(" Use '--bindDn DN' to specify the bind DN or use '--help'.");
-    Validator.ensureNotNullWithMessage(distinguishedName,builder.toString());
+    Validator.ensureNotNullWithMessage(distinguishedName, builder.toString());
 
     LDAPConnection ldapConnection;
     try
@@ -294,7 +259,7 @@ public final class PasswordModifyExtendedOperationDemo
     }
     catch(final LDAPException ldapException)
     {
-      fireLdapExceptionListener(null,ldapException);
+      fireLdapExceptionListener(null, ldapException);
       return ldapException.getResultCode();
     }
 
@@ -316,32 +281,31 @@ public final class PasswordModifyExtendedOperationDemo
      */
     final String oldPassword = commandLineOptions.getBindPassword();
     final String newPassword =
-            (String)commandLineOptions
-                    .get(PasswordModifyExtendedOperationDemo.ARG_NAME_NEW_PASSWORD);
+            (String) commandLineOptions.get(PasswordModifyExtendedOperationDemo
+                    .ARG_NAME_NEW_PASSWORD);
     ResultCode resultCode;
     final int responseTimeMillis = commandLineOptions.getMaxResponseTimeMillis();
     try
     {
-      changer.changePassword(distinguishedName,oldPassword,newPassword,responseTimeMillis);
+      changer.changePassword(distinguishedName, oldPassword, newPassword, responseTimeMillis);
       resultCode = ResultCode.SUCCESS;
     }
     catch(final LDAPException ldapException)
     {
-      fireLdapExceptionListener(ldapConnection,ldapException);
+      fireLdapExceptionListener(ldapConnection, ldapException);
       resultCode = ldapException.getResultCode();
     }
     catch(final SupportedFeatureException e)
     {
       resultCode = ResultCode.UNWILLING_TO_PERFORM;
     }
-    catch(final PasswordModifyExtendedOperationFailedException passwordModifyExtendedOperationFailedException)
+    catch(final PasswordModifyExtendedOperationFailedException
+            passwordModifyExtendedOperationFailedException)
     {
       resultCode = passwordModifyExtendedOperationFailedException.getResultCode();
     }
     return resultCode;
   }
-
-
 
   /**
    * Prepares {@code PasswordModifyExtendedOperationDemo} for use by a
@@ -350,26 +314,20 @@ public final class PasswordModifyExtendedOperationDemo
    */
   public PasswordModifyExtendedOperationDemo()
   {
-    this(System.out,System.err);
+    this(System.out, System.err);
   }
-
-
 
   /**
    * Prepares {@code PasswordModifyExtendedOperationDemo} for use by a
    * client - use the specified {@code outStream} and {@code errStream}.
-   * 
-   * @param outStream
-   *          the stream to which non-error messages are transmitted.
-   * @param errStream
-   *          the stream to which error messages are transmitted.
+   *
+   * @param outStream the stream to which non-error messages are transmitted.
+   * @param errStream the stream to which error messages are transmitted.
    */
-  public PasswordModifyExtendedOperationDemo(
-          final OutputStream outStream,final OutputStream errStream)
+  public PasswordModifyExtendedOperationDemo(final OutputStream outStream,
+          final OutputStream errStream)
   {
-    super(outStream,errStream);
+    super(outStream, errStream);
   }
-
-
 
 }

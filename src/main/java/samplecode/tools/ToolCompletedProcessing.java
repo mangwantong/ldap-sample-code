@@ -15,17 +15,13 @@
  */
 package samplecode.tools;
 
-
 import com.unboundid.util.CommandLineTool;
-
-
-import java.io.PrintStream;
-import java.util.logging.Logger;
-
-
+import org.apache.commons.logging.Log;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
+
+import java.io.PrintStream;
 
 
 /**
@@ -34,39 +30,34 @@ import samplecode.annotation.Since;
  * completed processing. {@link CommandLineTool#doToolProcessing()} does
  * not throw an exception but provides a result code.
  */
-@Author("terry.gardner@unboundid.com")
-@Since("Dec 24, 2011")
-@CodeVersion("1.1")
+@Author("terry.gardner@unboundid.com") @Since("Dec 24, 2011") @CodeVersion("1.1")
 public interface ToolCompletedProcessing
 {
 
   /**
    * Constructs the string consisting of the message to be displayed.
-   * 
+   *
    * @return the message to be displayed
    */
   String createMsg();
 
 
+  /**
+   * Transmits a message created at the discretion of the implementing
+   * class to the output stream or error stream (errors only).
+   *
+   * @param outStream the output stream for normal messages
+   * @param errStream the output stream used for error messages
+   */
+  void displayMessage(PrintStream outStream, PrintStream errStream);
+
 
   /**
    * Transmits a message created at the discretion of the implementing
    * class to the output stream or error stream (errors only).
-   * 
-   * @param logger
-   *          A logger created by the client
+   *
+   * @param logger A logger created by the client
    */
-  void displayMessage(Logger logger);
-
-
-
-  /**
-   * Transmits a message created at the discretion of the implementing
-   * class to the output stream or error stream (errors only).
-   * 
-   * @param outStream
-   * @param errStream
-   */
-  void displayMessage(PrintStream outStream,PrintStream errStream);
+  void displayMessage(Log logger);
 
 }

@@ -15,54 +15,41 @@
  */
 package samplecode.listener;
 
-
-import com.unboundid.util.Validator;
-
+import org.apache.commons.logging.Log;
 
 import java.util.logging.Level;
-import java.util.logging.Logger;
-
 
 /**
  * A minimal {@code LdapExceptionListener} that displays messages.
  */
-public class DefaultLdapExceptionListener
-        implements LdapExceptionListener
+public class DefaultLdapExceptionListener implements LdapExceptionListener
 {
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void ldapRequestFailed(final LdapExceptionEvent ldapExceptionEvent)
-  {
-    ldapRequestFailed(ldapExceptionEvent,Level.SEVERE);
-  }
-
-
-
-  private void ldapRequestFailed(final LdapExceptionEvent ev,final Level level)
-  {
-    logger.log(Level.SEVERE,ev.getLdapException().getMessage());
-  }
-
-
 
   /**
    * Create the exception listener using the {@code logger} provided by
    * the client. The {@code logger} is not permitted to be {@code null}.
    */
-  public DefaultLdapExceptionListener(
-          final Logger logger)
+  public DefaultLdapExceptionListener(final Log logger)
   {
-    Validator.ensureNotNull(logger);
+    if(logger == null)
+    {
+      throw new IllegalArgumentException("logger must not be null.");
+    }
     this.logger = logger;
   }
 
+  @Override
+  public void ldapRequestFailed(final LdapExceptionEvent ldapExceptionEvent)
+  {
+    ldapRequestFailed(ldapExceptionEvent, Level.SEVERE);
+  }
+
+  private void ldapRequestFailed(final LdapExceptionEvent ev, final Level level)
+  {
+    logger.error(ev.getLdapException().getMessage());
+  }
 
 
-  /** logging facilities */
-  private final Logger logger;
+  private final Log logger;
 
 }

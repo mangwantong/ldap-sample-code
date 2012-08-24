@@ -15,35 +15,13 @@
  */
 package samplecode.vlv;
 
-
 import com.unboundid.asn1.ASN1OctetString;
-import com.unboundid.ldap.sdk.Control;
-import com.unboundid.ldap.sdk.Filter;
-import com.unboundid.ldap.sdk.LDAPException;
-import com.unboundid.ldap.sdk.ResultCode;
-import com.unboundid.ldap.sdk.SearchRequest;
-import com.unboundid.ldap.sdk.SearchResult;
-import com.unboundid.ldap.sdk.SearchResultEntry;
-import com.unboundid.ldap.sdk.SearchScope;
+import com.unboundid.ldap.sdk.*;
 import com.unboundid.ldap.sdk.controls.ServerSideSortRequestControl;
 import com.unboundid.ldap.sdk.controls.SortKey;
 import com.unboundid.ldap.sdk.controls.VirtualListViewRequestControl;
 import com.unboundid.ldap.sdk.controls.VirtualListViewResponseControl;
-
-
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-
-import samplecode.AttributeNotSupportedException;
-import samplecode.BasicLdapEntryDisplay;
-import samplecode.LdapEntryDisplay;
-import samplecode.SupportedFeature;
-import samplecode.SupportedFeatureException;
-import samplecode.SupportedUserAttribute;
+import samplecode.*;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Launchable;
@@ -55,34 +33,193 @@ import samplecode.tools.AbstractTool;
 import samplecode.tools.BasicToolCompletedProcessing;
 import samplecode.tools.ToolCompletedProcessing;
 
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.util.List;
 
 /**
  * Demonstrates the virtual list view request control such as command
  * line launch facilities and command line argument processing
  * facilities.
  */
-@Author("terry.gardner@unboundid.com")
-@Since("Dec 4, 2011")
-@CodeVersion("1.4")
-@Launchable
-public final class VirtualListViewDemo
-        extends AbstractTool
-        implements LdapExceptionListener,ObservedByLdapExceptionListener
+@Author("terry.gardner@unboundid.com") @Since("Dec 4, 2011") @CodeVersion("1.4") @Launchable
+public final class VirtualListViewDemo extends AbstractTool
+        implements LdapExceptionListener, ObservedByLdapExceptionListener
 {
 
+  private VirtualListViewDemo(final OutputStream outStream, final OutputStream errStream)
+  {
+    super(outStream, errStream);
+  }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  protected ResultCode executeToolTasks()
+  {
+    addLdapExceptionListener(new DefaultLdapExceptionListener(getLogger()));
+    ResultCode resultCode = ResultCode.SUCCESS;
+
+    introduction();
+    if(isVerbose())
+    {
+      displayArguments();
+    }
+
+    /*
+     * Obtain a pool of connections to the LDAP server from the
+     * LDAPCommandLineTool services,this requires specifying a
+     * connection to the LDAP server,a number of initial connections
+     * (--initialConnections) in the pool,and the maximum number of
+     * connections (--maxConnections) that the pool should create.
+     */
+    try
+    {
+      ldapConnection = connectToServer();
+      ldapConnectionPool = getLdapConnectionPool(ldapConnection);
+    }
+    catch(final LDAPException ldapException)
+    {
+      fireLdapExceptionListener(ldapConnection, ldapException);
+      return ldapException.getResultCode();
+    }
+
+    try
+    {
+      /*
+       * Determine whether the VirtualListViewRequestControl and the
+       * ServerSideSortRequestControl are supported by the server to
+       * which this LDAP client is connected.
+       */
+      final SupportedFeature supportedFeature =
+              SupportedFeature.newSupportedFeature(ldapConnection);
+      String controlOID = ServerSideSortRequestControl.SERVER_SIDE_SORT_REQUEST_OID;
+      supportedFeature.isControlSupported(controlOID);
+      controlOID = VirtualListViewRequestControl.VIRTUAL_LIST_VIEW_REQUEST_OID;
+      supportedFeature.isControlSupported(controlOID);
+
+      /*
+       * Use the attribute specified by the --attribute command line
+       * argument (which may appear multiple times) to create sort keys
+       * for a new ServerSideSortRequestControl object. Before creating
+       * the new sort key, check that the attribute is supported by the
+       * server schema.
+       */
+      final List<String> requestedAttributesList = commandLineOptions.getRequestedAttributes();
+      final String[] requestedAttributes = requestedAttributesList.toArray(new String[0]);
+      final SortKey[] sortKeys = new SortKey[requestedAttributes.length];
+      int i = 0;
+      for(final String a : requestedAttributes)
+      {
+        SupportedUserAttribute.getInstance().supported(ldapConnection, a);
+        sortKeys[i] = new SortKey(a);
+        ++i;
+      }
+      final ServerSideSortRequestControl sortRequest =
+              new ServerSideSortRequestControl(sortKeys);
+
+      /*
+       * Construct a search request from the parameter to the
+       * --baseObject, --scope, --filter, --sizeLimit, --timeLimit, and
+       * --requestedAttribute command line arguments. Note that all
+       * search requests should include and client-requested size limit
+       * and time limit.
+       */
+      final String baseObject = commandLineOptions.getBaseObject();
+      final SearchScope scope = commandLineOptions.getSearchScope();
+      final Filter filter = commandLineOptions.getFilter();
+      final SearchRequest searchRequest =
+              new SearchRequest(baseObject, scope, filter, requestedAttributes);
+      final int sizeLimit = commandLineOptions.getSizeLimit();
+      searchRequest.setSizeLimit(sizeLimit);
+      final int timeLimit = commandLineOptions.getTimeLimit();
+      searchRequest.setTimeLimitSeconds(timeLimit);
+
+      int targetOffset = 1;
+      int contentCount = 0;
+      ASN1OctetString contextID = null;
+      final int beforeCount = 0;
+      final int afterCount = 9;
+      do
+      {
+        final VirtualListViewRequestControl vlvRequest =
+                new VirtualListViewRequestControl(targetOffset, beforeCount, afterCount,
+                        contentCount, contextID);
+        searchRequest.setControls(new Control[]{sortRequest, vlvRequest});
+        final SearchResult searchResult = ldapConnection.search(searchRequest);
+
+        /*
+         * Display the results of the search.
+         */
+        if(searchResult.getResultCode().equals(ResultCode.SUCCESS) && (searchResult
+                .getEntryCount() > 0))
+        {
+          for(final SearchResultEntry entry : searchResult.getSearchEntries())
+          {
+            final LdapEntryDisplay ldapEntryDisplay = new BasicLdapEntryDisplay(entry);
+            ldapEntryDisplay.display();
+          }
+        }
+
+        contentCount = -1;
+        final VirtualListViewResponseControl c =
+                VirtualListViewResponseControl.get(searchResult);
+        if(c != null)
+        {
+          contentCount = c.getContentCount();
+          contextID = c.getContextID();
+        }
+        targetOffset += 10;
+      } while(targetOffset <= contentCount);
+
+      ldapConnection.close();
+    }
+    catch(final LDAPException ldapException)
+    {
+      fireLdapExceptionListener(ldapConnection, ldapException);
+      resultCode = ldapException.getResultCode();
+    }
+    catch(final SupportedFeatureException supportedFeatureException)
+    {
+      // a request control is not supported by this server.
+      final String msg = supportedFeatureException.getMessage();
+      getLogger().fatal(supportedFeatureException.getMessage());
+      resultCode = ResultCode.UNWILLING_TO_PERFORM;
+    }
+    catch(final AttributeNotSupportedException attributeNotSupportedException)
+    {
+      // An attribute was not defined
+      final String msg =
+              String.format("attribute '%s' is not supported, " + "that is, " +
+                      "is not defined in the server schema.", attributeNotSupportedException
+                      .getAttributeName());
+      getLogger().fatal(msg);
+      resultCode = ResultCode.PROTOCOL_ERROR;
+    }
+    return resultCode;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  protected String classSpecificPropertiesResourceName()
+  {
+    return "VirtualListViewDemo.properties";
+  }
 
   /**
    * <blockquote>
-   * 
+   * <p/>
    * <pre>
    * Provides a demonstration of the use of the virtual list view request and
    * response controls. The VLV request and response controls are similar to the
    * simple paged results request control except LDAP clients may access arbitrary
    * pages of data.
-   * 
+   *
    * Usage:  VirtualListViewDemo {options}
-   * 
+   *
    * Available options include:
    * -h, --hostname {host}
    *     The IP address or resolvable name to use to connect to the directory
@@ -165,208 +302,22 @@ public final class VirtualListViewDemo
    * -H, -?, --help
    *     Display usage information for this program.
    * </pre>
-   * 
+   * <p/>
    * </blockquote>
-   * 
-   * @param args
-   *          command line arguments, less the JVM arguments.
+   *
+   * @param args command line arguments, less the JVM arguments.
    */
   public static void main(final String... args)
   {
     final PrintStream outStream = System.out;
     final PrintStream errStream = System.err;
-    final VirtualListViewDemo demo = new VirtualListViewDemo(outStream,errStream);
+    final VirtualListViewDemo demo = new VirtualListViewDemo(outStream, errStream);
     final ResultCode resultCode = demo.runTool(args);
     if(resultCode != null)
     {
-      final ToolCompletedProcessing c = new BasicToolCompletedProcessing(demo,resultCode);
-      c.displayMessage(outStream,errStream);
+      final ToolCompletedProcessing c = new BasicToolCompletedProcessing(demo, resultCode);
+      c.displayMessage(outStream, errStream);
     }
   }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public Logger getLogger()
-  {
-    return Logger.getLogger(getClass().getCanonicalName());
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  protected String classSpecificPropertiesResourceName()
-  {
-    return "VirtualListViewDemo.properties";
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  protected ResultCode executeToolTasks()
-  {
-    addLdapExceptionListener(new DefaultLdapExceptionListener(getLogger()));
-    ResultCode resultCode = ResultCode.SUCCESS;
-
-    introduction();
-    if(isVerbose())
-    {
-      displayArguments();
-    }
-
-    /*
-     * Obtain a pool of connections to the LDAP server from the
-     * LDAPCommandLineTool services,this requires specifying a
-     * connection to the LDAP server,a number of initial connections
-     * (--initialConnections) in the pool,and the maximum number of
-     * connections (--maxConnections) that the pool should create.
-     */
-    try
-    {
-      ldapConnection = connectToServer();
-      ldapConnectionPool = getLdapConnectionPool(ldapConnection);
-    }
-    catch(final LDAPException ldapException)
-    {
-      fireLdapExceptionListener(ldapConnection,ldapException);
-      return ldapException.getResultCode();
-    }
-
-    try
-    {
-      /*
-       * Determine whether the VirtualListViewRequestControl and the
-       * ServerSideSortRequestControl are supported by the server to
-       * which this LDAP client is connected.
-       */
-      final SupportedFeature supportedFeature =
-              SupportedFeature.newSupportedFeature(ldapConnection);
-      String controlOID = ServerSideSortRequestControl.SERVER_SIDE_SORT_REQUEST_OID;
-      supportedFeature.isControlSupported(controlOID);
-      controlOID = VirtualListViewRequestControl.VIRTUAL_LIST_VIEW_REQUEST_OID;
-      supportedFeature.isControlSupported(controlOID);
-
-      /*
-       * Use the attribute specified by the --attribute command line
-       * argument (which may appear multiple times) to create sort keys
-       * for a new ServerSideSortRequestControl object. Before creating
-       * the new sort key, check that the attribute is supported by the
-       * server schema.
-       */
-      final List<String> requestedAttributesList = commandLineOptions.getRequestedAttributes();
-      final String[] requestedAttributes = requestedAttributesList.toArray(new String[0]);
-      final SortKey[] sortKeys = new SortKey[requestedAttributes.length];
-      int i = 0;
-      for(final String a : requestedAttributes)
-      {
-        SupportedUserAttribute.getInstance().supported(ldapConnection,a);
-        sortKeys[i] = new SortKey(a);
-        ++i;
-      }
-      final ServerSideSortRequestControl sortRequest =
-              new ServerSideSortRequestControl(sortKeys);
-
-      /*
-       * Construct a search request from the parameter to the
-       * --baseObject, --scope, --filter, --sizeLimit, --timeLimit, and
-       * --requestedAttribute command line arguments. Note that all
-       * search requests should include and client-requested size limit
-       * and time limit.
-       */
-      final String baseObject = commandLineOptions.getBaseObject();
-      final SearchScope scope = commandLineOptions.getSearchScope();
-      final Filter filter = commandLineOptions.getFilter();
-      final SearchRequest searchRequest =
-              new SearchRequest(baseObject,scope,filter,requestedAttributes);
-      final int sizeLimit = commandLineOptions.getSizeLimit();
-      searchRequest.setSizeLimit(sizeLimit);
-      final int timeLimit = commandLineOptions.getTimeLimit();
-      searchRequest.setTimeLimitSeconds(timeLimit);
-
-      int targetOffset = 1;
-      int contentCount = 0;
-      ASN1OctetString contextID = null;
-      final int beforeCount = 0;
-      final int afterCount = 9;
-      do
-      {
-        final VirtualListViewRequestControl vlvRequest =
-                new VirtualListViewRequestControl(targetOffset,beforeCount,afterCount,
-                        contentCount,contextID);
-        searchRequest.setControls(new Control[]
-        {
-                sortRequest, vlvRequest
-        });
-        final SearchResult searchResult = ldapConnection.search(searchRequest);
-
-        /*
-         * Display the results of the search.
-         */
-        if(searchResult.getResultCode().equals(ResultCode.SUCCESS) &&
-                (searchResult.getEntryCount() > 0))
-        {
-          for(final SearchResultEntry entry : searchResult.getSearchEntries())
-          {
-            final LdapEntryDisplay ldapEntryDisplay = new BasicLdapEntryDisplay(entry);
-            ldapEntryDisplay.display();
-          }
-        }
-
-        contentCount = -1;
-        final VirtualListViewResponseControl c =
-                VirtualListViewResponseControl.get(searchResult);
-        if(c != null)
-        {
-          contentCount = c.getContentCount();
-          contextID = c.getContextID();
-        }
-        targetOffset += 10;
-      }
-      while(targetOffset <= contentCount);
-
-      ldapConnection.close();
-    }
-    catch(final LDAPException ldapException)
-    {
-      fireLdapExceptionListener(ldapConnection,ldapException);
-      resultCode = ldapException.getResultCode();
-    }
-    catch(final SupportedFeatureException supportedFeatureException)
-    {
-      // a request control is not supported by this server.
-      getLogger().log(Level.SEVERE,supportedFeatureException.getMessage());
-      resultCode = ResultCode.UNWILLING_TO_PERFORM;
-    }
-    catch(final AttributeNotSupportedException attributeNotSupportedException)
-    {
-      // An attribute was not defined
-      final String msg =
-              String.format("attribute '%s' is not supported, "
-                      + "that is, is not defined in the server schema.",
-                      attributeNotSupportedException.getAttributeName());
-      getLogger().log(Level.SEVERE,msg);
-      resultCode = ResultCode.PROTOCOL_ERROR;
-    }
-    return resultCode;
-  }
-
-
-
-  private VirtualListViewDemo(
-          final OutputStream outStream,final OutputStream errStream)
-  {
-    super(outStream,errStream);
-  }
-
-
 
 }

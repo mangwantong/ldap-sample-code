@@ -15,7 +15,6 @@
  */
 package samplecode.tools;
 
-
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.UnsolicitedNotificationHandler;
 import com.unboundid.util.MinimalLogFormatter;
@@ -23,44 +22,33 @@ import com.unboundid.util.Validator;
 import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
 import com.unboundid.util.args.StringArgument;
-
-
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.LogRecord;
-import java.util.logging.Logger;
-
-
 import samplecode.ScriptGenerator;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Launchable;
 import samplecode.annotation.Since;
 
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
 
 /**
  * Provides a command line interface to {@code ScriptGenerator}.
- * 
+ *
  * @see ScriptGenerator
  */
-@Author("terry.gardner@unboundid.com")
-@Since("Jan 1, 2012")
-@CodeVersion("1.2")
-@Launchable
-public final class ScriptTool
-        extends AbstractTool
+@Author("terry.gardner@unboundid.com") @Since("Jan 1, 2012") @CodeVersion("1.2") @Launchable
+public final class ScriptTool extends AbstractTool
 {
 
   /**
    * The description of this tool; this is used for help and diagnostic
    * output, and for other purposes.
    */
-  public static final String TOOL_DESCRIPTION = "Generates an executable script for use in "
-          + "invoking the tools provided by the samplecode package. "
-          + "ScriptTool requires --writeableDirectory, "
-          + "--className, and --classPath. Optionally supply --jvmOptions.";
-
-
+  public static final String TOOL_DESCRIPTION =
+          "Generates an executable script for use in " + "invoking the tools provided by the " +
+                  "samplecode package. " + "ScriptTool requires --writeableDirectory, " +
+                  "" + "--className, and --classPath. Optionally supply --jvmOptions.";
 
   /**
    * The name of this tool; this is used for help and diagnostic output,
@@ -68,18 +56,16 @@ public final class ScriptTool
    */
   public static final String TOOL_NAME = "ScriptTool";
 
-
-
   /**
    * <blockquote>
-   * 
+   * <p/>
    * <pre>
    * Generates an executable script for use in invoking the tools provided by the
    * samplecode package. ScriptTool requires --writeableDirectory, --className, and
    * --classPath. Optionally supply --jvmOptions.
-   * 
+   *
    * Usage:  ScriptTool {options}
-   * 
+   *
    * Available options include:
    * -h, --hostname {host}
    *     The IP address or resolvable name to use to connect to the directory
@@ -197,13 +183,14 @@ public final class ScriptTool
    *     JVM options for the shell script.
    * -H, -?, --help
    *     Display usage information for this program.
-   * 
-   * [01/Jan/2012:11:37:16 -0500] ScriptTool has completed processing, the result code was: 0 (success)
-   * 
+   *
+   * [01/Jan/2012:11:37:16 -0500] ScriptTool has completed processing,
+   * the result code was: 0 (success)
+   *
    * </pre>
-   * 
+   * <p/>
    * </blockquote>
-   * 
+   *
    * @param args
    */
   public static void main(final String... args)
@@ -211,11 +198,9 @@ public final class ScriptTool
     final ScriptTool tool = new ScriptTool();
     final ResultCode resultCode = tool.runTool(args);
     final ToolCompletedProcessing completedProcessing =
-            new BasicToolCompletedProcessing(tool,resultCode);
-    completedProcessing.displayMessage(System.out,System.err);
+            new BasicToolCompletedProcessing(tool, resultCode);
+    completedProcessing.displayMessage(System.out, System.err);
   }
-
-
 
   /**
    * {@inheritDoc}
@@ -223,7 +208,7 @@ public final class ScriptTool
   @Override
   public void addArguments(final ArgumentParser argumentParser) throws ArgumentException
   {
-    Validator.ensureNotNullWithMessage(argumentParser,"argument parser was null.");
+    Validator.ensureNotNullWithMessage(argumentParser, "argument parser was null.");
 
     classNameArgument = newClassNameArgument();
     classPathArgument = newClassPathArgument();
@@ -234,8 +219,6 @@ public final class ScriptTool
     argumentParser.addArgument(directoryArgument);
     argumentParser.addArgument(spaceSeparatedJVMOptionsArgument);
   }
-
-
 
   /**
    * {@inheritDoc}
@@ -249,12 +232,13 @@ public final class ScriptTool
     final String spaceSeparatedJVMOptions = spaceSeparatedJVMOptionsArgument.getValue();
     final String directory = directoryArgument.getValue();
     final ScriptGenerator gen =
-            new ScriptGenerator(className,classPath,spaceSeparatedJVMOptions,directory);
+            new ScriptGenerator(className, classPath, spaceSeparatedJVMOptions, directory);
     try
     {
       gen.generateScript();
-      final String helpfulMessage = String.format("Created %s/%s",directory,gen.getFilename());
-      final LogRecord record = new LogRecord(Level.INFO,helpfulMessage);
+      final String helpfulMessage =
+              String.format("Created %s/%s", directory, gen.getFilename());
+      final LogRecord record = new LogRecord(Level.INFO, helpfulMessage);
       out(new MinimalLogFormatter().format(record));
     }
     catch(final IOException exception)
@@ -263,16 +247,6 @@ public final class ScriptTool
     }
     return ResultCode.SUCCESS;
   }
-
-
-
-  @Override
-  public Logger getLogger()
-  {
-    return Logger.getLogger(getClass().getName());
-  }
-
-
 
   /**
    * {@inheritDoc}
@@ -283,8 +257,6 @@ public final class ScriptTool
     return ScriptTool.TOOL_NAME;
   }
 
-
-
   /**
    * {@inheritDoc}
    */
@@ -294,15 +266,11 @@ public final class ScriptTool
     return "ScriptTool.properties";
   }
 
-
-
   @Override
   protected UnsolicitedNotificationHandler getUnsolicitedNotificationHandler()
   {
     return new samplecode.DefaultUnsolicitedNotificationHandler(this);
   }
-
-
 
   /**
    * @return the full-qualified class name for which a script is to be
@@ -313,8 +281,6 @@ public final class ScriptTool
     return getClassNameArgument().getValue();
   }
 
-
-
   /**
    * @return the class path to use in the script.
    */
@@ -322,8 +288,6 @@ public final class ScriptTool
   {
     return getClassPathArgument().getValue();
   }
-
-
 
   /**
    * @return the directory
@@ -333,8 +297,6 @@ public final class ScriptTool
     return getDirectoryArgument().getValue();
   }
 
-
-
   /**
    * @return the JVM options.
    */
@@ -342,8 +304,6 @@ public final class ScriptTool
   {
     return getJvmOptionsArgument().getValue();
   }
-
-
 
   /**
    * @return the classNameArgument
@@ -353,8 +313,6 @@ public final class ScriptTool
     return classNameArgument;
   }
 
-
-
   /**
    * @return the classPathArgument
    */
@@ -362,8 +320,6 @@ public final class ScriptTool
   {
     return classPathArgument;
   }
-
-
 
   /**
    * @return the directoryArgument
@@ -373,57 +329,43 @@ public final class ScriptTool
     return directoryArgument;
   }
 
-
-
   private StringArgument getJvmOptionsArgument()
   {
     return spaceSeparatedJVMOptionsArgument;
   }
 
-
-
   private StringArgument newClassNameArgument() throws ArgumentException
   {
-    return new StringArgument(null,"className",true,1,"{full-qualified classname}",
+    return new StringArgument(null, "className", true, 1, "{full-qualified classname}",
             "The name of a class for which to generate an executable shell script.");
   }
 
-
-
   private StringArgument newClassPathArgument() throws ArgumentException
   {
-    return new StringArgument(null,"classPath",true,1,"{class-path}",
+    return new StringArgument(null, "classPath", true, 1, "{class-path}",
             "the class path that ScriptTool inserts into a script");
   }
 
-
-
   private StringArgument newDirectoryArgument() throws ArgumentException
   {
-    return new StringArgument(null,"writableDirectory",true,1,"{folder-or-directory}",
+    return new StringArgument(null, "writableDirectory", true, 1, "{folder-or-directory}",
             "the directory in which ScriptTool creats a script");
   }
 
-
-
   private StringArgument newJvmOptionsArgument() throws ArgumentException
   {
-    return new StringArgument(null,"jvmOptions",false,1,"{jvm options}",
-            "JVM options for the shell script.","-Xms32m -Xmx32m -d64");
+    return new StringArgument(null, "jvmOptions", false, 1, "{jvm options}",
+            "JVM options for the shell script.", "-Xms32m -Xmx32m -d64");
   }
-
-
 
   /**
    * Constructs a {@code ScriptTool}.
    */
   public ScriptTool()
   {
-    super(System.out,System.err);
+    super(System.out, System.err);
 
   }
-
-
 
   /**
    * The string argument that is used to specify the fully-qualified
@@ -433,8 +375,6 @@ public final class ScriptTool
    */
   private StringArgument classNameArgument;
 
-
-
   /**
    * The string argument that is used to specify the class path that
    * {@code ScriptTool} inserts into an executable script.
@@ -443,8 +383,6 @@ public final class ScriptTool
    */
   private StringArgument classPathArgument;
 
-
-
   /**
    * The string argument that is used to specify the directory where
    * {@code ScriptTool} creates an executable script.
@@ -452,8 +390,6 @@ public final class ScriptTool
    * time.
    */
   private StringArgument directoryArgument;
-
-
 
   /**
    * The string argument that is used to specify the JVM Options yjsy

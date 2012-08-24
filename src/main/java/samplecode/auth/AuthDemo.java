@@ -15,15 +15,11 @@
  */
 package samplecode.auth;
 
-
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
-
-
-import java.util.logging.Logger;
-
-
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import samplecode.SupportedFeatureException;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
@@ -38,72 +34,40 @@ import samplecode.tools.ToolCompletedProcessing;
 /**
  * Provides a demonstration of the Who Am I? extended operation and the
  * {@code AuthorizationIdentityRequestControl}.
- * <p>
+ * <p/>
  * Example usage:
- * 
+ * <p/>
  * <pre>
  * java -cp your-classpath samplecode.auth.AuthDemo \
  *   --hostname localhost --port 1389 \
  *   --bindDn "uid=user.0,ou=people,dc=example,dc=com" \
  *   --bindPasswordFile ~/.pwdFile --useStartTLS --trustAll
- * 
+ *
  * [18/Dec/2011:19:47:34 -0500] Connected to LDAP server.
  * [18/Dec/2011:19:47:34 -0500] Who Am I? extension is supported.
  * [18/Dec/2011:19:47:34 -0500] Authorization Identity Request Control is supported.
- * [18/Dec/2011:19:47:34 -0500] AuthorizationID from the Who am I? extended request: 'dn:uid=user.0,ou=People,dc=example,dc=com'
- * [18/Dec/2011:19:47:34 -0500] AuthorizationID from the AuthorizationIdentityResponseControl: 'dn:uid=user.0,ou=People,dc=example,dc=com'
+ * [18/Dec/2011:19:47:34 -0500] AuthorizationID from the Who am I? extended request:
+ * 'dn:uid=user.0,ou=People,dc=example,dc=com'
+ * [18/Dec/2011:19:47:34 -0500] AuthorizationID from the
+ * AuthorizationIdentityResponseControl: 'dn:uid=user.0,ou=People,dc=example,dc=com'
  * [18/Dec/2011:19:47:34 -0500] PasswordExpiredControl was not included in the bind response.
  * [18/Dec/2011:19:47:34 -0500] PasswordExpiringControl was not included in the bind response.
- * [18/Dec/2011:19:47:34 -0500] AuthDemo has completed processing. The result code was: 0 (success)
+ * [18/Dec/2011:19:47:34 -0500] AuthDemo has completed processing. The result code was: 0
+ * (success)
  * </pre>
- * 
+ * <p/>
  * Below is the output of the {@code --help|-H} command line
  * option:<blockquote>
- * 
+ * <p/>
  * <pre>
- * 
+ *
  * </pre>
- * 
+ * <p/>
  * </blockquote>
  */
-@Author("terry.gardner@unboundid.com")
-@Since("27-Nov-2011")
-@CodeVersion("2.3")
-@Launchable
-public final class AuthDemo
-        extends AbstractTool
+@Author("terry.gardner@unboundid.com") @Since("27-Nov-2011") @CodeVersion("2.3") @Launchable
+public final class AuthDemo extends AbstractTool
 {
-
-
-
-  /**
-   * Launch the {@code AuthDemo} application. Takes the following
-   * command line arguments in addition to the standard ones:
-   * 
-   * @param args
-   *          command line arguments, less the JVM arguments.
-   */
-  public static void main(final String... args)
-  {
-    final AuthDemo authDemo = new AuthDemo();
-    final ResultCode resultCode = authDemo.runTool(args);
-    final ToolCompletedProcessing completedProcessing =
-            new BasicToolCompletedProcessing(authDemo,resultCode);
-    completedProcessing.displayMessage(Logger.getLogger(AuthDemo.class.getName()));
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  protected String classSpecificPropertiesResourceName()
-  {
-    return "AuthDemo.properties";
-  }
-
-
 
   /**
    * {@inheritDoc}
@@ -132,16 +96,15 @@ public final class AuthDemo
     }
     catch(final LDAPException x)
     {
-      fireLdapExceptionListener(ldapConnection,x);
+      fireLdapExceptionListener(ldapConnection, x);
       return x.getResultCode();
     }
 
 
-
     /*
-     * Instantiate the object which provides methods to get the
-     * authorization identity.
-     */
+    * Instantiate the object which provides methods to get the
+    * authorization identity.
+    */
     if(isVerbose())
     {
       verbose("Creating the authorized identity object.");
@@ -169,8 +132,8 @@ public final class AuthDemo
     try
     {
       authId =
-              authorizedIdentity
-                      .getAuthorizationIdentityWhoAmIExtendedOperation(getResponseTimeMillis());
+              authorizedIdentity.getAuthorizationIdentityWhoAmIExtendedOperation
+                      (getResponseTimeMillis());
     }
     catch(final SupportedFeatureException exception1)
     {
@@ -178,7 +141,7 @@ public final class AuthDemo
     }
     if(authId != null)
     {
-      msg = String.format("AuthorizationID from the Who am I? extended request: '%s'",authId);
+      msg = String.format("AuthorizationID from the Who am I? extended request: '%s'", authId);
       getLogger().info(msg);
     }
 
@@ -190,8 +153,8 @@ public final class AuthDemo
     if(bindDnAsDn == null)
     {
       final String helpfulMessage =
-              "Please specify a --bindDN argument to test the "
-                      + "AuthorizationidentityRequestControl.";
+              "Please specify a --bindDN argument to test the " +
+                      "AuthorizationidentityRequestControl.";
       getLogger().info(helpfulMessage);
       return ResultCode.PARAM_ERROR;
     }
@@ -204,8 +167,8 @@ public final class AuthDemo
     try
     {
       authId =
-              authorizedIdentity.getAuthorizationIdentityFromBindRequest(bindDn,bindPassword,
-                      getResponseTimeMillis());
+              authorizedIdentity.getAuthorizationIdentityFromBindRequest(bindDn,
+                      bindPassword, getResponseTimeMillis());
     }
     catch(final SupportedFeatureException exception)
     {
@@ -214,8 +177,8 @@ public final class AuthDemo
     if(authId != null)
     {
       msg =
-              String.format("AuthorizationID from the "
-                      + "AuthorizationIdentityResponseControl: '%s'",authId);
+              String.format("AuthorizationID from the " +
+                      "AuthorizationIdentityResponseControl: '%s'", authId);
       getLogger().info(msg);
     }
 
@@ -227,14 +190,29 @@ public final class AuthDemo
     return ResultCode.SUCCESS;
   }
 
-
-
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  protected Logger getLogger()
+  protected String classSpecificPropertiesResourceName()
   {
-    return Logger.getLogger(getClass().getName());
+    return "AuthDemo.properties";
   }
 
-
+  /**
+   * Launch the {@code AuthDemo} application. Takes the following
+   * command line arguments in addition to the standard ones:
+   *
+   * @param args command line arguments, less the JVM arguments.
+   */
+  public static void main(final String... args)
+  {
+    final AuthDemo authDemo = new AuthDemo();
+    final ResultCode resultCode = authDemo.runTool(args);
+    final ToolCompletedProcessing completedProcessing =
+            new BasicToolCompletedProcessing(authDemo, resultCode);
+    final Log logger = LogFactory.getLog(AuthDemo.class);
+    completedProcessing.displayMessage(logger);
+  }
 
 }
