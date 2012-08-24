@@ -25,8 +25,7 @@ import java.lang.annotation.Target;
 /**
  * Annotates the version of a type.
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME) @Target(ElementType.TYPE)
 public @interface CodeVersion
 {
 

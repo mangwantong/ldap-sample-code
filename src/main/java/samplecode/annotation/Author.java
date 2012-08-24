@@ -27,16 +27,17 @@ import java.lang.annotation.Target;
  * <p>
  * Example usage:
  * </p>
- * 
+ * <p/>
  * <pre>
- * @Author("my.name@myDomain.com")
- * </pre>
+ *
+ * @Author("my.name@myDomain.com") </pre>
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME) @Target(ElementType.TYPE)
 public @interface Author
 {
 
-  /** The author's name */
+  /**
+   * The author's name
+   */
   String value();
 }

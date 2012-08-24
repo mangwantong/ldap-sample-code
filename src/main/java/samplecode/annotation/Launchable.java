@@ -24,9 +24,7 @@ import java.lang.annotation.RetentionPolicy;
  * Marks a type as Launchable, that is, a type has a
  * {@code public static void mainString... args)} method.
  */
-@Author("terry.gardner@unboundid.com")
-@Retention(RetentionPolicy.RUNTIME)
-@Since("1.2")
+@Author("terry.gardner@unboundid.com") @Retention(RetentionPolicy.RUNTIME) @Since("1.2")
 public @interface Launchable
 {
   // This block deliberately left empty.
