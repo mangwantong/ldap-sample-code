@@ -8,13 +8,10 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
 import com.unboundid.util.args.StringArgument;
-import org.apache.log4j.Logger;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Launchable;
 import samplecode.annotation.Since;
 import samplecode.tools.AbstractTool;
-
-import java.util.logging.Level;
 
 
 /**
@@ -25,7 +22,6 @@ public final class CompareDemo extends AbstractTool
 {
 
   private static final Character ASSERTION_ARG_SHORT_IDENTIFIER = 'n';
-
   private static final String ASSERTION_ARG_DESCRIPTION =
           "The assertion to use in the compare request";
   private static final String ASSERTION_ARG_LONG_IDENTIFIER = "assertion";
@@ -40,6 +36,7 @@ public final class CompareDemo extends AbstractTool
   @Override
   protected ResultCode executeToolTasks()
   {
+    introduction();
     if(isVerbose())
     {
       displayArguments();

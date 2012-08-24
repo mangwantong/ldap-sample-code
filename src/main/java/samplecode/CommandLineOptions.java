@@ -253,6 +253,11 @@ public class CommandLineOptions
   public static final Argument[] createDefaultArguments(final ResourceBundle resourceBundle)
           throws ArgumentException
   {
+    String argName = CommandLineOptions.ARG_NAME_BASE_OBJECT;
+    final Argument baseObjectArgument =
+            StringPropertiesBackedArgument.newStringPropertiesBackedArgument(resourceBundle,
+                    argName).getArgument();
+
     return new Argument[]{
             BooleanPropertiesBackedArgument.newBooleanPropertiesBackedArgument
                     (resourceBundle, CommandLineOptions.ARG_NAME_ABANDON_ON_TIMEOUT)
@@ -261,8 +266,7 @@ public class CommandLineOptions
                     CommandLineOptions.ARG_NAME_ATTRIBUTE).getArgument(),
             BooleanPropertiesBackedArgument.newBooleanPropertiesBackedArgument
                     (resourceBundle, CommandLineOptions.ARG_NAME_AUTO_RECONNECT).getArgument(),
-            StringPropertiesBackedArgument.newStringPropertiesBackedArgument(resourceBundle,
-                    CommandLineOptions.ARG_NAME_BASE_OBJECT).getArgument(),
+            baseObjectArgument,
             BooleanPropertiesBackedArgument.newBooleanPropertiesBackedArgument
                     (resourceBundle, CommandLineOptions
                             .ARG_NAME_BIND_WITH_DN_REQUIRES_PASSWORD).getArgument(),
