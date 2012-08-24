@@ -15,27 +15,22 @@
  */
 package samplecode;
 
-
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
 
-
 /**
  * Thrown when a control OID is not supported by the server.
  */
-@SuppressWarnings("serial")
-@Author("terry.gardner@unboundid.com")
-@Since("Nov 28, 2011")
+@SuppressWarnings("serial") @Author("terry.gardner@unboundid.com") @Since("Nov 28, 2011")
 @CodeVersion("1.0")
-public final class SupportedFeatureException
-        extends Exception
+public final class SupportedFeatureException extends Exception
 {
 
   /**
    * Retrieve the control OID (a dot-separated series of octets
    * represented as a string).
-   * 
+   *
    * @return control OID.
    */
   public String getControlOID()
@@ -43,25 +38,30 @@ public final class SupportedFeatureException
     return controlOID;
   }
 
-
-
   /**
    * Prepares a {@code SupportedControlException} with the specified
    * detail message.
-   * 
-   * @param msg
-   *          The detail message.
-   * @param controlOID
-   *          The OID that caused the exception.
+   *
+   * @param msg        The detail message.
+   * @param controlOID The OID that caused the exception.
    */
-  public SupportedFeatureException(
-          final String msg,final String controlOID)
+  public SupportedFeatureException(final String msg, final String controlOID)
   {
     super(msg);
     this.controlOID = controlOID;
   }
 
-
+  /**
+   * Prepares a {@code SupportedControlException} with the specified
+   * exception.
+   *
+   * @param ex         the exception
+   * @param controlOID The OID that caused the exception.
+   */
+  public SupportedFeatureException(final Exception ex, final String controlOID)
+  {
+    this(ex.getMessage(), controlOID);
+  }
 
   private final String controlOID;
 
