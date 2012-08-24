@@ -24,14 +24,13 @@ import java.lang.annotation.RetentionPolicy;
  * Provides an annotation of a component indicating when the component
  * was first created, or first appeared in a particular version.
  */
-@Author("terry.gardner@unboundid.com")
-@Retention(RetentionPolicy.RUNTIME)
+@Author("terry.gardner@unboundid.com") @Retention(RetentionPolicy.RUNTIME)
 public @interface Since
 {
 
   /**
    * The first appearance of the component.
-   * 
+   *
    * @return A string representation of the first appearance, typically
    *         a date.
    */
