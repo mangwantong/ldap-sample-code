@@ -371,8 +371,8 @@ public abstract class AbstractTool extends LDAPCommandLineTool
   private Properties classSpecificProperties() throws IOException
   {
     final Properties properties = new Properties();
-    final InputStream inputStream =
-            classSpecificPropertiesInputStream(classSpecificPropertiesResourceName());
+    final String resourceName = classSpecificPropertiesResourceName();
+    final InputStream inputStream = classSpecificPropertiesInputStream(resourceName);
     if(inputStream != null)
     {
       properties.load(inputStream);
@@ -481,6 +481,9 @@ public abstract class AbstractTool extends LDAPCommandLineTool
     return "toolName";
   }
 
+  /**
+   * The logger must have INFO enabled at a minimum
+   */
   protected void displayArguments()
   {
     for(final Argument arg : commandLineOptions.getArgumentParser().getNamedArguments())

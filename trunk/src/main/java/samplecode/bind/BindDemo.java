@@ -355,12 +355,18 @@ public final class BindDemo extends AbstractTool
     final SearchRequest searchRequest;
     try
     {
+      final String baseObject = commandLineOptions.getBaseObject();
+      final SearchScope searchScope = commandLineOptions.getSearchScope();
+      final Filter filter = commandLineOptions.getFilter();
       searchRequest =
-              new SearchRequest(commandLineOptions.getBaseObject(),
-                      commandLineOptions.getSearchScope(), commandLineOptions.getFilter(),
+              new SearchRequest(baseObject,searchScope, filter,
                       commandLineOptions.getRequestedAttributes().toArray(new String[0]));
-      searchRequest.setSizeLimit(commandLineOptions.getSizeLimit());
-      searchRequest.setTimeLimitSeconds(commandLineOptions.getTimeLimit());
+
+      final int sizeLimit = commandLineOptions.getSizeLimit();
+      searchRequest.setSizeLimit(sizeLimit);
+
+      final int timeLimit = commandLineOptions.getTimeLimit();
+      searchRequest.setTimeLimitSeconds(timeLimit);
     }
     catch(final LDAPException ldapException)
     {
