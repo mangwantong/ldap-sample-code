@@ -26,10 +26,10 @@ import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Launchable;
 import samplecode.annotation.Since;
 import samplecode.listener.DefaultLdapExceptionListener;
+import samplecode.listener.LdapExceptionListener;
 import samplecode.tools.AbstractTool;
 import samplecode.tools.BasicToolCompletedProcessing;
 import samplecode.tools.ToolCompletedProcessing;
-
 
 /**
  * Provides a demonstration of the Who Am I? extended operation and the
@@ -100,7 +100,6 @@ public final class AuthDemo extends AbstractTool
       return x.getResultCode();
     }
 
-
     /*
     * Instantiate the object which provides methods to get the
     * authorization identity.
@@ -110,13 +109,13 @@ public final class AuthDemo extends AbstractTool
       verbose("Creating the authorized identity object.");
     }
     final AuthorizedIdentity authorizedIdentity = new AuthorizedIdentity(ldapConnection);
-    authorizedIdentity.addLdapExceptionListener(new DefaultLdapExceptionListener(getLogger()));
-
+    final LdapExceptionListener listener = new DefaultLdapExceptionListener(getLogger());
+    authorizedIdentity.addLdapExceptionListener(listener);
 
     /*
-     * String representation of messages that provide informative or
-     * instructional messages.
-     */
+    * String representation of messages that provide informative or
+    * instructional messages.
+    */
     String msg;
 
     /*
@@ -145,10 +144,9 @@ public final class AuthDemo extends AbstractTool
       getLogger().info(msg);
     }
 
-
     /*
-     * Demonstrate the use of the AuthorizationIdentityRequestControl.
-     */
+    * Demonstrate the use of the AuthorizationIdentityRequestControl.
+    */
     final DN bindDnAsDn = commandLineOptions.getBindDn();
     if(bindDnAsDn == null)
     {
@@ -166,12 +164,18 @@ public final class AuthDemo extends AbstractTool
     final String bindPassword = commandLineOptions.getBindPassword();
     try
     {
+      final long responseTimeMillis = getResponseTimeMillis();
       authId =
               authorizedIdentity.getAuthorizationIdentityFromBindRequest(bindDn,
-                      bindPassword, getResponseTimeMillis());
+                      bindPassword, responseTimeMillis);
     }
     catch(final SupportedFeatureException exception)
     {
+      if(getLogger().isWarnEnabled())
+      {
+        msg = "The AuthorizationIdentityRequestControl did not succeed.";
+        getLogger().warn(msg);
+      }
       return ResultCode.UNWILLING_TO_PERFORM;
     }
     if(authId != null)
@@ -181,7 +185,6 @@ public final class AuthDemo extends AbstractTool
                       "AuthorizationIdentityResponseControl: '%s'", authId);
       getLogger().info(msg);
     }
-
 
     /**
      * Demonstration is complete, close the connection(s)
