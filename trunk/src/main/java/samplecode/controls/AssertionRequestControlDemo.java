@@ -18,11 +18,11 @@ package samplecode.controls;
 import com.unboundid.ldap.sdk.*;
 import com.unboundid.ldap.sdk.controls.AssertionRequestControl;
 import com.unboundid.util.Validator;
-import com.unboundid.util.args.ArgumentException;
-import com.unboundid.util.args.ArgumentParser;
-import com.unboundid.util.args.StringArgument;
+import com.unboundid.util.args.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import samplecode.CommandLineOptions;
+import samplecode.SampleCodeCollectionUtils;
 import samplecode.SupportedFeature;
 import samplecode.SupportedFeatureException;
 import samplecode.annotation.Author;
@@ -35,6 +35,7 @@ import samplecode.tools.ToolCompletedProcessing;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.List;
 
 /**
  * Provides a demonstration of the assertion request control described
@@ -136,6 +137,13 @@ public final class AssertionRequestControlDemo extends AbstractTool
       * by the --filter command line argument.
       */
       final Filter filter = commandLineOptions.getFilter();
+      if(filter == null)
+      {
+        final ArgumentParser argumentParser = getArgumentParser();
+        final String msg = getRequiredArgumentsMessage(argumentParser);
+        getLogger().fatal(msg);
+        return ResultCode.UNWILLING_TO_PERFORM;
+      }
       final AssertionRequestControl assertionRequestControl =
               new AssertionRequestControl(filter.toString());
 
@@ -212,7 +220,10 @@ public final class AssertionRequestControlDemo extends AbstractTool
   @Override
   protected void addArguments(final ArgumentParser argumentParser) throws ArgumentException
   {
-    Validator.ensureNotNull(argumentParser);
+    if(argumentParser == null)
+    {
+      throw new IllegalArgumentException("argumentParser must not be null.");
+    }
 
     /*
      * Add to the command line argument parser the command line argument
@@ -225,12 +236,25 @@ public final class AssertionRequestControlDemo extends AbstractTool
     final int maxOccurrences = 1;
     final String valuePlaceholder = "{attribute-value}";
     final String description =
-            "The value to which the attribute specified by " + "--attribute final command " +
+            "The value to which the attribute specified by " + "'--attribute' final command " +
                     "line argument final is set.";
     newAttributeValueArgument =
             new StringArgument(shortIdentifier, longIdentifier, isRequired, maxOccurrences,
                     valuePlaceholder, description);
     argumentParser.addArgument(newAttributeValueArgument);
+
+    String argName = CommandLineOptions.ARG_NAME_FILTER;
+    final Argument filterArgument = argumentParser.getNamedArgument(argName);
+
+    argName = CommandLineOptions.ARG_NAME_BIND_DN;
+    final Argument dnArgument = argumentParser.getNamedArgument(argName);
+
+    final List<Argument> requiredArgumentSet = SampleCodeCollectionUtils.newArrayList();
+    requiredArgumentSet.add(dnArgument);
+    requiredArgumentSet.add(filterArgument);
+    requiredArgumentSet.add(newAttributeValueArgument);
+
+    argumentParser.addRequiredArgumentSet(requiredArgumentSet);
   }
 
   private StringArgument newAttributeValueArgument;

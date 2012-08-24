@@ -116,7 +116,7 @@ public class CommandLineOptions
    * The long identifier of the command line argument whose parameter is
    * the filter used in searches.
    */
-  private static final String ARG_NAME_FILTER = "filter";
+  public static final String ARG_NAME_FILTER = "filter";
 
 
   /**

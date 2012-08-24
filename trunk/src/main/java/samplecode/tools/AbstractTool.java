@@ -15,10 +15,8 @@
  */
 package samplecode.tools;
 
-
 import com.unboundid.ldap.sdk.*;
 import com.unboundid.util.LDAPCommandLineTool;
-import com.unboundid.util.Validator;
 import com.unboundid.util.args.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -35,10 +33,7 @@ import samplecode.listener.LdapSearchExceptionListener;
 import samplecode.listener.ObservedByLdapExceptionListener;
 
 import java.io.*;
-import java.util.List;
-import java.util.Properties;
-import java.util.Vector;
-
+import java.util.*;
 
 /**
  * A minimal implementation of the {@code LDAPCommandLineTool} class.
@@ -128,18 +123,48 @@ public abstract class AbstractTool extends LDAPCommandLineTool
     return executeToolTasks();
   }
 
+  protected String getRequiredArgumentsMessage(final ArgumentParser argumentParser)
+  {
+    if(argumentParser == null)
+    {
+      throw new IllegalArgumentException("argumentParser must not be null.");
+    }
+    final List<Set<Argument>> requiredArgumentSets = argumentParser.getRequiredArgumentSets();
+    String lineSeparator = System.getProperty("line.separator");
+    final String toolNameString = getToolName() + " required arguments: " + lineSeparator;
+    final StringBuilder sb = new StringBuilder(toolNameString);
+    for(final Set<Argument> set : requiredArgumentSets)
+    {
+      final Iterator<Argument> i = set.iterator();
+      while(true)
+      {
+        if(! i.hasNext())
+        {
+          break;
+        }
+        final Argument argument = i.next();
+        final String fmt = String.format("--%-24s",argument.getLongIdentifier());
+        sb.append(fmt);
+        sb.append(argument.getDescription());
+        sb.append(lineSeparator);
+      }
+    }
+    return sb.toString();
+  }
+
   /**
    * executes the tasks defined in this tool
    */
   protected abstract ResultCode executeToolTasks();
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void addNonLDAPArguments(final ArgumentParser argumentParser) throws ArgumentException
   {
-    Validator.ensureNotNull(argumentParser);
+    if(argumentParser == null)
+    {
+      throw new IllegalArgumentException("argumentParser must not be null.");
+    }
+    this.argumentParser = argumentParser;
     commandLineOptions =
             CommandLineOptions.newCommandLineOptions(argumentParser, 
                     CommandLineOptions.createDefaultArguments(StaticData.getResourceBundle()));
@@ -180,11 +205,6 @@ public abstract class AbstractTool extends LDAPCommandLineTool
     {
       l.ldapRequestFailed(ev);
     }
-  }
-
-  protected  Log getLogger()
-  {
-    return LogFactory.getLog(getClass());
   }
 
   protected LDAPConnectionPool getLdapConnectionPool(final LDAPConnection c,
@@ -344,6 +364,11 @@ public abstract class AbstractTool extends LDAPCommandLineTool
     return c;
   }
 
+  protected Log getLogger()
+  {
+    return LogFactory.getLog(getClass());
+  }
+
   /**
    * @return the text to be used for the introduction string.
    */
@@ -379,6 +404,11 @@ public abstract class AbstractTool extends LDAPCommandLineTool
     }
     return properties;
   }
+
+  /**
+   * return the class-specific properties resource name
+   */
+  protected abstract String classSpecificPropertiesResourceName();
 
   /**
    * Get the input stream from which class-specific properties might be
@@ -422,11 +452,6 @@ public abstract class AbstractTool extends LDAPCommandLineTool
     }
     return classSpecificPropertiesInputStream;
   }
-
-  /**
-   * return the class-specific properties resource name
-   */
-  protected abstract String classSpecificPropertiesResourceName();
 
   /**
    * {@inheritDoc}
@@ -640,13 +665,11 @@ public abstract class AbstractTool extends LDAPCommandLineTool
   protected volatile Vector<LdapExceptionListener> ldapExceptionListeners =
           new Vector<LdapExceptionListener>();
 
-
   /**
    * interested parties to {@code LdapExceptionEvents}
    */
   protected volatile Vector<LdapSearchExceptionListener> ldapSearchExceptionListeners =
           new Vector<LdapSearchExceptionListener>();
-
 
   /**
    * Provides services for use with command line parameters and
@@ -655,16 +678,20 @@ public abstract class AbstractTool extends LDAPCommandLineTool
    */
   protected CommandLineOptions commandLineOptions;
 
-
   protected LDAPConnectionPool ldapConnectionPool;
 
-
   protected LDAPConnection ldapConnection;
-
 
   /**
    * The name of the class that implements {@code AbstractTool}.
    */
   protected String className;
+
+  private ArgumentParser argumentParser;
+
+  protected ArgumentParser getArgumentParser()
+  {
+    return argumentParser;
+  }
 
 }
