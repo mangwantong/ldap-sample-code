@@ -154,7 +154,7 @@ public final class AuthDemo extends AbstractTool
     {
       final String helpfulMessage =
               "Please specify a --bindDN argument to test the " +
-                      "AuthorizationidentityRequestControl.";
+                      "AuthorizationIdentityRequestControl.";
       getLogger().info(helpfulMessage);
       return ResultCode.PARAM_ERROR;
     }
