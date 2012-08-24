@@ -15,52 +15,19 @@
  */
 package samplecode.bind;
 
-
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SimpleBindRequest;
 import com.unboundid.ldap.sdk.extensions.WhoAmIExtendedRequest;
 import com.unboundid.ldap.sdk.extensions.WhoAmIExtendedResult;
-
-
-import java.util.logging.Logger;
-
-
 import samplecode.tools.AbstractTool;
-
 
 /**
  * Display the authorization identities of a connection during the course of BIND requests
  */
-public final class DisplayBindSequence
-        extends AbstractTool
+public final class DisplayBindSequence extends AbstractTool
 {
-
-
-
-  /** local logging facilities */
-  private static Logger localLogger = null;
-
-
-
-  /**
-   * create and run the {@code DisplayBindSequence} demonstration.
-   */
-  public static void main(final String[] args)
-  {
-    new DisplayBindSequence().runTool(args);
-  }
-
-
-
-  @Override
-  protected String classSpecificPropertiesResourceName()
-  {
-    return "DisplayBindSequence";
-  }
-
-
 
   @Override
   protected ResultCode executeToolTasks()
@@ -79,39 +46,39 @@ public final class DisplayBindSequence
        * Connect to directory server, do not authenticate the connection
        */
       ldapConnection =
-              new LDAPConnection(commandLineOptions.getHostname(),commandLineOptions.getPort());
+              new LDAPConnection(commandLineOptions.getHostname(), 
+                      commandLineOptions.getPort());
 
       WhoAmIExtendedResult whoAmIExtendedResult =
-              (WhoAmIExtendedResult)ldapConnection
-                      .processExtendedOperation(new WhoAmIExtendedRequest());
-      String msg = String.format(format,"Authorization identity after initial connection",
-                                 whoAmIExtendedResult.getAuthorizationID());
+              (WhoAmIExtendedResult) ldapConnection.processExtendedOperation(new 
+                      WhoAmIExtendedRequest());
+      String msg =
+              String.format(format, "Authorization identity after initial connection", 
+                      whoAmIExtendedResult.getAuthorizationID());
       System.out.println(msg);
 
-
-
       /*
-       * Authenticate (simple bind) using the distinguished name and password specified
-       * by the --bindDn and --bindPassword command line options.
-       */
-      ldapConnection.bind(new SimpleBindRequest(commandLineOptions.getBindDn().toString(),
+      * Authenticate (simple bind) using the distinguished name and password specified
+      * by the --bindDn and --bindPassword command line options.
+      */
+      ldapConnection.bind(new SimpleBindRequest(commandLineOptions.getBindDn().toString(), 
               commandLineOptions.getBindPassword()));
 
       whoAmIExtendedResult =
-              (WhoAmIExtendedResult)ldapConnection
-                      .processExtendedOperation(new WhoAmIExtendedRequest());
-      msg = String.format(format,"Authorization identity after simple bind",
-                          whoAmIExtendedResult.getAuthorizationID());
+              (WhoAmIExtendedResult) ldapConnection.processExtendedOperation(new 
+                      WhoAmIExtendedRequest());
+      msg =
+              String.format(format, "Authorization identity after simple bind", 
+                      whoAmIExtendedResult.getAuthorizationID());
       System.out.println(msg);
 
-
       /*
-       * Transmit a bind request to the server that will not succeed. The
-       * authentication state will be set to unauthenticated.
-       */
+      * Transmit a bind request to the server that will not succeed. The
+      * authentication state will be set to unauthenticated.
+      */
       try
       {
-        ldapConnection.bind(new SimpleBindRequest("x","x"));
+        ldapConnection.bind(new SimpleBindRequest("x", "x"));
       }
       catch(LDAPException ldapException)
       {
@@ -119,25 +86,26 @@ public final class DisplayBindSequence
       }
 
       whoAmIExtendedResult =
-              (WhoAmIExtendedResult)ldapConnection
-                      .processExtendedOperation(new WhoAmIExtendedRequest());
-      msg = String.format(format,"Authorization identity after unsuccessful authentication attempt",
-                          whoAmIExtendedResult.getAuthorizationID());
+              (WhoAmIExtendedResult) ldapConnection.processExtendedOperation(new 
+                      WhoAmIExtendedRequest());
+      msg =
+              String.format(format, "Authorization identity after unsuccessful " +
+                      "authentication" + " attempt", whoAmIExtendedResult.getAuthorizationID());
       System.out.println(msg);
 
-
       /*
-       * "Reset" the authorization identity of the connection by transmitting
-       * a bind request with a zero-length (empty) distinguished name and
-       * empty password.
-       */
-      ldapConnection.bind(new SimpleBindRequest("",""));
+      * "Reset" the authorization identity of the connection by transmitting
+      * a bind request with a zero-length (empty) distinguished name and
+      * empty password.
+      */
+      ldapConnection.bind(new SimpleBindRequest("", ""));
 
       whoAmIExtendedResult =
-              (WhoAmIExtendedResult)ldapConnection
-                      .processExtendedOperation(new WhoAmIExtendedRequest());
-      msg = String.format(format,"Authorization identity after reset",
-                          whoAmIExtendedResult.getAuthorizationID());
+              (WhoAmIExtendedResult) ldapConnection.processExtendedOperation(new 
+                      WhoAmIExtendedRequest());
+      msg =
+              String.format(format, "Authorization identity after reset", 
+                      whoAmIExtendedResult.getAuthorizationID());
       System.out.println(msg);
 
       ldapConnection.close();
@@ -148,21 +116,21 @@ public final class DisplayBindSequence
       return ldapException.getResultCode();
     }
 
-
     return ResultCode.SUCCESS;
-
   }
 
-
-
   @Override
-  protected Logger getLogger()
+  protected String classSpecificPropertiesResourceName()
   {
-    if(DisplayBindSequence.localLogger == null)
-    {
-      DisplayBindSequence.localLogger = Logger.getLogger(getClass().getName());
-    }
-    return DisplayBindSequence.localLogger;
+    return "DisplayBindSequence";
+  }
+
+  /**
+   * create and run the {@code DisplayBindSequence} demonstration.
+   */
+  public static void main(final String[] args)
+  {
+    new DisplayBindSequence().runTool(args);
   }
 
 }

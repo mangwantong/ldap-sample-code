@@ -25,12 +25,6 @@ import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
 import com.unboundid.util.args.DNArgument;
 import com.unboundid.util.args.IntegerArgument;
-
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Logger;
-
 import samplecode.CommandLineOptions;
 import samplecode.SupportedFeature;
 import samplecode.SupportedFeatureException;
@@ -39,6 +33,10 @@ import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Launchable;
 import samplecode.annotation.Since;
 import samplecode.tools.AbstractTool;
+
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Provides a demonstration of the use of the modify-increment extension
@@ -58,17 +56,17 @@ import samplecode.tools.AbstractTool;
  * contain the value of the attribute after the modification occurs. if
  * the server permits, the operation purpose request control is attached
  * to all requests. <blockquote>
- * 
+ * <p/>
  * <pre>
- * Provides a demonstration of the use of the modify-increment extension. The 
+ * Provides a demonstration of the use of the modify-increment extension. The
  * ModifyIncrementDemo requires the --entry argument and increments the attributes
  * specified by the --attribute command line arguments in that entry by the value
- * specified in the --incrementValue command line argument. 
+ * specified in the --incrementValue command line argument.
  * If the --incrementValue command line argument is not present,
  * a default value is used.
- * 
+ *
  * Usage:  ModifyIncrementDemo {options}
- * 
+ *
  * Available options include:
  * -h, --hostname {host}
  *     The IP address or resolvable name to use to connect to the directory
@@ -153,29 +151,36 @@ import samplecode.tools.AbstractTool;
  *     has no default value, and may be specified exactly once.
  * -H, -?, --help
  *     Display usage information for this program.
- * 
+ *
  * ModifyIncrementDemo has completed processing. The result code was: 0 (success)
- * 
+ *
  * </pre>
- * 
+ * <p/>
  * </blockquote>
  */
-@Author("terry.gardner@unboundid.com")
-@Since("Dec 1, 2011")
-@CodeVersion("2.11")
-@Launchable
-public final class ModifyIncrementDemo
-        extends AbstractTool {
+@Author("terry.gardner@unboundid.com") @Since("Dec 1, 2011") @CodeVersion("2.11") @Launchable
+public final class ModifyIncrementDemo extends AbstractTool
+{
 
   /**
    * Provides the services necessary to demonstrate the modify-increment
    * extension to the modify request.
    */
-  private static class ModifyEntry {
+  private static class ModifyEntry
+  {
 
-    private void increment(final DN entryDn,final String attribute,final int incrementValue)
-            throws LDAPException {
-      Validator.ensureNotNull(entryDn,attribute);
+    private ModifyEntry(final LDAPCommandLineTool ldapCommandLineTool,
+            final CommandLineOptions commandLineOptions)
+    {
+      Validator.ensureNotNull(ldapCommandLineTool, commandLineOptions);
+      this.commandLineOptions = commandLineOptions;
+      this.ldapCommandLineTool = ldapCommandLineTool;
+    }
+
+    private void increment(final DN entryDn, final String attribute, final int incrementValue)
+            throws LDAPException
+    {
+      Validator.ensureNotNull(entryDn, attribute);
 
       /*
        * Obtain a connection to the directory server.
@@ -192,16 +197,15 @@ public final class ModifyIncrementDemo
       final SearchScope scope = commandLineOptions.getSearchScope();
       final Filter filter = commandLineOptions.getFilter();
       final SearchRequest searchRequest =
-              new SearchRequest(baseObject,scope,filter,new String[] {
-                SearchRequest.NO_ATTRIBUTES
-              });
+              new SearchRequest(baseObject, scope, filter, new String[]{
+                      SearchRequest.NO_ATTRIBUTES});
 
       /*
        * Search for the entry specified by the entryDn.
        */
       final SearchResult searchResult = ldapConnection.search(searchRequest);
-      if(searchResult.getEntryCount() == 0) {
-
+      if(searchResult.getEntryCount() == 0)
+      {
         /*
          * NB: This will not be reached if the base object did not
          * exist.
@@ -217,10 +221,10 @@ public final class ModifyIncrementDemo
        */
       final List<Modification> modifications = new ArrayList<Modification>();
       final Modification modification =
-              new Modification(ModificationType.INCREMENT,attribute,
+              new Modification(ModificationType.INCREMENT, attribute,
                       String.valueOf(incrementValue));
       modifications.add(modification);
-      final ModifyRequest modifyRequest = new ModifyRequest(entryDn,modifications);
+      final ModifyRequest modifyRequest = new ModifyRequest(entryDn, modifications);
 
       final SupportedFeature supportedControl =
               SupportedFeature.newSupportedFeature(ldapConnection);
@@ -229,8 +233,8 @@ public final class ModifyIncrementDemo
        * If the pre-read request control is supported by the server, add
        * the control to the modify request.
        */
-      try {
-
+      try
+      {
         final String controlOID = PreReadRequestControl.PRE_READ_REQUEST_OID;
         supportedControl.isControlSupported(controlOID);
 
@@ -240,10 +244,11 @@ public final class ModifyIncrementDemo
          * the modify request.
          */
         final boolean isCritical = true;
-        final PreReadRequestControl control = new PreReadRequestControl(isCritical,attribute);
+        final PreReadRequestControl control = new PreReadRequestControl(isCritical, attribute);
         modifyRequest.addControl(control);
-
-      } catch(final SupportedFeatureException ex) {
+      }
+      catch(final SupportedFeatureException ex)
+      {
         // The request control is not supported.
       }
 
@@ -251,8 +256,8 @@ public final class ModifyIncrementDemo
        * If the post-read request control is supported by the server,
        * add the control to the modify request.
        */
-      try {
-
+      try
+      {
         final String controlOID = PostReadRequestControl.POST_READ_REQUEST_OID;
         supportedControl.isControlSupported(controlOID);
 
@@ -262,10 +267,12 @@ public final class ModifyIncrementDemo
          * modify request.
          */
         final boolean isCritical = true;
-        final PostReadRequestControl control = new PostReadRequestControl(isCritical,attribute);
+        final PostReadRequestControl control =
+                new PostReadRequestControl(isCritical, attribute);
         modifyRequest.addControl(control);
-
-      } catch(final SupportedFeatureException ex) {
+      }
+      catch(final SupportedFeatureException ex)
+      {
         // The request control is not supported.
       }
 
@@ -280,9 +287,11 @@ public final class ModifyIncrementDemo
        */
       final PreReadResponseControl preReadResponseControl =
               PreReadResponseControl.get(ldapResult);
-      if((preReadResponseControl != null) && preReadResponseControl.hasValue()) {
+      if((preReadResponseControl != null) && preReadResponseControl.hasValue())
+      {
         final Entry entry = preReadResponseControl.getEntry();
-        if(entry != null) {
+        if(entry != null)
+        {
           final Attribute attr = entry.getAttribute(attribute);
           final StringBuilder builder = new StringBuilder();
           builder.append("Before modification the value of ");
@@ -303,9 +312,11 @@ public final class ModifyIncrementDemo
        */
       final PostReadResponseControl postReadResponseControl =
               PostReadResponseControl.get(ldapResult);
-      if((postReadResponseControl != null) && postReadResponseControl.hasValue()) {
+      if((postReadResponseControl != null) && postReadResponseControl.hasValue())
+      {
         final Entry entry = postReadResponseControl.getEntry();
-        if(entry != null) {
+        if(entry != null)
+        {
           final Attribute attr = entry.getAttribute(attribute);
           final StringBuilder builder = new StringBuilder();
           builder.append("After modification the value of ");
@@ -319,42 +330,13 @@ public final class ModifyIncrementDemo
           ldapCommandLineTool.out(msg);
         }
       }
-
-    }
-
-    private ModifyEntry(
-            final LDAPCommandLineTool ldapCommandLineTool,
-            final CommandLineOptions commandLineOptions) {
-      Validator.ensureNotNull(ldapCommandLineTool,commandLineOptions);
-      this.commandLineOptions = commandLineOptions;
-      this.ldapCommandLineTool = ldapCommandLineTool;
     }
 
     private final CommandLineOptions commandLineOptions;
 
     private final LDAPCommandLineTool ldapCommandLineTool;
+
   }
-
-  /**
-   * The long identifier of the command line argument which is used to
-   * specify the entry in which the attribute specified by the
-   * --attribute command lien arguments are incremented.
-   */
-  public static final String ARG_NAME_ENTRY = "entry";
-
-  /**
-   * The long identifier of the command line argument that is used to
-   * specify the increment value used in the modify-increment
-   * demonstration. This command line argument is optional, has a
-   * default value, and may only be specified one time.
-   */
-  public static final String ARG_NAME_INCREMENT_VALUE = "incrementValue";
-
-  /**
-   * The default value by which the attributes are incremented using the
-   * modify-increment extension.
-   */
-  public static final Integer DEFAULT_INCREMENT_VALUE = Integer.valueOf(1);
 
   /**
    * The short identifier of the command line argument which is used to
@@ -372,33 +354,119 @@ public final class ModifyIncrementDemo
   public static final Character SHORT_ID_INCREMENT_VALUE = Character.valueOf('n');
 
   /**
-   * Execute the modify-increment demonstration.
-   * 
-   * @param args
-   *          The command line arguments, less the JVM specific
-   *          arguments.
+   * The default value by which the attributes are incremented using the
+   * modify-increment extension.
    */
-  public static void main(final String... args) {
-    final OutputStream outStream = System.out;
-    final OutputStream errStream = System.err;
-    final ModifyIncrementDemo modifyIncrementDemo =
-            new ModifyIncrementDemo(outStream,errStream);
-    final String msg = modifyIncrementDemo.getToolDescription();
-    modifyIncrementDemo.out(msg);
-    final ResultCode resultCode = modifyIncrementDemo.runTool(args);
-    if(resultCode != null) {
-      final StringBuilder builder = new StringBuilder(modifyIncrementDemo.getToolName());
-      builder.append(" has completed processing. The result code was: ");
-      builder.append(resultCode);
-      modifyIncrementDemo.out(builder.toString());
-    }
+  public static final Integer DEFAULT_INCREMENT_VALUE = Integer.valueOf(1);
+
+  /**
+   * The long identifier of the command line argument which is used to
+   * specify the entry in which the attribute specified by the
+   * --attribute command lien arguments are incremented.
+   */
+  public static final String ARG_NAME_ENTRY = "entry";
+
+  /**
+   * The long identifier of the command line argument that is used to
+   * specify the increment value used in the modify-increment
+   * demonstration. This command line argument is optional, has a
+   * default value, and may only be specified one time.
+   */
+  public static final String ARG_NAME_INCREMENT_VALUE = "incrementValue";
+
+  private ModifyIncrementDemo(final OutputStream outStream, final OutputStream errStream)
+  {
+    super(outStream, errStream);
+  }
+
+  /**
+   * Prepares {@code ModifyIncrementDemo} for use by a client - the
+   * {@code System.out} and {@code System.err OutputStreams} are used.
+   */
+  public ModifyIncrementDemo()
+  {
+    this(System.out, System.err);
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public void addArguments(final ArgumentParser argumentParser) throws ArgumentException {
+  protected String classSpecificPropertiesResourceName()
+  {
+    return "ModifyIncrementDemo.properties";
+  }
+
+  @Override
+  protected UnsolicitedNotificationHandler getUnsolicitedNotificationHandler()
+  {
+    return new samplecode.DefaultUnsolicitedNotificationHandler(this);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public ResultCode executeToolTasks()
+  {
+    introduction();
+    if(isVerbose())
+    {
+      displayServerInformation();
+    }
+
+    /*
+     * Retrieve the distinguished name parameter of the command line
+     * argument.
+     */
+    final DNArgument dnArgument =
+            (DNArgument) commandLineOptions.getArgumentParser().getNamedArgument
+                    (ModifyIncrementDemo.ARG_NAME_ENTRY);
+    final DN entryDn = dnArgument.getValue();
+
+    /*
+     * Retrieve the array of requested attributes from the parameter of
+     * the command line argument(s).
+     */
+    final String[] requestedAttributes =
+            commandLineOptions.getRequestedAttributes().toArray(new String[0]);
+
+    /*
+     * Retrieve the increment value from the parameter of the command
+     * line argument.
+     */
+    final IntegerArgument integerArgument =
+            (IntegerArgument) commandLineOptions.getArgumentParser().getNamedArgument
+                    (ModifyIncrementDemo.ARG_NAME_INCREMENT_VALUE);
+    final int incrementValue = integerArgument.getValue().intValue();
+
+    final ModifyEntry modifyEntry = new ModifyEntry(this, commandLineOptions);
+    ResultCode resultCode = null;
+    for(final String attribute : requestedAttributes)
+    {
+      try
+      {
+        modifyEntry.increment(entryDn, attribute, incrementValue);
+      }
+      catch(final LDAPSearchException ldapSearchException)
+      {
+        resultCode = ldapSearchException.getResultCode();
+      }
+      catch(final LDAPException ldapException)
+      {
+        resultCode = ldapException.getResultCode();
+      }
+    }
+
+    return resultCode;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void addArguments(final ArgumentParser argumentParser) throws ArgumentException
+  {
     Validator.ensureNotNull(argumentParser);
 
     /*
@@ -422,8 +490,8 @@ public final class ModifyIncrementDemo
     final Integer defaultValue = ModifyIncrementDemo.DEFAULT_INCREMENT_VALUE;
     String description = builder.toString();
     final IntegerArgument integerArgument =
-            new IntegerArgument(shortIdentifier,longIdentifier,isRequired,maxOccurrences,
-                    valuePlaceholder,description,defaultValue);
+            new IntegerArgument(shortIdentifier, longIdentifier, isRequired, maxOccurrences,
+                    valuePlaceholder, description, defaultValue);
     argumentParser.addArgument(integerArgument);
 
     /*
@@ -436,106 +504,49 @@ public final class ModifyIncrementDemo
     isRequired = true;
     maxOccurrences = 0;
     valuePlaceholder = "{distinguishedName}";
-    builder.delete(0,builder.capacity());
+    builder.delete(0, builder.capacity());
     builder.append("Specifies the distinguished name of the entry ");
     builder.append("(which must exist) whose attributes are to be incremented. ");
     builder.append("This command line argument is required, has no default value, ");
     builder.append("and may be specified exactly once.");
     description = builder.toString();
     final DNArgument dnArgument =
-            new DNArgument(shortIdentifier,longIdentifier,isRequired,maxOccurrences,
-                    valuePlaceholder,description);
+            new DNArgument(shortIdentifier, longIdentifier, isRequired, maxOccurrences,
+                    valuePlaceholder, description);
     argumentParser.addArgument(dnArgument);
   }
 
   /**
-   * {@inheritDoc}
+   * Execute the modify-increment demonstration.
+   *
+   * @param args The command line arguments, less the JVM specific
+   *             arguments.
    */
-  @Override
-  public ResultCode executeToolTasks() {
-    introduction();
-    if(isVerbose()) {
-      displayServerInformation();
+  public static void main(final String... args)
+  {
+    final OutputStream outStream = System.out;
+    final OutputStream errStream = System.err;
+    final ModifyIncrementDemo modifyIncrementDemo =
+            new ModifyIncrementDemo(outStream, errStream);
+    final String msg = modifyIncrementDemo.getToolDescription();
+    modifyIncrementDemo.out(msg);
+    final ResultCode resultCode = modifyIncrementDemo.runTool(args);
+    if(resultCode != null)
+    {
+      final StringBuilder builder = new StringBuilder(modifyIncrementDemo.getToolName());
+      builder.append(" has completed processing. The result code was: ");
+      builder.append(resultCode);
+      modifyIncrementDemo.out(builder.toString());
     }
-
-    /*
-     * Retrieve the distinguished name parameter of the command line
-     * argument.
-     */
-    final DNArgument dnArgument =
-            (DNArgument)commandLineOptions.getArgumentParser().getNamedArgument(
-                    ModifyIncrementDemo.ARG_NAME_ENTRY);
-    final DN entryDn = dnArgument.getValue();
-
-    /*
-     * Retrieve the array of requested attributes from the parameter of
-     * the command line argument(s).
-     */
-    final String[] requestedAttributes =
-            commandLineOptions.getRequestedAttributes().toArray(new String[0]);
-
-    /*
-     * Retrieve the increment value from the parameter of the command
-     * line argument.
-     */
-    final IntegerArgument integerArgument =
-            (IntegerArgument)commandLineOptions.getArgumentParser().getNamedArgument(
-                    ModifyIncrementDemo.ARG_NAME_INCREMENT_VALUE);
-    final int incrementValue = integerArgument.getValue().intValue();
-
-    final ModifyEntry modifyEntry = new ModifyEntry(this,commandLineOptions);
-    ResultCode resultCode = null;
-    for(final String attribute : requestedAttributes) {
-      try {
-        modifyEntry.increment(entryDn,attribute,incrementValue);
-      } catch(final LDAPSearchException ldapSearchException) {
-        resultCode = ldapSearchException.getResultCode();
-      } catch(final LDAPException ldapException) {
-        resultCode = ldapException.getResultCode();
-
-      }
-    }
-
-    return resultCode;
-  }
-
-  @Override
-  public Logger getLogger() {
-    return Logger.getLogger(getClass().getName());
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public String getToolName() {
+  public String getToolName()
+  {
     return "ModifyIncrementDemo";
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  protected String classSpecificPropertiesResourceName() {
-    return "ModifyIncrementDemo.properties";
-  }
-
-  @Override
-  protected UnsolicitedNotificationHandler getUnsolicitedNotificationHandler() {
-    return new samplecode.DefaultUnsolicitedNotificationHandler(this);
-  }
-
-  /**
-   * Prepares {@code ModifyIncrementDemo} for use by a client - the
-   * {@code System.out} and {@code System.err OutputStreams} are used.
-   */
-  public ModifyIncrementDemo() {
-    this(System.out,System.err);
-  }
-
-  private ModifyIncrementDemo(
-          final OutputStream outStream,final OutputStream errStream) {
-    super(outStream,errStream);
   }
 
 }

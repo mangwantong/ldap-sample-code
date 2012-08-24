@@ -14,30 +14,11 @@
  * with this program; if not,see <http://www.gnu.org/licenses>.
  */
 
-
 package samplecode.search;
 
-
-import com.unboundid.ldap.sdk.AsyncRequestID;
-import com.unboundid.ldap.sdk.AsyncSearchResultListener;
-import com.unboundid.ldap.sdk.LDAPConnection;
-import com.unboundid.ldap.sdk.LDAPConnectionOptions;
-import com.unboundid.ldap.sdk.LDAPException;
-import com.unboundid.ldap.sdk.ResultCode;
-import com.unboundid.ldap.sdk.SearchRequest;
-import com.unboundid.ldap.sdk.SearchResult;
-import com.unboundid.ldap.sdk.SearchResultEntry;
-import com.unboundid.ldap.sdk.SearchResultReference;
-import com.unboundid.ldap.sdk.UnsolicitedNotificationHandler;
+import com.unboundid.ldap.sdk.*;
 import com.unboundid.ldap.sdk.controls.PersistentSearchChangeType;
 import com.unboundid.ldap.sdk.controls.PersistentSearchRequestControl;
-
-
-import java.io.OutputStream;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-
 import samplecode.DefaultUnsolicitedNotificationHandler;
 import samplecode.SupportedFeature;
 import samplecode.SupportedFeatureException;
@@ -47,59 +28,29 @@ import samplecode.annotation.Launchable;
 import samplecode.annotation.Since;
 import samplecode.tools.AbstractTool;
 
+import java.io.OutputStream;
 
 /**
  * Provides services useful for demonstrating a persistent search. This
  * class can be launched from the command line.
  */
-@Author("terry.gardner@unboundid.com")
-@Since("Oct 13,2011")
-@CodeVersion("1.29")
-@Launchable
-public final class PersistentSearchExample
-        extends AbstractTool
+@Author("terry.gardner@unboundid.com") @Since("Oct 13,2011") @CodeVersion("1.29") @Launchable
+public final class PersistentSearchExample extends AbstractTool
 {
 
-
-
-  /**
-   * @param args
-   *          Command line arguments as supported by
-   *          {@code LDAPCommandLineTool} with help from
-   *          {@code CommandLineOptions}.
-   */
-  public static void main(final String... args)
+  private PersistentSearchExample(final OutputStream outStream, final OutputStream errStream)
   {
-    final OutputStream outStream = System.out;
-    final OutputStream errStream = System.err;
-    final PersistentSearchExample persistentSearchExample =
-            new PersistentSearchExample(outStream,errStream);
-    persistentSearchExample.runTool(args);
+    super(outStream, errStream);
   }
 
-
-
   /**
-   * {@inheritDoc}
+   * Prepares {@code PersistentSearchExample} for use by a client - the
+   * {@code System.out} and {@code System.err OutputStreams} are used.
    */
-  @Override
-  public Logger getLogger()
+  public PersistentSearchExample()
   {
-    return Logger.getLogger(getClass().getName());
+    this(System.out, System.err);
   }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  protected String classSpecificPropertiesResourceName()
-  {
-    return "PersistentSearchExample.properties";
-  }
-
-
 
   /**
    * {@inheritDoc}
@@ -118,7 +69,7 @@ public final class PersistentSearchExample
     }
     catch(final LDAPException ldapException)
     {
-      getLogger().log(Level.SEVERE,ldapException.getMessage());
+      getLogger().fatal(ldapException.getMessage());
       return ldapException.getResultCode();
     }
 
@@ -126,23 +77,12 @@ public final class PersistentSearchExample
     return ResultCode.SUCCESS;
   }
 
-
-
-  @Override
-  protected UnsolicitedNotificationHandler getUnsolicitedNotificationHandler()
-  {
-    return new samplecode.DefaultUnsolicitedNotificationHandler(this);
-  }
-
-
-
   /**
    * Issues a persistent search request and displays results as they are
    * returned from the server.
    */
   private ResultCode demonstratePersistentSearch() throws LDAPException
   {
-
     /*
      * Handles unsolicited notifications from the directory server.
      */
@@ -170,7 +110,7 @@ public final class PersistentSearchExample
     }
     catch(final SupportedFeatureException ex)
     {
-      getLogger().log(Level.SEVERE,ex.getMessage());
+      getLogger().fatal(ex.getMessage());
       return ResultCode.UNWILLING_TO_PERFORM;
     }
 
@@ -178,8 +118,8 @@ public final class PersistentSearchExample
      * Create the search request:
      */
     final SearchRequest searchRequest =
-            new SearchRequest(asyncSearchListener,commandLineOptions.getBaseObject(),
-                    commandLineOptions.getSearchScope(),commandLineOptions.getFilter(),
+            new SearchRequest(asyncSearchListener, commandLineOptions.getBaseObject(),
+                    commandLineOptions.getSearchScope(), commandLineOptions.getFilter(),
                     commandLineOptions.getRequestedAttributes().toArray(new String[0]));
     final int sizeLimit = commandLineOptions.getSizeLimit();
     searchRequest.setSizeLimit(sizeLimit);
@@ -194,7 +134,7 @@ public final class PersistentSearchExample
     final boolean isCritical = true;
     final PersistentSearchRequestControl control =
             new PersistentSearchRequestControl(PersistentSearchChangeType.allChangeTypes(),
-                    changesOnly,returnECs,isCritical);
+                    changesOnly, returnECs, isCritical);
     searchRequest.addControl(control);
 
     /*
@@ -205,26 +145,20 @@ public final class PersistentSearchExample
     return searchResult.getResultCode();
   }
 
-
-
   /**
-   * Prepares {@code PersistentSearchExample} for use by a client - the
-   * {@code System.out} and {@code System.err OutputStreams} are used.
+   * {@inheritDoc}
    */
-  public PersistentSearchExample()
+  @Override
+  protected String classSpecificPropertiesResourceName()
   {
-    this(System.out,System.err);
+    return "PersistentSearchExample.properties";
   }
 
-
-
-  private PersistentSearchExample(
-          final OutputStream outStream,final OutputStream errStream)
+  @Override
+  protected UnsolicitedNotificationHandler getUnsolicitedNotificationHandler()
   {
-    super(outStream,errStream);
+    return new samplecode.DefaultUnsolicitedNotificationHandler(this);
   }
-
-
 
   @SuppressWarnings("serial")
   private final AsyncSearchResultListener asyncSearchListener = new AsyncSearchResultListener()
@@ -234,13 +168,11 @@ public final class PersistentSearchExample
     public void searchEntryReturned(final SearchResultEntry searchResultEntry)
     {
       final StringBuilder builder = new StringBuilder(">>>>\nsearch entry returned\n");
-      builder.append(String.format("%-12s %s\n","DN:",searchResultEntry.getDN()));
-      builder.append(String.format("%-12s %s\n","searchResult:",
+      builder.append(String.format("%-12s %s\n", "DN:", searchResultEntry.getDN()));
+      builder.append(String.format("%-12s %s\n", "searchResult:",
               searchResultEntry.toLDIFString()));
       System.out.println(builder.toString());
     }
-
-
 
     @Override
     public void searchReferenceReturned(final SearchResultReference searchReferenceReturned)
@@ -249,24 +181,35 @@ public final class PersistentSearchExample
       throw new UnsupportedOperationException(msg);
     }
 
-
-
     @Override
     public void searchResultReceived(final AsyncRequestID requestId,
             final SearchResult searchResult)
     {
       final StringBuilder builder = new StringBuilder("search result received\n");
-      builder.append(String.format("%-12s %s\n","requestId:",requestId));
-      builder.append(String.format("%-12s %s\n","searchResult:",searchResult));
+      builder.append(String.format("%-12s %s\n", "requestId:", requestId));
+      builder.append(String.format("%-12s %s\n", "searchResult:", searchResult));
       out(builder.toString());
     }
+
   };
-
-
 
   /**
    * The connection to the directory server.
    */
   private LDAPConnection ldapConnection;
+
+  /**
+   * @param args Command line arguments as supported by
+   *             {@code LDAPCommandLineTool} with help from
+   *             {@code CommandLineOptions}.
+   */
+  public static void main(final String... args)
+  {
+    final OutputStream outStream = System.out;
+    final OutputStream errStream = System.err;
+    final PersistentSearchExample persistentSearchExample =
+            new PersistentSearchExample(outStream, errStream);
+    persistentSearchExample.runTool(args);
+  }
 
 }

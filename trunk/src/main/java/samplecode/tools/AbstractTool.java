@@ -16,43 +16,16 @@
 package samplecode.tools;
 
 
-import com.unboundid.ldap.sdk.DN;
-import com.unboundid.ldap.sdk.Filter;
-import com.unboundid.ldap.sdk.LDAPConnection;
-import com.unboundid.ldap.sdk.LDAPConnectionOptions;
-import com.unboundid.ldap.sdk.LDAPConnectionPool;
-import com.unboundid.ldap.sdk.LDAPException;
-import com.unboundid.ldap.sdk.ResultCode;
-import com.unboundid.ldap.sdk.UnsolicitedNotificationHandler;
+import com.unboundid.ldap.sdk.*;
 import com.unboundid.util.LDAPCommandLineTool;
 import com.unboundid.util.Validator;
-import com.unboundid.util.args.Argument;
-import com.unboundid.util.args.ArgumentException;
-import com.unboundid.util.args.ArgumentParser;
-import com.unboundid.util.args.BooleanArgument;
-import com.unboundid.util.args.DNArgument;
-import com.unboundid.util.args.FileArgument;
-import com.unboundid.util.args.FilterArgument;
-import com.unboundid.util.args.IntegerArgument;
-import com.unboundid.util.args.ScopeArgument;
-import com.unboundid.util.args.StringArgument;
-
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.util.List;
-import java.util.Properties;
-import java.util.Vector;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-
+import com.unboundid.util.args.*;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import samplecode.CommandLineOptions;
 import samplecode.SampleCodeCollectionUtils;
 import samplecode.StaticData;
+import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.exception.ExceptionMsgFactory;
 import samplecode.exception.LdapException;
@@ -61,18 +34,64 @@ import samplecode.listener.LdapExceptionListener;
 import samplecode.listener.LdapSearchExceptionListener;
 import samplecode.listener.ObservedByLdapExceptionListener;
 
+import java.io.*;
+import java.util.List;
+import java.util.Properties;
+import java.util.Vector;
+
 
 /**
  * A minimal implementation of the {@code LDAPCommandLineTool} class.
- * <p>
+ * <p/>
  * Clients should override {@code getToolName()} and
  * {@code getToolDescription()} if a properties file is not available.
  */
-@CodeVersion("2.2")
-public abstract class AbstractTool
-        extends LDAPCommandLineTool
-        implements LdapExceptionListener,ObservedByLdapExceptionListener
+@Author("terry.gardner@unboundid.com") @CodeVersion("2.3")
+public abstract class AbstractTool extends LDAPCommandLineTool
+        implements LdapExceptionListener, ObservedByLdapExceptionListener
 {
+
+  private static ClassLoader classLoader;
+
+  private static ClassLoader getClassLoader()
+  {
+    if(classLoader == null)
+    {
+      classLoader = AbstractTool.class.getClassLoader();
+    }
+    return classLoader;
+  }
+
+  protected AbstractTool(final OutputStream outStream, final OutputStream errStream)
+  {
+    super(outStream, errStream);
+  }
+
+  protected AbstractTool()
+  {
+    this(System.out, System.err);
+  }
+
+  protected LDAPConnectionOptions getLdapConnectionOptions()
+  {
+    // get a LDAPConnectionOptions object initialized with values from command line arguments.
+    final LDAPConnectionOptions ldapConnectionOptions =
+            commandLineOptions.newLDAPConnectionOptions();
+
+    // unsolicited notification handler
+    UnsolicitedNotificationHandler handler = getUnsolicitedNotificationHandler();
+    ldapConnectionOptions.setUnsolicitedNotificationHandler(handler);
+
+    return ldapConnectionOptions;
+  }
+
+  /**
+   * @return a suitable default unsolicited notification handler
+   */
+  protected UnsolicitedNotificationHandler getUnsolicitedNotificationHandler()
+  {
+    return new samplecode.DefaultUnsolicitedNotificationHandler(this);
+  }
 
   /**
    * {@inheritDoc}
@@ -87,132 +106,6 @@ public abstract class AbstractTool
     }
   }
 
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void addNonLDAPArguments(final ArgumentParser argumentParser) throws ArgumentException
-  {
-    Validator.ensureNotNull(argumentParser);
-    commandLineOptions =
-            CommandLineOptions.newCommandLineOptions(argumentParser,
-                    CommandLineOptions.createDefaultArguments(StaticData.getResourceBundle()));
-    addArguments(argumentParser);
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public ResultCode doToolProcessing()
-  {
-    return executeToolTasks();
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @SuppressWarnings("unchecked")
-  @Override
-  public void fireLdapExceptionListener(final LDAPConnection ldapConnection,
-          final LDAPException ldapException)
-  {
-    Vector<LdapExceptionListener> copy;
-    synchronized(this)
-    {
-      copy = (Vector<LdapExceptionListener>)ldapExceptionListeners.clone();
-    }
-    if(copy.size() == 0)
-    {
-      return;
-    }
-    final LdapExceptionEvent ev = new LdapExceptionEvent(this,ldapConnection,ldapException);
-    for(final LdapExceptionListener l : copy)
-    {
-      l.ldapRequestFailed(ev);
-    }
-  }
-
-
-
-  /**
-   * 
-   * A value which specifies the default timeout in milliseconds that
-   * the SDK should wait for a response from the server before failing.
-   * By default, a timeout of 300,000 milliseconds (5 minutes) will be
-   * used.
-   * 
-   * @return the maximum response time in milliseconds
-   */
-  public long getResponseTimeMillis()
-  {
-    return commandLineOptions.getMaxResponseTimeMillis();
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public String getToolDescription()
-  {
-    try
-    {
-      return getToolDescription(classSpecificProperties());
-    }
-    catch(final IOException exception)
-    {
-      return "no description available: " + exception.getMessage();
-    }
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public String getToolName()
-  {
-    try
-    {
-      return getToolName(classSpecificProperties());
-    }
-    catch(final IOException exception)
-    {
-      return "no name available: " + exception.getMessage();
-    }
-  }
-
-
-
-  /**
-   * @return Whether the tool is verbose in its output.
-   */
-  public boolean isVerbose()
-  {
-    return commandLineOptions.isVerbose();
-  }
-
-
-
-  @Override
-  public void ldapRequestFailed(final LdapExceptionEvent ldapExceptionEvent)
-  {
-    final LdapException messageGenerator =
-            ExceptionMsgFactory.getMessageGenerator(ldapExceptionEvent.getLdapException());
-    getLogger().log(Level.SEVERE,messageGenerator.msg());
-  }
-
-
-
   /**
    * {@inheritDoc}
    */
@@ -226,31 +119,120 @@ public abstract class AbstractTool
     }
   }
 
-
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public ResultCode doToolProcessing()
+  {
+    return executeToolTasks();
+  }
 
   /**
-   * @param argumentParser
-   * @throws ArgumentException
+   * executes the tasks defined in this tool
    */
+  protected abstract ResultCode executeToolTasks();
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void addNonLDAPArguments(final ArgumentParser argumentParser) throws ArgumentException
+  {
+    Validator.ensureNotNull(argumentParser);
+    commandLineOptions =
+            CommandLineOptions.newCommandLineOptions(argumentParser, 
+                    CommandLineOptions.createDefaultArguments(StaticData.getResourceBundle()));
+    addArguments(argumentParser);
+  }
+
   protected void addArguments(final ArgumentParser argumentParser) throws ArgumentException
   {
     // This block deliberately left empty
   }
 
-
+  @Override
+  public void ldapRequestFailed(final LdapExceptionEvent ldapExceptionEvent)
+  {
+    final LdapException messageGenerator =
+            ExceptionMsgFactory.getMessageGenerator(ldapExceptionEvent.getLdapException());
+    getLogger().error(messageGenerator.msg());
+  }
 
   /**
-   * return the class-specific properties resource name
+   * {@inheritDoc}
    */
-  protected abstract String classSpecificPropertiesResourceName();
+  @SuppressWarnings("unchecked") @Override
+  public void fireLdapExceptionListener(final LDAPConnection ldapConnection,
+          final LDAPException ldapException)
+  {
+    Vector<LdapExceptionListener> copy;
+    synchronized(this)
+    {
+      copy = (Vector<LdapExceptionListener>) ldapExceptionListeners.clone();
+    }
+    if(copy.size() == 0)
+    {
+      return;
+    }
+    final LdapExceptionEvent ev = new LdapExceptionEvent(this, ldapConnection, ldapException);
+    for(final LdapExceptionListener l : copy)
+    {
+      l.ldapRequestFailed(ev);
+    }
+  }
 
+  protected  Log getLogger()
+  {
+    return LogFactory.getLog(getClass());
+  }
 
+  protected LDAPConnectionPool getLdapConnectionPool(final LDAPConnection c,
+          final int initialConnections, final int maxConnections) throws LDAPException
+  {
+    return new LDAPConnectionPool(c, initialConnections, maxConnections);
+  }
+
+  protected LDAPConnectionPool getLdapConnectionPool(final LDAPConnection c)
+          throws LDAPException
+  {
+    int initialConnections;
+    int maxConnections;
+    if(commandLineOptions != null)
+    {
+      initialConnections = commandLineOptions.getInitialConnections();
+      maxConnections = commandLineOptions.getMaxConnections();
+    }
+    else
+    {
+      initialConnections = 1;
+      maxConnections = 2;
+    }
+    return getLdapConnectionPool(c, initialConnections, maxConnections);
+  }
+
+  protected LDAPConnectionPool getLdapConnectionPool() throws LDAPException
+  {
+    int initialConnections;
+    int maxConnections;
+    if(commandLineOptions != null)
+    {
+      initialConnections = commandLineOptions.getInitialConnections();
+      maxConnections = commandLineOptions.getMaxConnections();
+    }
+    else
+    {
+      initialConnections = 1;
+      maxConnections = 2;
+    }
+    return getLdapConnectionPool(connectToServer(), initialConnections, maxConnections);
+  }
 
   /**
    * Connect to the LDAP server specified in the LDAP connection command
    * line arguments. The command line arguments which affect the
    * connection are:
-   * 
+   * <p/>
    * <ul>
    * <li>"-h {address}" or "--hostname {address}" -- Specifies the
    * address of the directory server. If this isn't specified, then a
@@ -351,11 +333,9 @@ public abstract class AbstractTool
    * </ul>
    * </li>
    * </ul>
-   * 
+   *
    * @return a connection to an LDAP server
-   * 
-   * @throws LDAPException
-   *           If a problem occurs while creating the connection.
+   * @throws LDAPException If a problem occurs while creating the connection.
    */
   protected LDAPConnection connectToServer() throws LDAPException
   {
@@ -364,7 +344,142 @@ public abstract class AbstractTool
     return c;
   }
 
+  /**
+   * @return the text to be used for the introduction string.
+   */
+  protected String getIntroductionString()
+  {
+    return String.format("%s: %s", getToolName(), getToolDescription());
+  }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String getToolName()
+  {
+    try
+    {
+      return getToolName(classSpecificProperties());
+    }
+    catch(final IOException exception)
+    {
+      return "no name available: " + exception.getMessage();
+    }
+  }
+
+  private Properties classSpecificProperties() throws IOException
+  {
+    final Properties properties = new Properties();
+    final InputStream inputStream =
+            classSpecificPropertiesInputStream(classSpecificPropertiesResourceName());
+    if(inputStream != null)
+    {
+      properties.load(inputStream);
+    }
+    return properties;
+  }
+
+  /**
+   * Get the input stream from which class-specific properties might be
+   * read. Following is an example of a class-specific resources file:
+   * <p/>
+   * <blockquote>
+   * <p/>
+   * <pre>
+   * toolDescription = The AuthDemo class provides a demonstration of  \
+   *              the Authorization Identity Request Control and       \
+   *              the Who Am I? extended operation. The class displays \
+   *              the authZid of the connection state using the        \
+   *              distinguished name supplied to the --bindDN          \
+   *              command line argument.
+   * toolName = AuthDemo
+   * </pre>
+   * <p/>
+   * </blockquote>
+   *
+   * @param classSpecificPropertiesResourceName
+   *         the name of the resource from which properties might be
+   *         read. classSpecificPropertiesResourceName ispermitted to
+   *         be {@code null}.
+   * @return the input stream or {@code null} if the resource cannot be
+   *         located.
+   */
+  private InputStream classSpecificPropertiesInputStream(
+          final String classSpecificPropertiesResourceName)
+  {
+    if(classSpecificPropertiesResourceName == null)
+    {
+      throw new IllegalArgumentException("classSpecificPropertiesResourceName must not be " +
+              "null.");
+    }
+    InputStream classSpecificPropertiesInputStream = null;
+    if(classSpecificPropertiesResourceName != null)
+    {
+      ClassLoader cl = getClassLoader();
+      classSpecificPropertiesInputStream =
+              cl.getResourceAsStream(classSpecificPropertiesResourceName);
+    }
+    return classSpecificPropertiesInputStream;
+  }
+
+  /**
+   * return the class-specific properties resource name
+   */
+  protected abstract String classSpecificPropertiesResourceName();
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String getToolDescription()
+  {
+    try
+    {
+      return getToolDescription(classSpecificProperties());
+    }
+    catch(final IOException exception)
+    {
+      return "no description available: " + exception.getMessage();
+    }
+  }
+
+  /**
+   * Get the tool description text from the properties file associated
+   * with the class.
+   *
+   * @param properties properties from which the tool description text is
+   *                   extracted
+   * @return the tool description text
+   */
+  protected String getToolDescription(final Properties properties)
+  {
+    final String description = properties.getProperty(toolDescriptionPropertyName());
+    return description == null ? "no description available." : description;
+  }
+
+  /**
+   * @return the name/key of the property which specifies the tool
+   *         description
+   */
+  protected String toolDescriptionPropertyName()
+  {
+    return "toolDescription";
+  }
+
+  protected String getToolName(final Properties properties)
+  {
+    final String name = properties.getProperty(toolNamePropertyName());
+    return name == null ? "no name available." : name;
+  }
+
+  /**
+   * @return the name/key of the property which specifies the tool name
+   */
+  protected String toolNamePropertyName()
+  {
+    return "toolName";
+  }
 
   protected void displayArguments()
   {
@@ -385,7 +500,7 @@ public abstract class AbstractTool
           final DNArgument a = DNArgument.class.cast(arg);
           for(final DN value : a.getValues())
           {
-            msgs.add(String.format("--%s %s",a.getLongIdentifier(),value));
+            msgs.add(String.format("--%s %s", a.getLongIdentifier(), value));
           }
         }
         else if(arg instanceof FileArgument)
@@ -393,7 +508,7 @@ public abstract class AbstractTool
           final FileArgument a = FileArgument.class.cast(arg);
           for(final File value : a.getValues())
           {
-            msgs.add(String.format("--%s %s",a.getLongIdentifier(),value));
+            msgs.add(String.format("--%s %s", a.getLongIdentifier(), value));
           }
         }
         else if(arg instanceof FilterArgument)
@@ -401,20 +516,20 @@ public abstract class AbstractTool
           final FilterArgument a = FilterArgument.class.cast(arg);
           for(final Filter value : a.getValues())
           {
-            msgs.add(String.format("--%s %s",a.getLongIdentifier(),value));
+            msgs.add(String.format("--%s %s", a.getLongIdentifier(), value));
           }
         }
         else if(arg instanceof ScopeArgument)
         {
           final ScopeArgument a = ScopeArgument.class.cast(arg);
-          msgs.add(String.format("--%s %s",a.getLongIdentifier(),a.getValue()));
+          msgs.add(String.format("--%s %s", a.getLongIdentifier(), a.getValue()));
         }
         else if(arg instanceof StringArgument)
         {
           final StringArgument a = StringArgument.class.cast(arg);
           for(final String value : a.getValues())
           {
-            msgs.add(String.format("--%s %s",a.getLongIdentifier(),value));
+            msgs.add(String.format("--%s %s", a.getLongIdentifier(), value));
           }
         }
         else if(arg instanceof IntegerArgument)
@@ -422,7 +537,7 @@ public abstract class AbstractTool
           final IntegerArgument a = IntegerArgument.class.cast(arg);
           for(final Integer value : a.getValues())
           {
-            msgs.add(String.format("--%s %s",a.getLongIdentifier(),value));
+            msgs.add(String.format("--%s %s", a.getLongIdentifier(), value));
           }
         }
         else
@@ -431,147 +546,26 @@ public abstract class AbstractTool
         }
         for(final String string : msgs)
         {
-          getLogger().log(Level.INFO,string);
+          if(getLogger().isInfoEnabled())
+          {
+            getLogger().info(string);
+          }
         }
       }
     }
   }
 
-
-
   protected void displayServerInformation()
   {
-    getLogger().log(
-            Level.INFO,
-            String.format("Will attempt to connect to server %s:%d",
-                    commandLineOptions.getHostname(),commandLineOptions.getPort()));
-  }
-
-
-
-  /** executes the tasks defined in this tool */
-  protected abstract ResultCode executeToolTasks();
-
-
-
-  /**
-   * @return the text to be used for the introduction string.
-   */
-  protected String getIntroductionString()
-  {
-    return String.format("%s: %s",getToolName(),getToolDescription());
-  }
-
-
-
-  protected LDAPConnectionOptions getLdapConnectionOptions()
-  {
-    Validator.ensureNotNullWithMessage(commandLineOptions,
-            "commandLineOptions should not be null");
-
-    final LDAPConnectionOptions ldapConnectionOptions =
-            commandLineOptions.newLDAPConnectionOptions();
-
-    // unsolicited notification handler
-    ldapConnectionOptions
-            .setUnsolicitedNotificationHandler(getUnsolicitedNotificationHandler());
-
-    return ldapConnectionOptions;
-  }
-
-
-
-  protected LDAPConnectionPool getLdapConnectionPool() throws LDAPException
-  {
-    int initialConnections;
-    int maxConnections;
-    if(commandLineOptions != null)
+    if(getLogger().isInfoEnabled())
     {
-      initialConnections = commandLineOptions.getInitialConnections();
-      maxConnections = commandLineOptions.getMaxConnections();
+      final String hostname = commandLineOptions.getHostname();
+      final int port = commandLineOptions.getPort();
+      final String msg =
+              String.format("Will attempt to connect to server %s:%d", hostname, port);
+      getLogger().info(msg);
     }
-    else
-    {
-      initialConnections = 1;
-      maxConnections = 2;
-    }
-    return getLdapConnectionPool(connectToServer(),initialConnections,maxConnections);
   }
-
-
-
-  protected LDAPConnectionPool getLdapConnectionPool(final LDAPConnection c)
-          throws LDAPException
-  {
-    int initialConnections;
-    int maxConnections;
-    if(commandLineOptions != null)
-    {
-      initialConnections = commandLineOptions.getInitialConnections();
-      maxConnections = commandLineOptions.getMaxConnections();
-    }
-    else
-    {
-      initialConnections = 1;
-      maxConnections = 2;
-    }
-    return getLdapConnectionPool(c,initialConnections,maxConnections);
-  }
-
-
-
-  protected LDAPConnectionPool getLdapConnectionPool(final LDAPConnection c,
-          final int initialConnections,final int maxConnections) throws LDAPException
-  {
-    return new LDAPConnectionPool(c,initialConnections,maxConnections);
-  }
-
-
-
-  /**
-   * @return the logger
-   */
-  protected abstract Logger getLogger();
-
-
-
-  /**
-   * 
-   * Get the tool description text from the properties file associated
-   * with the class.
-   * 
-   * @param properties
-   *          properties from which the tool description text is
-   *          extracted
-   * @return the tool description text
-   */
-  protected String getToolDescription(final Properties properties)
-  {
-    final String description = properties.getProperty(toolDescriptionPropertyName());
-    return description == null ? "no description available." : description;
-  }
-
-
-
-  protected String getToolName(final Properties properties)
-  {
-    final String name = properties.getProperty(toolNamePropertyName());
-    return name == null ? "no name available." : name;
-  }
-
-
-
-  /**
-   * TODO: Provide a comment for this method.
-   * 
-   * @return
-   */
-  protected UnsolicitedNotificationHandler getUnsolicitedNotificationHandler()
-  {
-    return new samplecode.DefaultUnsolicitedNotificationHandler(this);
-  }
-
-
 
   /**
    * Display introductory matter. This implementation display the name
@@ -579,7 +573,6 @@ public abstract class AbstractTool
    */
   protected void introduction()
   {
-
     // TODO: Add support for a configurable introduction indentation and
     // add support for resource bundles
 
@@ -589,146 +582,67 @@ public abstract class AbstractTool
     {
       width = commandLineOptions.getIntroductionColumnWidth();
     }
-    wrapOut(indentation,width,getToolName() + ":\n" + getToolDescription());
+    wrapOut(indentation, width, getToolName() + ":\n" + getToolDescription());
     out();
   }
 
-
-
   /**
-   * @return the name/key of the property which specifies the tool
-   *         description
+   * @param printStream a non-null print stream to which the message is
+   *                    transmitted.
+   * @param msg         a non-null message to transmit
    */
-  protected String toolDescriptionPropertyName()
+  protected void verbose(final PrintStream printStream, final String msg)
   {
-    return "toolDescription";
+    if(getLogger().isTraceEnabled())
+    {
+      getLogger().trace(msg);
+    }
   }
 
-
-
   /**
-   * @return the name/key of the property which specifies the tool name
-   */
-  protected String toolNamePropertyName()
-  {
-    return "toolName";
-  }
-
-
-
-  /**
-   * @param printStream
-   *          a non-null print stream to which the message is
-   *          transmitted.
-   * @param msg
-   *          a non-null message to transmit
-   */
-  protected void verbose(final PrintStream printStream,final String msg)
-  {
-    getLogger().log(Level.FINE,msg);
-  }
-
-
-
-  /**
-   * @param msg
-   *          a non-null message to transmit to the standard output.
+   * @param msg a non-null message to transmit to the standard output.
    */
   protected void verbose(final String msg)
   {
-    getLogger().log(Level.FINE,msg);
-  }
-
-
-
-  /**
-   * @return the class-specific properties for the classs
-   */
-  private Properties classSpecificProperties() throws IOException
-  {
-    final Properties properties = new Properties();
-    final InputStream inputStream =
-            classSpecificPropertiesInputStream(classSpecificPropertiesResourceName());
-    if(inputStream != null)
+    if(getLogger().isTraceEnabled())
     {
-      properties.load(inputStream);
+      getLogger().trace(msg);
     }
-    return properties;
   }
 
-
-
   /**
-   * Get the input stream from which class-specific properties might be
-   * read. Following is an example of a class-specific resources file:
-   * <p>
-   * <blockquote>
-   * 
-   * <pre>
-   * toolDescription = The AuthDemo class provides a demonstration of  \
-   *              the Authorization Identity Request Control and       \
-   *              the Who Am I? extended operation. The class displays \
-   *              the authZid of the connection state using the        \
-   *              distinguished name supplied to the --bindDN          \
-   *              command line argument.
-   * toolName = AuthDemo
-   * </pre>
-   * 
-   * </blockquote>
-   * 
-   * 
-   * @param classSpecificPropertiesResourceName
-   *          the name of the resource from which properties might be
-   *          read. classSpecificPropertiesResourceName ispermitted to
-   *          be {@code null}.
-   * 
-   * @return the input stream or {@code null} if the resource cannot be
-   *         located.
+   * @return Whether the tool is verbose in its output.
    */
-  private InputStream classSpecificPropertiesInputStream(
-          final String classSpecificPropertiesResourceName)
+  public boolean isVerbose()
   {
-    InputStream classSpecificPropertiesInputStream = null;
-    final String resourceName = classSpecificPropertiesResourceName;
-    if((resourceName != null) && (classSpecificPropertiesResourceName != null))
-    {
-      classSpecificPropertiesInputStream =
-              getClass().getClassLoader().getResourceAsStream(resourceName);
-    }
-    return classSpecificPropertiesInputStream;
+    return commandLineOptions.isVerbose();
   }
 
-
-
   /**
-   * 
-   * Creates a {@code AbstractTool} with default state.
-   * 
+   * A value which specifies the default timeout in milliseconds that
+   * the SDK should wait for a response from the server before failing.
+   * By default, a timeout of 300,000 milliseconds (5 minutes) will be
+   * used.
+   *
+   * @return the maximum response time in milliseconds
    */
-  protected AbstractTool()
+  public long getResponseTimeMillis()
   {
-    this(System.out,System.err);
+    return commandLineOptions.getMaxResponseTimeMillis();
   }
 
+  /**
+   * interested parties to {@code LdapExceptionEvents}
+   */
+  protected volatile Vector<LdapExceptionListener> ldapExceptionListeners =
+          new Vector<LdapExceptionListener>();
 
 
   /**
-   * @param outStream
-   * @param errStream
+   * interested parties to {@code LdapExceptionEvents}
    */
-  protected AbstractTool(
-          final OutputStream outStream,final OutputStream errStream)
-  {
-    super(outStream,errStream);
-  }
-
-
-
-  /**
-   * The name of the class that implements {@code AbstractTool}.
-   */
-  protected String className;
-
+  protected volatile Vector<LdapSearchExceptionListener> ldapSearchExceptionListeners =
+          new Vector<LdapSearchExceptionListener>();
 
 
   /**
@@ -739,29 +653,15 @@ public abstract class AbstractTool
   protected CommandLineOptions commandLineOptions;
 
 
+  protected LDAPConnectionPool ldapConnectionPool;
+
 
   protected LDAPConnection ldapConnection;
 
 
-
-  protected LDAPConnectionPool ldapConnectionPool;
-
-
-
   /**
-   * interested parties to {@code LdapExceptionEvents}
+   * The name of the class that implements {@code AbstractTool}.
    */
-  protected volatile Vector<LdapExceptionListener> ldapExceptionListeners =
-          new Vector<LdapExceptionListener>();
-
-
-
-  /**
-   * interested parties to {@code LdapExceptionEvents}
-   */
-  protected volatile Vector<LdapSearchExceptionListener> ldapSearchExceptionListeners =
-          new Vector<LdapSearchExceptionListener>();
-
-
+  protected String className;
 
 }
