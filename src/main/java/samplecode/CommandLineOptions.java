@@ -580,9 +580,8 @@ public class CommandLineOptions
    */
   public Filter getFilter()
   {
-    final FilterArgument arg =
-            (FilterArgument) argumentParser.getNamedArgument(CommandLineOptions
-                    .ARG_NAME_FILTER);
+    final String argName = CommandLineOptions.ARG_NAME_FILTER;
+    final FilterArgument arg = (FilterArgument) argumentParser.getNamedArgument(argName);
     return arg.getValue();
   }
 
