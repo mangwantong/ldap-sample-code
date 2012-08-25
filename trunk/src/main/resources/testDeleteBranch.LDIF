@@ -1,3 +1,4 @@
+# A branch node with one subordinate entry
 dn: cn=deleteme,dc=example,dc=com
 objectClass: top
 objectClass: person

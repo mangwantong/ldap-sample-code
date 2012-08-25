@@ -15,48 +15,29 @@
  */
 package samplecode.delete;
 
-
-import com.unboundid.ldap.sdk.Control;
-import com.unboundid.ldap.sdk.DN;
-import com.unboundid.ldap.sdk.LDAPConnection;
-import com.unboundid.ldap.sdk.LDAPConnectionOptions;
-import com.unboundid.ldap.sdk.LDAPException;
-import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.*;
 import com.unboundid.ldif.LDIFException;
-import com.unboundid.util.LDAPCommandLineTool;
-import com.unboundid.util.MinimalLogFormatter;
-import com.unboundid.util.Validator;
 import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
 import com.unboundid.util.args.DNArgument;
 import com.unboundid.util.args.StringArgument;
-
-
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.util.List;
-import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.LogRecord;
-
-
-import samplecode.CommandLineOptions;
 import samplecode.SampleCodeCollectionUtils;
-import samplecode.StaticData;
 import samplecode.SupportedFeatureException;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
 import samplecode.controls.ControlHandler;
+import samplecode.ldif.LdifLoadProgressEvent;
 import samplecode.ldif.ReadLdifFile;
-import samplecode.listener.LdapExceptionEvent;
-import samplecode.listener.LdapExceptionListener;
-import samplecode.listener.ProgressEvent;
 import samplecode.listener.ProgressListener;
+import samplecode.tools.AbstractTool;
 import samplecode.tools.BasicToolCompletedProcessing;
 import samplecode.tools.ToolCompletedProcessing;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.util.List;
 
 /**
  * Provides a demonstration of how to use the LDAP tree delete control
@@ -65,13 +46,13 @@ import samplecode.tools.ToolCompletedProcessing;
  * references to the OperationPurposeRequestControl. The following
  * command line arguments are required and must be specified exactly
  * once: --deleteBranch, --ldifFile. <blockquote>
- * 
+ * <p/>
  * <pre>
  * The tree delete tool provides a demonstration of how to use the Tree Delete
  * request control to delete a branch and all entries subordinate to the branch.
- * 
+ *
  * Usage:  LdapTreeDelete {options}
- * 
+ *
  * Available options include:
  * -h, --hostname {host}
  *     The IP address or resolvable name to use to connect to the directory
@@ -164,24 +145,31 @@ import samplecode.tools.ToolCompletedProcessing;
  * -H, -?, --help
  *     Display usage information for this program.
  * </pre>
- * 
+ * <p/>
  * </blockquote>
  */
-@Author("terry.gardner@unboundid.com")
-@Since("Nov 30, 2011")
-@CodeVersion("1.8")
-public final class LdapTreeDelete
-        extends LDAPCommandLineTool
-        implements LdapExceptionListener
+@Author("terry.gardner@unboundid.com") @Since("Nov 30, 2011") @CodeVersion("1.8")
+public final class LdapTreeDelete extends AbstractTool
 {
+
+  /**
+   * The short identifier of the command line argument whose parameter
+   * specifies the DN to be deleted with all of its subordinates.
+   */
+  public static final Character SHORT_NAME_DELETE_BRANCH = 'd';
+
+  /**
+   * The short identifier of the command line argument that specifies
+   * the name of a file containing valid LDIF which is processed before
+   * the branch specified by the --deleteBranch is deleted.
+   */
+  public static final Character SHORT_NAME_LDIF_FILE = 'l';
 
   /**
    * The long identifier of the command line argument whose parameter
    * specifies the DN to be deleted with all of its subordinates.
    */
   public static final String ARG_NAME_DELETE_BRANCH = "deleteBranch";
-
-
 
   /**
    * The long identifier of the command line argument that specifies the
@@ -190,51 +178,226 @@ public final class LdapTreeDelete
    */
   public static final String ARG_NAME_LDIF_FILE = "ldifFile";
 
+  /**
+   * Prepares {@code LdapTreeDelete} for use by a client - the
+   * {@code System.out} and {@code System.err OutputStreams} are used.
+   */
+  @SuppressWarnings("unused")
+  public LdapTreeDelete()
+  {
+    this(System.out, System.err);
+  }
 
+  public LdapTreeDelete(final OutputStream outStream, final OutputStream errStream)
+  {
+    super(outStream, errStream);
+  }
 
   /**
-   * The short identifier of the command line argument whose parameter
-   * specifies the DN to be deleted with all of its subordinates.
+   * {@inheritDoc}
    */
-  public static final Character SHORT_NAME_DELETE_BRANCH = Character.valueOf('d');
+  @Override
+  public void addArguments(final ArgumentParser argumentParser) throws ArgumentException
+  {
+    Character shortIdentifier = LdapTreeDelete.SHORT_NAME_LDIF_FILE;
+    String longIdentifier = LdapTreeDelete.ARG_NAME_LDIF_FILE;
+    final boolean isRequired = true;
+    final int maxOccurrences = 1;
+    String valuePlaceholder = "{resource on classpath}";
+    String description =
+            "Demonstrators must use this command line argument " + "to specify a file " +
+                    "containing valid LDIF that is " + "processed before the DN specified by " +
+                    "the --deleteBranch " + "and all of its subordinates is deleted. The " +
+                    "intent " + "is to allow observers of the demonstration to add some " +
+                    "entries and then " + "delete them. This command line argument is " +
+                    "required, the filename " + "specified must be found on the classpath, " +
+                    "and " + "must be specified exactly once.";
+    ldifFileArgument =
+            new StringArgument(shortIdentifier, longIdentifier, isRequired, maxOccurrences,
+                    valuePlaceholder, description);
+    argumentParser.addArgument(ldifFileArgument);
 
+    /*
+     * Add the command line argument to the argument parser whose
+     * parameter is the distinguished name of the branch that will be
+     * deleted along with all of its subordinates.
+     */
+    shortIdentifier = LdapTreeDelete.SHORT_NAME_DELETE_BRANCH;
+    longIdentifier = LdapTreeDelete.ARG_NAME_DELETE_BRANCH;
+    valuePlaceholder = "{distinguishedName}";
+    description =
+            "Demonstrators must use this command line argument " + "to specify the branch to " +
+                    "delete. This command line argument is " + "required, " +
+                    "the specified value must be a valid distinguished name. " + "and must be" +
+                    " " +
+                    "specified exactly once.";
+    dnArgument =
+            new DNArgument(shortIdentifier, longIdentifier, isRequired, maxOccurrences,
+                    valuePlaceholder, description);
+    argumentParser.addArgument(dnArgument);
 
+    addRequiredArgumentSet(argumentParser, dnArgument, ldifFileArgument);
+  }
+
+  @Override protected ResultCode executeToolTasks()
+  {
+    introduction();
+    if(isVerbose())
+    {
+      displayArguments();
+    }
+
+    final int indentation = getErrorIndentation();
+    final int width = getIntroductionWidth();
+
+    /*
+    * Get a connection to directory server. The connection is made
+    * using the standard command line options supported by
+    * CommandLineTool and CommandLineOptions.
+    */
+    LDAPConnection ldapConnection;
+    try
+    {
+      ldapConnection = getConnection();
+      final LDAPConnectionOptions connectionOptions = getLdapConnectionOptions();
+      ldapConnection.setConnectionOptions(connectionOptions);
+
+      if(getLogger().isTraceEnabled())
+      {
+        getLogger().trace("connected to LDAP directory server");
+      }
+    }
+    catch(final LDAPException ldapException)
+    {
+      return ldapException.getResultCode();
+    }
+
+    /*
+     * Retrieve the name of the file containing LDIF from the command
+     * line argument parameter. The LDIF file name is specified by the
+     * --ldifFile command line argument and the filename specified must
+     * be located on the classpath. The entries in the file are
+     * added to the DIT and then deleted
+     */
+    final String ldifFile = ldifFileArgument.getValue();
+
+    /*
+     * Retrieve the name of the DN to be deleted (along with all of its
+     * subordinates) from the command line argument parameter. The
+     * distinguished name is specified by the --deleteBranch command
+     * line argument.
+     */
+    final DN dnToDelete = dnArgument.getValue();
+
+    /*
+     * Construct the demonstration service provider. This object will
+     * provide all the services necessary for demonstrating the use of
+     * the tree delete request control.
+     */
+    final LdapDeleteBranch deleter = LdapDeleteBranch.getInstance();
+    deleter.addLdapExceptionListener(this);
+
+    /*
+     * Create the progress listeners. These objects report on the
+     * progress made by the loading of the LDIF file.
+     */
+    final List<ProgressListener<LdifLoadProgressEvent>> listOfLoadProgressListeners =
+            SampleCodeCollectionUtils.newArrayList();
+    final ProgressListener<LdifLoadProgressEvent> loadProgressListener =
+            new ProgressListener<LdifLoadProgressEvent>()
+            {
+
+              @Override
+              public void progress(final LdifLoadProgressEvent progressEvent)
+              {
+                if(progressEvent == null)
+                {
+                  throw new IllegalArgumentException("progressEvent must not be null.");
+                }
+                if(getLogger().isTraceEnabled())
+                {
+                  final String msg = progressEvent.getProgressMessage();
+                  getLogger().trace(msg);
+                }
+              }
+
+            };
+    listOfLoadProgressListeners.add(loadProgressListener);
+
+    try
+    {
+      final ReadLdifFile adder = ReadLdifFile.getInstance();
+
+      /*
+       * Add the entries from the file (in the form of LDIF) that was
+       * specified as a parameter to the --ldifFile command line
+       * argument.
+       */
+      final Control[] controls = null;
+      adder.addEntriesInFile(ldapConnection, ldifFile, controls);
+
+      /*
+       * Delete the DN and all its subordinates. The DN is specified by
+       * the --deleteBranch command line argument.
+       */
+      final ControlHandler[] controlHandlers = null;
+      deleter.deleteTree(ldapConnection, dnToDelete,
+              commandLineOptions.getMaxResponseTimeMillis(), controlHandlers);
+    }
+    catch(final LDAPException ldapException)
+    {
+      final StringBuilder builder = new StringBuilder();
+      builder.append("An LDAP exception was detected:\n");
+      builder.append(ldapException.getExceptionMessage());
+      wrapErr(indentation, width, builder.toString());
+      return ldapException.getResultCode();
+    }
+    catch(final IOException ioException)
+    {
+      final String localisedMessage = ioException.getLocalizedMessage();
+      final String ioExceptionMsg =
+              String.format("An condition has transpired that has resulted in an I/O " +
+                      "exception: %s", localisedMessage);
+      wrapErr(indentation, width, ioExceptionMsg);
+      return ResultCode.OPERATIONS_ERROR;
+    }
+    catch(final LDIFException ldifException)
+    {
+      final StringBuilder builder = new StringBuilder();
+      builder.append("An LDIF exception was detected:\n");
+      builder.append(ldifException.getExceptionMessage());
+      wrapErr(indentation, width, builder.toString());
+      return ResultCode.OPERATIONS_ERROR;
+    }
+    catch(final SupportedFeatureException unsupportedException)
+    {
+      wrapErr(indentation, width, "The tree delete control or operation purpose " +
+              "request control is not supported by " + "this server.");
+      return ResultCode.UNWILLING_TO_PERFORM;
+    }
+
+    return ResultCode.SUCCESS;
+  }
 
   /**
-   * The short identifier of the command line argument that specifies
-   * the name of a file containing valid LDIF which is processed before
-   * the branch specified by the --deleteBranch is deleted.
+   * return the class-specific properties resource name
    */
-  public static final Character SHORT_NAME_LDIF_FILE = Character.valueOf('l');
+  @Override protected String classSpecificPropertiesResourceName()
+  {
+    return "LdapTreeDelete.properties";
+  }
 
+  private DNArgument dnArgument;
 
-
-  /**
-   * The description of this tool; used in help and diagnostic output,
-   * and for other purposes.
-   */
-  public static final String TOOL_DESCRIPTION =
-          "The tree delete tool provides a demonstration "
-                  + "of how to use the Tree Delete request control "
-                  + "to delete a branch and all entries subordinate to the branch.";
-
-
-
-  /**
-   * The name of this tool; used in help and diagnostic output, and for
-   * other purposes.
-   */
-  public static final String TOOL_NAME = "LdapTreeDelete";
-
-
+  private StringArgument ldifFileArgument;
 
   /**
    * <pre>
    * The tree delete tool provides a demonstration of how to use the Tree Delete
    * request control to delete a branch and all entries subordinate to the branch.
-   * 
+   *
    * Usage:  LdapTreeDelete {options}
-   * 
+   *
    * Available options include:
    * -h, --hostname {host}
    *     The IP address or resolvable name to use to connect to the directory
@@ -319,311 +482,23 @@ public final class LdapTreeDelete
    *     exactly once.
    * -H, -?, --help
    *     Display usage information for this program.
-   * 
+   *
    * LdapTreeDelete has completed execution with the result code 0 (success)
    * </pre>
-   * 
-   * @param args
-   *          The command line arguments and parameters, less the JVM
-   *          arguments.
-   * @throws IOException
-   *           When an IO error with a file occurs.
+   *
+   * @param args The command line arguments and parameters, less the JVM
+   *             arguments.
+   * @throws IOException When an IO error with a file occurs.
    */
   public static void main(final String... args) throws IOException
   {
     final PrintStream outStream = System.out;
     final PrintStream errStream = System.err;
-    final LdapTreeDelete ldapTreeDelete = new LdapTreeDelete(outStream,errStream);
+    final LdapTreeDelete ldapTreeDelete = new LdapTreeDelete(outStream, errStream);
     final ResultCode resultCode = ldapTreeDelete.runTool(args);
     final ToolCompletedProcessing completedProcessing =
-            new BasicToolCompletedProcessing(ldapTreeDelete,resultCode);
-    completedProcessing.displayMessage(outStream,errStream);
+            new BasicToolCompletedProcessing(ldapTreeDelete, resultCode);
+    completedProcessing.displayMessage(outStream, errStream);
   }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void addNonLDAPArguments(final ArgumentParser argumentParser) throws ArgumentException
-  {
-    Validator.ensureNotNull(argumentParser);
-    // TODO: Add support for Locale when creating resource bundle.
-    commandLineOptions =
-            CommandLineOptions.newCommandLineOptions(argumentParser,CommandLineOptions
-                    .createDefaultArguments(ResourceBundle.getBundle(StaticData
-                            .getResourceBundleBaseName())));
-
-    Character shortIdentifier = LdapTreeDelete.SHORT_NAME_LDIF_FILE;
-    String longIdentifier = LdapTreeDelete.ARG_NAME_LDIF_FILE;
-    final boolean isRequired = true;
-    final int maxOccurrences = 1;
-    String valuePlaceholder = "{resource on classpath}";
-    String description =
-            "Demonstrators must use this command line argument "
-                    + "to specify a file containing valid LDIF that is "
-                    + "processed before the DN specified by the --deleteBranch "
-                    + "and all of its subordinates is deleted. The intent "
-                    + "is to allow observers of the demonstration to add some entries and then "
-                    + "delete them. This command line argument is required, the filename "
-                    + "specified must be found on the classpath, and "
-                    + "must be specified exactly once.";
-    final StringArgument stringArgument =
-            new StringArgument(shortIdentifier,longIdentifier,isRequired,maxOccurrences,
-                    valuePlaceholder,description);
-    argumentParser.addArgument(stringArgument);
-
-    /*
-     * Add the command line argument to the argument parser whose
-     * parameter is the distinguished name of the branch that will be
-     * deleted along with all of its subordinates.
-     */
-    shortIdentifier = LdapTreeDelete.SHORT_NAME_DELETE_BRANCH;
-    longIdentifier = LdapTreeDelete.ARG_NAME_DELETE_BRANCH;
-    valuePlaceholder = "{distinguishedName}";
-    description =
-            "Demonstrators must use this command line argument "
-                    + "to specify the branch to delete. This command line argument is "
-                    + "required, the specified value must be a valid distnguished name. "
-                    + "and must be specified exactly once.";
-    final DNArgument dnArgument =
-            new DNArgument(shortIdentifier,longIdentifier,isRequired,maxOccurrences,
-                    valuePlaceholder,description);
-    argumentParser.addArgument(dnArgument);
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public ResultCode doToolProcessing()
-  {
-
-    /*
-     * Get a connection to directory server. The connection is made
-     * using the standard command line options supported by
-     * CommandLineTool and CommandLineOptions.
-     */
-    LDAPConnection ldapConnection;
-    try
-    {
-      ldapConnection = getConnection();
-    }
-    catch(final LDAPException ldapException)
-    {
-      return ldapException.getResultCode();
-    }
-
-    /*
-     * Set the connection options as determined by command line
-     * arguments.
-     */
-    final LDAPConnectionOptions connectionOptions =
-            commandLineOptions.newLDAPConnectionOptions();
-    ldapConnection.setConnectionOptions(connectionOptions);
-
-    /*
-     * Retrieve the name of the file containing LDIF from the command
-     * line argument parameter. The LDIF file name is specified by the
-     * --ldifFile command line argument and the filename specified must
-     * be located on the classpath.
-     */
-    final StringArgument stringArgument =
-            (StringArgument)commandLineOptions.getArgumentParser().getNamedArgument(
-                    LdapTreeDelete.ARG_NAME_LDIF_FILE);
-    final String ldifFile = stringArgument.getValue();
-
-    /*
-     * Retrieve the name of the DN to be deleted (along with all of its
-     * subordinates) from the command line argument parameter. The
-     * distinguished name is specified by the --deleteBranch command
-     * line argument.
-     */
-    final DNArgument dnArgument =
-            (DNArgument)commandLineOptions.getArgumentParser().getNamedArgument(
-                    LdapTreeDelete.ARG_NAME_DELETE_BRANCH);
-    final DN dnToDelete = dnArgument.getValue();
-
-    /*
-     * Construct the demonstration service provider. This object will
-     * provide all the services necessary for demonstrating the use of
-     * the tree delete request control.
-     */
-    final LdapDeleteBranch deleter = LdapDeleteBranch.getInstance();
-    deleter.addLdapExceptionListener(this);
-
-    /*
-     * Create the progress listeners. These obejcts report on the
-     * progress made by the loading of the LDIF file.
-     */
-    final List<ProgressListener<LdifLoadProgressEvent>> listOfLoadProgressListeners =
-            SampleCodeCollectionUtils.newArrayList();
-    final ProgressListener<LdifLoadProgressEvent> loadProgressListener =
-            new ProgressListener<LdifLoadProgressEvent>()
-            {
-
-              @Override
-              public void progress(final LdifLoadProgressEvent progressEvent)
-              {
-                Validator.ensureNotNull(progressEvent);
-                final LogRecord record =
-                        new LogRecord(Level.INFO,progressEvent.getProgressMessage());
-                out(new MinimalLogFormatter().format(record));
-              }
-
-            };
-    listOfLoadProgressListeners.add(loadProgressListener);
-
-    try
-    {
-
-      final ReadLdifFile adder = ReadLdifFile.getInstance();
-
-      /*
-       * Add the entries from the file (in the form of LDIF) that was
-       * specified as a parameter to the --ldifFile command line
-       * argument.
-       */
-      final Control[] controls = null;
-      adder.addEntriesInFile(ldapConnection,ldifFile,controls);
-
-      /*
-       * Delete the DN and all its subordinates. The DN is specified by
-       * the --deleteBranch command line argument.
-       */
-      final ControlHandler[] controlHandlers = null;
-      deleter.deleteTree(ldapConnection,dnToDelete,
-              commandLineOptions.getMaxResponseTimeMillis(),controlHandlers);
-
-    }
-    catch(final LDAPException ldapException)
-    {
-      final StringBuilder builder = new StringBuilder();
-      builder.append("An LDAP exception was detected:\n");
-      builder.append(ldapException.getExceptionMessage());
-      err(builder.toString());
-      return ldapException.getResultCode();
-    }
-    catch(final IOException ioException)
-    {
-      final String ioExceptionMsg =
-              String.format(
-                      "An condition has transpired that has resulted in an I/O exception: %s",
-                      ioException.getLocalizedMessage());
-      err(ioExceptionMsg);
-      return ResultCode.OPERATIONS_ERROR;
-    }
-    catch(final LDIFException ldifException)
-    {
-      final StringBuilder builder = new StringBuilder();
-      builder.append("An LDIF exception was detected:\n");
-      builder.append(ldifException.getExceptionMessage());
-      err(builder.toString());
-      return ResultCode.OPERATIONS_ERROR;
-    }
-    catch(final SupportedFeatureException unsupportedException)
-    {
-      err("The tree delete control or operation purpose request control "
-              + "is not supported by this server.");
-      return ResultCode.UNWILLING_TO_PERFORM;
-    }
-
-    return ResultCode.SUCCESS;
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public String getToolDescription()
-  {
-    return LdapTreeDelete.TOOL_DESCRIPTION;
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public String getToolName()
-  {
-    return LdapTreeDelete.TOOL_NAME;
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void ldapRequestFailed(final LdapExceptionEvent ldapExceptionEvent)
-  {
-    err(new MinimalLogFormatter().format(new LogRecord(Level.SEVERE,ldapExceptionEvent
-            .getLdapException().getExceptionMessage())));
-  }
-
-
-
-  /**
-   * Prepares {@code LdapTreeDelete} for use by a client - the
-   * {@code System.out} and {@code System.err OutputStreams} are used.
-   */
-  public LdapTreeDelete()
-  {
-    this(System.out,System.err);
-  }
-
-
-
-  private LdapTreeDelete(
-          final OutputStream outStream,final OutputStream errStream)
-  {
-    super(outStream,errStream);
-  }
-
-
-
-  // handles command line arguments.
-  private CommandLineOptions commandLineOptions;
-
-}
-
-
-final class LdifLoadProgressEvent
-        implements ProgressEvent<String>
-{
-
-  /**
-   * @return the progressMessage
-   */
-  @Override
-  public final String getProgressMessage()
-  {
-    return progressMessage;
-  }
-
-
-
-  /**
-   * Creates a {@code LdifLoadProgressEvent} with default state.
-   * 
-   * @param progressMessage
-   */
-  public LdifLoadProgressEvent(
-          final String progressMessage)
-  {
-    this.progressMessage = progressMessage;
-  }
-
-
-
-  // The progress message from the client loading LDIF from a file.
-  private final String progressMessage;
 
 }
