@@ -12,11 +12,6 @@
     <packaging>jar</packaging>
     <properties>
         <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
-        <maven.compiler.plugin.version>2.3.2</maven.compiler.plugin.version>
-        <maven.javadoc.plugin.version>2.8</maven.javadoc.plugin.version>
-        <maven.source.plugin.version>2.1.2</maven.source.plugin.version>
-        <maven.surefire.plugin.version>2.11</maven.surefire.plugin.version>
-        <sdk.version>2.3.0</sdk.version>
         <commons.cfg.version>1.8</commons.cfg.version>
     </properties>
     <description>A collection of sample code used in the blog at http://ff1959.wordpress.com.
@@ -42,6 +37,11 @@
     </organization>
     <dependencies>
         <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>2.6</version>
+        </dependency>
+        <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
             <version>1.1.1</version>
@@ -54,12 +54,12 @@
         <dependency>
             <groupId>com.unboundid</groupId>
             <artifactId>unboundid-ldapsdk</artifactId>
-            <version>${sdk.version}</version>
+            <version>2.3.1</version>
         </dependency>
         <dependency>
             <groupId>commons-configuration</groupId>
             <artifactId>commons-configuration</artifactId>
-            <version>${commons.cfg.version}</version>
+            <version>1.8</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -76,9 +76,27 @@
         </resources>
         <plugins>
             <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                 <version>2.3</version>
+                <executions>
+                    <execution>
+                        <id>bundle-project-sources</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <descriptorRefs>
+                                <descriptorRef>jar-with-dependencies</descriptorRef>
+                            </descriptorRefs>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>${maven.source.plugin.version}</version>
+                <version>2.1.2</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -90,7 +108,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>${maven.surefire.plugin.version}</version>
+                <version>2.12.2</version>
                 <configuration>
                     <parallel>methods</parallel>
                     <threadCount>2</threadCount>
@@ -100,7 +118,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven.compiler.plugin.version}</version>
+                <version>2.3.2</version>
                 <configuration>
                     <source>1.6</source>
                     <target>1.6</target>
@@ -117,7 +135,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>${maven.javadoc.plugin.version}</version>
+                <version>2.8.1</version>
                 <configuration>
                     <author>true</author>
                     <failOnError>true</failOnError>
@@ -132,7 +150,7 @@
         <plugins>
             <plugin>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>${maven.javadoc.plugin.version}</version>
+                <version>2.8.1</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
