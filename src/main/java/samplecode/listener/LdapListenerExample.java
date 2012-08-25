@@ -15,7 +15,6 @@
  */
 package samplecode.listener;
 
-
 import com.unboundid.ldap.listener.InMemoryDirectoryServer;
 import com.unboundid.ldap.listener.InMemoryDirectoryServerConfig;
 import com.unboundid.ldap.listener.InMemoryListenerConfig;
@@ -45,8 +44,6 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.ResourceBundle;
-
 
 /**
  * An example demonstrating how to create and use an in-memory directory
@@ -216,7 +213,6 @@ public final class LdapListenerExample extends AbstractTool
      */
     private static final String DEFAULT_BIND_DN = "cn=admin";
 
-
     /**
      * The bind password to use when the operator does not supply on on
      * the command line with the {@code --bindPassword} argument. This
@@ -224,7 +220,6 @@ public final class LdapListenerExample extends AbstractTool
      * the in-memory directory server.
      */
     private static final String DEFAULT_BIND_PASSWORD = "password";
-
 
     /**
      * Create the services object using the provided parameters (none of
@@ -555,7 +550,6 @@ public final class LdapListenerExample extends AbstractTool
      */
     public static final Character SHORT_ID_CONTROL_OID;
 
-
     /**
      * The short identifier of the argument which specifies the file
      * containing entries in LDIF format that will be loaded into
@@ -564,13 +558,11 @@ public final class LdapListenerExample extends AbstractTool
      */
     public static final Character SHORT_ID_LDIF_FILE;
 
-
     /**
      * The short identifier of the argument which specifies the naming
      * context to be used when creating the in-memory directory server.
      */
     public static final Character SHORT_ID_NAMING_CONTEXT;
-
 
     /**
      * The short identifier of the argument which specifies the file
@@ -586,7 +578,6 @@ public final class LdapListenerExample extends AbstractTool
      */
     public static final String ARG_NAME_CONTROL_OID;
 
-
     /**
      * The long identifier of the argument which specifies the file
      * containing entries in LDIF format that will be loaded into
@@ -594,13 +585,11 @@ public final class LdapListenerExample extends AbstractTool
      */
     public static final String ARG_NAME_LDIF_FILE;
 
-
     /**
      * The long identifier of the argument which specifies the naming
      * context to use in the in-memory directory server.
      */
     public static final String ARG_NAME_NAMING_CONTEXT;
-
 
     /**
      * The long identifier of the argument which specifies the schema
@@ -621,12 +610,11 @@ public final class LdapListenerExample extends AbstractTool
       SHORT_ID_SCHEMA_FILE = Character.valueOf('c');
     }
 
-
     private LocalCommandLineOptions(final ArgumentParser argumentParser)
             throws ArgumentException
     {
-      super(CommandLineOptions.createDefaultArguments(ResourceBundle.getBundle(StaticData
-              .getResourceBundleBaseName())), argumentParser);
+      super(CommandLineOptions.createDefaultArguments(StaticData.getResourceBundle()),
+              argumentParser);
 
       /*
        * Add the argument to the command line argument parser whose
@@ -760,19 +748,15 @@ public final class LdapListenerExample extends AbstractTool
    */
   public static final String TOOL_DESCRIPTION;
 
-
   /**
    * This is the name of this tool; this is used for help output and for
    * other purposes.
    */
   public static final String TOOL_NAME;
 
-
   private static DNArgument dnArgument;
 
-
   private static FileArgument schemaFileArgument;
-
 
   /**
    * Initialize static fields.
@@ -790,7 +774,6 @@ public final class LdapListenerExample extends AbstractTool
                     "command line argument, and adds entries that are found in the " + "file " +
                     "named in the parameter to the --ldifFile final command line argument.";
   }
-
 
   /**
    * Prepares {@code LdapListenerExample} for use by a client - the
@@ -1098,9 +1081,7 @@ public final class LdapListenerExample extends AbstractTool
 
   private FileArgument ldifFileArgument;
 
-
   private StringArgument controlOidArgument;
-
 
   /**
    * <ul>

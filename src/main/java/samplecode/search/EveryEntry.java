@@ -36,7 +36,6 @@ import samplecode.listener.*;
 
 import java.io.PrintStream;
 import java.util.List;
-import java.util.ResourceBundle;
 import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -184,7 +183,8 @@ public final class EveryEntry extends LDAPCommandLineTool
                 new EveryEntryImpl(searchListenerClassname, commandLineOptions,
                         ldapConnection, getErr(), errorListeners);
         final Log logger = LogFactory.getLog(getClass());
-        final LdapExceptionListener ldapExceptionListener = new DefaultLdapExceptionListener(logger);
+        final LdapExceptionListener ldapExceptionListener =
+                new DefaultLdapExceptionListener(logger);
         impl.addLdapExceptionListener(ldapExceptionListener);
         executorService.submit(impl);
       }
@@ -468,8 +468,8 @@ final class EveryEntryCommandLineOptions extends CommandLineOptions
   private EveryEntryCommandLineOptions(final ArgumentParser argumentParser)
           throws ArgumentException
   {
-    super(CommandLineOptions.createDefaultArguments(ResourceBundle.getBundle(StaticData
-            .getResourceBundleBaseName())), argumentParser);
+    super(CommandLineOptions.createDefaultArguments(StaticData.getResourceBundle()),
+            argumentParser);
     final Argument searchResultListenerArgument = newSearchResultListenerArgument();
     addArguments(searchResultListenerArgument);
   }

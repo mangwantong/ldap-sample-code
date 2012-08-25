@@ -15,53 +15,45 @@
  */
 package samplecode.search;
 
-
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.SearchResultListener;
 import com.unboundid.util.Validator;
-
-
 import samplecode.CommandLineOptions;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
 
-
 /**
  * An implementation of {@code SearchResultListener} that provides
  * methods to associate an LDAPConnection and command line arguments
  * with extending classes.
- * <p>
+ * <p/>
  * example usage: <blockquote>
- * 
+ * <p/>
  * <pre>
- * 
- * 
- * 
- * 
  * class LocalSearchResultListener
  *         extends AbstractSearchResultListener
  * {
- * 
+ *
  *   LocalSearchResultListener(
- *           LDAPConnection ldapConnection,CommandLineOptions commandLineOptions)
+ *           final LDAPConnection ldapConnection,final CommandLineOptions commandLineOptions)
  *   {
  *     Validator.ensureNotNull(ldapConnection,commandLineOptions);
  *     setLDAPConnection(ldapConnection);
  *     setCommandLineOptions(commandLineOptions);
  *   }
- * 
- * 
- * 
+ *
+ *
+ *
  *   &#064;Override
  *   public void searchReferenceReturned(final SearchResultReference searchResultReference)
  *   {
  *     Validator.ensureNotNull(searchResultReference);
  *     System.out.println(searchResultReference);
  *   }
- * 
- * 
- * 
+ *
+ *
+ *
  *   &#064;Override
  *   public void searchEntryReturned(final SearchResultEntry searchResultEntry)
  *   {
@@ -70,53 +62,22 @@ import samplecode.annotation.Since;
  *   }
  * }
  * </pre>
- * 
  * </blockquote>
- * 
+ *
  * @see CommandLineOptions
  * @see LDAPConnection
  */
-@SuppressWarnings("serial")
-@Author("terry.gardner@unboundid.com")
-@Since("Dec 18, 2011")
+@SuppressWarnings("serial") @Author("terry.gardner@unboundid.com") @Since("Dec 18, 2011")
 @CodeVersion("1.2")
-public abstract class AbstractSearchResultListener
-        implements SearchResultListener
+public abstract class AbstractSearchResultListener implements SearchResultListener
 {
-
-  /**
-   * Retrieves the command line arguments processor object associated
-   * with the {@code AbstractSearchResultListener}.
-   * 
-   * @return The command line arguments processor.
-   */
-  public CommandLineOptions getCommandLineOptions()
-  {
-    return commandLineOptions;
-  }
-
-
-
-  /**
-   * Retrieves the connection to the directory server associated with
-   * the {@code AbstractSearchResultListener}.
-   * 
-   * @return The connection to the directory server.
-   */
-  public LDAPConnection getLDAPConnection()
-  {
-    return ldapConnection;
-  }
-
-
 
   /**
    * Sets the command line arguments processor object associated with
    * the {@code AbstractSearchResultListener}.
-   * 
-   * @param commandLineOptions
-   *          The command line arguments processor; cannot be
-   *          {@code null}.
+   *
+   * @param commandLineOptions The command line arguments processor; cannot be
+   *                           {@code null}.
    * @return The resulting {@code AbstractSearchResultListener} object.
    */
   public AbstractSearchResultListener setCommandLineOptions(
@@ -127,15 +88,12 @@ public abstract class AbstractSearchResultListener
     return this;
   }
 
-
-
   /**
    * Sets the connection to the directory server associated with the
    * {@code AbstractSearchResultListener}.
-   * 
-   * @param ldapConnection
-   *          The connection to the directory server, cannot be
-   *          {@code null} .
+   *
+   * @param ldapConnection The connection to the directory server, cannot be
+   *                       {@code null} .
    * @return The resulting {@code AbstractSearchResultListener} object.
    */
   public AbstractSearchResultListener setLDAPConnection(final LDAPConnection ldapConnection)
@@ -145,11 +103,30 @@ public abstract class AbstractSearchResultListener
     return this;
   }
 
-
+  /**
+   * Retrieves the connection to the directory server associated with
+   * the {@code AbstractSearchResultListener}.
+   *
+   * @return The connection to the directory server.
+   */
+  public LDAPConnection getLDAPConnection()
+  {
+    return ldapConnection;
+  }
 
   private CommandLineOptions commandLineOptions;
 
-
+  /**
+   * Retrieves the command line arguments processor object associated
+   * with the {@code AbstractSearchResultListener}.
+   *
+   * @return The command line arguments processor.
+   */
+  protected CommandLineOptions getCommandLineOptions()
+  {
+    return commandLineOptions;
+  }
 
   private LDAPConnection ldapConnection;
+
 }

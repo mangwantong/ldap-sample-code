@@ -19,17 +19,14 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.CommandLineTool;
 import com.unboundid.util.LDAPCommandLineTool;
 import com.unboundid.util.MinimalLogFormatter;
-import com.unboundid.util.Validator;
 import org.apache.commons.logging.Log;
-import samplecode.BasicLdapLogRecord;
-import samplecode.LdapLogRecord;
+import samplecode.StaticData;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
 
 import java.io.PrintStream;
 import java.util.logging.Formatter;
-import java.util.logging.Level;
 
 /**
  * Provides a generic message for logging when a {@link CommandLineTool}
@@ -40,6 +37,8 @@ import java.util.logging.Level;
 @Author("terry.gardner@unboundid.com") @Since("Dec 24, 2011") @CodeVersion("1.2")
 public class BasicToolCompletedProcessing implements ToolCompletedProcessing
 {
+
+  private static final String KEY_COMPLETED_MSG_FORMAT = "tool-completed-message-fmt";
 
   /**
    * Creates a {@code BasicToolCompletedProcessing} with default state.
@@ -52,7 +51,14 @@ public class BasicToolCompletedProcessing implements ToolCompletedProcessing
   public BasicToolCompletedProcessing(final LDAPCommandLineTool tool,
           final ResultCode resultCode)
   {
-    Validator.ensureNotNull(tool, resultCode);
+    if(tool == null)
+    {
+      throw new IllegalArgumentException("tool must not be null.");
+    }
+    if(resultCode == null)
+    {
+      throw new IllegalArgumentException("resultCode must not be null.");
+    }
     this.tool = tool;
     this.resultCode = resultCode;
   }
@@ -66,16 +72,24 @@ public class BasicToolCompletedProcessing implements ToolCompletedProcessing
   @Override
   public void displayMessage(final PrintStream outStream, final PrintStream errStream)
   {
-    Validator.ensureNotNull(outStream, errStream);
-    final LdapLogRecord ldapLogRecord = new BasicLdapLogRecord(createMsg());
+    if(outStream == null)
+    {
+      throw new IllegalArgumentException("outStream must not be null.");
+    }
+    if(errStream == null)
+    {
+      throw new IllegalArgumentException("errStream must not be null.");
+    }
+    PrintStream str;
     if(resultCode.equals(ResultCode.SUCCESS))
     {
-      outStream.println(formatter.format(ldapLogRecord.getLogRecord(Level.INFO)));
+      str = outStream;
     }
     else
     {
-      errStream.println(formatter.format(ldapLogRecord.getLogRecord(Level.SEVERE)));
+      str = errStream;
     }
+    str.println(createMsg());
   }
 
   /**
@@ -100,8 +114,8 @@ public class BasicToolCompletedProcessing implements ToolCompletedProcessing
   @Override
   public String createMsg()
   {
-    return String.format("%s has completed processing, result code: %s", tool.getToolName(),
-            resultCode);
+    final String fmt = StaticData.getResourceBundle().getString(KEY_COMPLETED_MSG_FORMAT);
+    return String.format(fmt, tool.getToolName(),resultCode);
   }
 
   private final Formatter formatter = new MinimalLogFormatter();
