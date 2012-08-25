@@ -205,7 +205,7 @@ public class CommandLineOptions
    * the scope of a search request. This command line argument has a
    * default value, is optional and can occur exactly one time.
    */
-  private static final String ARG_NAME_SCOPE = "scope";
+  public static final String ARG_NAME_SCOPE = "scope";
 
 
   /**
