@@ -19,6 +19,7 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.matchingrules.MatchingRule;
 import com.unboundid.ldap.sdk.*;
 import com.unboundid.util.Validator;
+import com.unboundid.util.args.Argument;
 import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
 import com.unboundid.util.args.DNArgument;
@@ -37,6 +38,7 @@ import samplecode.tools.ToolCompletedProcessing;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.List;
 
 /**
  * Demonstrates the use of matching rules for attribute value
@@ -153,25 +155,6 @@ public final class MatchingRuleDemo extends AbstractTool
   }
 
   /**
-   * The description of this tool; used for help output and for other
-   * purposes.
-   */
-  public static final String TOOL_DESCRIPTION =
-          "Provides a demonstration of the use of matching rules " + "by comparing a " +
-                  "specified attribute between two entries. " + "The attribute to be compared" +
-                  " is specified by --attribute " + ", and the entries are specified by " +
-                  "--entryDn1 and --entryDn2." + "\n\nexample usage:\n\n" + "java samplecode" +
-                  ".MatchingRuleDemo --filter '(&)' " + "--scope SUB --entryDn1 uid=user.0," +
-                  "ou=people, dc=example,dc=com " + "--entryDn2 uid=user.1,ou=people," +
-                  "dc=example,dc=com --filter uid=user.0" + "--attribute description  " +
-                  "--hostname localhost --port 1389";
-
-  /**
-   * The name of this tool; used for help output and for other purposes.
-   */
-  public static final String TOOL_NAME = "MatchingRuleDemo";
-
-  /**
    * The long identifier of the argument whose parameter is the name of
    * entry number 1.
    */
@@ -185,20 +168,21 @@ public final class MatchingRuleDemo extends AbstractTool
 
   /**
    * Prepares {@code MatchingRuleDemo} for use by a client - the
+   * {@code System.out} and {@code System.err OutputStreams} are used.
+   */
+  @SuppressWarnings("unused")
+  public MatchingRuleDemo()
+  {
+    this(System.out, System.err);
+  }
+
+  /**
+   * Prepares {@code MatchingRuleDemo} for use by a client - the
    * specified output streams are used.
    */
   private MatchingRuleDemo(final OutputStream outStream, final OutputStream errStream)
   {
     super(outStream, errStream);
-  }
-
-  /**
-   * Prepares {@code MatchingRuleDemo} for use by a client - the
-   * {@code System.out} and {@code System.err OutputStreams} are used.
-   */
-  public MatchingRuleDemo()
-  {
-    this(System.out, System.err);
   }
 
   /**
@@ -225,20 +209,16 @@ public final class MatchingRuleDemo extends AbstractTool
     introduction();
 
     /*
-     * Retrieve the parameters provided to the entryDn1, entryDn2, and
-     * attribute arguments:
-     */
-    final DN entryDn1 = getEntryDn1();
-    final DN entryDn2 = getEntryDn2();
-
-    /*
-     * Retreive the first attribute name specified by the command line
+     * retrieve the first attribute name specified by the command line
      * argument '--attribute'. That command line argument may appear
      * multiple times however this demonstration only uses the first
      * occurrences.
      */
-    final String attributeName =
-            commandLineOptions.getRequestedAttributes().toArray(new String[0])[0];
+    final List<String> list = commandLineOptions.getRequestedAttributes();
+    final int size = list.size();
+    final String[] ary = new String[size];
+    final String[] attributeNames = list.toArray(ary);
+    final String attributeName = attributeNames[0];
     Validator.ensureFalse(attributeName.length() == 0, "This tool requires that the attribute" +
             " name " + "have a length greater than zero.");
 
@@ -292,9 +272,16 @@ public final class MatchingRuleDemo extends AbstractTool
       /*
        * Create the search request
        */
-      String baseObject = entryDn1.toString();
+      String baseObject = entryDN1.toString();
       final SearchScope scope = commandLineOptions.getSearchScope();
       final Filter filter = commandLineOptions.getFilter();
+      if(filter == null)
+      {
+        final ArgumentParser argumentParser = getArgumentParser();
+        final String msg = getRequiredArgumentsMessage(argumentParser);
+        getLogger().fatal(msg);
+        return ResultCode.PARAM_ERROR;
+      }
       final String[] requestedAttributes = new String[]{attributeName};
       SearchRequest searchRequest =
               new SearchRequest(baseObject, scope, filter, requestedAttributes);
@@ -305,7 +292,7 @@ public final class MatchingRuleDemo extends AbstractTool
       /*
        * Repeat for entryDn2
        */
-      baseObject = entryDn2.toString();
+      baseObject = entryDN2.toString();
       searchRequest = new SearchRequest(baseObject, scope, filter, requestedAttributes);
       searchRequest.setSizeLimit(commandLineOptions.getSizeLimit());
       searchRequest.setTimeLimitSeconds(commandLineOptions.getTimeLimit());
@@ -323,7 +310,7 @@ public final class MatchingRuleDemo extends AbstractTool
         {
           final StringBuilder builder = new StringBuilder();
           builder.append(String.format("attribute '%s' was not present in %s", attributeName,
-                  entryDn1));
+                  entryDN1));
           final String msg = builder.toString();
           err(msg);
           return ResultCode.PARAM_ERROR;
@@ -332,7 +319,7 @@ public final class MatchingRuleDemo extends AbstractTool
         {
           final StringBuilder builder = new StringBuilder();
           builder.append(String.format("attribute '%s' was not present in %s", attributeName,
-                  entryDn2));
+                  entryDN2));
           final String msg = builder.toString();
           err(msg);
           return ResultCode.PARAM_ERROR;
@@ -370,36 +357,6 @@ public final class MatchingRuleDemo extends AbstractTool
     return ResultCode.SUCCESS;
   }
 
-  private DN getEntryDn1()
-  {
-    return ((DNArgument) commandLineOptions.getArgumentParser().getNamedArgument
-            (MatchingRuleDemo.ARG_NAME_ENTRY_DN_1)).getValue();
-  }
-
-  private DN getEntryDn2()
-  {
-    return ((DNArgument) commandLineOptions.getArgumentParser().getNamedArgument
-            (MatchingRuleDemo.ARG_NAME_ENTRY_DN_2)).getValue();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public String getToolDescription()
-  {
-    return MatchingRuleDemo.TOOL_DESCRIPTION;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public String getToolName()
-  {
-    return MatchingRuleDemo.TOOL_NAME;
-  }
-
   /**
    * {@inheritDoc}
    * <p/>
@@ -410,8 +367,6 @@ public final class MatchingRuleDemo extends AbstractTool
   @Override
   public void addArguments(final ArgumentParser argumentParser) throws ArgumentException
   {
-    Validator.ensureNotNull(argumentParser);
-
     /**
      * Add the argument whose parameter is the DN of an entry to be
      * compared with entry 2
@@ -421,10 +376,10 @@ public final class MatchingRuleDemo extends AbstractTool
     final int maxOccurrences = 1;
     final String valuePlaceholder = "{distinguishedName}";
     String description = "The distinguished name to be compared with entry-2";
-    final DNArgument entryDn1 =
+    entryDN1 =
             new DNArgument(null, longIdentifier, isRequired, maxOccurrences,
                     valuePlaceholder, description);
-    argumentParser.addArgument(entryDn1);
+    argumentParser.addArgument(entryDN1);
 
     /**
      * Add the argument whose parameter is the DN of an entry to be
@@ -434,11 +389,19 @@ public final class MatchingRuleDemo extends AbstractTool
     longIdentifier = MatchingRuleDemo.ARG_NAME_ENTRY_DN_2;
     isRequired = true;
     description = "The distinguished name to be compared with entry-1";
-    final DNArgument entryDn2 =
+    entryDN2 =
             new DNArgument(null, longIdentifier, isRequired, maxOccurrences,
                     valuePlaceholder, description);
-    argumentParser.addArgument(entryDn2);
+    argumentParser.addArgument(entryDN2);
+
+    final String argName = CommandLineOptions.ARG_NAME_FILTER;
+    final Argument filterArgument = argumentParser.getNamedArgument(argName);
+
+    addRequiredArgumentSet(argumentParser, entryDN1, entryDN2, filterArgument);
   }
+
+  private DNArgument entryDN1;
+  private DNArgument entryDN2;
 
   /**
    * Launch the Matching Rules Demonstration application.
