@@ -351,10 +351,16 @@ public abstract class AbstractTool extends LDAPCommandLineTool
     return c;
   }
 
-  protected Log getLogger()
+  public Log getLogger()
   {
-    return LogFactory.getLog(getClass());
+    if(logger == null)
+    {
+      logger = LogFactory.getLog(getClass());
+    }
+    return logger;
   }
+
+  private Log logger;
 
   /**
    * @return the text to be used for the introduction string.
@@ -550,70 +556,70 @@ public abstract class AbstractTool extends LDAPCommandLineTool
    */
   protected void displayArguments()
   {
-    for(final Argument arg : commandLineOptions.getArgumentParser().getNamedArguments())
+    if(getLogger().isInfoEnabled())
     {
-      if(arg.isPresent())
+      for(final Argument arg : commandLineOptions.getArgumentParser().getNamedArguments())
       {
-        final List<String> msgs = SampleCodeCollectionUtils.newArrayList();
-        if(arg instanceof BooleanArgument)
+        if(arg.isPresent())
         {
-          for(int i = 0; i < arg.getNumOccurrences(); ++i)
+          final List<String> msgs = SampleCodeCollectionUtils.newArrayList();
+          if(arg instanceof BooleanArgument)
           {
-            msgs.add("--" + arg.getLongIdentifier());
+            for(int i = 0; i < arg.getNumOccurrences(); ++i)
+            {
+              msgs.add("--" + arg.getLongIdentifier());
+            }
           }
-        }
-        else if(arg instanceof DNArgument)
-        {
-          final DNArgument a = DNArgument.class.cast(arg);
-          for(final DN value : a.getValues())
+          else if(arg instanceof DNArgument)
           {
-            msgs.add(String.format("--%s %s", a.getLongIdentifier(), value));
+            final DNArgument a = DNArgument.class.cast(arg);
+            for(final DN value : a.getValues())
+            {
+              msgs.add(String.format("--%s %s", a.getLongIdentifier(), value));
+            }
           }
-        }
-        else if(arg instanceof FileArgument)
-        {
-          final FileArgument a = FileArgument.class.cast(arg);
-          for(final File value : a.getValues())
+          else if(arg instanceof FileArgument)
           {
-            msgs.add(String.format("--%s %s", a.getLongIdentifier(), value));
+            final FileArgument a = FileArgument.class.cast(arg);
+            for(final File value : a.getValues())
+            {
+              msgs.add(String.format("--%s %s", a.getLongIdentifier(), value));
+            }
           }
-        }
-        else if(arg instanceof FilterArgument)
-        {
-          final FilterArgument a = FilterArgument.class.cast(arg);
-          for(final Filter value : a.getValues())
+          else if(arg instanceof FilterArgument)
           {
-            msgs.add(String.format("--%s %s", a.getLongIdentifier(), value));
+            final FilterArgument a = FilterArgument.class.cast(arg);
+            for(final Filter value : a.getValues())
+            {
+              msgs.add(String.format("--%s %s", a.getLongIdentifier(), value));
+            }
           }
-        }
-        else if(arg instanceof ScopeArgument)
-        {
-          final ScopeArgument a = ScopeArgument.class.cast(arg);
-          msgs.add(String.format("--%s %s", a.getLongIdentifier(), a.getValue()));
-        }
-        else if(arg instanceof StringArgument)
-        {
-          final StringArgument a = StringArgument.class.cast(arg);
-          for(final String value : a.getValues())
+          else if(arg instanceof ScopeArgument)
           {
-            msgs.add(String.format("--%s %s", a.getLongIdentifier(), value));
+            final ScopeArgument a = ScopeArgument.class.cast(arg);
+            msgs.add(String.format("--%s %s", a.getLongIdentifier(), a.getValue()));
           }
-        }
-        else if(arg instanceof IntegerArgument)
-        {
-          final IntegerArgument a = IntegerArgument.class.cast(arg);
-          for(final Integer value : a.getValues())
+          else if(arg instanceof StringArgument)
           {
-            msgs.add(String.format("--%s %s", a.getLongIdentifier(), value));
+            final StringArgument a = StringArgument.class.cast(arg);
+            for(final String value : a.getValues())
+            {
+              msgs.add(String.format("--%s %s", a.getLongIdentifier(), value));
+            }
           }
-        }
-        else
-        {
-          msgs.add("");
-        }
-        for(final String string : msgs)
-        {
-          if(getLogger().isInfoEnabled())
+          else if(arg instanceof IntegerArgument)
+          {
+            final IntegerArgument a = IntegerArgument.class.cast(arg);
+            for(final Integer value : a.getValues())
+            {
+              msgs.add(String.format("--%s %s", a.getLongIdentifier(), value));
+            }
+          }
+          else
+          {
+            msgs.add("");
+          }
+          for(final String string : msgs)
           {
             getLogger().info(string);
           }

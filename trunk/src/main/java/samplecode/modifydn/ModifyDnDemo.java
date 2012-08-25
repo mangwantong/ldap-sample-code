@@ -64,6 +64,12 @@ public final class ModifyDnDemo extends AbstractTool
   @Override
   protected ResultCode executeToolTasks()
   {
+    introduction();
+    if(isVerbose())
+    {
+      displayServerInformation();
+      displayArguments();
+    }
     addLdapExceptionListener(new DefaultLdapExceptionListener(getLogger()));
     final String existingDn =
             (String) commandLineOptions.get(ModifyDnDemo.ARG_NAME_EXISTING_DN);
