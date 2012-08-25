@@ -16,23 +16,13 @@
 package samplecode;
 
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentSkipListSet;
-
-
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
+
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 
 /**
@@ -53,6 +43,23 @@ import samplecode.annotation.Since;
 @CodeVersion("1.2")
 public final class SampleCodeCollectionUtils
 {
+
+  public static Object[] newArray(final int size)
+  {
+    if(size < 0)
+    {
+      throw new IllegalArgumentException("cannot create array of negative legnth");
+    }
+    return new Object[size];
+  }
+
+  public static <E> E[] toArray(final List<E> src)
+  {
+    final int size = src.size();
+    @SuppressWarnings("unchecked")
+    final Object[] ary = newArray(size);
+    return (E[])src.toArray(ary);
+  }
 
   /**
    * Given a {@link String} that consists of strings delimited by a
