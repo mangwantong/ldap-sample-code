@@ -47,7 +47,7 @@ public class SearchScopePropertiesBackedArgument
 
 
 
-  /** @return the {@code value} as an {@link Scope}. */
+  /** @return the {@code value} as an {@link SearchScope}. */
   @Override
   protected SearchScope convertString(final String value)
   {
