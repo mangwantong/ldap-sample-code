@@ -18,14 +18,11 @@ package samplecode.listener;
 
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
-
-
-import java.util.EventObject;
-
-
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
+
+import java.util.EventObject;
 
 
 /**
@@ -40,26 +37,6 @@ public class LdapExceptionEvent
 {
 
   private static final long serialVersionUID = -1429895347237817307L;
-
-
-
-  /**
-   * @return the ldapConnection
-   */
-  public final LDAPConnection getLdapConnection()
-  {
-    return ldapConnection;
-  }
-
-
-
-  /**
-   * @return the ldapException
-   */
-  public final LDAPException getLdapException()
-  {
-    return ldapException;
-  }
 
 
 
@@ -84,8 +61,6 @@ public class LdapExceptionEvent
     this.ldapException = ldapException;
   }
 
-
-
   /**
    * The connection associated with the event.
    */
@@ -94,8 +69,26 @@ public class LdapExceptionEvent
 
 
   /**
+   * @return the ldapConnection
+   */
+  public final LDAPConnection getLdapConnection()
+  {
+    return ldapConnection;
+  }
+
+  /**
    * The exception that caused this event.
    */
   private final LDAPException ldapException;
+
+
+
+  /**
+   * @return the ldapException
+   */
+  public final LDAPException getLdapException()
+  {
+    return ldapException;
+  }
 
 }

@@ -15,30 +15,43 @@
  */
 package samplecode.listener;
 
-
-import java.io.IOException;
-import java.util.EventObject;
-
-
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
 
+import java.io.IOException;
+import java.util.EventObject;
 
 /**
  * An event reported to an object that has requested a service that
  * involves LDAP.
  */
-@Author("terry.gardner@unboundid.com")
-@Since("Dec 31, 2011")
-@CodeVersion("1.1")
-public class IOExceptionEvent
-        extends EventObject
+@Author("terry.gardner@unboundid.com") @Since("Dec 31, 2011") @CodeVersion("1.1")
+public class IOExceptionEvent extends EventObject
 {
 
   private static final long serialVersionUID = -7869888523368680001L;
 
+  protected IOExceptionEvent(final Object source)
+  {
+    super(source);
+    ioException = null;
+  }
 
+  /**
+   * @param source      The object on which the Event initially occurred.
+   * @param ioException the exception which caused this event.
+   */
+  public IOExceptionEvent(final Object source, final IOException ioException)
+  {
+    super(source);
+    this.ioException = ioException;
+  }
+
+  /**
+   * The exception that caused this event.
+   */
+  private final IOException ioException;
 
   /**
    * @return the ioException
@@ -47,36 +60,5 @@ public class IOExceptionEvent
   {
     return ioException;
   }
-
-
-
-  /**
-   * @param source
-   *          The object on which the Event initially occurred.
-   * @param ioException
-   *          the exception which caused this event.
-   */
-  public IOExceptionEvent(
-          final Object source,final IOException ioException)
-  {
-    super(source);
-    this.ioException = ioException;
-  }
-
-
-
-  protected IOExceptionEvent(
-          final Object source)
-  {
-    super(source);
-    ioException = null;
-  }
-
-
-
-  /**
-   * The exception that caused this event.
-   */
-  private final IOException ioException;
 
 }

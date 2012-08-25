@@ -16,12 +16,11 @@
 package samplecode.listener;
 
 
-import java.util.EventListener;
-
-
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
+
+import java.util.EventListener;
 
 
 /**
@@ -31,8 +30,7 @@ import samplecode.annotation.Since;
 @Author("terry.gardner@unboundid.com")
 @Since("Jan 5, 2012")
 @CodeVersion("1.0")
-public interface LdifEntryEventListener
-        extends EventListener
+public interface LdifEntryEventListener extends EventListener
 {
 
   /**
@@ -42,4 +40,5 @@ public interface LdifEntryEventListener
    *          the event that transpired
    */
   void entryReadFromLdifFile(LdifEntryEvent ldifEvent);
+
 }
