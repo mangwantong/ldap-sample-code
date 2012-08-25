@@ -22,6 +22,7 @@ import org.apache.commons.lang.WordUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import samplecode.CommandLineOptions;
+import samplecode.DefaultUnsolicitedNotificationHandler;
 import samplecode.SampleCodeCollectionUtils;
 import samplecode.StaticData;
 import samplecode.annotation.Author;
@@ -47,6 +48,10 @@ public abstract class AbstractTool extends LDAPCommandLineTool
         implements LdapExceptionListener, ObservedByLdapExceptionListener
 {
 
+  private static final int DEFAULT_ERROR_INDENTATION = 0;
+
+  private static final short DEFAULT_INTRODUCTION_WIDTH = 72;
+
   private static ClassLoader classLoader;
 
   private static ClassLoader getClassLoader()
@@ -61,6 +66,8 @@ public abstract class AbstractTool extends LDAPCommandLineTool
   protected AbstractTool(final OutputStream outStream, final OutputStream errStream)
   {
     super(outStream, errStream);
+    defaultErrorIndentation = DEFAULT_ERROR_INDENTATION;
+    defaultIntroductionWidth = DEFAULT_INTRODUCTION_WIDTH;
   }
 
   protected AbstractTool()
@@ -68,6 +75,14 @@ public abstract class AbstractTool extends LDAPCommandLineTool
     this(System.out, System.err);
   }
 
+  /**
+   * retrieves an {@code LDAPConnectionOptions} object that has been
+   * initialized with values from command line options. The
+   * {@link samplecode.tools.AbstractTool#getUnsolicitedNotificationHandler()}
+   * method is used to attach an unsolicited notification handler.
+   *
+   * @return an {@code LDAPConnectionOptions} object
+   */
   protected LDAPConnectionOptions getLdapConnectionOptions()
   {
     // get a LDAPConnectionOptions object initialized with values from command line arguments.
@@ -86,7 +101,7 @@ public abstract class AbstractTool extends LDAPCommandLineTool
    */
   protected UnsolicitedNotificationHandler getUnsolicitedNotificationHandler()
   {
-    return new samplecode.DefaultUnsolicitedNotificationHandler(this);
+    return new DefaultUnsolicitedNotificationHandler(this);
   }
 
   /**
@@ -124,51 +139,6 @@ public abstract class AbstractTool extends LDAPCommandLineTool
     return executeToolTasks();
   }
 
-  protected void addRequiredArgumentSet(final ArgumentParser argumentParser,
-          final Argument... requiredArguments)
-  {
-    if(argumentParser == null)
-    {
-      throw new IllegalArgumentException("argumentParser must not be null.");
-    }
-    final List<Argument> requiredArgumentList = SampleCodeCollectionUtils.newArrayList();
-    for(Argument argument : requiredArguments)
-    {
-      requiredArgumentList.add(argument);
-    }
-    argumentParser.addRequiredArgumentSet(requiredArgumentList);
-  }
-
-  protected String getRequiredArgumentsMessage(final ArgumentParser argumentParser)
-  {
-    if(argumentParser == null)
-    {
-      throw new IllegalArgumentException("argumentParser must not be null.");
-    }
-    final List<Set<Argument>> requiredArgumentSets = argumentParser.getRequiredArgumentSets();
-    String lineSeparator = System.getProperty("line.separator");
-    final String toolNameString = getToolName() + " required arguments: " + lineSeparator;
-    final StringBuilder sb = new StringBuilder(toolNameString);
-    for(final Set<Argument> set : requiredArgumentSets)
-    {
-      final Iterator<Argument> i = set.iterator();
-      while(true)
-      {
-        if(! i.hasNext())
-        {
-          break;
-        }
-        final Argument argument = i.next();
-        final String fmt = String.format("--%s\n",argument.getLongIdentifier());
-        sb.append(fmt);
-        final String wrappedDescription = WordUtils.wrap(argument.getDescription(),84,null,false);
-        sb.append(wrappedDescription);
-        sb.append(lineSeparator); sb.append(lineSeparator);
-      }
-    }
-    return sb.toString();
-  }
-
   /**
    * executes the tasks defined in this tool
    */
@@ -183,7 +153,7 @@ public abstract class AbstractTool extends LDAPCommandLineTool
     }
     this.argumentParser = argumentParser;
     commandLineOptions =
-            CommandLineOptions.newCommandLineOptions(argumentParser, 
+            CommandLineOptions.newCommandLineOptions(argumentParser,
                     CommandLineOptions.createDefaultArguments(StaticData.getResourceBundle()));
     addArguments(argumentParser);
   }
@@ -410,6 +380,22 @@ public abstract class AbstractTool extends LDAPCommandLineTool
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String getToolDescription()
+  {
+    try
+    {
+      return getToolDescription(classSpecificProperties());
+    }
+    catch(final IOException exception)
+    {
+      return "no description available: " + exception.getMessage();
+    }
+  }
+
   private Properties classSpecificProperties() throws IOException
   {
     final Properties properties = new Properties();
@@ -470,20 +456,36 @@ public abstract class AbstractTool extends LDAPCommandLineTool
     return classSpecificPropertiesInputStream;
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public String getToolDescription()
+  protected String getRequiredArgumentsMessage(final ArgumentParser argumentParser)
   {
-    try
+    if(argumentParser == null)
     {
-      return getToolDescription(classSpecificProperties());
+      throw new IllegalArgumentException("argumentParser must not be null.");
     }
-    catch(final IOException exception)
+    final List<Set<Argument>> requiredArgumentSets = argumentParser.getRequiredArgumentSets();
+    String lineSeparator = System.getProperty("line.separator");
+    final String toolNameString = getToolName() + " required arguments: " + lineSeparator;
+    final StringBuilder sb = new StringBuilder(toolNameString);
+    for(final Set<Argument> set : requiredArgumentSets)
     {
-      return "no description available: " + exception.getMessage();
+      final Iterator<Argument> i = set.iterator();
+      while(true)
+      {
+        if(!i.hasNext())
+        {
+          break;
+        }
+        final Argument argument = i.next();
+        final String fmt = String.format("--%s\n", argument.getLongIdentifier());
+        sb.append(fmt);
+        final String wrappedDescription =
+                WordUtils.wrap(argument.getDescription(), 84, null, false);
+        sb.append(wrappedDescription);
+        sb.append(lineSeparator);
+        sb.append(lineSeparator);
+      }
     }
+    return sb.toString();
   }
 
   /**
@@ -521,6 +523,26 @@ public abstract class AbstractTool extends LDAPCommandLineTool
   protected String toolNamePropertyName()
   {
     return "toolName";
+  }
+
+  protected int getErrorIndentation()
+  {
+    return defaultErrorIndentation;
+  }
+
+  protected void addRequiredArgumentSet(final ArgumentParser argumentParser,
+          final Argument... requiredArguments)
+  {
+    if(argumentParser == null)
+    {
+      throw new IllegalArgumentException("argumentParser must not be null.");
+    }
+    final List<Argument> requiredArgumentList = SampleCodeCollectionUtils.newArrayList();
+    for(Argument argument : requiredArguments)
+    {
+      requiredArgumentList.add(argument);
+    }
+    argumentParser.addRequiredArgumentSet(requiredArgumentList);
   }
 
   /**
@@ -622,13 +644,23 @@ public abstract class AbstractTool extends LDAPCommandLineTool
     // add support for resource bundles
 
     final int indentation = 0;
-    int width = 144;
+    int width = getIntroductionWidth();
+    if(width <= 0)
+    {
+      width = DEFAULT_INTRODUCTION_WIDTH;
+    }
     if(commandLineOptions != null)
     {
       width = commandLineOptions.getIntroductionColumnWidth();
     }
     wrapOut(indentation, width, getToolName() + ":\n" + getToolDescription());
     out();
+  }
+
+  protected int getIntroductionWidth()
+  {
+    defaultIntroductionWidth = commandLineOptions.getIntroductionColumnWidth();
+    return defaultIntroductionWidth;
   }
 
   /**
@@ -710,5 +742,9 @@ public abstract class AbstractTool extends LDAPCommandLineTool
   {
     return argumentParser;
   }
+
+  private int defaultErrorIndentation;
+
+  private int defaultIntroductionWidth;
 
 }
