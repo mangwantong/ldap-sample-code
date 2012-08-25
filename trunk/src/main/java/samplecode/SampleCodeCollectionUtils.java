@@ -44,23 +44,6 @@ import java.util.concurrent.ConcurrentSkipListSet;
 public final class SampleCodeCollectionUtils
 {
 
-  public static Object[] newArray(final int size)
-  {
-    if(size < 0)
-    {
-      throw new IllegalArgumentException("cannot create array of negative legnth");
-    }
-    return new Object[size];
-  }
-
-  public static <E> E[] toArray(final List<E> src)
-  {
-    final int size = src.size();
-    @SuppressWarnings("unchecked")
-    final Object[] ary = newArray(size);
-    return (E[])src.toArray(ary);
-  }
-
   /**
    * Given a {@link String} that consists of strings delimited by a
    * comma, returns a list wherein each member of the list was a string
