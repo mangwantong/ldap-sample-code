@@ -16,18 +16,17 @@
 package samplecode.listener;
 
 
-import java.io.IOException;
-import java.util.EventListener;
-
-
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
 
+import java.io.IOException;
+import java.util.EventListener;
+
 
 /**
- * Indicates that a class is observed by another class which is
- * interested in LDAP exceptions that occur.
+ * defines services for classes that are observed by another class which is
+ * interested in IO exceptions that occur.
  */
 @Author("terry.gardner@unboundid.com")
 @Since("Dec 31, 2011")

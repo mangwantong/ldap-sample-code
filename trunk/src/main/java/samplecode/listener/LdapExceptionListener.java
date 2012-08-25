@@ -15,13 +15,11 @@
  */
 package samplecode.listener;
 
-
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
 
 import java.util.EventListener;
-
 
 /**
  * Provided to support notification that an LDAP exception has occurred.

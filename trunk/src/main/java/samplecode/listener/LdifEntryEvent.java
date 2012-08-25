@@ -15,67 +15,46 @@
  */
 package samplecode.listener;
 
-
 import com.unboundid.ldap.sdk.Entry;
-
-
-import java.util.EventObject;
-
-
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
 
+import java.util.EventObject;
 
 /**
  * An event created from an entry that was read from an LDIF file. This
  * event is messaged to interested parties.
  */
-@Author("terry.gardner@unboundid.com")
-@Since("Jan 5, 2012")
-@CodeVersion("1.0")
-public class LdifEntryEvent
-        extends EventObject
+@Author("terry.gardner@unboundid.com") @Since("Jan 5, 2012") @CodeVersion("1.0")
+public class LdifEntryEvent extends EventObject
 {
 
   private static final long serialVersionUID = -6982646541468330652L;
 
-
+  /**
+   * Creates a {@code LdifEvent} with default state.
+   *
+   * @param source
+   * @param entry
+   */
+  public LdifEntryEvent(final Object source, final Entry entry)
+  {
+    super(source);
+    this.entry = entry;
+  }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public boolean equals(final Object obj)
+  public String toString()
   {
-    if(this == obj)
-    {
-      return true;
-    }
-    if(obj == null)
-    {
-      return false;
-    }
-    if(!(obj instanceof LdifEntryEvent))
-    {
-      return false;
-    }
-    final LdifEntryEvent other = (LdifEntryEvent)obj;
-    if(entry == null)
-    {
-      if(other.entry != null)
-      {
-        return false;
-      }
-    }
-    else if(!entry.equals(other.entry))
-    {
-      return false;
-    }
-    return true;
+    return String.format("LdifEvent [entry=%s]", entry);
   }
 
-
+  // an entry read from a file or stream containing LDIF.
+  private final Entry entry;
 
   /**
    * @return the entry
@@ -84,50 +63,5 @@ public class LdifEntryEvent
   {
     return entry;
   }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public int hashCode()
-  {
-    final int prime = 31;
-    int result = 1;
-    result = (prime * result) + (entry == null ? 0 : entry.hashCode());
-    return result;
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public String toString()
-  {
-    return String.format("LdifEvent [entry=%s]",entry);
-  }
-
-
-
-  /**
-   * Creates a {@code LdifEvent} with default state.
-   * 
-   * @param source
-   * @param entry
-   */
-  public LdifEntryEvent(
-          final Object source,final Entry entry)
-  {
-    super(source);
-    this.entry = entry;
-  }
-
-
-
-  // an entry read from a file or stream containing LDIF.
-  private final Entry entry;
 
 }

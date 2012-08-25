@@ -16,12 +16,11 @@
 package samplecode.listener;
 
 
-import java.io.FileNotFoundException;
-
-
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
+
+import java.io.FileNotFoundException;
 
 
 /**
@@ -36,26 +35,6 @@ public class FileNotFoundExceptionEvent
 {
 
   private static final long serialVersionUID = -7869888523368680001L;
-
-
-
-  /**
-   * @return the filename
-   */
-  public String getFilename()
-  {
-    return filename;
-  }
-
-
-
-  /**
-   * @return the ioException
-   */
-  public final FileNotFoundException getFileNotFoundException()
-  {
-    return fileNotFoundException;
-  }
 
 
 
@@ -76,15 +55,31 @@ public class FileNotFoundExceptionEvent
     this.fileNotFoundException = fileNotFoundException;
   }
 
+  /**
+   * The exception that caused this event.
+   */
+  private final FileNotFoundException fileNotFoundException;
 
+
+
+  /**
+   * @return the ioException
+   */
+  public final FileNotFoundException getFileNotFoundException()
+  {
+    return fileNotFoundException;
+  }
 
   private final String filename;
 
 
 
   /**
-   * The exception that caused this event.
+   * @return the filename
    */
-  private final FileNotFoundException fileNotFoundException;
+  public String getFilename()
+  {
+    return filename;
+  }
 
 }

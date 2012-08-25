@@ -15,39 +15,32 @@
  */
 package samplecode.listener;
 
-
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
 
-
 /**
  * Describes services offered by listeners for exception conditions.
- * 
- * @param <T>
- *          The type of exception
+ *
+ * @param <T> The type of exception
  */
-@Author("terry.gardner@unboundID.com")
-@Since("Oct 30, 2011")
-@CodeVersion("1.0")
+@Author("terry.gardner@unboundID.com") @Since("Oct 30, 2011") @CodeVersion("1.0")
 public interface ExceptionListener<T extends Exception>
 {
 
   /**
    * Whether to invoke
    * {@link ExceptionListener#processException(Exception)}.
-   * 
+   *
    * @return Whether the processException method should be invoked.
    */
   boolean invoke();
 
-
-
   /**
    * Process an exception.
-   * 
-   * @param exception
-   *          The exception.
+   *
+   * @param exception The exception.
    */
   void processException(T exception);
+
 }

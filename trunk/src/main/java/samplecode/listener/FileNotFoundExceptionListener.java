@@ -15,28 +15,23 @@
  */
 package samplecode.listener;
 
-
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
 
-
 /**
  * Provided to support notification that a file as not found.
  */
-@Author("terry.gardner@unboundid.com")
-@Since("Dec 31, 2011")
-@CodeVersion("1.1")
-public interface FileNotFoundExceptionListener
-        extends IOExceptionListener
+@Author("terry.gardner@unboundid.com") @Since("Dec 31, 2011") @CodeVersion("1.1")
+public interface FileNotFoundExceptionListener extends IOExceptionListener
 {
 
   /**
    * a file was not found.
-   * 
-   * @param event
-   *          the event reporting data about the file that was not
-   *          found.
+   *
+   * @param event the event reporting data about the file that was not
+   *              found.
    */
   void fileNotFound(FileNotFoundExceptionEvent event);
+
 }

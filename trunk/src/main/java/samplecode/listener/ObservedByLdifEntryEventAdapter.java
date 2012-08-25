@@ -15,31 +15,30 @@
  */
 package samplecode.listener;
 
-
-import java.util.List;
-
-
 import samplecode.SampleCodeCollectionUtils;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
 
+import java.util.Collections;
+import java.util.List;
 
 /**
  * A minimal, abstract implementation of
  * {@code ObservedByLdifEntryEventListener} supplying methods to add and
  * remove listeners.
  */
-@Author("terry.gardner@unboundid.com")
-@Since("Jan 5, 2012")
-@CodeVersion("1.0")
+@Author("terry.gardner@unboundid.com") @Since("Jan 5, 2012") @CodeVersion("1.0")
 public abstract class ObservedByLdifEntryEventAdapter
         implements ObservedByLdifEntryEventListener
 {
 
-  /**
-   * {@inheritDoc}
-   */
+  protected ObservedByLdifEntryEventAdapter()
+  {
+    ldifEventListeners =
+            SampleCodeCollectionUtils.newArrayList();
+  }
+
   @Override
   public synchronized void addLdifEventListener(final LdifEntryEventListener ldifEventListener)
   {
@@ -49,11 +48,6 @@ public abstract class ObservedByLdifEntryEventAdapter
     }
   }
 
-
-
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public synchronized void removeLdifEventListener(
           final LdifEntryEventListener ldifEventListener)
@@ -64,12 +58,14 @@ public abstract class ObservedByLdifEntryEventAdapter
     }
   }
 
-
-
   /**
-   * The list of event listeners.
+   * @return an unmodifiable list of event listeners
    */
-  protected List<LdifEntryEventListener> ldifEventListeners = SampleCodeCollectionUtils
-          .newArrayList();
+  @Override public List<LdifEntryEventListener> getLdifEventListeners()
+  {
+    return Collections.unmodifiableList(ldifEventListeners);
+  }
+
+  private List<LdifEntryEventListener> ldifEventListeners;
 
 }
