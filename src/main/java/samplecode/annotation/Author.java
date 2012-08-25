@@ -24,13 +24,6 @@ import java.lang.annotation.Target;
 
 /**
  * Associates an author with a type.
- * <p>
- * Example usage:
- * </p>
- * <p/>
- * <pre>
- *
- * @Author("my.name@myDomain.com") </pre>
  */
 @Retention(RetentionPolicy.RUNTIME) @Target(ElementType.TYPE)
 public @interface Author
