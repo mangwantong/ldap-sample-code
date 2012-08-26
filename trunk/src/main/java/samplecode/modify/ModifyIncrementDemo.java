@@ -16,7 +16,7 @@ package samplecode.modify;
 
 import com.unboundid.ldap.sdk.*;
 import com.unboundid.util.args.*;
-import samplecode.CommandLineOptions;
+import samplecode.cli.CommandLineOptions;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Launchable;

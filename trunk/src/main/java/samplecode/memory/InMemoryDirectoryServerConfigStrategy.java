@@ -7,7 +7,7 @@ import com.unboundid.ldap.listener.InMemoryDirectoryServerConfig;
 import com.unboundid.ldap.listener.InMemoryListenerConfig;
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.LDAPException;
-import samplecode.AbstractConfigStrategy;
+import samplecode.config.AbstractConfigStrategy;
 
 public class InMemoryDirectoryServerConfigStrategy
         extends AbstractConfigStrategy<InMemoryDirectoryServerConfig>

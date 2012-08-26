@@ -13,64 +13,55 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
-package samplecode;
-
+package samplecode.tools;
 
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.LDAPCommandLineTool;
 import com.unboundid.util.MinimalLogFormatter;
 import com.unboundid.util.Validator;
-
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
-
-import samplecode.annotation.Author;
-import samplecode.annotation.CodeVersion;
-import samplecode.annotation.Since;
-
-
 /**
  * Invokes a class that extends the {@code LDAPCommandLineTool} class
  * where the class name is stored in system properties.
  */
-@Author("terry.gardner@unboundid.com")
-@Since("Dec 11, 2011")
-@CodeVersion("1.0")
+@Author("terry.gardner@unboundid.com") @Since("Dec 11, 2011") @CodeVersion("1.0")
 final class InvokeToolByPropertyName
 {
 
   private static final String HELPFUL_USAGE_MSG;
 
-
-
   private static final String INVOKABLE_CLASSNAME_PROP_NAME;
-
-
 
   /**
    * usage: <blockquote>
-   * 
+   * <p/>
    * <pre>
-   * java -cp your-classpath samplecode.InvokeToolByPropertyName \
+   * java -cp your-classpath samplecode.tools.InvokeToolByPropertyName \
    *   -DinvokeableClassname=samplecode.Classname [args]
    * </pre>
-   * 
+   * <p/>
    * </blockquote>
-   * 
-   * @param args
-   *          Command line arguments, less the JVM-specific arguments.
-   *          One of these arguments should set the system property
-   *          {@code invokeableClassname}.
+   *
+   * @param args Command line arguments, less the JVM-specific arguments.
+   *             One of these arguments should set the system property
+   *             {@code invokeableClassname}.
    */
   public static void main(final String... args)
   {
     final String invokeableClassname =
             System.getProperty(InvokeToolByPropertyName.INVOKABLE_CLASSNAME_PROP_NAME);
-    Validator.ensureNotNull(invokeableClassname);
+    if(invokeableClassname == null)
+    {
+      return;
+    }
     final InvokeToolByPropertyName invokeToolByPropertyName =
             new InvokeToolByPropertyName(invokeableClassname);
     final OutputStream outStream = System.out;
@@ -83,7 +74,7 @@ final class InvokeToolByPropertyName
                 new StringBuilder(invokeToolByPropertyName.getClass().getCanonicalName());
         builder.append(" has completed processing. The result code was: ");
         builder.append(resultCode);
-        final LogRecord logRecord = new LogRecord(Level.INFO,builder.toString());
+        final LogRecord logRecord = new LogRecord(Level.INFO, builder.toString());
         final String msg = new MinimalLogFormatter().format(logRecord);
         outStream.write(msg.getBytes());
       }
@@ -91,95 +82,90 @@ final class InvokeToolByPropertyName
     catch(final SecurityException e)
     {
       final String msg =
-              String.format("An SecurityException resulted from an "
-                      + "attempt to create the class '%s'.\n"
-                      + "The class must have a zero-argument constructor.\n\n%s",
-                      invokeableClassname,InvokeToolByPropertyName.HELPFUL_USAGE_MSG);
+              String.format("An SecurityException resulted from an " + "attempt to create the" +
+                      " class '%s'.\n" + "The class must have a zero-argument constructor" +
+                      ".\n\n%s", invokeableClassname, InvokeToolByPropertyName
+                      .HELPFUL_USAGE_MSG);
       System.err.println(msg);
     }
     catch(final IllegalArgumentException e)
     {
       final String msg =
-              String.format("An SecurityException resulted from an "
-                      + "attempt to create the class '%s'.\n"
-                      + "The class must have a zero-argument constructor.\n\n%s",
-                      invokeableClassname,InvokeToolByPropertyName.HELPFUL_USAGE_MSG);
+              String.format("An SecurityException resulted from an " + "attempt to create the" +
+                      " class '%s'.\n" + "The class must have a zero-argument constructor" +
+                      ".\n\n%s", invokeableClassname, InvokeToolByPropertyName
+                      .HELPFUL_USAGE_MSG);
       System.err.println(msg);
     }
     catch(final ClassNotFoundException e)
     {
       final String msg =
-              String.format("An SecurityException resulted from an "
-                      + "attempt to create the class '%s'.\n"
-                      + "The class must have a zero-argument constructor.\n\n%s",
-                      invokeableClassname,InvokeToolByPropertyName.HELPFUL_USAGE_MSG);
+              String.format("An SecurityException resulted from an " + "attempt to create the" +
+                      " class '%s'.\n" + "The class must have a zero-argument constructor" +
+                      ".\n\n%s", invokeableClassname, InvokeToolByPropertyName
+                      .HELPFUL_USAGE_MSG);
       System.err.println(msg);
     }
     catch(final InstantiationException instantiationException)
     {
       final String msg =
-              String.format("An Instantiation exception resulted from an "
-                      + "attempt to create the class '%s'.\n"
-                      + "The class must have a zero-argument constructor.\n\n%s",
-                      invokeableClassname,InvokeToolByPropertyName.HELPFUL_USAGE_MSG);
+              String.format("An Instantiation exception resulted from an " + "attempt to " +
+                      "create the class '%s'.\n" + "The class must have a zero-argument " +
+                      "constructor.\n\n%s", invokeableClassname,
+                      InvokeToolByPropertyName.HELPFUL_USAGE_MSG);
       System.err.println(msg);
     }
     catch(final IllegalAccessException e)
     {
       final String msg =
-              String.format("An SecurityException resulted from an "
-                      + "attempt to create the class '%s'.\n"
-                      + "The class must have a zero-argument constructor.\n\n%s",
-                      invokeableClassname,InvokeToolByPropertyName.HELPFUL_USAGE_MSG);
+              String.format("An SecurityException resulted from an " + "attempt to create the" +
+                      " class '%s'.\n" + "The class must have a zero-argument constructor" +
+                      ".\n\n%s", invokeableClassname, InvokeToolByPropertyName
+                      .HELPFUL_USAGE_MSG);
       System.err.println(msg);
     }
     catch(final IOException e)
     {
       final String msg =
-              String.format("An SecurityException resulted from an "
-                      + "attempt to create the class '%s'.\n"
-                      + "The class must have a zero-argument constructor.\n\n%s",
-                      invokeableClassname,InvokeToolByPropertyName.HELPFUL_USAGE_MSG);
+              String.format("An SecurityException resulted from an " + "attempt to create the" +
+                      " class '%s'.\n" + "The class must have a zero-argument constructor" +
+                      ".\n\n%s", invokeableClassname, InvokeToolByPropertyName
+                      .HELPFUL_USAGE_MSG);
       System.err.println(msg);
     }
   }
 
-
   static
   {
     HELPFUL_USAGE_MSG =
-            "Creates a class, which  must exist and must extend the "
-                    + "LDAPCommandLineTool class, and invokes the runTool(args) method.\n"
-                    + "You must provide the classname by setting the 'invokableClassname' "
-                    + "system property. for example,\n\n"
-                    + "java -cp your-classpath samplecode.InvokeToolByPropertyName "
-                    + "-DinvokeableClassname=samplecode.Classname [args]\n\n";
+            "Creates a class, which  must exist and must extend the " + "LDAPCommandLineTool " +
+                    "class, and invokes the runTool(args) method.\n" + "You must provide the " +
+                    "classname by setting the 'invokableClassname' " + "system property. for " +
+                    "example,\n\n" + "java -cp your-classpath samplecode.tools" +
+                    ".InvokeToolByPropertyName " + "-DinvokeableClassname=samplecode" +
+                    ".Classname [args]\n\n";
     INVOKABLE_CLASSNAME_PROP_NAME = "invokableClassname";
   }
 
-
-
-  private ResultCode runTool(final String... args) throws ClassNotFoundException,
-          SecurityException,IllegalArgumentException,InstantiationException,
+  private ResultCode runTool(final String... args) throws
+          ClassNotFoundException,
+          SecurityException,
+          IllegalArgumentException,
+          InstantiationException,
           IllegalAccessException
   {
     @SuppressWarnings("unchecked")
     final Class<? extends LDAPCommandLineTool> cl =
-            (Class<? extends LDAPCommandLineTool>)Class.forName(invokeableClassname);
+            (Class<? extends LDAPCommandLineTool>) Class.forName(invokeableClassname);
     final LDAPCommandLineTool tool = cl.newInstance();
     return tool.runTool(args);
   }
 
-
-
-  private InvokeToolByPropertyName(
-          final String invokeableClassname)
+  private InvokeToolByPropertyName(final String invokeableClassname)
   {
     Validator.ensureNotNull(invokeableClassname);
     this.invokeableClassname = invokeableClassname;
   }
-
-
 
   private final String invokeableClassname;
 }

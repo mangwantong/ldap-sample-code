@@ -10,7 +10,7 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 
-import samplecode.StaticData;
+import samplecode.util.StaticData;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;

@@ -13,7 +13,7 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
-package samplecode;
+package samplecode.ldap;
 
 
 import com.unboundid.ldap.sdk.LDAPConnection;
@@ -21,7 +21,7 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.util.Validator;
 
-
+import samplecode.exception.AttributeNotSupportedException;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;

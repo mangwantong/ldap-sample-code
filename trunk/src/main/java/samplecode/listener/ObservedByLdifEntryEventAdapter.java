@@ -15,7 +15,7 @@
  */
 package samplecode.listener;
 
-import samplecode.SampleCodeCollectionUtils;
+import samplecode.util.SampleCodeCollectionUtils;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;

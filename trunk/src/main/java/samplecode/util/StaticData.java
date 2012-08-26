@@ -1,4 +1,4 @@
-package samplecode;
+package samplecode.util;
 
 import java.util.Locale;
 import java.util.ResourceBundle;

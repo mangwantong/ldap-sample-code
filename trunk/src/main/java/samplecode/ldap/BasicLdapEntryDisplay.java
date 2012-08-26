@@ -13,11 +13,10 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
-package samplecode;
+package samplecode.ldap;
 
 
-import java.util.logging.Level;
-import java.util.logging.LogRecord;
+import com.unboundid.ldap.sdk.Entry;
 
 
 import samplecode.annotation.Author;
@@ -26,22 +25,50 @@ import samplecode.annotation.Since;
 
 
 /**
- * Defines services provided by classes that implement the construction
- * of LogRecord objects.
+ * Minimal implementation of {@code LdapEntryDisplay}. All output is
+ * sent to the {@code stdout}
  */
 @Author("terry.gardner@unboundid.com")
-@Since("Dec 6, 2011")
-@CodeVersion("1.0")
-public interface LdapLogRecord
+@Since("Nov 29, 2011")
+@CodeVersion("1.3")
+public class BasicLdapEntryDisplay
+        implements LdapEntryDisplay
 {
 
+  @Override
+  public void display()
+  {
+    System.out.println(toString());
+  }
+
+
+
+  @Override
+  public String toString()
+  {
+    return "BasicLdapEntryDisplay [" + (entry != null ? "entry=" + entry : "") + "]";
+  }
+
+
+
   /**
-   * Constructs a {@code LogRecord} suitable for use with the Java
-   * logging framework.
+   * Creates a {@code BasicLdapEntryDisplay} with default state. using
+   * the specified {@code entry}.
    * 
-   * @param level
-   *          The severity of the message.
-   * @return A LogRecord to use with the Java logging framework.
+   * @param entry
+   *          the entry, which cannot be {@code null}.
    */
-  LogRecord getLogRecord(Level level);
+  public BasicLdapEntryDisplay(
+          final Entry entry)
+  {
+    if(entry == null)
+    {
+      throw new NullPointerException("Entry cannot be null.");
+    }
+    this.entry = entry;
+  }
+
+
+
+  private final Entry entry;
 }

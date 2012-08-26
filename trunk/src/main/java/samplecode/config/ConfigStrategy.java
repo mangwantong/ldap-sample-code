@@ -1,7 +1,7 @@
 /*
  * Copyright 2012 UnboundID Corp. All Rights Reserved.
  */
-package samplecode;
+package samplecode.config;
 
 /**
  * defines configuration strategy services

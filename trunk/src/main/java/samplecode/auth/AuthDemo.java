@@ -20,7 +20,7 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import samplecode.SupportedFeatureException;
+import samplecode.ldap.SupportedFeatureException;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Launchable;
