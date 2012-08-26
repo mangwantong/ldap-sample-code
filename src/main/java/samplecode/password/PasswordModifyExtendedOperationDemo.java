@@ -20,11 +20,11 @@ import com.unboundid.util.Validator;
 import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
 import com.unboundid.util.args.StringArgument;
-import samplecode.ldap.SupportedFeatureException;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Launchable;
 import samplecode.annotation.Since;
+import samplecode.ldap.SupportedFeatureException;
 import samplecode.listener.DefaultLdapExceptionListener;
 import samplecode.listener.ObservedByLdapExceptionListener;
 import samplecode.tools.AbstractTool;
@@ -56,6 +56,146 @@ public final class PasswordModifyExtendedOperationDemo extends AbstractTool
    * a new password and include it in the response.
    */
   public static final String ARG_NAME_NEW_PASSWORD = "newPassword";
+
+  /**
+   * Prepares {@code PasswordModifyExtendedOperationDemo} for use by a
+   * client - use the specified {@code outStream} and {@code errStream}.
+   *
+   * @param outStream the stream to which non-error messages are transmitted.
+   * @param errStream the stream to which error messages are transmitted.
+   */
+  public PasswordModifyExtendedOperationDemo(final OutputStream outStream,
+          final OutputStream errStream)
+  {
+    super(outStream, errStream);
+  }
+
+  /**
+   * Prepares {@code PasswordModifyExtendedOperationDemo} for use by a
+   * client - the {@code System.out} and
+   * {@code System.err OutputStreams} are used.
+   */
+  public PasswordModifyExtendedOperationDemo()
+  {
+    this(System.out, System.err);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  protected ResultCode executeToolTasks()
+  {
+    addLdapExceptionListener(new DefaultLdapExceptionListener(getLogger()));
+    introduction();
+
+    /*
+     * Retrieve the user-specified bind DN from the command line
+     * argument processor. The {@code LDAPCommandLineTool} --bindDn
+     * command line argument is optional,therefore,it is necessary to
+     * check before proceeding.
+     */
+    final DN distinguishedName = commandLineOptions.getBindDn();
+    final StringBuilder builder = new StringBuilder();
+    builder.append("No bindDn was specified on the command line. ");
+    builder.append(String.format(" %s requires a valid bindDn.", getToolName()));
+    builder.append(" Use '--bindDn DN' to specify the bind DN or use '--help'.");
+    Validator.ensureNotNullWithMessage(distinguishedName, builder.toString());
+
+    LDAPConnection ldapConnection;
+    try
+    {
+      ldapConnection = getConnection();
+    }
+    catch(final LDAPException ldapException)
+    {
+      fireLdapExceptionListener(null, ldapException);
+      return ldapException.getResultCode();
+    }
+
+    /*
+     * Set LDAP connection options.
+     */
+    final LDAPConnectionOptions ldapConnectionOptions =
+            commandLineOptions.newLDAPConnectionOptions();
+    ldapConnection.setConnectionOptions(ldapConnectionOptions);
+
+    /*
+     * Create the object which provides password changing services.
+     */
+    final ChangePassword changer = ChangePassword.newChangePassword(ldapConnection);
+
+    /*
+     * Attempt to change the password using the
+     * PasswordModifyExtended.Request
+     */
+    final String oldPassword = commandLineOptions.getBindPassword();
+    final String newPassword =
+            (String) commandLineOptions.get(PasswordModifyExtendedOperationDemo
+                    .ARG_NAME_NEW_PASSWORD);
+    ResultCode resultCode;
+    final int responseTimeMillis = commandLineOptions.getMaxResponseTimeMillis();
+    try
+    {
+      changer.changePassword(distinguishedName, oldPassword, newPassword, responseTimeMillis);
+      resultCode = ResultCode.SUCCESS;
+    }
+    catch(final LDAPException ldapException)
+    {
+      fireLdapExceptionListener(ldapConnection, ldapException);
+      resultCode = ldapException.getResultCode();
+    }
+    catch(final SupportedFeatureException e)
+    {
+      resultCode = ResultCode.UNWILLING_TO_PERFORM;
+    }
+    catch(final PasswordModifyExtendedOperationFailedException 
+            passwordModifyExtendedOperationFailedException)
+    {
+      resultCode = passwordModifyExtendedOperationFailedException.getResultCode();
+    }
+    return resultCode;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  protected String classSpecificPropertiesResourceName()
+  {
+    return "PasswordModifyExtendedOperationDemo.properties";
+  }
+
+  /**
+   * {@inheritDoc}
+   * <p/>
+   * Installs the standard command line arguments processor and then
+   * adds the {@code --newPassword} command line argument.
+   */
+  @Override
+  protected void addArguments(final ArgumentParser argumentParser) throws ArgumentException
+  {
+
+    /*
+     * Create and add to the argumentParser the argument whose parameter
+     * is the password to which the user's password will be set. This
+     * command line option is not required and can be specified one
+     * time.
+     */
+    final Character shortIdentifier = Character.valueOf('n');
+    final String longIdentifier = PasswordModifyExtendedOperationDemo.ARG_NAME_NEW_PASSWORD;
+    final boolean isRequired = false;
+    final int maxOccurrences = 1;
+    final String valuePlaceholder = "{new-password}";
+    final String description =
+            "The parameter of this argument is used as the new password. " + "If this command" +
+                    " line argument is not present " + "the server must generate a new " +
+                    "password " + "and return the new password in the response.";
+    final StringArgument stringArgument =
+            new StringArgument(shortIdentifier, longIdentifier, isRequired, maxOccurrences, 
+                    valuePlaceholder, description);
+    argumentParser.addArgument(stringArgument);
+  }
 
   /**
    * Provides a demonstration of the password modify extended operation.
@@ -170,7 +310,7 @@ public final class PasswordModifyExtendedOperationDemo extends AbstractTool
    * -n,--newPassword {new-password}
    *     The parameter of this argument is used as the new password. If this command
    *     line argument is not present the server must generate a new password and
-   *     return the new password in the rspponse.
+   *     return the new password in the response.
    * -H,-?,--help
    *     Display usage information for this program.
    * </pre>
@@ -187,147 +327,6 @@ public final class PasswordModifyExtendedOperationDemo extends AbstractTool
     final PasswordModifyExtendedOperationDemo passwordModifyExtendedOperationDemo =
             new PasswordModifyExtendedOperationDemo(outStream, errStream);
     passwordModifyExtendedOperationDemo.runTool(args);
-  }
-
-  /**
-   * {@inheritDoc}
-   * <p/>
-   * Installs the standard command line arguments processor and then
-   * adds the {@code --newPassword} command line argument.
-   */
-  @Override
-  protected void addArguments(final ArgumentParser argumentParser) throws ArgumentException
-  {
-    Validator.ensureNotNull(argumentParser);
-
-    /*
-     * Create and add to the argumentParser the argument whose parameter
-     * is the password to which the user's password will be set. This
-     * command line option is not required and can be specified one
-     * time.
-     */
-    final Character shortIdentifier = Character.valueOf('n');
-    final String longIdentifier = PasswordModifyExtendedOperationDemo.ARG_NAME_NEW_PASSWORD;
-    final boolean isRequired = false;
-    final int maxOccurrences = 1;
-    final String valuePlaceholder = "{new-password}";
-    final String description =
-            "The parameter of this argument is used as the new password. " + "If this command" +
-                    " line argument is not present " + "the server must generate a new " +
-                    "password " + "and return the new password in the response.";
-    final StringArgument stringArgument =
-            new StringArgument(shortIdentifier, longIdentifier, isRequired, maxOccurrences,
-                    valuePlaceholder, description);
-    argumentParser.addArgument(stringArgument);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  protected String classSpecificPropertiesResourceName()
-  {
-    return "PasswordModifyExtendedoperationDemo.properties";
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  protected ResultCode executeToolTasks()
-  {
-    addLdapExceptionListener(new DefaultLdapExceptionListener(getLogger()));
-    introduction();
-
-    /*
-     * Retrieve the user-specified bind DN from the command line
-     * argument processor. The {@code LDAPCommandLineTool} --bindDn
-     * command line argument is optional,therefore,it is necessary to
-     * check before proceeding.
-     */
-    final DN distinguishedName = commandLineOptions.getBindDn();
-    final StringBuilder builder = new StringBuilder();
-    builder.append("No bindDn was specified on the command line. ");
-    builder.append(String.format(" %s requires a valid bindDn.", getToolName()));
-    builder.append(" Use '--bindDn DN' to specify the bind DN or use '--help'.");
-    Validator.ensureNotNullWithMessage(distinguishedName, builder.toString());
-
-    LDAPConnection ldapConnection;
-    try
-    {
-      ldapConnection = getConnection();
-    }
-    catch(final LDAPException ldapException)
-    {
-      fireLdapExceptionListener(null, ldapException);
-      return ldapException.getResultCode();
-    }
-
-    /*
-     * Set LDAP connection options.
-     */
-    final LDAPConnectionOptions ldapConnectionOptions =
-            commandLineOptions.newLDAPConnectionOptions();
-    ldapConnection.setConnectionOptions(ldapConnectionOptions);
-
-    /*
-     * Create the object which provides password changing services.
-     */
-    final ChangePassword changer = ChangePassword.newChangePassword(ldapConnection);
-
-    /*
-     * Attempt to change the password using the
-     * PasswordModifyExtended.Request
-     */
-    final String oldPassword = commandLineOptions.getBindPassword();
-    final String newPassword =
-            (String) commandLineOptions.get(PasswordModifyExtendedOperationDemo
-                    .ARG_NAME_NEW_PASSWORD);
-    ResultCode resultCode;
-    final int responseTimeMillis = commandLineOptions.getMaxResponseTimeMillis();
-    try
-    {
-      changer.changePassword(distinguishedName, oldPassword, newPassword, responseTimeMillis);
-      resultCode = ResultCode.SUCCESS;
-    }
-    catch(final LDAPException ldapException)
-    {
-      fireLdapExceptionListener(ldapConnection, ldapException);
-      resultCode = ldapException.getResultCode();
-    }
-    catch(final SupportedFeatureException e)
-    {
-      resultCode = ResultCode.UNWILLING_TO_PERFORM;
-    }
-    catch(final PasswordModifyExtendedOperationFailedException
-            passwordModifyExtendedOperationFailedException)
-    {
-      resultCode = passwordModifyExtendedOperationFailedException.getResultCode();
-    }
-    return resultCode;
-  }
-
-  /**
-   * Prepares {@code PasswordModifyExtendedOperationDemo} for use by a
-   * client - the {@code System.out} and
-   * {@code System.err OutputStreams} are used.
-   */
-  public PasswordModifyExtendedOperationDemo()
-  {
-    this(System.out, System.err);
-  }
-
-  /**
-   * Prepares {@code PasswordModifyExtendedOperationDemo} for use by a
-   * client - use the specified {@code outStream} and {@code errStream}.
-   *
-   * @param outStream the stream to which non-error messages are transmitted.
-   * @param errStream the stream to which error messages are transmitted.
-   */
-  public PasswordModifyExtendedOperationDemo(final OutputStream outStream,
-          final OutputStream errStream)
-  {
-    super(outStream, errStream);
   }
 
 }
