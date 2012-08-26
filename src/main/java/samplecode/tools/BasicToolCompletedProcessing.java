@@ -20,7 +20,7 @@ import com.unboundid.util.CommandLineTool;
 import com.unboundid.util.LDAPCommandLineTool;
 import com.unboundid.util.MinimalLogFormatter;
 import org.apache.commons.logging.Log;
-import samplecode.StaticData;
+import samplecode.util.StaticData;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;

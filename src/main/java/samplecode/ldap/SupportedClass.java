@@ -13,7 +13,10 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
-package samplecode;
+package samplecode.ldap;
+
+
+import java.lang.reflect.InvocationTargetException;
 
 
 import samplecode.annotation.Author;
@@ -22,26 +25,25 @@ import samplecode.annotation.Since;
 
 
 /**
- * Thrown when a property is not found.
+ * Provides a method to control a new instance of a class.
  */
-@SuppressWarnings("serial")
 @Author("terry.gardner@unboundid.com")
-@Since("Dec 23, 2011")
-@CodeVersion("1.0")
-public class PropertyNotFoundException
-        extends Exception
+@Since("Dec 10, 2011")
+@CodeVersion("1.1")
+public interface SupportedClass
 {
 
   /**
-   * Creates a {@code PropertyNotFoundException} with default state and
-   * a {@code reason} the property was not found.
+   * Creates a new instance of a class.
    * 
-   * @param reason
-   *          why the property was not found.
+   * @return a new instance of a class.
+   * @throws InstantiationException
+   * @throws IllegalAccessException
+   * @throws SecurityException
+   * @throws NoSuchMethodException
+   * @throws IllegalArgumentException
+   * @throws InvocationTargetException
    */
-  public PropertyNotFoundException(
-          final String reason)
-  {
-    super(reason);
-  }
+  Object newInstance() throws InstantiationException,IllegalAccessException,SecurityException,
+          NoSuchMethodException,IllegalArgumentException,InvocationTargetException;
 }

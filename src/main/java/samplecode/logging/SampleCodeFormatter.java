@@ -10,7 +10,7 @@ import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
 
 
-import samplecode.StaticData;
+import samplecode.util.StaticData;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;

@@ -13,13 +13,13 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
-package samplecode;
+package samplecode.ldap;
 
 
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
 
-
+import samplecode.exception.AttributeNotSupportedException;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
@@ -46,7 +46,7 @@ abstract class AbstractSupportedAttribute
    * @param attributeName
    *          The name of an attribute to check. The
    *          {@code attributeName} parameter may not be {@code null}.
-   * @throws AttributeNotSupportedException
+   * @throws samplecode.exception.AttributeNotSupportedException
    *           If the attribute is not supported.
    * @throws LDAPException
    *           If a problem occurs while obtaining the server schema.

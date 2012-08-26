@@ -8,8 +8,8 @@ import com.unboundid.ldap.sdk.controls.PostReadRequestControl;
 import com.unboundid.ldap.sdk.controls.PostReadResponseControl;
 import com.unboundid.ldap.sdk.controls.PreReadRequestControl;
 import com.unboundid.ldap.sdk.controls.PreReadResponseControl;
-import samplecode.SupportedFeature;
-import samplecode.SupportedFeatureException;
+import samplecode.ldap.SupportedFeature;
+import samplecode.ldap.SupportedFeatureException;
 
 import java.util.ArrayList;
 import java.util.List;

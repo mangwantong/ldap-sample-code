@@ -7,8 +7,8 @@ import com.unboundid.util.args.*;
 import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
-import samplecode.CommandLineOptions;
-import samplecode.StaticData;
+import samplecode.cli.CommandLineOptions;
+import samplecode.util.StaticData;
 
 import java.util.ArrayList;
 import java.util.List;

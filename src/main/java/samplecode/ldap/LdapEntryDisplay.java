@@ -13,7 +13,7 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
-package samplecode;
+package samplecode.ldap;
 
 
 import samplecode.annotation.Author;
@@ -22,44 +22,19 @@ import samplecode.annotation.Since;
 
 
 /**
- * Defines services which must be provided by the descriptive name
- * builder, which is a realization of the Builder design pattern.
- * <p>
- * example usage: <blockquote>
- * 
- * <pre>
- * class ExampleClass {
- *   pbulic static class Builder implements DescriptiveNameBuilder&lt;ExampleClass&gt; {
- *     int intValue;
- *     public Builder intValue(int intValue) {
- *       this.intValue = intValue
- *     }
- *     public ExampleClass build() {
- *       return new ExampleClass(this);
- *     }
- *   }
- *   private final int intValue;
- *   private ExampleClass(Builder builder) {
- *     this.intValue = builder.intValue;
- *   }
- * }
- * </pre>
- * 
- * </blockquote>
- * 
- * @param <T>
- *          The type of object built by the Builder.
+ * Provides a service that can be used for displaying an entry that was
+ * retrieved from a directory server. How the entry is displayed is left
+ * up to concrete implementations.
  */
 @Author("terry.gardner@unboundid.com")
-@Since("Jan 01, 2008")
-@CodeVersion("1.2")
-interface DescriptiveNameBuilder<T>
+@Since("Nov 29, 2011")
+@CodeVersion("1.1")
+public interface LdapEntryDisplay
 {
 
   /**
-   * Build a new instance of type {@code T}.
-   * 
-   * @return a new instance of type {@code T}.
+   * Display the entry.
    */
-  T build();
+  void display();
+
 }

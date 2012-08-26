@@ -18,7 +18,7 @@ package samplecode.search;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.SearchResultListener;
 import com.unboundid.util.Validator;
-import samplecode.CommandLineOptions;
+import samplecode.cli.CommandLineOptions;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;

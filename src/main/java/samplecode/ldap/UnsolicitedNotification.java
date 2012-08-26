@@ -1,21 +1,15 @@
-package samplecode;
+package samplecode.ldap;
 
-
-import com.unboundid.ldap.sdk.ExtendedResult;
-import com.unboundid.ldap.sdk.LDAPConnection;
-import com.unboundid.ldap.sdk.LDAPConnectionOptions;
-import com.unboundid.ldap.sdk.LDAPException;
-import com.unboundid.ldap.sdk.UnsolicitedNotificationHandler;
-
-
+import com.unboundid.ldap.sdk.*;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Launchable;
 import samplecode.annotation.Since;
 
-
 /**
- * Demonstrates the unsolicited notification. Use properties
+ * Demonstrates the unsolicited notification.<p>Use properties
  * {@code hostname, port, bindDn, and bindPassword} to specify the
  * corresponding values.
  * <p/>
@@ -26,15 +20,13 @@ import samplecode.annotation.Since;
  *                                -Dport=10389                \
  *                                -DbindDn=cn=RootDn          \
  *                                -DbindPassword=password     \
- *                                samplecode.UnsolicitedNotification
+ *                                samplecode.ldap.UnsolicitedNotification
  * </pre>
  * </blockquote>
+ *
  * @see <a href="http://tools.ietf.org/html/rfc4511#section-4.4">unsolicited notification</a>
  */
-@Launchable
-@Since("21-Jun-2012")
-@CodeVersion("1.1")
-@Author("terry.gardner@unboundid.com")
+@Launchable @Since("21-Jun-2012") @CodeVersion("1.1") @Author("terry.gardner@unboundid.com")
 public final class UnsolicitedNotification
 {
 
@@ -42,9 +34,8 @@ public final class UnsolicitedNotification
    * The value to use for the bind DN when the {@code bindDn} property
    * is not populated
    */
-  private static final String DEFAULT_BIND_DN = "cn=unsolicited notification test,dc=example,dc=com";
-
-
+  private static final String DEFAULT_BIND_DN =
+          "cn=unsolicited notification test,dc=example,dc=com";
 
   /**
    * The value to use for the password when the {@code bindPassword}
@@ -52,45 +43,50 @@ public final class UnsolicitedNotification
    */
   private static final String DEFAULT_BIND_PASSWORD = "password";
 
-
-
   /**
    * The value to use for the hostname when the {@code hostname}
    * property is not populated
    */
   private static final String DEFAULT_HOSTNAME = "localhost";
 
-
-
   /**
-   * The value to use for the port when the {@code port} property is not
-   * populated
+   * The property that specifies the distinguished name to use
    */
-  private static final int DEFAULT_PORT = 389;
-
-
-
-  /** The property that specifies the distinguished name to use */
   private static final String PROP_NAME_DN = "bindDn";
 
-
-
-  /** The property that specifies the hostname to be used. */
+  /**
+   * The property that specifies the hostname to be used.
+   */
   private static final String PROP_NAME_HOSTNAME = "hostname";
-
-
 
   /**
    * The property that specifies the password for the distinguished name
    */
   private static final String PROP_NAME_PASSWORD = "bindPassword";
 
-
-
-  /** The property that specifies the port to be used. */
+  /**
+   * The property that specifies the port to be used.
+   */
   private static final String PROP_NAME_PORT = "port";
 
+  /**
+   * The value to use for the port when the {@code port} property is not
+   * populated
+   */
+  private static final int DEFAULT_PORT = 389;
+  private static Log logger;
 
+  /**
+   * @return the logger
+   */
+  private static Log getLogger()
+  {
+    if(logger == null)
+    {
+      logger = LogFactory.getLog(UnsolicitedNotification.class);
+    }
+    return logger;
+  }
 
   /**
    * Demonstrate the unsolicited notification specified in RFC4511 by
@@ -128,11 +124,18 @@ public final class UnsolicitedNotification
         public void handleUnsolicitedNotification(final LDAPConnection connection,
                 final ExtendedResult notification)
         {
-          System.err.println(String.format(
-                  "The Directory Server has transmitted an unsolicited notification.\n"
-                          + " The notification was: %s",notification.toString()));
+          if(getLogger().isWarnEnabled())
+          {
+            final String msg =
+                    String.format("The Directory Server has transmitted an unsolicited " +
+                            "notification. The diagnostic message in the notification is: " +
+                            "%s", notification.getDiagnosticMessage());
+            getLogger().warn(msg);
+          }
+          connection.close();
           System.exit(0);
         }
+
       });
 
       /*
@@ -140,59 +143,65 @@ public final class UnsolicitedNotification
        * notification handler.
        */
       @SuppressWarnings("unused")
-      final LDAPConnection c = new LDAPConnection(options,hostname,port,bindDn,bindPassword);
-      System.out.println(String.format("connected to the server at %s:%d",hostname,port));
+      final LDAPConnection c =
+              new LDAPConnection(options, hostname, port, bindDn, bindPassword);
+      if(getLogger().isInfoEnabled())
+      {
+        final String msg = String.format("connected to the server at %s:%d", hostname, port);
+        getLogger().info(msg);
+      }
       while(true)
       {
         Thread.sleep(1000);
       }
     }
-    catch(final LDAPException ldapException)
+    catch(final LDAPException e)
     {
-      ldapException.printStackTrace();
+      getLogger().fatal(e);
       return;
     }
-    catch(final Exception exception)
+    catch(final Exception e)
     {
-      exception.printStackTrace();
+      getLogger().fatal(e);
       return;
     }
   }
 
-
-
-  /** @return the bind DN from the properties list */
-  private static String getBindDn()
-  {
-    final String s = System.getProperty(UnsolicitedNotification.PROP_NAME_DN);
-    return s == null ? UnsolicitedNotification.DEFAULT_BIND_DN : s;
-  }
-
-
-
-  /** @return the bind password from the properties list */
-  private static String getBindPassword()
-  {
-    final String s = System.getProperty(UnsolicitedNotification.PROP_NAME_PASSWORD);
-    return s == null ? UnsolicitedNotification.DEFAULT_BIND_PASSWORD : s;
-  }
-
-
-
-  /** @return the hostname from the properties list */
+  /**
+   * @return the hostname from the properties list
+   */
   private static String getHostname()
   {
     final String hostname = System.getProperty(UnsolicitedNotification.PROP_NAME_HOSTNAME);
     return hostname == null ? UnsolicitedNotification.DEFAULT_HOSTNAME : hostname;
   }
 
-
-
-  /** @return the port from the properties list */
+  /**
+   * @return the port from the properties list
+   */
   private static int getPort()
   {
     final String portProperty = System.getProperty(UnsolicitedNotification.PROP_NAME_PORT);
-    return portProperty == null ? UnsolicitedNotification.DEFAULT_PORT : Integer
-            .parseInt(portProperty);
+    return portProperty == null ? UnsolicitedNotification.DEFAULT_PORT :
+            Integer.parseInt(portProperty);
   }
+
+  /**
+   * @return the bind DN from the properties list
+   */
+  private static String getBindDn()
+  {
+    final String s = System.getProperty(UnsolicitedNotification.PROP_NAME_DN);
+    return s == null ? UnsolicitedNotification.DEFAULT_BIND_DN : s;
+  }
+
+  /**
+   * @return the bind password from the properties list
+   */
+  private static String getBindPassword()
+  {
+    final String s = System.getProperty(UnsolicitedNotification.PROP_NAME_PASSWORD);
+    return s == null ? UnsolicitedNotification.DEFAULT_BIND_PASSWORD : s;
+  }
+
 }

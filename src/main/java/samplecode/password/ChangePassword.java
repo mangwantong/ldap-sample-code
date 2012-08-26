@@ -26,8 +26,8 @@ import com.unboundid.util.NotMutable;
 import com.unboundid.util.Validator;
 
 
-import samplecode.SupportedFeature;
-import samplecode.SupportedFeatureException;
+import samplecode.ldap.SupportedFeature;
+import samplecode.ldap.SupportedFeatureException;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;

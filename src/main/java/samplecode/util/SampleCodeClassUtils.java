@@ -13,7 +13,7 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
-package samplecode;
+package samplecode.util;
 
 
 import com.unboundid.util.NotMutable;
@@ -22,7 +22,6 @@ import com.unboundid.util.Validator;
 
 import java.util.List;
 import java.util.Map;
-
 
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;

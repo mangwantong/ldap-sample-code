@@ -13,31 +13,20 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
-package samplecode;
+package samplecode.ldap;
 
-
-import samplecode.annotation.Author;
-import samplecode.annotation.CodeVersion;
-import samplecode.annotation.Since;
-
+import com.unboundid.ldap.sdk.LDAPConnection;
+import com.unboundid.ldap.sdk.LDAPException;
 
 /**
- * Indicates that a class provides a way to set a value.
- * 
- * @param <T>
- *          the type of the value
+ * defines service for classes that use LDAP
  */
-@Author("terry.gardner@unboundid.com")
-@Since("Dec 23, 2011")
-@CodeVersion("1.0")
-public interface SetterAware<T>
-{
+public interface LdapSupport {
 
-  /**
-   * Sets the value {@code value}.
-   * 
-   * @param value
-   *          a value.
-   */
-  void setValue(T value);
+    /**
+     * @return get a connection to a server.
+     * @throws LDAPException
+     *             if the connect operation fails
+     */
+    LDAPConnection getLdapConnection() throws LDAPException;
 }
