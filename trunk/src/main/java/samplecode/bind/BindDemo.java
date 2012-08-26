@@ -27,6 +27,7 @@ import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Launchable;
 import samplecode.annotation.Since;
 import samplecode.controls.ResponseControlAware;
+import samplecode.ldap.DefaultUnsolicitedNotificationHandler;
 import samplecode.listener.*;
 import samplecode.tools.AbstractTool;
 import samplecode.tools.BasicToolCompletedProcessing;
@@ -453,7 +454,7 @@ public final class BindDemo extends AbstractTool
   @Override
   public UnsolicitedNotificationHandler getUnsolicitedNotificationHandler()
   {
-    return new samplecode.DefaultUnsolicitedNotificationHandler(this);
+    return new DefaultUnsolicitedNotificationHandler(this);
   }
 
   @Override

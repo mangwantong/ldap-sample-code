@@ -30,6 +30,7 @@ import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Launchable;
 import samplecode.annotation.Since;
+import samplecode.ldap.DefaultUnsolicitedNotificationHandler;
 import samplecode.listener.LdapExceptionListener;
 import samplecode.listener.ObservedByLdapExceptionListener;
 import samplecode.tools.AbstractTool;
@@ -197,7 +198,7 @@ public final class MatchingRuleDemo extends AbstractTool
   @Override
   protected UnsolicitedNotificationHandler getUnsolicitedNotificationHandler()
   {
-    return new samplecode.DefaultUnsolicitedNotificationHandler(this);
+    return new DefaultUnsolicitedNotificationHandler(this);
   }
 
   /**

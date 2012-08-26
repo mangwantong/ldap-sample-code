@@ -27,6 +27,7 @@ import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Launchable;
 import samplecode.annotation.Since;
+import samplecode.ldap.DefaultUnsolicitedNotificationHandler;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -269,7 +270,7 @@ public final class ScriptTool extends AbstractTool
   @Override
   protected UnsolicitedNotificationHandler getUnsolicitedNotificationHandler()
   {
-    return new samplecode.DefaultUnsolicitedNotificationHandler(this);
+    return new DefaultUnsolicitedNotificationHandler(this);
   }
 
   /**

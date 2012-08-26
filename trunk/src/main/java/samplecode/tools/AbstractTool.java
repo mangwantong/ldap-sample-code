@@ -22,7 +22,7 @@ import org.apache.commons.lang.WordUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import samplecode.CommandLineOptions;
-import samplecode.DefaultUnsolicitedNotificationHandler;
+import samplecode.ldap.DefaultUnsolicitedNotificationHandler;
 import samplecode.SampleCodeCollectionUtils;
 import samplecode.StaticData;
 import samplecode.annotation.Author;
