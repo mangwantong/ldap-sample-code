@@ -7,7 +7,7 @@
  * <li>{@link samplecode.auth.AuthDemo}: authentication and the use if
  * the {@code Who Am I?} extended request and the
  * {@code authorization identity request control}.</li>
- * <li>{@link samplecode.listener.LdapListenerExample}: the in-memory
+ * <li>{@link samplecode.memory.LdapListenerExample}: the in-memory
  * directory server.</li>
  * <li>a command line arguments processor that manages commonly used
  * command line arguments</li>
