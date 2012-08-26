@@ -1,16 +1,11 @@
 package samplecode.add;
 
-
-import com.unboundid.ldap.sdk.AddRequest;
-import com.unboundid.ldap.sdk.LDAPConnection;
-import com.unboundid.ldap.sdk.LDAPConnectionOptions;
-import com.unboundid.ldap.sdk.LDAPException;
-import com.unboundid.ldap.sdk.LDAPResult;
+import com.unboundid.ldap.sdk.*;
 import com.unboundid.ldif.LDIFException;
 
-
 /**
- * demonstrate the {@link AddRequest}
+ * demonstrate the {@link AddRequest}; this example uses a hard coded hostname of {@code
+ * localhost} and port {@code 389} and attempts to add {@code uid=user,dc=example,dc=com}.
  */
 public final class AddExample
 {
