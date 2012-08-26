@@ -16,35 +16,21 @@
 package samplecode.ldif;
 
 
-import com.unboundid.ldap.sdk.AddRequest;
-import com.unboundid.ldap.sdk.Control;
-import com.unboundid.ldap.sdk.Entry;
-import com.unboundid.ldap.sdk.LDAPConnection;
-import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.*;
 import com.unboundid.ldif.LDIFChangeRecord;
 import com.unboundid.ldif.LDIFException;
 import com.unboundid.ldif.LDIFReader;
 import com.unboundid.util.Validator;
-
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
+import samplecode.listener.*;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Vector;
-
-
-import samplecode.annotation.Author;
-import samplecode.annotation.CodeVersion;
-import samplecode.annotation.Since;
-import samplecode.listener.IOExceptionEvent;
-import samplecode.listener.IOExceptionListener;
-import samplecode.listener.LdapExceptionEvent;
-import samplecode.listener.LdapExceptionListener;
-import samplecode.listener.LdifEntryEvent;
-import samplecode.listener.LdifEntryEventListener;
-import samplecode.listener.ObservedByIOExceptionListener;
-import samplecode.listener.ObservedByLdapExceptionListener;
-import samplecode.listener.ObservedByLdifEntryEventListener;
 
 
 /**
@@ -85,6 +71,13 @@ public class ReadLdifFile
         implements ObservedByLdapExceptionListener,ObservedByLdifEntryEventListener,
         ObservedByIOExceptionListener
 {
+  /**
+   * @return an unmodifiable list of event listeners
+   */
+  @Override public List<LdifEntryEventListener> getLdifEventListeners()
+  {
+    return this.ldifEventListeners;
+  }
 
   // singleton instance
   private static ReadLdifFile instance = null;
