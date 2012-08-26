@@ -19,7 +19,7 @@ package samplecode.search;
 import com.unboundid.ldap.sdk.*;
 import com.unboundid.ldap.sdk.controls.PersistentSearchChangeType;
 import com.unboundid.ldap.sdk.controls.PersistentSearchRequestControl;
-import samplecode.DefaultUnsolicitedNotificationHandler;
+import samplecode.ldap.DefaultUnsolicitedNotificationHandler;
 import samplecode.SupportedFeature;
 import samplecode.SupportedFeatureException;
 import samplecode.annotation.Author;
@@ -157,7 +157,7 @@ public final class PersistentSearchExample extends AbstractTool
   @Override
   protected UnsolicitedNotificationHandler getUnsolicitedNotificationHandler()
   {
-    return new samplecode.DefaultUnsolicitedNotificationHandler(this);
+    return new DefaultUnsolicitedNotificationHandler(this);
   }
 
   @SuppressWarnings("serial")
