@@ -23,14 +23,11 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.extensions.PasswordModifyExtendedRequest;
 import com.unboundid.ldap.sdk.extensions.PasswordModifyExtendedResult;
 import com.unboundid.util.NotMutable;
-import com.unboundid.util.Validator;
-
-
-import samplecode.ldap.SupportedFeature;
-import samplecode.ldap.SupportedFeatureException;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
+import samplecode.ldap.SupportedFeature;
+import samplecode.ldap.SupportedFeatureException;
 
 
 /**
@@ -57,7 +54,10 @@ public class ChangePassword
    */
   public static ChangePassword newChangePassword(final LDAPConnection ldapConnection)
   {
-    Validator.ensureNotNull(ldapConnection);
+    if(ldapConnection == null)
+    {
+      throw new IllegalArgumentException("ldapConnection must not be null.");
+    }
     return new ChangePassword(ldapConnection);
   }
 
@@ -87,7 +87,18 @@ public class ChangePassword
           final String newPassword,final int responseTimeoutMillis) throws LDAPException,
           SupportedFeatureException,PasswordModifyExtendedOperationFailedException
   {
-    Validator.ensureNotNull(distinguishedName,existingPassword);
+    if(distinguishedName == null)
+    {
+      throw new IllegalArgumentException("distinguishedName must not be null.");
+    }
+    if(existingPassword == null)
+    {
+      throw new IllegalArgumentException("existingPassword must not be null.");
+    }
+    if(newPassword == null)
+    {
+      throw new IllegalArgumentException("newPassword must not be null.");
+    }
 
     /*
      * Check the the server supports the password modify extended
