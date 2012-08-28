@@ -16,7 +16,6 @@
 package samplecode.password;
 
 import com.unboundid.ldap.sdk.*;
-import com.unboundid.util.Validator;
 import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
 import com.unboundid.util.args.StringArgument;
@@ -28,6 +27,8 @@ import samplecode.ldap.SupportedFeatureException;
 import samplecode.listener.DefaultLdapExceptionListener;
 import samplecode.listener.ObservedByLdapExceptionListener;
 import samplecode.tools.AbstractTool;
+import samplecode.tools.BasicToolCompletedProcessing;
+import samplecode.tools.ToolCompletedProcessing;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -71,16 +72,6 @@ public final class PasswordModifyExtendedOperationDemo extends AbstractTool
   }
 
   /**
-   * Prepares {@code PasswordModifyExtendedOperationDemo} for use by a
-   * client - the {@code System.out} and
-   * {@code System.err OutputStreams} are used.
-   */
-  public PasswordModifyExtendedOperationDemo()
-  {
-    this(System.out, System.err);
-  }
-
-  /**
    * {@inheritDoc}
    */
   @Override
@@ -88,6 +79,11 @@ public final class PasswordModifyExtendedOperationDemo extends AbstractTool
   {
     addLdapExceptionListener(new DefaultLdapExceptionListener(getLogger()));
     introduction();
+    if(isVerbose())
+    {
+       displayArguments();
+      displayServerInformation();
+    }
 
     /*
      * Retrieve the user-specified bind DN from the command line
@@ -96,11 +92,16 @@ public final class PasswordModifyExtendedOperationDemo extends AbstractTool
      * check before proceeding.
      */
     final DN distinguishedName = commandLineOptions.getBindDn();
-    final StringBuilder builder = new StringBuilder();
-    builder.append("No bindDn was specified on the command line. ");
-    builder.append(String.format(" %s requires a valid bindDn.", getToolName()));
-    builder.append(" Use '--bindDn DN' to specify the bind DN or use '--help'.");
-    Validator.ensureNotNullWithMessage(distinguishedName, builder.toString());
+    if(distinguishedName == null)
+    {
+      final StringBuilder builder = new StringBuilder();
+      builder.append("No bindDn was specified on the command line. ");
+      builder.append(String.format(" %s requires a valid bindDn.", getToolName()));
+      builder.append(" Use '--bindDn DN' to specify the bind DN or use '--help'.");
+      final String msg = builder.toString();
+      getLogger().fatal(msg);
+      return ResultCode.PARAM_ERROR;
+    }
 
     LDAPConnection ldapConnection;
     try
@@ -149,7 +150,7 @@ public final class PasswordModifyExtendedOperationDemo extends AbstractTool
     {
       resultCode = ResultCode.UNWILLING_TO_PERFORM;
     }
-    catch(final PasswordModifyExtendedOperationFailedException 
+    catch(final PasswordModifyExtendedOperationFailedException
             passwordModifyExtendedOperationFailedException)
     {
       resultCode = passwordModifyExtendedOperationFailedException.getResultCode();
@@ -157,9 +158,6 @@ public final class PasswordModifyExtendedOperationDemo extends AbstractTool
     return resultCode;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   protected String classSpecificPropertiesResourceName()
   {
@@ -192,7 +190,7 @@ public final class PasswordModifyExtendedOperationDemo extends AbstractTool
                     " line argument is not present " + "the server must generate a new " +
                     "password " + "and return the new password in the response.";
     final StringArgument stringArgument =
-            new StringArgument(shortIdentifier, longIdentifier, isRequired, maxOccurrences, 
+            new StringArgument(shortIdentifier, longIdentifier, isRequired, maxOccurrences,
                     valuePlaceholder, description);
     argumentParser.addArgument(stringArgument);
   }
@@ -326,7 +324,10 @@ public final class PasswordModifyExtendedOperationDemo extends AbstractTool
     final PrintStream errStream = System.err;
     final PasswordModifyExtendedOperationDemo passwordModifyExtendedOperationDemo =
             new PasswordModifyExtendedOperationDemo(outStream, errStream);
-    passwordModifyExtendedOperationDemo.runTool(args);
+    ResultCode resultCode = passwordModifyExtendedOperationDemo.runTool(args);
+    ToolCompletedProcessing completedProcessing =
+            new BasicToolCompletedProcessing(passwordModifyExtendedOperationDemo, resultCode);
+    completedProcessing.displayMessage(outStream,errStream);
   }
 
 }
