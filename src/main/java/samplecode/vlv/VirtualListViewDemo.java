@@ -39,11 +39,105 @@ import java.io.PrintStream;
 import java.util.List;
 
 /**
- * Demonstrates the virtual list view request control such as command
- * line launch facilities and command line argument processing
- * facilities.
+ * <blockquote>
+ * <p/>
+ * <pre>
+ * Provides a demonstration of the use of the virtual list view request and
+ * response controls. The VLV request and response controls are similar to the
+ * simple paged results request control except LDAP clients may access arbitrary
+ * pages of data.
+ *
+ * Usage:  VirtualListViewDemo {options}
+ *
+ * Available options include:
+ * -h, --hostname {host}
+ *     The IP address or resolvable name to use to connect to the directory
+ *     server.  If this is not provided, then a default value of 'localhost' will
+ *     be used.
+ * -p, --port {port}
+ *     The port to use to connect to the directory server.  If this is not
+ *     provided, then a default value of 389 will be used.
+ * -D, --bindDN {dn}
+ *     The DN to use to bind to the directory server when performing simple
+ *     authentication.
+ * -w, --bindPassword {password}
+ *     The password to use to bind to the directory server when performing simple
+ *     authentication or a password-based SASL mechanism.
+ * -j, --bindPasswordFile {path}
+ *     The path to the file containing the password to use to bind to the
+ *     directory server when performing simple authentication or a password-based
+ *     SASL mechanism.
+ * -Z, --useSSL
+ *     Use SSL when communicating with the directory server.
+ * -q, --useStartTLS
+ *     Use StartTLS when communicating with the directory server.
+ * -X, --trustAll
+ *     Trust any certificate presented by the directory server.
+ * -K, --keyStorePath {path}
+ *     The path to the file to use as the key store for obtaining client
+ *     certificates when communicating securely with the directory server.
+ * -W, --keyStorePassword {password}
+ *     The password to use to access the key store contents.
+ * -u, --keyStorePasswordFile {path}
+ *     The path to the file containing the password to use to access the key store
+ *     contents.
+ * --keyStoreFormat {format}
+ *     The format (e.g., jks, jceks, pkcs12, etc.) for the key store file.
+ * -P, --trustStorePath {path}
+ *     The path to the file to use as trust store when determining whether to
+ *     trust a certificate presented by the directory server.
+ * -T, --trustStorePassword {password}
+ *     The password to use to access the trust store contents.
+ * -U, --trustStorePasswordFile {path}
+ *     The path to the file containing the password to use to access the trust
+ *     store contents.
+ * --trustStoreFormat {format}
+ *     The format (e.g., jks, jceks, pkcs12, etc.) for the trust store file.
+ * -N, --certNickname {nickname}
+ *     The nickname (alias) of the client certificate in the key store to present
+ *     to the directory server for SSL client authentication.
+ * -o, --saslOption {name=value}
+ *     A name-value pair providing information to use when performing SASL
+ *     authentication.
+ * -b, --baseObject {distinguishedName}
+ *     The base object used in the search request.
+ * --reportInterval {positive-integer}
+ *     The report interval in milliseconds.
+ * --reportCount {positive-integer}
+ *     Specifies the maximum number of reports. This command line argument is
+ *     applicable to tools that display repeated reports. The time between
+ *     repeated reports is specified by the --reportInterval command line
+ *     argument.
+ * -a, --attribute {attribute name or type}
+ *     The attribute used in the search request or other request. This command
+ *     line argument is not required, and can be specified multiple times. If this
+ *     command line argument is not specified, the value '*' is used.
+ * -f, --filter {filter}
+ *     The search filter used in the search request.
+ * -i, --initialConnections {positiveInteger}
+ *     The number of initial connections to establish to directory server when
+ *     creating the connection pool.
+ * -m, --maxConnections {positiveInteger}
+ *     The maximum number of connections to establish to directory server when
+ *     creating the connection pool.
+ * -s, --scope {searchScope}
+ *     The scope of the search request; allowed values are BASE, ONE, and SUB
+ * --sizeLimit {positiveInteger}
+ *     The search size limit
+ * --timeLimit {positiveInteger}
+ *     The search time limit
+ * --pageSize {positiveInteger}
+ *     The search page size
+ * -H, -?, --help
+ *     Display usage information for this program.
+ * </pre>
+ * <p/>
+ * </blockquote>
  */
-@Author("terry.gardner@unboundid.com") @Since("Dec 4, 2011") @CodeVersion("1.4") @Launchable
+@Author("terry.gardner@unboundid.com")
+@Since("Dec 4, 2011")
+@CodeVersion("1.5")
+@Launchable
 public final class VirtualListViewDemo extends AbstractTool
         implements LdapExceptionListener, ObservedByLdapExceptionListener
 {
@@ -53,19 +147,22 @@ public final class VirtualListViewDemo extends AbstractTool
     super(outStream, errStream);
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   protected ResultCode executeToolTasks()
   {
+    ResultCode resultCode = validateToolState();
+    if(! resultCode.equals(ResultCode.SUCCESS))
+    {
+      return resultCode;
+    }
+
     addLdapExceptionListener(new DefaultLdapExceptionListener(getLogger()));
-    ResultCode resultCode = ResultCode.SUCCESS;
 
     introduction();
     if(isVerbose())
     {
       displayArguments();
+      displayServerInformation();
     }
 
     /*
@@ -191,127 +288,37 @@ public final class VirtualListViewDemo extends AbstractTool
     catch(final AttributeNotSupportedException attributeNotSupportedException)
     {
       // An attribute was not defined
-      final String msg =
-              String.format("attribute '%s' is not supported, " + "that is, " +
-                      "is not defined in the server schema.", attributeNotSupportedException
-                      .getAttributeName());
+      final String msg = String.format("attribute '%s' is not supported, " + "that is, " +
+              "is not defined in the server schema.", attributeNotSupportedException
+              .getAttributeName());
       getLogger().fatal(msg);
       resultCode = ResultCode.PROTOCOL_ERROR;
     }
     return resultCode;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  private ResultCode validateToolState()
+  {
+    ResultCode resultCode = ResultCode.SUCCESS;
+    final Filter filter = commandLineOptions.getFilter();
+    if(filter == null)
+    {
+      final String msg = "The --filter option is required.";
+      getLogger().fatal(msg);
+      resultCode = ResultCode.PARAM_ERROR;
+    }
+    return resultCode;
+  }
+
   @Override
   protected String classSpecificPropertiesResourceName()
   {
     return "VirtualListViewDemo.properties";
   }
 
-  /**
-   * <blockquote>
-   * <p/>
-   * <pre>
-   * Provides a demonstration of the use of the virtual list view request and
-   * response controls. The VLV request and response controls are similar to the
-   * simple paged results request control except LDAP clients may access arbitrary
-   * pages of data.
-   *
-   * Usage:  VirtualListViewDemo {options}
-   *
-   * Available options include:
-   * -h, --hostname {host}
-   *     The IP address or resolvable name to use to connect to the directory
-   *     server.  If this is not provided, then a default value of 'localhost' will
-   *     be used.
-   * -p, --port {port}
-   *     The port to use to connect to the directory server.  If this is not
-   *     provided, then a default value of 389 will be used.
-   * -D, --bindDN {dn}
-   *     The DN to use to bind to the directory server when performing simple
-   *     authentication.
-   * -w, --bindPassword {password}
-   *     The password to use to bind to the directory server when performing simple
-   *     authentication or a password-based SASL mechanism.
-   * -j, --bindPasswordFile {path}
-   *     The path to the file containing the password to use to bind to the
-   *     directory server when performing simple authentication or a password-based
-   *     SASL mechanism.
-   * -Z, --useSSL
-   *     Use SSL when communicating with the directory server.
-   * -q, --useStartTLS
-   *     Use StartTLS when communicating with the directory server.
-   * -X, --trustAll
-   *     Trust any certificate presented by the directory server.
-   * -K, --keyStorePath {path}
-   *     The path to the file to use as the key store for obtaining client
-   *     certificates when communicating securely with the directory server.
-   * -W, --keyStorePassword {password}
-   *     The password to use to access the key store contents.
-   * -u, --keyStorePasswordFile {path}
-   *     The path to the file containing the password to use to access the key store
-   *     contents.
-   * --keyStoreFormat {format}
-   *     The format (e.g., jks, jceks, pkcs12, etc.) for the key store file.
-   * -P, --trustStorePath {path}
-   *     The path to the file to use as trust store when determining whether to
-   *     trust a certificate presented by the directory server.
-   * -T, --trustStorePassword {password}
-   *     The password to use to access the trust store contents.
-   * -U, --trustStorePasswordFile {path}
-   *     The path to the file containing the password to use to access the trust
-   *     store contents.
-   * --trustStoreFormat {format}
-   *     The format (e.g., jks, jceks, pkcs12, etc.) for the trust store file.
-   * -N, --certNickname {nickname}
-   *     The nickname (alias) of the client certificate in the key store to present
-   *     to the directory server for SSL client authentication.
-   * -o, --saslOption {name=value}
-   *     A name-value pair providing information to use when performing SASL
-   *     authentication.
-   * -b, --baseObject {distinguishedName}
-   *     The base object used in the search request.
-   * --reportInterval {positive-integer}
-   *     The report interval in milliseconds.
-   * --reportCount {positive-integer}
-   *     Specifies the maximum number of reports. This command line argument is
-   *     applicable to tools that display repeated reports. The time between
-   *     repeated reports is specified by the --reportInterval command line
-   *     argument.
-   * -a, --attribute {attribute name or type}
-   *     The attribute used in the search request or other request. This command
-   *     line argument is not required, and can be specified multiple times. If this
-   *     command line argument is not specified, the value '*' is used.
-   * -f, --filter {filter}
-   *     The search filter used in the search request.
-   * -i, --initialConnections {positiveInteger}
-   *     The number of initial connections to establish to directory server when
-   *     creating the connection pool.
-   * -m, --maxConnections {positiveInteger}
-   *     The maximum number of connections to establish to directory server when
-   *     creating the connection pool.
-   * -s, --scope {searchScope}
-   *     The scope of the search request; allowed values are BASE, ONE, and SUB
-   * --sizeLimit {positiveInteger}
-   *     The search size limit
-   * --timeLimit {positiveInteger}
-   *     The search time limit
-   * --pageSize {positiveInteger}
-   *     The search page size
-   * -H, -?, --help
-   *     Display usage information for this program.
-   * </pre>
-   * <p/>
-   * </blockquote>
-   *
-   * @param args command line arguments, less the JVM arguments.
-   */
-  public static void main(final String... args)
+  private static void main(final PrintStream outStream, final PrintStream errStream,
+          final String... args)
   {
-    final PrintStream outStream = System.out;
-    final PrintStream errStream = System.err;
     final VirtualListViewDemo demo = new VirtualListViewDemo(outStream, errStream);
     final ResultCode resultCode = demo.runTool(args);
     if(resultCode != null)
@@ -319,6 +326,11 @@ public final class VirtualListViewDemo extends AbstractTool
       final ToolCompletedProcessing c = new BasicToolCompletedProcessing(demo, resultCode);
       c.displayMessage(outStream, errStream);
     }
+  }
+
+  public static void main(final String... args)
+  {
+    main(System.out, System.err, args);
   }
 
 }
