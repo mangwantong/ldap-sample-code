@@ -29,15 +29,19 @@ import samplecode.annotation.Since;
 import samplecode.ldap.DefaultUnsolicitedNotificationHandler;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
 /**
- * Provides a command line interface to {@code ScriptGenerator}.
+ * Provides a command line interface to {@code PropertiesBasedScriptGenerator}.
  *
- * @see ScriptGenerator
+ * @see PropertiesBasedScriptGenerator
  */
-@Author("terry.gardner@unboundid.com") @Since("Jan 1, 2012") @CodeVersion("1.2") @Launchable
+@Author("terry.gardner@unboundid.com")
+@Since("Jan 1, 2012")
+@CodeVersion("1.2")
+@Launchable
 public final class ScriptTool extends AbstractTool
 {
 
@@ -55,6 +59,213 @@ public final class ScriptTool extends AbstractTool
    * and for other purposes.
    */
   public static final String TOOL_NAME = "ScriptTool";
+
+  /**
+   * Constructs a {@code ScriptTool}.
+   */
+  public ScriptTool()
+  {
+    super(System.out,System.err);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  protected String classSpecificPropertiesResourceName()
+  {
+    return "ScriptTool.properties";
+  }
+
+  @Override
+  protected UnsolicitedNotificationHandler getUnsolicitedNotificationHandler()
+  {
+    return new DefaultUnsolicitedNotificationHandler(this);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public ResultCode executeToolTasks()
+  {
+    introduction();
+    final String className = classNameArgument.getValue();
+    final String classPath = classPathArgument.getValue();
+    final String spaceSeparatedJVMOptions = spaceSeparatedJVMOptionsArgument.getValue();
+    final String directory = directoryArgument.getValue();
+    final PropertiesBasedScriptGenerator gen =
+            new PropertiesBasedScriptGenerator(className,classPath,spaceSeparatedJVMOptions,
+                    directory);
+    try
+    {
+      gen.generateScript();
+      final String helpfulMessage = String.format("Created %s/%s",directory,gen.getFilename());
+      final LogRecord record = new LogRecord(Level.INFO,helpfulMessage);
+      out(new MinimalLogFormatter().format(record));
+    }
+    catch(final IOException exception)
+    {
+      getLogger().fatal(exception);
+      return ResultCode.OPERATIONS_ERROR;
+    }
+    return ResultCode.SUCCESS;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String getToolName()
+  {
+    return ScriptTool.TOOL_NAME;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void addArguments(final ArgumentParser argumentParser) throws ArgumentException
+  {
+    Validator.ensureNotNullWithMessage(argumentParser,"argument parser was null.");
+
+    classNameArgument = newClassNameArgument();
+    classPathArgument = newClassPathArgument();
+    directoryArgument = newDirectoryArgument();
+    spaceSeparatedJVMOptionsArgument = newJvmOptionsArgument();
+    argumentParser.addArgument(classNameArgument);
+    argumentParser.addArgument(classPathArgument);
+    argumentParser.addArgument(directoryArgument);
+    argumentParser.addArgument(spaceSeparatedJVMOptionsArgument);
+  }
+
+  private StringArgument newClassNameArgument() throws ArgumentException
+  {
+    return new StringArgument(null,"className",true,1,"{full-qualified classname}",
+            "The name of a class for which to generate an executable shell script.");
+  }
+
+  private StringArgument newClassPathArgument() throws ArgumentException
+  {
+    return new StringArgument(null,"classPath",true,1,"{class-path}",
+            "the class path that ScriptTool inserts into a script");
+  }
+
+  private StringArgument newDirectoryArgument() throws ArgumentException
+  {
+    return new StringArgument(null,"writableDirectory",true,1,"{folder-or-directory}",
+            "the directory in which ScriptTool creats a script");
+  }
+
+  private StringArgument newJvmOptionsArgument() throws ArgumentException
+  {
+    return new StringArgument(null,"jvmOptions",false,1,"{jvm options}",
+            "JVM options for the shell script.","-Xms32m -Xmx32m -d64");
+  }
+
+  /**
+   * @return the full-qualified class name for which a script is to be
+   *         generated, i.e., {@code "samplecode.tool.ScriptTool"}.
+   */
+  String getClassName()
+  {
+    return getClassNameArgument().getValue();
+  }
+
+  /**
+   * @return the class path to use in the script.
+   */
+  String getClassPath()
+  {
+    return getClassPathArgument().getValue();
+  }
+
+  /**
+   * @return the directory
+   */
+  String getDirectory()
+  {
+    return getDirectoryArgument().getValue();
+  }
+
+  /**
+   * @return the JVM options.
+   */
+  String getJvmOptions()
+  {
+    return getJvmOptionsArgument().getValue();
+  }
+
+  private StringArgument getJvmOptionsArgument()
+  {
+    return spaceSeparatedJVMOptionsArgument;
+  }
+
+  /**
+   * The string argument that is used to specify the fully-qualified
+   * class name for which {@code ScriptTool} creates an executable
+   * script. {@code --className} is required, and can be specified
+   * exactly one time.
+   */
+  private StringArgument classNameArgument;
+
+  /**
+   * @return the classNameArgument
+   */
+  private StringArgument getClassNameArgument()
+  {
+    return classNameArgument;
+  }
+
+  /**
+   * The string argument that is used to specify the class path that
+   * {@code ScriptTool} inserts into an executable script.
+   * {@code --classPath} is required, and can be specified exactly one
+   * time.
+   */
+  private StringArgument classPathArgument;
+
+  /**
+   * @return the classPathArgument
+   */
+  private StringArgument getClassPathArgument()
+  {
+    return classPathArgument;
+  }
+
+  /**
+   * The string argument that is used to specify the directory where
+   * {@code ScriptTool} creates an executable script.
+   * {@code --directory} is required, and can be specified exactly one
+   * time.
+   */
+  private StringArgument directoryArgument;
+
+  /**
+   * @return the directoryArgument
+   */
+  private StringArgument getDirectoryArgument()
+  {
+    return directoryArgument;
+  }
+
+  /**
+   * The string argument that is used to specify the JVM Options yjsy
+   * {@code ScriptTool} inserts into an executable script.
+   * {@code --jvmOptions} is required, and can be specified exactly one
+   * time.
+   */
+  private StringArgument spaceSeparatedJVMOptionsArgument;
+
+  private static void main(final PrintStream outStream, final PrintStream errStream,
+          final String... args)
+  {
+    final ScriptTool tool = new ScriptTool();
+    final ResultCode resultCode = tool.runTool(args);
+    final ToolCompletedProcessing completedProcessing =
+            new BasicToolCompletedProcessing(tool,resultCode);
+    completedProcessing.displayMessage(outStream,errStream);
+  }
 
   /**
    * <blockquote>
@@ -195,207 +406,7 @@ public final class ScriptTool extends AbstractTool
    */
   public static void main(final String... args)
   {
-    final ScriptTool tool = new ScriptTool();
-    final ResultCode resultCode = tool.runTool(args);
-    final ToolCompletedProcessing completedProcessing =
-            new BasicToolCompletedProcessing(tool, resultCode);
-    completedProcessing.displayMessage(System.out, System.err);
+    main(System.out,System.err,args);
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void addArguments(final ArgumentParser argumentParser) throws ArgumentException
-  {
-    Validator.ensureNotNullWithMessage(argumentParser, "argument parser was null.");
-
-    classNameArgument = newClassNameArgument();
-    classPathArgument = newClassPathArgument();
-    directoryArgument = newDirectoryArgument();
-    spaceSeparatedJVMOptionsArgument = newJvmOptionsArgument();
-    argumentParser.addArgument(classNameArgument);
-    argumentParser.addArgument(classPathArgument);
-    argumentParser.addArgument(directoryArgument);
-    argumentParser.addArgument(spaceSeparatedJVMOptionsArgument);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public ResultCode executeToolTasks()
-  {
-    introduction();
-    final String className = classNameArgument.getValue();
-    final String classPath = classPathArgument.getValue();
-    final String spaceSeparatedJVMOptions = spaceSeparatedJVMOptionsArgument.getValue();
-    final String directory = directoryArgument.getValue();
-    final ScriptGenerator gen =
-            new ScriptGenerator(className, classPath, spaceSeparatedJVMOptions, directory);
-    try
-    {
-      gen.generateScript();
-      final String helpfulMessage =
-              String.format("Created %s/%s", directory, gen.getFilename());
-      final LogRecord record = new LogRecord(Level.INFO, helpfulMessage);
-      out(new MinimalLogFormatter().format(record));
-    }
-    catch(final IOException exception)
-    {
-      return ResultCode.OPERATIONS_ERROR;
-    }
-    return ResultCode.SUCCESS;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public String getToolName()
-  {
-    return ScriptTool.TOOL_NAME;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  protected String classSpecificPropertiesResourceName()
-  {
-    return "ScriptTool.properties";
-  }
-
-  @Override
-  protected UnsolicitedNotificationHandler getUnsolicitedNotificationHandler()
-  {
-    return new DefaultUnsolicitedNotificationHandler(this);
-  }
-
-  /**
-   * @return the full-qualified class name for which a script is to be
-   *         generated, i.e., {@code "samplecode.tool.ScriptTool"}.
-   */
-  String getClassName()
-  {
-    return getClassNameArgument().getValue();
-  }
-
-  /**
-   * @return the class path to use in the script.
-   */
-  String getClassPath()
-  {
-    return getClassPathArgument().getValue();
-  }
-
-  /**
-   * @return the directory
-   */
-  String getDirectory()
-  {
-    return getDirectoryArgument().getValue();
-  }
-
-  /**
-   * @return the JVM options.
-   */
-  String getJvmOptions()
-  {
-    return getJvmOptionsArgument().getValue();
-  }
-
-  /**
-   * @return the classNameArgument
-   */
-  private StringArgument getClassNameArgument()
-  {
-    return classNameArgument;
-  }
-
-  /**
-   * @return the classPathArgument
-   */
-  private StringArgument getClassPathArgument()
-  {
-    return classPathArgument;
-  }
-
-  /**
-   * @return the directoryArgument
-   */
-  private StringArgument getDirectoryArgument()
-  {
-    return directoryArgument;
-  }
-
-  private StringArgument getJvmOptionsArgument()
-  {
-    return spaceSeparatedJVMOptionsArgument;
-  }
-
-  private StringArgument newClassNameArgument() throws ArgumentException
-  {
-    return new StringArgument(null, "className", true, 1, "{full-qualified classname}",
-            "The name of a class for which to generate an executable shell script.");
-  }
-
-  private StringArgument newClassPathArgument() throws ArgumentException
-  {
-    return new StringArgument(null, "classPath", true, 1, "{class-path}",
-            "the class path that ScriptTool inserts into a script");
-  }
-
-  private StringArgument newDirectoryArgument() throws ArgumentException
-  {
-    return new StringArgument(null, "writableDirectory", true, 1, "{folder-or-directory}",
-            "the directory in which ScriptTool creats a script");
-  }
-
-  private StringArgument newJvmOptionsArgument() throws ArgumentException
-  {
-    return new StringArgument(null, "jvmOptions", false, 1, "{jvm options}",
-            "JVM options for the shell script.", "-Xms32m -Xmx32m -d64");
-  }
-
-  /**
-   * Constructs a {@code ScriptTool}.
-   */
-  public ScriptTool()
-  {
-    super(System.out, System.err);
-
-  }
-
-  /**
-   * The string argument that is used to specify the fully-qualified
-   * class name for which {@code ScriptTool} creates an executable
-   * script. {@code --className} is required, and can be specified
-   * exactly one time.
-   */
-  private StringArgument classNameArgument;
-
-  /**
-   * The string argument that is used to specify the class path that
-   * {@code ScriptTool} inserts into an executable script.
-   * {@code --classPath} is required, and can be specified exactly one
-   * time.
-   */
-  private StringArgument classPathArgument;
-
-  /**
-   * The string argument that is used to specify the directory where
-   * {@code ScriptTool} creates an executable script.
-   * {@code --directory} is required, and can be specified exactly one
-   * time.
-   */
-  private StringArgument directoryArgument;
-
-  /**
-   * The string argument that is used to specify the JVM Options yjsy
-   * {@code ScriptTool} inserts into an executable script.
-   * {@code --jvmOptions} is required, and can be specified exactly one
-   * time.
-   */
-  private StringArgument spaceSeparatedJVMOptionsArgument;
 }
