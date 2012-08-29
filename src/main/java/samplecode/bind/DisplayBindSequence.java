@@ -32,15 +32,22 @@ public final class DisplayBindSequence extends AbstractTool
   @Override
   protected ResultCode executeToolTasks()
   {
+    introduction();
     if(isVerbose())
     {
       displayArguments();
     }
 
+    if(commandLineOptions.getBindDn() == null)
+    {
+      getLogger().fatal("please use the --bindDN command line argument.");
+      return ResultCode.PARAM_ERROR;
+    }
+
     LDAPConnection ldapConnection;
     try
     {
-      String format = "%-64s '%s'";
+      final String format = "%-64s '%s'";
 
       /*
        * Connect to directory server, do not authenticate the connection
@@ -108,6 +115,21 @@ public final class DisplayBindSequence extends AbstractTool
                       whoAmIExtendedResult.getAuthorizationID());
       System.out.println(msg);
 
+      /*
+      * Authenticate (simple bind) using the distinguished name and password specified
+      * by the --bindDn and --bindPassword command line options.
+      */
+      ldapConnection.bind(new SimpleBindRequest(commandLineOptions.getBindDn().toString(),
+              commandLineOptions.getBindPassword()));
+
+      whoAmIExtendedResult =
+              (WhoAmIExtendedResult) ldapConnection.processExtendedOperation(new
+                      WhoAmIExtendedRequest());
+      msg =
+              String.format(format, "Authorization identity after simple bind",
+                      whoAmIExtendedResult.getAuthorizationID());
+      System.out.println(msg);
+
       ldapConnection.close();
     }
     catch(final LDAPException ldapException)
@@ -122,7 +144,7 @@ public final class DisplayBindSequence extends AbstractTool
   @Override
   protected String classSpecificPropertiesResourceName()
   {
-    return "DisplayBindSequence";
+    return "DisplayBindSequence.properties";
   }
 
   /**
