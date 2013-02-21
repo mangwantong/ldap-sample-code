@@ -27,7 +27,7 @@
  * <li>{@link samplecode.controls.MatchedValuesRequestControlExample}: demonstrates the use
  * of the Matched Values request control</li>
  *
- * <li>{@link samplecode.matchingule.MatchingRuleDemo}: demonstrates the use of matching
+ * <li>{@link samplecode.matchingrule.MatchingRuleDemo}: demonstrates the use of matching
  * rules</li>
  *
  * <li>{@link samplecode.modifydn.ModifyDnDemo}: demonstrates the use of the MODIFY DN
