@@ -1092,38 +1092,5 @@ public class CommandLineOptions {
         return argumentParser;
     }
 
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this).
-                append("abandonOnTimeout",getAbandonOnTimeout()).
-                append("argumentParser",argumentParser).
-                append("autoReconnect",getAutoReconnect()).
-                append("baseObject",getBaseObject()).
-                append("bindDn",getBindDn()).
-                append("bindPassword",getBindPassword()).
-                append("bindPasswordFile",getBindPasswordFile()).
-                append("connectTimeoutMillis",getConnectTimeoutMillis()).
-                append("filter",getFilter()).
-                append("filters",getFilters()).
-                append("hostname",getHostname()).
-                append("initialConnections",getInitialConnections()).
-                append("introductionColumnWidth",getIntroductionColumnWidth()).
-                append("maxConnections",getMaxConnections()).
-                append("maxResponseTimeMillis",getMaxResponseTimeMillis()).
-                append("namedArgument",getNamedArgument()).
-                append("numThreads",getNumThreads()).
-                append("pageSize",getPageSize()).
-                append("port",getPort()).
-                append("propertiesFile",getPropertiesFile()).
-                append("reportCount",getReportCount()).
-                append("reportInterval",getReportInterval()).
-                append("requestedAttributes",getRequestedAttributes()).
-                append("searchScope",getSearchScope()).
-                append("sizeLimit",getSizeLimit()).
-                append("timeLimit",getTimeLimit()).
-                append("useSchema",getUseSchema()).
-                append("value",getValue()).
-                append("verbose",isVerbose()).
-                toString();
-    }
+
 }
