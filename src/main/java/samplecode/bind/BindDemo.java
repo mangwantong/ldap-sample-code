@@ -254,8 +254,7 @@ public final class BindDemo extends AbstractTool
             builder.append(getToolName());
             builder.append(" requires a valid bind DN (--bindDn) to " +
                     "proceed. ");
-            builder.append("The --bindDn command line argument did not " +
-                    "appear.");
+            builder.append("however, the --bindDn command line argument is not present.");
             final String msg = builder.toString();
             getLogger().fatal(msg);
             return ResultCode.PARAM_ERROR;
