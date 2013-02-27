@@ -262,6 +262,13 @@ public final class VirtualListViewDemo extends AbstractTool
                 sortKeys[i] = new SortKey(a);
                 ++i;
             }
+
+            if(this.getLogger().isTraceEnabled()) {
+                for(SortKey sk : sortKeys) {
+                    this.getLogger().trace("sortKey: " + sk);
+                }
+            }
+
             final ServerSideSortRequestControl sortRequest =
                     new ServerSideSortRequestControl(sortKeys);
 
@@ -293,13 +300,15 @@ public final class VirtualListViewDemo extends AbstractTool
             final BooleanArgument arg =
                     (BooleanArgument)argumentParser.getNamedArgument(name);
             final boolean criticality = arg != null && arg.isPresent();
+            if(this.getLogger().isTraceEnabled()) {
+                this.getLogger().trace("criticality: " + criticality);
+            }
 
 
             do {
                 final VirtualListViewRequestControl vlvRequest =
                         new VirtualListViewRequestControl(targetOffset,beforeCount,
-                                afterCount,
-                                contentCount,contextID,criticality);
+                                afterCount,contentCount,contextID,criticality);
                 searchRequest.setControls(new Control[]{sortRequest,vlvRequest});
                 final SearchResult searchResult = ldapConnection.search(searchRequest);
 
