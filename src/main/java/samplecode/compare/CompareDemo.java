@@ -13,91 +13,109 @@ import samplecode.annotation.Launchable;
 import samplecode.annotation.Since;
 import samplecode.tools.AbstractTool;
 
+import java.util.LinkedHashMap;
+
 
 /**
- * Provides a demonstration of the COMPARE request.
+ * Provides a demonstration of the COMPARE request using the
+ * UnboundID LDAP SDK.
  */
-@Since("01-JAN-2012") @CodeVersion("1.1") @Launchable
-public final class CompareDemo extends AbstractTool
-{
+@Since("01-JAN-2012")
+@CodeVersion("1.2")
+@Launchable
+public final class CompareDemo extends AbstractTool {
 
-  private static final Character ASSERTION_ARG_SHORT_IDENTIFIER = 'n';
-  private static final String ASSERTION_ARG_DESCRIPTION =
-          "The assertion to use in the compare request";
-  private static final String ASSERTION_ARG_LONG_IDENTIFIER = "assertion";
-  private static final String ASSERTION_ARG_VALUE_PLACEHOLDER = "{assertion}";
-  private static final boolean ASSERTION_ARG_IS_REQUIRED = true;
-  private static final int ASSERTION_ARG_MAX_OCCURRENCES = 1;
+  /**
+   * Runs the CompareDemo program.
+   *
+   * @param args
+   *         command-line arguments excluding JVM-specific arguments.
+   */
+  public static void main(final String... args) {
+    ResultCode resultCode = new CompareDemo().runTool(args);
+    if (resultCode != null && !resultCode.equals(ResultCode.SUCCESS)) {
+      System.exit(resultCode.intValue());
+    }
+  }
 
+  @Override()
+  public LinkedHashMap<String[],String> getExampleUsages() {
+    final LinkedHashMap<String[],String> examples =
+            new LinkedHashMap<String[],String>(1);
+    final String[] args = {
+            "--hostname","server.example.com",
+            "--port","389",
+            "--bindDN","uid=admin,dc=example,dc=com",
+            "--bindPassword","password",
+            "--assertion","cn",
+            "--attribute","attribute-name"
+    };
+    final String description =
+            "Demonstrates the use of the COMPARE request.";
+    examples.put(args,description);
+
+    return examples;
+
+  }
+
+  /**
+   * {@inheritDoc}
+   *
+   * @throws ArgumentException
+   */
+  @Override
+  public void addArguments(final ArgumentParser argumentParser) throws ArgumentException {
+    final String description = "The assertion to use in the compare request.";
+    argumentParser.addArgument(new StringArgument('n',"assertion",true,1,"{assertion}",description));
+  }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  protected ResultCode executeToolTasks()
-  {
-    introduction();
-    if(isVerbose())
-    {
-      displayArguments();
-    }
+  protected ResultCode executeToolTasks() {
+
+    // Use the value of the --baseObject command line
+    // argument as the DN.
     String dn;
-    try
-    {
+    try {
       dn = commandLineOptions.getBaseObject();
-      if(dn == null)
-      {
+      if (dn == null) {
         getLogger().fatal("The --baseObject argument is required.");
         return ResultCode.PARAM_ERROR;
       }
-    }
-    catch(final LDAPException ldapException)
-    {
+    } catch (final LDAPException ldapException) {
       ldapException.printStackTrace();
       return ldapException.getResultCode();
     }
+
+    // The --attribute command line argument
     final ArgumentParser argumentParser = commandLineOptions.getArgumentParser();
     final StringArgument attributeArgument =
             (StringArgument) argumentParser.getNamedArgument("attribute");
-
-
-    /*
-     * Get the value to use for the attribute in the compare request
-     * from the --attribute command line argument
-     */
     final String attributeName = attributeArgument.getValue();
-    if((attributeName == null) || (attributeName.length() == 0))
-    {
+    if ((attributeName == null) || (attributeName.length() == 0)) {
       getLogger().fatal("The --attribute argument is required.");
       return ResultCode.PARAM_ERROR;
     }
 
-
-    /*
-     * Get the value to use for the assertion in the compare request
-     * from the --assertion command line argument
-     */
+    // Get the value to use for the assertion in the compare request
+    // from the --assertion command line argument
     final StringArgument assertionArgument =
             (StringArgument) argumentParser.getNamedArgument("assertion");
     final String assertionValue = assertionArgument.getValue();
-    if((assertionValue == null) || (assertionValue.length() == 0))
-    {
+    if ((assertionValue == null) || (assertionValue.length() == 0)) {
       getLogger().fatal("The --assertion argument is required.");
       return ResultCode.PARAM_ERROR;
     }
 
-    /*
-     * Create and transmit the CompareRequest to the server and display
-     * the results of the comparison with the assertion value.
-     */
-    final CompareRequest req = new CompareRequest(dn, attributeName, assertionValue);
-    try
-    {
+    // Create and transmit the CompareRequest to the server and display
+    // the results of the comparison with the assertion value.
+    final CompareRequest req = new CompareRequest(dn,attributeName,assertionValue);
+    try {
       final CompareResult compareResult = getConnection().compare(req);
       getLogger().info(compareResult.compareMatched() ? "matched" : "did not match");
-    }
-    catch(final LDAPException exception)
-    {
+    } catch (final LDAPException exception) {
       getLogger().fatal(exception.getExceptionMessage());
       return exception.getResultCode();
     }
@@ -109,36 +127,8 @@ public final class CompareDemo extends AbstractTool
    * {@inheritDoc}
    */
   @Override
-  protected String classSpecificPropertiesResourceName()
-  {
+  protected String classSpecificPropertiesResourceName() {
     return "CompareDemo.properties";
-  }
-
-
-  /**
-   * {@inheritDoc}
-   *
-   * @throws ArgumentException
-   */
-  @Override
-  public void addArguments(final ArgumentParser argumentParser) throws ArgumentException
-  {
-    super.addArguments(argumentParser);
-    argumentParser.addArgument(new StringArgument(CompareDemo.ASSERTION_ARG_SHORT_IDENTIFIER,
-            CompareDemo.ASSERTION_ARG_LONG_IDENTIFIER, CompareDemo.ASSERTION_ARG_IS_REQUIRED,
-            CompareDemo.ASSERTION_ARG_MAX_OCCURRENCES,
-            CompareDemo.ASSERTION_ARG_VALUE_PLACEHOLDER,
-            CompareDemo.ASSERTION_ARG_DESCRIPTION));
-  }
-
-  /**
-   * Runs the CompareDemo program.
-   *
-   * @param args command-line arguments excluding JVM-specific arguments.
-   */
-  public static void main(final String... args)
-  {
-    new CompareDemo().runTool(args);
   }
 
 }
