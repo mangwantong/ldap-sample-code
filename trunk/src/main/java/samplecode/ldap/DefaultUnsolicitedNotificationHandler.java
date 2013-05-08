@@ -13,6 +13,7 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
+
 package samplecode.ldap;
 
 import com.unboundid.ldap.sdk.ExtendedResult;
@@ -26,27 +27,47 @@ import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
 import samplecode.logging.LogAware;
 
+import static com.unboundid.util.Validator.ensureNotNull;
+
 /**
  * A notification handler wherein the
  * {@code handleUnsolicitedNotification()} method logs a message using
  * {@link LDAPCommandLineTool#out(Object...)}.
  */
-@Author("terry.gardner@unboundid.com") @Since("Dec 10, 2011") @CodeVersion("1.0")
+@Author("terry.gardner@unboundid.com")
+@Since("Dec 10, 2011")
+@CodeVersion("1.1")
 public class DefaultUnsolicitedNotificationHandler
-        implements UnsolicitedNotificationHandler, LogAware
-{
+        implements UnsolicitedNotificationHandler, LogAware {
+
+  // The LDAPCommandLineTool which has a connection to
+  // a directory server that needs an unsolicited
+  // notification handler.
+  private final LDAPCommandLineTool ldapCommandLineTool;
+
+  private Log logger;
+
+  @Override
+  public String toString() {
+    final StringBuilder sb = new StringBuilder("DefaultUnsolicitedNotificationHandler{");
+    sb.append("ldapCommandLineTool=").append(ldapCommandLineTool);
+    sb.append('}');
+    return sb.toString();
+  }
 
   /**
    * Prepares this unsolicited notification handler for use by
    * initializing it using the provided {@code ldapCommandLineTool}.
    *
-   * @param ldapCommandLineTool A tool which has connected to directory server and
-   *                            requires this a notification handler to support
-   *                            unsolicited extended results. {@code ldapCommandLineTool}
-   *                            may not be {@code null}.
+   * @param ldapCommandLineTool
+   *         A tool which has connected to directory server and
+   *         requires this a notification handler to support
+   *         unsolicited extended results. {@code ldapCommandLineTool}
+   *         may not be {@code null}.
    */
-  public DefaultUnsolicitedNotificationHandler(final LDAPCommandLineTool ldapCommandLineTool)
-  {
+  public DefaultUnsolicitedNotificationHandler(final LDAPCommandLineTool ldapCommandLineTool) {
+    ensureNotNull(ldapCommandLineTool);
+
     this.ldapCommandLineTool = ldapCommandLineTool;
   }
 
@@ -59,36 +80,24 @@ public class DefaultUnsolicitedNotificationHandler
    */
   @Override
   public void handleUnsolicitedNotification(final LDAPConnection ldapConnection,
-          final ExtendedResult extendedResult)
-  {
-    if(ldapConnection == null)
-    {
-      throw new IllegalArgumentException("ldapConnection must not be null.");
-    }
-    if(extendedResult == null)
-    {
-      throw new IllegalArgumentException("extendedResult must not be null.");
-    }
-    if(getLogger().isWarnEnabled())
-    {
+                                            final ExtendedResult extendedResult) {
+    ensureNotNull(ldapConnection,extendedResult);
+
+    if (getLogger().isWarnEnabled()) {
       final String msg =
               String.format("the server to which the client is connected has sent an " +
                       "unsolicited notification including the following diagnostic message: " +
-                      "%s", extendedResult.getDiagnosticMessage());
+                      "%s",extendedResult.getDiagnosticMessage());
       getLogger().warn(msg);
     }
   }
 
-  private final LDAPCommandLineTool ldapCommandLineTool;
-  private Log logger;
-
   /**
    * @return the logger
    */
-  @Override public Log getLogger()
-  {
-    if(logger == null)
-    {
+  @Override
+  public Log getLogger() {
+    if (logger == null) {
       logger = LogFactory.getLog(getClass());
     }
     return logger;
