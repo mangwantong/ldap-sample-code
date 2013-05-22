@@ -42,6 +42,7 @@ import java.util.*;
 import static com.unboundid.util.Validator.ensureNotNull;
 import static com.unboundid.util.Validator.ensureTrue;
 
+
 /**
  * A minimal implementation of the {@code LDAPCommandLineTool} class.
  * <p/>
@@ -52,57 +53,6 @@ import static com.unboundid.util.Validator.ensureTrue;
 @CodeVersion("2.4")
 public abstract class AbstractTool extends LDAPCommandLineTool
         implements LogAware, LdapExceptionListener, ObservedByLdapExceptionListener {
-
-  private static final int DEFAULT_ERROR_INDENTATION = 0;
-
-  private static final short DEFAULT_INTRODUCTION_WIDTH = 72;
-
-  private static ClassLoader classLoader;
-
-  /**
-   * interested parties to {@code LdapExceptionEvents}
-   */
-  protected volatile Vector<LdapExceptionListener>
-          ldapExceptionListeners =
-          new Vector<LdapExceptionListener>();
-
-  /**
-   * interested parties to {@code LdapExceptionEvents}
-   */
-  protected volatile Vector<LdapSearchExceptionListener>
-          ldapSearchExceptionListeners =
-          new Vector<LdapSearchExceptionListener>();
-
-  /**
-   * Provides services for use with command line parameters and
-   * arguments. Handles adding a fairly standard set of arguments to the
-   * argument parser and retrieving their parameters.
-   */
-  protected CommandLineOptions commandLineOptions;
-
-  /**
-   * Manages a pool of connections to an LDAP Directory Server.
-   */
-  protected LDAPConnectionPool ldapConnectionPool;
-
-  /**
-   * A single connection to an LDAP Directory Server.
-   */
-  protected LDAPConnection ldapConnection;
-
-  /**
-   * The name of the class that implements {@code AbstractTool}.
-   */
-  protected String className;
-
-  private ArgumentParser argumentParser;
-
-  private int defaultErrorIndentation;
-
-  private int defaultIntroductionWidth;
-
-  private Log logger;
-
 
   /**
    * Initializes the {@code AbstractTool} with the
@@ -130,6 +80,17 @@ public abstract class AbstractTool extends LDAPCommandLineTool
     defaultIntroductionWidth = DEFAULT_INTRODUCTION_WIDTH;
   }
 
+
+
+  private static ClassLoader getClassLoader() {
+    if (classLoader == null) {
+      classLoader = AbstractTool.class.getClassLoader();
+    }
+    return classLoader;
+  }
+
+
+
   @Override
   public void ldapRequestFailed(final LdapExceptionEvent
                                         ldapExceptionEvent) {
@@ -138,6 +99,8 @@ public abstract class AbstractTool extends LDAPCommandLineTool
                     (ldapExceptionEvent.getLdapException());
     getLogger().error(messageGenerator.msg());
   }
+
+
 
   /**
    * Retrieves the logger associated with the tool.
@@ -151,6 +114,8 @@ public abstract class AbstractTool extends LDAPCommandLineTool
     return logger;
   }
 
+
+
   @Override
   public synchronized void addLdapExceptionListener(
           final LdapExceptionListener ldapExceptionListener) {
@@ -159,29 +124,29 @@ public abstract class AbstractTool extends LDAPCommandLineTool
     }
   }
 
+
+
   /**
    * {@inheritDoc}
    */
   @SuppressWarnings("unchecked")
   @Override
-  public void fireLdapExceptionListener(final LDAPConnection
-                                                ldapConnection,
-                                        final LDAPException
-                                                ldapException) {
-    Vector<LdapExceptionListener> copy;
+  public void fireLdapExceptionListener(final LDAPConnection ldapConnection,
+                                        final LDAPException ldapException) {
+    final List<LdapExceptionListener> copy;
     synchronized (this) {
-      copy = (Vector<LdapExceptionListener>) ldapExceptionListeners
-              .clone();
+      copy = new ArrayList<LdapExceptionListener>(ldapExceptionListeners);
     }
     if (copy.size() == 0) {
       return;
     }
-    final LdapExceptionEvent ev = new LdapExceptionEvent(this,
-            ldapConnection,ldapException);
+    final LdapExceptionEvent ev = new LdapExceptionEvent(this,ldapConnection,ldapException);
     for (final LdapExceptionListener l : copy) {
       l.ldapRequestFailed(ev);
     }
   }
+
+
 
   /**
    * {@inheritDoc}
@@ -194,6 +159,8 @@ public abstract class AbstractTool extends LDAPCommandLineTool
     }
   }
 
+
+
   @Override
   public void addNonLDAPArguments(final ArgumentParser argumentParser)
           throws ArgumentException {
@@ -203,8 +170,9 @@ public abstract class AbstractTool extends LDAPCommandLineTool
 
     // Create a CommandLineOptions object using the argument parser
     // and a default and useful set of command line arguments.
+    final ResourceBundle resourceBundle = StaticData.getResourceBundle();
     final Argument[] usefulArguments =
-            CommandLineOptions.createDefaultArguments(StaticData.getResourceBundle());
+            CommandLineOptions.createDefaultArguments(resourceBundle);
     commandLineOptions =
             CommandLineOptions.newCommandLineOptions(argumentParser,usefulArguments);
 
@@ -212,15 +180,17 @@ public abstract class AbstractTool extends LDAPCommandLineTool
     addArguments(argumentParser);
   }
 
+
+
   protected void addArguments(final ArgumentParser argumentParser)
           throws ArgumentException {
     // This block deliberately left empty
   }
 
-  protected void addRequiredArgumentSet(final ArgumentParser
-                                                argumentParser,
-                                        final Argument...
-                                                requiredArguments) {
+
+
+  protected void addRequiredArgumentSet(final ArgumentParser argumentParser,
+                                        final Argument... requiredArguments) {
     ensureNotNull(argumentParser);
 
     final List<Argument> requiredArgumentList =
@@ -231,8 +201,11 @@ public abstract class AbstractTool extends LDAPCommandLineTool
     argumentParser.addRequiredArgumentSet(requiredArgumentList);
   }
 
+
+
   /**
    * The logger must have INFO enabled at a minimum
+   * in order for displayArgument to display anything.
    */
   protected void displayArguments() {
     if (getLogger().isInfoEnabled()) {
@@ -294,6 +267,8 @@ public abstract class AbstractTool extends LDAPCommandLineTool
     }
   }
 
+
+
   protected void displayServerInformation() {
     if (getLogger().isInfoEnabled()) {
       final String hostname = commandLineOptions.getHostname();
@@ -305,9 +280,13 @@ public abstract class AbstractTool extends LDAPCommandLineTool
     }
   }
 
+
+
   protected int getErrorIndentation() {
     return defaultErrorIndentation;
   }
+
+
 
   /**
    * @return the text to be used for the introduction string.
@@ -315,6 +294,8 @@ public abstract class AbstractTool extends LDAPCommandLineTool
   protected String getIntroductionString() {
     return String.format("%s: %s",getToolName(),getToolDescription());
   }
+
+
 
   protected LDAPConnectionPool getLdapConnectionPool(final LDAPConnection c)
           throws LDAPException {
@@ -329,6 +310,8 @@ public abstract class AbstractTool extends LDAPCommandLineTool
     }
     return getLdapConnectionPool(c,initialConnections,maxConnections);
   }
+
+
 
   /**
    * Retrieves a {@link LDAPConnectionPool} that will be initialized
@@ -375,6 +358,8 @@ public abstract class AbstractTool extends LDAPCommandLineTool
     return new LDAPConnectionPool(ldapConnection,initialConnections,maxConnections);
   }
 
+
+
   protected LDAPConnectionPool getLdapConnectionPool() throws LDAPException {
     int initialConnections;
     int maxConnections;
@@ -387,6 +372,8 @@ public abstract class AbstractTool extends LDAPCommandLineTool
     }
     return getLdapConnectionPool(connectToServer(),initialConnections,maxConnections);
   }
+
+
 
   /**
    * Connect to the LDAP server specified in the LDAP connection command
@@ -505,6 +492,8 @@ public abstract class AbstractTool extends LDAPCommandLineTool
     return c;
   }
 
+
+
   /**
    * retrieves an {@code LDAPConnectionOptions} object that has been
    * initialized with values from command line options. The
@@ -528,6 +517,8 @@ public abstract class AbstractTool extends LDAPCommandLineTool
     return ldapConnectionOptions;
   }
 
+
+
   /**
    * @return a suitable default unsolicited notification handler
    */
@@ -535,6 +526,8 @@ public abstract class AbstractTool extends LDAPCommandLineTool
   getUnsolicitedNotificationHandler() {
     return new DefaultUnsolicitedNotificationHandler(this);
   }
+
+
 
   protected String getRequiredArgumentsMessage(final ArgumentParser argumentParser) {
     if (argumentParser == null) {
@@ -563,6 +556,8 @@ public abstract class AbstractTool extends LDAPCommandLineTool
     return sb.toString();
   }
 
+
+
   /**
    * {@inheritDoc}
    */
@@ -575,17 +570,7 @@ public abstract class AbstractTool extends LDAPCommandLineTool
     }
   }
 
-  protected String getToolName(final Properties properties) {
-    final String name = properties.getProperty(toolNamePropertyName());
-    return name == null ? "no name available." : name;
-  }
 
-  /**
-   * @return the name/key of the property which specifies the tool name
-   */
-  protected String toolNamePropertyName() {
-    return "toolName";
-  }
 
   /**
    * {@inheritDoc}
@@ -599,6 +584,8 @@ public abstract class AbstractTool extends LDAPCommandLineTool
     }
   }
 
+
+
   /**
    * {@inheritDoc}
    */
@@ -611,10 +598,32 @@ public abstract class AbstractTool extends LDAPCommandLineTool
     return executeToolTasks();
   }
 
+
+  /**
+   * Retrieves the name of this tool.
+   */
+  protected String getToolName(final Properties properties) {
+    final String name = properties.getProperty(toolNamePropertyName());
+    return name == null ? "no name available." : name;
+  }
+
+
+
+  /**
+   * @return the name/key of the property which specifies the tool name
+   */
+  protected String toolNamePropertyName() {
+    return "toolName";
+  }
+
+
+
   /**
    * executes the tasks defined in this tool
    */
   protected abstract ResultCode executeToolTasks();
+
+
 
   private Properties classSpecificProperties() throws IOException {
     final Properties properties = new Properties();
@@ -626,6 +635,8 @@ public abstract class AbstractTool extends LDAPCommandLineTool
     }
     return properties;
   }
+
+
 
   /**
    * Get the input stream from which class-specific properties might be
@@ -656,31 +667,26 @@ public abstract class AbstractTool extends LDAPCommandLineTool
   private InputStream classSpecificPropertiesInputStream(
           final String classSpecificPropertiesResourceName) {
     if (classSpecificPropertiesResourceName == null) {
-      throw new IllegalArgumentException
-              ("classSpecificPropertiesResourceName must not be " +
-                      "null.");
+      throw new IllegalArgumentException("classSpecificPropertiesResourceName " +
+                                         "must not be null.");
     }
     InputStream classSpecificPropertiesInputStream = null;
     if (classSpecificPropertiesResourceName != null) {
       ClassLoader cl = getClassLoader();
       classSpecificPropertiesInputStream =
-              cl.getResourceAsStream
-                      (classSpecificPropertiesResourceName);
+              cl.getResourceAsStream(classSpecificPropertiesResourceName);
     }
     return classSpecificPropertiesInputStream;
   }
 
-  private static ClassLoader getClassLoader() {
-    if (classLoader == null) {
-      classLoader = AbstractTool.class.getClassLoader();
-    }
-    return classLoader;
-  }
+
 
   /**
    * return the class-specific properties resource name
    */
   protected abstract String classSpecificPropertiesResourceName();
+
+
 
   /**
    * A value which specifies the default timeout in milliseconds that
@@ -693,6 +699,8 @@ public abstract class AbstractTool extends LDAPCommandLineTool
   public long getResponseTimeMillis() {
     return commandLineOptions.getMaxResponseTimeMillis();
   }
+
+
 
   /**
    * Get the tool description text from the properties file associated
@@ -709,6 +717,8 @@ public abstract class AbstractTool extends LDAPCommandLineTool
     return description == null ? "no description available." : description;
   }
 
+
+
   /**
    * @return the name/key of the property which specifies the tool
    *         description
@@ -716,6 +726,8 @@ public abstract class AbstractTool extends LDAPCommandLineTool
   protected String toolDescriptionPropertyName() {
     return "toolDescription";
   }
+
+
 
   /**
    * Display introductory matter. This implementation display the name
@@ -737,10 +749,17 @@ public abstract class AbstractTool extends LDAPCommandLineTool
     out();
   }
 
+
+
+  /**
+   * gets the introduction width.
+   */
   protected int getIntroductionWidth() {
     defaultIntroductionWidth = commandLineOptions.getIntroductionColumnWidth();
     return defaultIntroductionWidth;
   }
+
+
 
   /**
    * @return Whether the tool is verbose in its output.
@@ -748,6 +767,8 @@ public abstract class AbstractTool extends LDAPCommandLineTool
   public boolean isVerbose() {
     return commandLineOptions.isVerbose();
   }
+
+
 
   /**
    * @param printStream
@@ -763,6 +784,8 @@ public abstract class AbstractTool extends LDAPCommandLineTool
     }
   }
 
+
+
   /**
    * Transmits a message to the logger.
    *
@@ -776,6 +799,8 @@ public abstract class AbstractTool extends LDAPCommandLineTool
     }
   }
 
+
+
   /**
    * Retrieves the argument parser associated with the
    * {@link LDAPCommandLineTool}.
@@ -785,5 +810,64 @@ public abstract class AbstractTool extends LDAPCommandLineTool
   protected ArgumentParser getArgumentParser() {
     return argumentParser;
   }
+
+
+
+  // The indentation in the event no preference has been expressed
+  private static final int DEFAULT_ERROR_INDENTATION = 0;
+
+  // The width in the event no preference has been expressed.
+  private static final short DEFAULT_INTRODUCTION_WIDTH = 72;
+
+  // A reference to the classloader
+  private static ClassLoader classLoader;
+
+  /**
+   * interested parties to {@code LdapExceptionEvents}
+   */
+  protected volatile
+    List<LdapExceptionListener> ldapExceptionListeners =
+    new ArrayList<LdapExceptionListener>();
+
+  /**
+   * interested parties to {@code LdapSearchExceptionEvents}
+   */
+  protected volatile
+    List<LdapSearchExceptionListener>
+    ldapSearchExceptionListeners = new ArrayList<LdapSearchExceptionListener>();
+
+  /**
+   * Provides services for use with command line parameters and
+   * arguments. Handles adding a fairly standard set of arguments to the
+   * argument parser and retrieving their parameters.
+   */
+  protected CommandLineOptions commandLineOptions;
+
+  /**
+   * Manages a pool of connections to an LDAP Directory Server.
+   */
+  protected LDAPConnectionPool ldapConnectionPool;
+
+  /**
+   * A single connection to an LDAP Directory Server.
+   */
+  protected LDAPConnection ldapConnection;
+
+  /**
+   * The name of the class that implements {@code AbstractTool}.
+   */
+  protected String className;
+
+  // The argument parser
+  private ArgumentParser argumentParser;
+
+  // number of characters to indent when no preference has been expressed
+  private int defaultErrorIndentation;
+
+  // number of characters in width when no preference has been expressed
+  private int defaultIntroductionWidth;
+
+  // logging facilities
+  private Log logger;
 
 }

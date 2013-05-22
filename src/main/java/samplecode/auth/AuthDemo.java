@@ -32,6 +32,7 @@ import samplecode.tools.AbstractTool;
 import samplecode.tools.BasicToolCompletedProcessing;
 import samplecode.tools.ToolCompletedProcessing;
 
+
 /**
  * Provides a demonstration of the Who Am I? extended operation and the
  * {@code AuthorizationIdentityRequestControl}.
@@ -87,17 +88,18 @@ public final class AuthDemo extends AbstractTool {
             new BasicToolCompletedProcessing(authDemo,resultCode);
     final Log logger = LogFactory.getLog(AuthDemo.class);
     completedProcessing.displayMessage(logger);
-    if(!resultCode.equals(ResultCode.SUCCESS)) {
+    if (!resultCode.equals(ResultCode.SUCCESS)) {
       System.exit(resultCode.intValue());
     }
   }
 
-  /**
-   * {@inheritDoc}
-   */
+
+
   @Override
   protected ResultCode executeToolTasks() {
-    addLdapExceptionListener(new DefaultLdapExceptionListener(getLogger()));
+    final Log logger = getLogger();
+    final LdapExceptionListener l = new DefaultLdapExceptionListener(logger);
+    addLdapExceptionListener(l);
 
     /*
      * Obtain a pool of connections to the LDAP server from the
@@ -115,20 +117,23 @@ public final class AuthDemo extends AbstractTool {
     }
 
     /*
-    * Instantiate the object which provides methods to get the
-    * authorization identity.
-    */
+     * Instantiate the object which provides methods to get the
+     * authorization identity. Add an instance of the default
+     * LDAP Exception Listener to the authorized identity provider.
+     */
     if (isVerbose()) {
       verbose("Creating the authorized identity object.");
     }
-    final AuthorizedIdentity authorizedIdentity = new AuthorizedIdentity(ldapConnection);
-    final LdapExceptionListener listener = new DefaultLdapExceptionListener(getLogger());
+    final AuthorizedIdentity authorizedIdentity =
+            new AuthorizedIdentity(ldapConnection);
+    final LdapExceptionListener listener =
+            new DefaultLdapExceptionListener(getLogger());
     authorizedIdentity.addLdapExceptionListener(listener);
 
     /*
-    * String representation of messages that provide informative or
-    * instructional messages.
-    */
+     * String representation of messages that provide informative or
+     * instructional messages.
+     */
     String msg;
 
     /*
@@ -137,13 +142,14 @@ public final class AuthDemo extends AbstractTool {
      * using processExtendedOperation to transmit it.
      */
     if (isVerbose()) {
-      verbose("Getting the authorization identity using the Who Am I? extended " +
-              "request.");
+      verbose("Getting the authorization identity using the Who Am I? " +
+              "extended request.");
     }
     String authId;
+    final long maxResponseTime = getResponseTimeMillis();
     try {
       authId =
-              authorizedIdentity.getAuthorizationIdentityWhoAmIExtendedOperation(getResponseTimeMillis());
+              authorizedIdentity.getAuthorizationIdentityWhoAmIExtendedOperation(maxResponseTime);
     } catch (final SupportedFeatureException exception1) {
       return ResultCode.UNWILLING_TO_PERFORM;
     }
@@ -154,8 +160,8 @@ public final class AuthDemo extends AbstractTool {
     }
 
     /*
-    * Demonstrate the use of the AuthorizationIdentityRequestControl.
-    */
+     * Demonstrate the use of the AuthorizationIdentityRequestControl.
+     */
     final DN bindDnAsDn = commandLineOptions.getBindDn();
     if (bindDnAsDn == null) {
       final String helpfulMessage =
@@ -195,6 +201,8 @@ public final class AuthDemo extends AbstractTool {
     ldapConnection.close();
     return ResultCode.SUCCESS;
   }
+
+
 
   /**
    * {@inheritDoc}

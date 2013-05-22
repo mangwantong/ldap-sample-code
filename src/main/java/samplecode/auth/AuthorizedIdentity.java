@@ -29,10 +29,13 @@ import samplecode.ldap.SupportedFeatureException;
 import samplecode.listener.LdapExceptionEvent;
 import samplecode.listener.LdapExceptionListener;
 import samplecode.listener.ObservedByLdapExceptionListener;
+import samplecode.util.SampleCodeCollectionUtils;
 
-import java.util.Vector;
+import java.util.List;
 
 import static com.unboundid.util.Validator.ensureNotNull;
+import static com.unboundid.util.Validator.ensureTrue;
+
 
 /**
  * Provides clients with a method to get the authorization identity from
@@ -52,17 +55,9 @@ import static com.unboundid.util.Validator.ensureNotNull;
  */
 @Author("terry.gardner@unboundid.com")
 @Since("Dec 25, 2011")
-@CodeVersion("1.2")
-public final class AuthorizedIdentity implements ObservedByLdapExceptionListener {
-
-  // a valid connection to a directory server.
-  private final LDAPConnection ldapConnection;
-
-  /**
-   * interested parties to {@code LdapExceptionEvents}
-   */
-  private volatile Vector<LdapExceptionListener> ldapExceptionListeners =
-          new Vector<LdapExceptionListener>();
+@CodeVersion("1.3")
+public final class AuthorizedIdentity
+        implements ObservedByLdapExceptionListener {
 
   /**
    * Creates a new instance of {@code AuthorizedIdentity} that will use
@@ -73,15 +68,13 @@ public final class AuthorizedIdentity implements ObservedByLdapExceptionListener
    *         is not permitted to be {@code null}.
    */
   public AuthorizedIdentity(final LDAPConnection ldapConnection) {
-    if (ldapConnection == null) {
-      throw new IllegalArgumentException("ldapConnection must not be null.");
-    }
+    ensureNotNull(ldapConnection);
+
     this.ldapConnection = ldapConnection;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+
+
   @Override
   public synchronized void addLdapExceptionListener(
           final LdapExceptionListener ldapExceptionListener) {
@@ -90,31 +83,30 @@ public final class AuthorizedIdentity implements ObservedByLdapExceptionListener
     }
   }
 
-  /**
-   * {@inheritDoc}
-   */
+
+
   @SuppressWarnings("unchecked")
   @Override
   public void fireLdapExceptionListener(final LDAPConnection ldapConnection,
                                         final LDAPException ldapException) {
     ensureNotNull(ldapConnection,ldapException);
 
-    Vector<LdapExceptionListener> copy;
+    final List<LdapExceptionListener> copy;
     synchronized (this) {
-      copy = (Vector<LdapExceptionListener>) ldapExceptionListeners.clone();
+      copy = SampleCodeCollectionUtils.newArrayList(ldapExceptionListeners);
     }
     if (copy.size() == 0) {
       return;
     }
-    final LdapExceptionEvent ev = new LdapExceptionEvent(this,ldapConnection,ldapException);
+    final LdapExceptionEvent ev =
+            new LdapExceptionEvent(this,ldapConnection,ldapException);
     for (final LdapExceptionListener l : copy) {
       l.ldapRequestFailed(ev);
     }
   }
 
-  /**
-   * {@inheritDoc}
-   */
+
+
   @Override
   public synchronized void removeLdapExceptionListener(
           final LdapExceptionListener ldapExceptionListener) {
@@ -122,6 +114,8 @@ public final class AuthorizedIdentity implements ObservedByLdapExceptionListener
       ldapExceptionListeners.remove(ldapExceptionListener);
     }
   }
+
+
 
   /**
    * Binds to directory server using a simple bind request and returns
@@ -157,18 +151,17 @@ public final class AuthorizedIdentity implements ObservedByLdapExceptionListener
    *         if the request control is not supported.
    */
   public String getAuthorizationIdentityFromBindRequest(
-          final String bindDn,final String bindPassword, long responseTimeoutMillis)
+          final String bindDn, final String bindPassword,
+          long responseTimeoutMillis)
           throws SupportedFeatureException {
     ensureNotNull(bindDn,bindPassword);
+    ensureTrue(responseTimeoutMillis>0);
 
-    if (responseTimeoutMillis < 0) {
-      responseTimeoutMillis = 0L;
-    }
-
-    final String oid = AuthorizationIdentityRequestControl.AUTHORIZATION_IDENTITY_REQUEST_OID;
+    final String oid =
+      AuthorizationIdentityRequestControl.AUTHORIZATION_IDENTITY_REQUEST_OID;
     try {
       checkSupportedControl(ldapConnection,oid);
-    } catch (LDAPException e) {
+    } catch (final LDAPException e) {
       throw new SupportedFeatureException(e,oid);
     }
 
@@ -208,10 +201,14 @@ public final class AuthorizedIdentity implements ObservedByLdapExceptionListener
     return authorizationIdentityResponseControl.getAuthorizationID();
   }
 
+
+
   private void checkSupportedControl(final LDAPConnection ldapConnection, final String oid)
           throws LDAPException {
     final RootDSE rootDSE = ldapConnection.getRootDSE();
   }
+
+
 
   /**
    * Retrieves the authorization identity from an existing ldap
@@ -253,6 +250,8 @@ public final class AuthorizedIdentity implements ObservedByLdapExceptionListener
 
   }
 
+
+
   private void checkSupportedFeature(final LDAPConnection ldapConnection,
                                      final String controlOID) throws SupportedFeatureException {
     SupportedFeature supportedFeature;
@@ -265,6 +264,8 @@ public final class AuthorizedIdentity implements ObservedByLdapExceptionListener
     supportedFeature.isExtendedOperationSupported(controlOID);
   }
 
+
+
   /**
    * {@inheritDoc}
    */
@@ -272,5 +273,16 @@ public final class AuthorizedIdentity implements ObservedByLdapExceptionListener
   public String toString() {
     return String.format("AuthorizedIdentity [ldapConnection=%s]",ldapConnection);
   }
+
+
+
+  // a valid connection to a directory server.
+  private final LDAPConnection ldapConnection;
+
+  /**
+   * interested parties to {@code LdapExceptionEvents}
+   */
+  private volatile List<LdapExceptionListener> ldapExceptionListeners =
+          SampleCodeCollectionUtils.newArrayList();
 
 }
