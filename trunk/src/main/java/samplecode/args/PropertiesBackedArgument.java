@@ -13,9 +13,9 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
+
 package samplecode.args;
 
-import com.unboundid.util.Validator;
 import com.unboundid.util.args.Argument;
 import com.unboundid.util.args.ArgumentException;
 import samplecode.annotation.Author;
@@ -24,6 +24,9 @@ import samplecode.annotation.Since;
 
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+
+import static com.unboundid.util.Validator.ensureNotNullWithMessage;
+
 
 /**
  * Provides support for command line options (arguments) that are backed
@@ -69,165 +72,167 @@ import java.util.ResourceBundle;
  *
  * @param <T>
  */
-@Since("15-Jun-2012") @CodeVersion("1.0") @Author("Terry Gardner")
-public abstract class PropertiesBackedArgument<T extends Argument, E>
-{
+@Since("15-Jun-2012")
+@CodeVersion("1.0")
+@Author("Terry Gardner")
+public abstract class PropertiesBackedArgument<T extends Argument,E> {
 
   /**
-   * @param resourceBundle   used to determine the values used for the command line
-   *                         argument parameters.
-   * @param basePropertyName the base name of keys associated with properties
+   * @param resourceBundle
+   *         used to determine the values used for the command line
+   *         argument parameters.
+   * @param basePropertyName
+   *         the base name of keys associated with properties
    */
   protected PropertiesBackedArgument(final ResourceBundle resourceBundle,
-          final String basePropertyName)
-  {
-    Validator.ensureNotNullWithMessage(resourceBundle, "fatal: resourceBundle was null.");
-    Validator.ensureNotNullWithMessage(basePropertyName, "fatal: basePropertyName was null.");
+                                     final String basePropertyName) {
+    ensureNotNullWithMessage(resourceBundle,"fatal: resourceBundle was null.");
+    ensureNotNullWithMessage(basePropertyName,"fatal: basePropertyName was null.");
+
     this.resourceBundle = resourceBundle;
     this.basePropertyName = basePropertyName;
   }
+
+
 
   /**
    * @return the value associated with the short identifier key, or
    *         {@code null}
    */
-  protected Character getShortIdentifier()
-  {
+  protected Character getShortIdentifier() {
     Character shortIdentifier;
-    try
-    {
+    try {
       final String s = resourceBundle.getString(getShortIdentifierKey());
-      if(s.length() == 0)
-      {
+      if (s.length() == 0) {
         shortIdentifier = null;
+      } else {
+        final String shortIdentifierKey =
+          resourceBundle.getString(getShortIdentifierKey());
+        shortIdentifier = shortIdentifierKey.charAt(0);
       }
-      else
-      {
-        shortIdentifier =
-                Character.valueOf(resourceBundle.getString(getShortIdentifierKey()).charAt(0));
-      }
-    }
-    catch(final MissingResourceException x)
-    {
+    } catch (final MissingResourceException x) {
       shortIdentifier = null;
     }
     return shortIdentifier;
   }
 
+
+
   /**
    * @return the key associated with the value of the short identifier
    *         for the command line argument.
    */
-  protected String getShortIdentifierKey()
-  {
+  protected String getShortIdentifierKey() {
     return basePropertyName + "ShortIdentifier";
   }
+
+
 
   /**
    * @return a default value for this argument
    */
-  protected E getDefaultValue()
-  {
+  protected E getDefaultValue() {
     E defaultValue;
-    try
-    {
-      defaultValue = convertString(resourceBundle.getString(getDefaultValueKey()));
-    }
-    catch(final MissingResourceException x)
-    {
+    try {
+      final String key = getDefaultValueKey();
+      defaultValue = convertString(resourceBundle.getString(key));
+    } catch (final MissingResourceException x) {
       defaultValue = null;
     }
     return defaultValue;
   }
 
+
+
   protected abstract E convertString(String value);
+
+
 
   /**
    * @return the key associated with the value of the argument default
    *         value
    */
-  protected String getDefaultValueKey()
-  {
+  protected String getDefaultValueKey() {
     return basePropertyName + "DefaultValue";
   }
+
+
 
   /**
    * @return a human-readable description for this argument
    */
-  protected String getDescription()
-  {
+  protected String getDescription() {
     String description;
-    try
-    {
+    try {
       description = resourceBundle.getString(getDescriptionKey());
-    }
-    catch(final MissingResourceException x)
-    {
+    } catch (final MissingResourceException x) {
       description = this.basePropertyName;
     }
     return description;
   }
 
+
+
   /**
    * @return the key associated with the value of the argument
    *         description
    */
-  protected String getDescriptionKey()
-  {
+  protected String getDescriptionKey() {
     return basePropertyName + "Description";
   }
+
+
 
   /**
    * @return the long identifier for this argument
    */
-  protected String getLongIdentifier()
-  {
+  protected String getLongIdentifier() {
     String longIdentifier;
-    try
-    {
+    try {
       longIdentifier = resourceBundle.getString(getLongIdentifierKey());
-    }
-    catch(final MissingResourceException x)
-    {
+    } catch (final MissingResourceException x) {
       longIdentifier = this.basePropertyName;
     }
     return longIdentifier;
   }
 
+
+
   /**
    * @return the key associated with the value of the argument
    *         LongIdentifier
    */
-  protected String getLongIdentifierKey()
-  {
+  protected String getLongIdentifierKey() {
     return basePropertyName + "LongIdentifier";
   }
+
+
 
   /**
    * @return the value place-holder for the command line argument
    */
-  protected String getValuePlaceholder()
-  {
+  protected String getValuePlaceholder() {
     String valuePlaceholder;
-    try
-    {
-      valuePlaceholder = resourceBundle.getString(getValuePlaceholderKey());
-    }
-    catch(final MissingResourceException x)
-    {
+    try {
+      final String key = getValuePlaceholderKey();
+      valuePlaceholder = resourceBundle.getString(key);
+    } catch (final MissingResourceException x) {
       valuePlaceholder = this.basePropertyName;
     }
     return valuePlaceholder;
   }
 
+
+
   /**
    * @return the key associated with the value of the value place-holder
    *         for the command line argument.
    */
-  protected String getValuePlaceholderKey()
-  {
+  protected String getValuePlaceholderKey() {
     return basePropertyName + "ValuePlaceholder";
   }
+
+
 
   /**
    * @return the value associated with the maximum number of times this
@@ -235,36 +240,33 @@ public abstract class PropertiesBackedArgument<T extends Argument, E>
    *         than or equal to zero indicates that it may be present any
    *         number of times
    */
-  protected int getMaxOccurrences()
-  {
+  protected int getMaxOccurrences() {
     int maxOccurrences;
-    try
-    {
-      maxOccurrences = Integer.parseInt(resourceBundle.getString(getMaxOccurrencesKey()));
-    }
-    catch(final MissingResourceException x)
-    {
+    final String key = getMaxOccurrencesKey();
+    try {
+      maxOccurrences = Integer.parseInt(resourceBundle.getString(key));
+    } catch (final MissingResourceException x) {
       maxOccurrences = 0;
-    }
-    catch(final NumberFormatException nex)
-    {
+    } catch (final NumberFormatException nex) {
       maxOccurrences = 0;
     }
     return maxOccurrences;
   }
 
+
+
   /**
    * @return the key associated with the value of the argument max
    *         occurrences
    */
-  protected String getMaxOccurrencesKey()
-  {
+  protected String getMaxOccurrencesKey() {
     return basePropertyName + "MaxOccurrences";
   }
 
+
+
   @Override
-  public String toString()
-  {
+  public String toString() {
     final StringBuilder buf = new StringBuilder();
 
     buf.append("basePropertyName: ");
@@ -302,46 +304,52 @@ public abstract class PropertiesBackedArgument<T extends Argument, E>
     return buf.toString();
   }
 
+
+
   /**
    * @return an indication of whether this argument is required to be
    *         provided
    */
-  protected boolean isRequired()
-  {
+  protected boolean isRequired() {
     boolean isRequired;
-    try
-    {
-      isRequired = resourceBundle.getString(getIsRequiredKey()).equals("true");
-    }
-    catch(final MissingResourceException x)
-    {
+    final String key = getIsRequiredKey();
+    try {
+      isRequired = resourceBundle.getString(key).equals("true");
+    } catch (final MissingResourceException x) {
       isRequired = false;
     }
     return isRequired;
   }
 
-  protected String getIsRequiredKey()
-  {
+
+
+  protected String getIsRequiredKey() {
     return this.basePropertyName + "IsRequired";
   }
+
+
 
   /**
    * @return the argument
    */
   public abstract T getArgument() throws ArgumentException;
 
-  private final ResourceBundle resourceBundle;
 
-  protected final ResourceBundle getResourceBundle()
-  {
+
+  protected final ResourceBundle getResourceBundle() {
     return this.resourceBundle;
   }
 
-  private final String basePropertyName;
 
-  protected final String getBasePropertyName()
-  {
+
+  protected final String getBasePropertyName() {
     return this.basePropertyName;
   }
+
+
+
+  private final ResourceBundle resourceBundle;
+
+  private final String basePropertyName;
 
 }
