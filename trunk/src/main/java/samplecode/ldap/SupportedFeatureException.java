@@ -13,19 +13,53 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
+
 package samplecode.ldap;
 
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
 
+
 /**
  * Thrown when a control OID is not supported by the server.
  */
-@SuppressWarnings("serial") @Author("terry.gardner@unboundid.com") @Since("Nov 28, 2011")
+@SuppressWarnings("serial")
+@Author("terry.gardner@unboundid.com")
+@Since("Nov 28, 2011")
 @CodeVersion("1.0")
-public final class SupportedFeatureException extends Exception
-{
+public final class SupportedFeatureException extends Exception {
+
+  /**
+   * Prepares a {@code SupportedControlException} with the specified
+   * detail message.
+   *
+   * @param msg
+   *         The detail message.
+   * @param controlOID
+   *         The OID that caused the exception.
+   */
+  public SupportedFeatureException(final String msg, final String controlOID) {
+    super(msg);
+    this.controlOID = controlOID;
+  }
+
+
+
+  /**
+   * Prepares a {@code SupportedControlException} with the specified
+   * exception.
+   *
+   * @param ex
+   *         the exception
+   * @param controlOID
+   *         The OID that caused the exception.
+   */
+  public SupportedFeatureException(final Exception ex, final String controlOID) {
+    this(ex.getMessage(),controlOID);
+  }
+
+
 
   /**
    * Retrieve the control OID (a dot-separated series of octets
@@ -33,35 +67,11 @@ public final class SupportedFeatureException extends Exception
    *
    * @return control OID.
    */
-  public String getControlOID()
-  {
+  public String getControlOID() {
     return controlOID;
   }
 
-  /**
-   * Prepares a {@code SupportedControlException} with the specified
-   * detail message.
-   *
-   * @param msg        The detail message.
-   * @param controlOID The OID that caused the exception.
-   */
-  public SupportedFeatureException(final String msg, final String controlOID)
-  {
-    super(msg);
-    this.controlOID = controlOID;
-  }
 
-  /**
-   * Prepares a {@code SupportedControlException} with the specified
-   * exception.
-   *
-   * @param ex         the exception
-   * @param controlOID The OID that caused the exception.
-   */
-  public SupportedFeatureException(final Exception ex, final String controlOID)
-  {
-    this(ex.getMessage(), controlOID);
-  }
 
   private final String controlOID;
 

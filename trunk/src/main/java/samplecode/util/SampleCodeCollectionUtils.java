@@ -13,6 +13,7 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
+
 package samplecode.util;
 
 
@@ -24,51 +25,54 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 
+import static com.unboundid.util.Validator.ensureNotNull;
+
 
 /**
  * Utility methods. This class cannot be instantiated.
- * <p>
+ * <p/>
  * Includes methods for
  * <ul>
  * <li>Converting delimited string into a list of strings.</li>
  * <li>Creating a {@link List} in a type-safe way.</li>
  * <li>Creating a {@link Map} in a type-safe way.</li>
  * </ul>
- * 
+ *
  * @author Terry.Gardner@UnboundID.COM
  * @since 1.0
  */
 @Author("terry.gardner@unboundid.com")
 @Since("01-Jan-2008")
 @CodeVersion("1.2")
-public final class SampleCodeCollectionUtils
-{
+public final class SampleCodeCollectionUtils {
+
+  private SampleCodeCollectionUtils() {
+    // This block deliberately left empty.
+  }
+
+
 
   /**
    * Given a {@link String} that consists of strings delimited by a
    * comma, returns a list wherein each member of the list was a string
    * delimited by a comma in the original string.
-   * 
+   *
    * @param csv
-   *          A comma-separated list of strings.
+   *         A comma-separated list of strings.
+   *
    * @return Never returns {@code null}, that is, a list is always
    *         returned (but it might be empty.)
    */
-  public static List<String> csvToList(final String csv)
-  {
+  public static List<String> csvToList(final String csv) {
 
     List<String> result;
-    if(csv != null)
-    {
+    if (csv != null) {
       result = SampleCodeCollectionUtils.newArrayList();
       final StringTokenizer t = new StringTokenizer(csv,",");
-      while(t.hasMoreTokens())
-      {
+      while (t.hasMoreTokens()) {
         result.add(t.nextToken());
       }
-    }
-    else
-    {
+    } else {
       result = Collections.emptyList();
     }
     return result;
@@ -78,14 +82,13 @@ public final class SampleCodeCollectionUtils
 
   /**
    * Returns a new {@link ArrayList} in a type-safe way.
-   * 
+   *
    * @param <T>
-   *          The type of each element of the list.
+   *         The type of each element of the list.
+   *
    * @return A new ArrayList.
    */
-  public static <T> List<T> newArrayList()
-  {
-
+  public static <T> List<T> newArrayList() {
     return new ArrayList<T>();
   }
 
@@ -93,16 +96,15 @@ public final class SampleCodeCollectionUtils
 
   /**
    * Returns a new {@link ArrayList} in a type-safe way.
-   * 
+   *
    * @param <T>
-   *          The type of each element of the list.
+   *         The type of each element of the list.
    * @param size
-   *          The initial size of the list.
+   *         The initial size of the list.
+   *
    * @return A new ArrayList.
    */
-  public static <T> List<T> newArrayList(final int size)
-  {
-
+  public static <T> List<T> newArrayList(final int size) {
     return new ArrayList<T>(size);
   }
 
@@ -110,16 +112,15 @@ public final class SampleCodeCollectionUtils
 
   /**
    * Returns a new {@link ConcurrentHashMap} in a type-safe way.
-   * 
+   *
    * @param <K>
-   *          The type of the keys in the map.
+   *         The type of the keys in the map.
    * @param <V>
-   *          The type of values in the map.
+   *         The type of values in the map.
+   *
    * @return A new ConcurrentHashMap.
    */
-  public static <K,V> Map<K,V> newConcurrentHashMap()
-  {
-
+  public static <K,V> Map<K,V> newConcurrentHashMap() {
     return new ConcurrentHashMap<K,V>();
   }
 
@@ -127,17 +128,17 @@ public final class SampleCodeCollectionUtils
 
   /**
    * Returns a new {@link EnumMap} in a type-safe way.
-   * 
+   *
    * @param <K>
-   *          The type of the keys in the map.
+   *         The type of the keys in the map.
    * @param <V>
-   *          The type of values in the map.
+   *         The type of values in the map.
    * @param keyClass
-   *          the class object of the key type for this enum map.
+   *         the class object of the key type for this enum map.
+   *
    * @return A new enum map.
    */
-  public static <K extends Enum<K>,V> Map<K,V> newEnumMap(final Class<K> keyClass)
-  {
+  public static <K extends Enum<K>,V> Map<K,V> newEnumMap(final Class<K> keyClass) {
     return new EnumMap<K,V>(keyClass);
   }
 
@@ -145,15 +146,15 @@ public final class SampleCodeCollectionUtils
 
   /**
    * Returns a new {@link HashMap} in a type-safe way.
-   * 
+   *
    * @param <K>
-   *          The type of the keys in the map.
+   *         The type of the keys in the map.
    * @param <V>
-   *          The type of values in the map.
+   *         The type of values in the map.
+   *
    * @return A new HashMap.
    */
-  public static <K,V> Map<K,V> newHashMap()
-  {
+  public static <K,V> Map<K,V> newHashMap() {
 
     return new HashMap<K,V>();
   }
@@ -162,13 +163,13 @@ public final class SampleCodeCollectionUtils
 
   /**
    * Returns a new {@link HashSet} in a type-safe way.
-   * 
+   *
    * @param <E>
-   *          The type of the objects in the set.
+   *         The type of the objects in the set.
+   *
    * @return A new HashSet.
    */
-  public static <E> Set<E> newHashSet()
-  {
+  public static <E> Set<E> newHashSet() {
     return new HashSet<E>();
   }
 
@@ -176,16 +177,16 @@ public final class SampleCodeCollectionUtils
 
   /**
    * Returns a new {@link HashSet} in a type-safe way.
-   * 
+   *
    * @param <E>
-   *          The type of the objects in the set.
+   *         The type of the objects in the set.
    * @param c
-   *          a collection of objects that will be used to create the
-   *          set.
+   *         a collection of objects that will be used to create the
+   *         set.
+   *
    * @return A new HashSet.
    */
-  public static <E> Set<E> newHashSet(final Collection<E> c)
-  {
+  public static <E> Set<E> newHashSet(final Collection<E> c) {
     return new HashSet<E>(c);
   }
 
@@ -193,20 +194,25 @@ public final class SampleCodeCollectionUtils
 
   /**
    * Returns a new {@link HashSet} in a type-safe way.
-   * 
+   *
    * @param <E>
-   *          The type of the objects in the set.
+   *         The type of the objects in the set.
+   *
    * @return A new HashSet.
    */
-  public static <E> Set<E> newSortedSet()
-  {
+  public static <E> Set<E> newSortedSet() {
     return new ConcurrentSkipListSet<E>();
   }
 
 
 
-  private SampleCodeCollectionUtils()
-  {
-    // This block deliberately left empty.
+  /**
+   * Creates a new ArrayList from the provided list,
+   * which may not be {@code null}.
+   */
+  public static <T> List<T> newArrayList(final List<T> list) {
+    ensureNotNull(list);
+
+    return new ArrayList<T>(list);
   }
 }

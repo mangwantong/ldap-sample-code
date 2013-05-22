@@ -28,6 +28,8 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 
 import static com.unboundid.util.Validator.ensureNotNull;
+import static java.util.Collections.emptyList;
+
 
 /**
  * Provides services related to managing command line options for
@@ -260,8 +262,7 @@ public class CommandLineOptions {
    * @param resourceBundle the resource bundle used for argument parameters
    * @return a set of useful arguments
    */
-  public static Argument[] createDefaultArguments(final ResourceBundle
-                                                  resourceBundle)
+  public static Argument[] createDefaultArguments(final ResourceBundle resourceBundle)
     throws ArgumentException {
     String argName = CommandLineOptions.ARG_NAME_BASE_OBJECT;
     final Argument baseObjectArgument =
@@ -855,8 +856,12 @@ public class CommandLineOptions {
    *         {@code --attribute} command line option is not present.
    */
   public List<String> getRequestedAttributes() {
-    return ((StringArgument)argumentParser.getNamedArgument(CommandLineOptions
-                                                            .ARG_NAME_ATTRIBUTE)).getValues();
+    final String argName = CommandLineOptions.ARG_NAME_ATTRIBUTE;
+    final Argument arg = argumentParser.getNamedArgument(argName);
+    if(arg == null) {
+      return emptyList();
+    }
+    return ((StringArgument)arg).getValues();
   }
 
 
@@ -1077,7 +1082,8 @@ public class CommandLineOptions {
    */
   public int getReportInterval() {
     final String argName = CommandLineOptions.ARG_NAME_REPORT_INTERVAL;
-    return ((IntegerArgument)argumentParser.getNamedArgument(argName)).getValue().intValue();
+    final Argument arg = argumentParser.getNamedArgument(argName);
+    return arg == null ? 0 : ((IntegerArgument)arg).getValue().intValue();
   }
 
 
@@ -1090,7 +1096,8 @@ public class CommandLineOptions {
    */
   public int getTimeLimit() {
     final String argName = CommandLineOptions.ARG_NAME_TIME_LIMIT;
-    return ((IntegerArgument)argumentParser.getNamedArgument(argName)).getValue().intValue();
+    final Argument arg = argumentParser.getNamedArgument(argName);
+    return arg == null ? 0 : ((IntegerArgument)arg).getValue().intValue();
   }
 
 

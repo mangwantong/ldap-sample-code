@@ -20,7 +20,7 @@ import java.util.LinkedHashMap;
  * Provides a demonstration of the COMPARE request using the
  * UnboundID LDAP SDK.
  */
-@Since("01-JAN-2012")
+@Since("01-Jan-2012")
 @CodeVersion("1.2")
 @Launchable
 public final class CompareDemo extends AbstractTool {
@@ -37,6 +37,8 @@ public final class CompareDemo extends AbstractTool {
       System.exit(resultCode.intValue());
     }
   }
+
+
 
   @Override()
   public LinkedHashMap<String[],String> getExampleUsages() {
@@ -58,6 +60,8 @@ public final class CompareDemo extends AbstractTool {
 
   }
 
+
+
   /**
    * {@inheritDoc}
    *
@@ -68,6 +72,8 @@ public final class CompareDemo extends AbstractTool {
     final String description = "The assertion to use in the compare request.";
     argumentParser.addArgument(new StringArgument('n',"assertion",true,1,"{assertion}",description));
   }
+
+
 
   /**
    * {@inheritDoc}
@@ -122,6 +128,8 @@ public final class CompareDemo extends AbstractTool {
 
     return ResultCode.SUCCESS;
   }
+
+
 
   /**
    * {@inheritDoc}
