@@ -29,17 +29,8 @@ import static com.unboundid.util.Validator.ensureNotNull;
 
 
 /**
- * Utility methods. This class cannot be instantiated.
- * <p/>
- * Includes methods for
- * <ul>
- * <li>Converting delimited string into a list of strings.</li>
- * <li>Creating a {@link List} in a type-safe way.</li>
- * <li>Creating a {@link Map} in a type-safe way.</li>
- * </ul>
- *
- * @author Terry.Gardner@UnboundID.COM
- * @since 1.0
+ * Utility methods for dealing with collections.
+ * This class cannot be instantiated.
  */
 @Author("terry.gardner@unboundid.com")
 @Since("01-Jan-2008")
