@@ -13,6 +13,7 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
+
 package samplecode.tools;
 
 import com.unboundid.util.CommandLineTool;
@@ -30,9 +31,10 @@ import java.io.PrintStream;
  * completed processing. {@link CommandLineTool#doToolProcessing()} does
  * not throw an exception but provides a result code.
  */
-@Author("terry.gardner@unboundid.com") @Since("Dec 24, 2011") @CodeVersion("1.1")
-public interface ToolCompletedProcessing
-{
+@Author("terry.gardner@unboundid.com")
+@Since("Dec 24, 2011")
+@CodeVersion("1.1")
+public interface ToolCompletedProcessing {
 
   /**
    * Constructs the string consisting of the message to be displayed.
@@ -41,22 +43,23 @@ public interface ToolCompletedProcessing
    */
   String createMsg();
 
-
   /**
    * Transmits a message created at the discretion of the implementing
    * class to the output stream or error stream (errors only).
    *
-   * @param outStream the output stream for normal messages
-   * @param errStream the output stream used for error messages
+   * @param outStream
+   *         the output stream for normal messages
+   * @param errStream
+   *         the output stream used for error messages
    */
   void displayMessage(PrintStream outStream, PrintStream errStream);
 
-
   /**
    * Transmits a message created at the discretion of the implementing
    * class to the output stream or error stream (errors only).
    *
-   * @param logger A logger created by the client
+   * @param logger
+   *         A logger created by the client
    */
   void displayMessage(Log logger);
 

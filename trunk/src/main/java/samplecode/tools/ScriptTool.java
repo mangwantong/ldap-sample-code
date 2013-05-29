@@ -31,6 +31,7 @@ import samplecode.ldap.DefaultUnsolicitedNotificationHandler;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.LinkedHashMap;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
@@ -202,6 +203,27 @@ public final class ScriptTool extends AbstractTool {
    */
   public static void main(final String... args) {
     main(System.out,System.err,args);
+  }
+
+
+
+  @Override
+  public LinkedHashMap<String[],String> getExampleUsages() {
+    final LinkedHashMap<String[],String> examples =
+         new LinkedHashMap<String[],String>(1);
+
+    final String[] args = {
+      "--className","samplecode.vlv.VirtualListViewDemo",
+      "--classPath","target/classes",
+      "--writableDirectory","./bin",
+      "--jvmOptions","-Xmx512m",
+
+    };
+    final String description = "Creates an executable script " +
+      "which runs the VirtualListViewDemo using the " +
+      " classpath, directory, and JVM options provided.";
+    examples.put(args,description);
+    return examples;
   }
 
 

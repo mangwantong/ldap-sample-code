@@ -488,6 +488,10 @@ public abstract class AbstractTool extends LDAPCommandLineTool
    */
   protected LDAPConnection connectToServer() throws LDAPException {
     final LDAPConnection c = getConnection();
+    if(isVerbose()) {
+      final RootDSE rootDSE = c.getRootDSE();
+      System.out.println("vendorVersion: " + rootDSE.getVendorVersion());
+    }
     c.setConnectionOptions(getLdapConnectionOptions());
     return c;
   }
@@ -594,6 +598,7 @@ public abstract class AbstractTool extends LDAPCommandLineTool
     introduction();
     if (isVerbose()) {
       displayArguments();
+      displayServerInformation();
     }
     return executeToolTasks();
   }

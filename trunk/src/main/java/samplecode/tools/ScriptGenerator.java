@@ -24,5 +24,9 @@ import java.io.IOException;
  */
 public interface ScriptGenerator
 {
+  /**
+   * Generates a script which is used to execute one of the demo tools
+   * and returns a {@code File} which refers to the generated script.
+   */
   File generateScript() throws IOException;
 }

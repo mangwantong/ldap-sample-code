@@ -19,6 +19,9 @@ package samplecode.auth;
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.args.Argument;
+import com.unboundid.util.args.ArgumentException;
+import com.unboundid.util.args.ArgumentParser;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import samplecode.annotation.Author;
@@ -31,6 +34,9 @@ import samplecode.listener.LdapExceptionListener;
 import samplecode.tools.AbstractTool;
 import samplecode.tools.BasicToolCompletedProcessing;
 import samplecode.tools.ToolCompletedProcessing;
+import samplecode.util.SampleCodeCollectionUtils;
+
+import java.util.Collection;
 
 
 /**
@@ -91,6 +97,24 @@ public final class AuthDemo extends AbstractTool {
     if (!resultCode.equals(ResultCode.SUCCESS)) {
       System.exit(resultCode.intValue());
     }
+  }
+
+
+
+  /**
+   * Adds {@code --bindDN} to the required argument set
+   */
+  @Override
+  protected void addArguments(final ArgumentParser argumentParser)
+    throws ArgumentException {
+    Argument requiredArgument =
+      commandLineOptions.getBindDnArgument();
+    final Collection<Argument> requiredArgumentSet =
+      SampleCodeCollectionUtils.newArrayList();
+    requiredArgumentSet.add(requiredArgument);
+    requiredArgument = commandLineOptions.getBindPasswordArgument();
+    requiredArgumentSet.add(requiredArgument);
+    argumentParser.addRequiredArgumentSet(requiredArgumentSet);
   }
 
 
@@ -163,13 +187,6 @@ public final class AuthDemo extends AbstractTool {
      * Demonstrate the use of the AuthorizationIdentityRequestControl.
      */
     final DN bindDnAsDn = commandLineOptions.getBindDn();
-    if (bindDnAsDn == null) {
-      final String helpfulMessage =
-              "Please specify a --bindDN argument to test the " +
-                      "AuthorizationIdentityRequestControl.";
-      getLogger().info(helpfulMessage);
-      return ResultCode.PARAM_ERROR;
-    }
     if (isVerbose()) {
       verbose("Getting the authorization identity using the authorization identity " +
               "request.");
