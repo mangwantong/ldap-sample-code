@@ -17,7 +17,7 @@
 package samplecode.add;
 
 import com.unboundid.ldap.sdk.*;
-import com.unboundid.ldif.LDIFException;
+import com.unboundid.util.LDAPTestUtils;
 
 
 /**
@@ -37,7 +37,7 @@ public final class AddExample {
     // should be abandoned.
     final LDAPConnectionOptions connectionOptions = new LDAPConnectionOptions();
     connectionOptions.setAbandonOnTimeout(true);
-    connectionOptions.setConnectTimeoutMillis(AddExample.OPERATION_TIMEOUT_MILLIS);
+    connectionOptions.setConnectTimeoutMillis(AddExample.OP_TIMEOUT_MILLIS);
 
     final String host = AddExample.HOSTNAME;
     final int port = AddExample.PORT;
@@ -47,31 +47,30 @@ public final class AddExample {
 
       // Connect to the server.
       final LDAPConnection ldapConnection =
-              new LDAPConnection(connectionOptions,host,port);
+        new LDAPConnection(connectionOptions,host,port);
       try {
 
-        // Create the AddRequest object using the LDIF lines.
-        final AddRequest addRequest = new AddRequest(AddExample.ldifLines);
+        final Entry entry = LDAPTestUtils.generateUserEntry("test-user-id",
+          "ou=people,dc=example,dc=com","Barbara","Jensen","password");
+
+        final AddRequest addRequest = new AddRequest(entry);
 
         // Transmit the AddRequest to the server.
         ldapResult = ldapConnection.add(addRequest);
 
         System.out.println(ldapResult);
-      } catch (final LDIFException e) {
-        System.err.println(e);
       } finally {
         ldapConnection.close();
 
         // Convert the result code to an integer for use in the exit method.
         result = ldapResult == null ? 1 : ldapResult.getResultCode().intValue();
       }
-    } catch (final LDAPException e) {
+    } catch(final LDAPException e) {
       System.err.println(e);
-      result = 1;
+      result = e.getResultCode().intValue();
     }
 
     System.exit(result);
-
   }
 
 
@@ -81,27 +80,19 @@ public final class AddExample {
    */
   private static final String HOSTNAME = "ldap-server.ldap.com";
 
+
   /**
-   * The port on which the server at {@code HOSTNAME} listens for client connections
+   * The maximum number of milliseconds to wait before abandoning the
+   * AddRequest
+   */
+  private static final int OP_TIMEOUT_MILLIS = 1000;
+
+
+  /**
+   * The port on which the server at {@code HOSTNAME} listens for client
+   * connections
    */
   private static final int PORT = 389;
 
-  /**
-   * The maximum number of milliseconds to wait before abandoning the AddRequest
-   */
-  private static final int OPERATION_TIMEOUT_MILLIS = 1000;
-
-  /**
-   * The LDIF that comprises the entry to add to the server.
-   */
-  private static final String[] ldifLines =
-          {"dn: uid=user,dc=example,dc=com",
-                  "objectClass: top",
-                  "objectClass: person",
-                  "changetype: add",
-                  "cn: Joe User",
-                  "sn: User",
-                  "uid: user",
-                  "userPassword: password"};
 
 }
