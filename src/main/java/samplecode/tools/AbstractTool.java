@@ -174,7 +174,8 @@ public abstract class AbstractTool extends LDAPCommandLineTool
     final Argument[] usefulArguments =
             CommandLineOptions.createDefaultArguments(resourceBundle);
     commandLineOptions =
-            CommandLineOptions.newCommandLineOptions(argumentParser,usefulArguments);
+            CommandLineOptions.newCommandLineOptions(argumentParser,
+              usefulArguments);
 
     // Add tool specific arguments
     addArguments(argumentParser);
@@ -182,6 +183,12 @@ public abstract class AbstractTool extends LDAPCommandLineTool
 
 
 
+  /**
+   * Adds tool-specific arguments.
+   *
+   * @param argumentParser
+   * @throws ArgumentException
+   */
   protected void addArguments(final ArgumentParser argumentParser)
           throws ArgumentException {
     // This block deliberately left empty
