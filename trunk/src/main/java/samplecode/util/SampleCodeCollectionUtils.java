@@ -35,13 +35,7 @@ import static com.unboundid.util.Validator.ensureNotNull;
 @Author("terry.gardner@unboundid.com")
 @Since("01-Jan-2008")
 @CodeVersion("1.2")
-public final class SampleCodeCollectionUtils {
-
-  private SampleCodeCollectionUtils() {
-    // This block deliberately left empty.
-  }
-
-
+public abstract class SampleCodeCollectionUtils {
 
   /**
    * Given a {@link String} that consists of strings delimited by a
@@ -54,6 +48,7 @@ public final class SampleCodeCollectionUtils {
    * @return Never returns {@code null}, that is, a list is always
    *         returned (but it might be empty.)
    */
+  @SuppressWarnings("unused")
   public static List<String> csvToList(final String csv) {
 
     List<String> result;
@@ -111,6 +106,7 @@ public final class SampleCodeCollectionUtils {
    *
    * @return A new ConcurrentHashMap.
    */
+  @SuppressWarnings("unused")
   public static <K,V> Map<K,V> newConcurrentHashMap() {
     return new ConcurrentHashMap<K,V>();
   }
@@ -129,7 +125,9 @@ public final class SampleCodeCollectionUtils {
    *
    * @return A new enum map.
    */
-  public static <K extends Enum<K>,V> Map<K,V> newEnumMap(final Class<K> keyClass) {
+  @SuppressWarnings("unused")
+  public static <K extends Enum<K>,V> Map<K,V>
+  newEnumMap(final Class<K> keyClass) {
     return new EnumMap<K,V>(keyClass);
   }
 
@@ -145,8 +143,8 @@ public final class SampleCodeCollectionUtils {
    *
    * @return A new HashMap.
    */
+  @SuppressWarnings("unused")
   public static <K,V> Map<K,V> newHashMap() {
-
     return new HashMap<K,V>();
   }
 
@@ -160,6 +158,7 @@ public final class SampleCodeCollectionUtils {
    *
    * @return A new HashSet.
    */
+  @SuppressWarnings("unused")
   public static <E> Set<E> newHashSet() {
     return new HashSet<E>();
   }
@@ -177,6 +176,7 @@ public final class SampleCodeCollectionUtils {
    *
    * @return A new HashSet.
    */
+  @SuppressWarnings("unused")
   public static <E> Set<E> newHashSet(final Collection<E> c) {
     return new HashSet<E>(c);
   }
@@ -191,6 +191,7 @@ public final class SampleCodeCollectionUtils {
    *
    * @return A new HashSet.
    */
+  @SuppressWarnings("unused")
   public static <E> Set<E> newSortedSet() {
     return new ConcurrentSkipListSet<E>();
   }

@@ -127,8 +127,9 @@ public final class UnsolicitedNotification
           if(getLogger().isWarnEnabled())
           {
             final String msg =
-                    String.format("The Directory Server has transmitted an unsolicited " +
-                            "notification. The diagnostic message in the notification is: " +
+                    String.format("The Directory Server has transmitted an " +
+                      "unsolicited notification. The diagnostic message in " +
+                      "the notification is: " +
                             "%s", notification.getDiagnosticMessage());
             getLogger().warn(msg);
           }
@@ -158,12 +159,10 @@ public final class UnsolicitedNotification
     catch(final LDAPException e)
     {
       getLogger().fatal(e);
-      return;
     }
     catch(final Exception e)
     {
       getLogger().fatal(e);
-      return;
     }
   }
 
