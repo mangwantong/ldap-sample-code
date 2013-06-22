@@ -19,7 +19,6 @@ package samplecode.tools;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.UnsolicitedNotificationHandler;
 import com.unboundid.util.MinimalLogFormatter;
-import com.unboundid.util.Validator;
 import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
 import com.unboundid.util.args.StringArgument;
@@ -34,6 +33,8 @@ import java.io.PrintStream;
 import java.util.LinkedHashMap;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
+
+import static com.unboundid.util.Validator.ensureNotNullWithMessage;
 
 
 /**
@@ -53,9 +54,9 @@ public final class ScriptTool extends AbstractTool {
     final ScriptTool tool = new ScriptTool();
     final ResultCode resultCode = tool.runTool(args);
     final ToolCompletedProcessing completedProcessing =
-            new BasicToolCompletedProcessing(tool,resultCode);
+      new BasicToolCompletedProcessing(tool,resultCode);
     completedProcessing.displayMessage(outStream,errStream);
-    if (!resultCode.equals(ResultCode.SUCCESS)) {
+    if(!resultCode.equals(ResultCode.SUCCESS)) {
       final int intValue = resultCode.intValue();
       System.exit(intValue);
     }
@@ -67,16 +68,17 @@ public final class ScriptTool extends AbstractTool {
    * <blockquote>
    * <p/>
    * <pre>
-   * Generates an executable script for use in invoking the tools provided by the
-   * samplecode package. ScriptTool requires --writeableDirectory, --className, and
-   * --classPath. Optionally supply --jvmOptions.
+   * Generates an executable script for use in invoking the tools provided by
+   * the samplecode package. ScriptTool requires --writeableDirectory,
+   * --className, and --classPath. Optionally supply --jvmOptions.
    *
    * Usage:  ScriptTool {options}
    *
    * Available options include:
    * -h, --hostname {host}
    *     The IP address or resolvable name to use to connect to the directory
-   *     server.  If this is not provided, then a default value of 'localhost' will
+   *     server.  If this is not provided, then a default value of 'localhost'
+   * will
    *     be used.
    * -p, --port {port}
    *     The port to use to connect to the directory server.  If this is not
@@ -85,11 +87,13 @@ public final class ScriptTool extends AbstractTool {
    *     The DN to use to bind to the directory server when performing simple
    *     authentication.
    * -w, --bindPassword {password}
-   *     The password to use to bind to the directory server when performing simple
+   *     The password to use to bind to the directory server when performing
+   * simple
    *     authentication or a password-based SASL mechanism.
    * -j, --bindPasswordFile {path}
    *     The path to the file containing the password to use to bind to the
-   *     directory server when performing simple authentication or a password-based
+   *     directory server when performing simple authentication or a
+   * password-based
    *     SASL mechanism.
    * -Z, --useSSL
    *     Use SSL when communicating with the directory server.
@@ -103,7 +107,8 @@ public final class ScriptTool extends AbstractTool {
    * -W, --keyStorePassword {password}
    *     The password to use to access the key store contents.
    * -u, --keyStorePasswordFile {path}
-   *     The path to the file containing the password to use to access the key store
+   *     The path to the file containing the password to use to access the key
+   * store
    *     contents.
    * --keyStoreFormat {format}
    *     The format (e.g., jks, jceks, pkcs12, etc.) for the key store file.
@@ -113,12 +118,14 @@ public final class ScriptTool extends AbstractTool {
    * -T, --trustStorePassword {password}
    *     The password to use to access the trust store contents.
    * -U, --trustStorePasswordFile {path}
-   *     The path to the file containing the password to use to access the trust
+   *     The path to the file containing the password to use to access the
+   * trust
    *     store contents.
    * --trustStoreFormat {format}
    *     The format (e.g., jks, jceks, pkcs12, etc.) for the trust store file.
    * -N, --certNickname {nickname}
-   *     The nickname (alias) of the client certificate in the key store to present
+   *     The nickname (alias) of the client certificate in the key store to
+   * present
    *     to the directory server for SSL client authentication.
    * -o, --saslOption {name=value}
    *     A name-value pair providing information to use when performing SASL
@@ -126,22 +133,27 @@ public final class ScriptTool extends AbstractTool {
    * --abandonOnTimeout
    *     Whether the LDAP SDK should abandon an operation that has timed out.
    * -a, --attribute {attribute name or type}
-   *     The attribute used in the search request or other request. This command
-   *     line argument is not required, and can be specified multiple times. If this
+   *     The attribute used in the search request or other request. This
+   * command
+   *     line argument is not required, and can be specified multiple times. If
+   * this
    *     command line argument is not specified, the value '*' is used.
    * --autoReconnect
-   *     Whether the LDAP SDK should automatically reconnect when a connection is
+   *     Whether the LDAP SDK should automatically reconnect when a connection
+   * is
    *     lost.
    * -b, --baseObject {distinguishedName}
    *     The base object used in the search request.
    * --connectTimeoutMillis {connect-timeout-millis-integer}
    *     Specifies the maximum length of time in milliseconds that a connection
-   *     attempt should be allowed to continue before giving up. A value of zero
+   *     attempt should be allowed to continue before giving up. A value of
+   * zero
    *     indicates that there should be no connect timeout.
    * -f, --filter {filter}
    *     The search filter used in the search request.
    * -i, --initialConnections {positiveInteger}
-   *     The number of initial connections to establish to directory server when
+   *     The number of initial connections to establish to directory server
+   * when
    *     creating the connection pool.
    * --maxConnections {max-response-time-in-milliseconds}
    *     The maximum length of time in milliseconds that an operation should be
@@ -167,16 +179,21 @@ public final class ScriptTool extends AbstractTool {
    * --sizeLimit {positiveInteger}
    *     The client-request maximum number of results which are returned to the
    *     client. If the number of entries which match the search parameter is
-   *     greater than the client-requested size limit or the server-imposed size
+   *     greater than the client-requested size limit or the server-imposed
+   * size
    *     limit a SIZE_LIMIT_EXCEEDED code is returned in the result code in the
    *     search response.
    * --timeLimit {positiveInteger}
-   *     The client-request maximum time that the directory server will devote to
-   *     processing the search request. If the client-requested time limit or the
-   *     server-imposed time limit a TIME_LIMIT_EXCEEDED code is returned in the
+   *     The client-request maximum time that the directory server will devote
+   * to
+   *     processing the search request. If the client-requested time limit or
+   * the
+   *     server-imposed time limit a TIME_LIMIT_EXCEEDED code is returned in
+   * the
    *     result code in the search response.
    * --useSchema
-   *     Whether the LDAP SDK should attempt to use server schema information, for
+   *     Whether the LDAP SDK should attempt to use server schema information,
+   * for
    *     example, for matching rules.
    * --verbose
    *     Whether the tool should be verbose.
@@ -199,31 +216,10 @@ public final class ScriptTool extends AbstractTool {
    * </blockquote>
    *
    * @param args
-   *         command-line arguments
+   *   command-line arguments
    */
   public static void main(final String... args) {
     main(System.out,System.err,args);
-  }
-
-
-
-  @Override
-  public LinkedHashMap<String[],String> getExampleUsages() {
-    final LinkedHashMap<String[],String> examples =
-         new LinkedHashMap<String[],String>(1);
-
-    final String[] args = {
-      "--className","samplecode.vlv.VirtualListViewDemo",
-      "--classPath","target/classes",
-      "--writableDirectory","./bin",
-      "--jvmOptions","-Xmx512m",
-
-    };
-    final String description = "Creates an executable script " +
-      "which runs the VirtualListViewDemo using the " +
-      " classpath, directory, and JVM options provided.";
-    examples.put(args,description);
-    return examples;
   }
 
 
@@ -233,11 +229,12 @@ public final class ScriptTool extends AbstractTool {
    * output, and for other purposes.
    */
   public static final String TOOL_DESCRIPTION =
-          "Generates an executable script for use in " +
-                  "invoking the tools provided by the " +
-                  "samplecode package. ScriptTool requires " +
-                  "--writeableDirectory, --className, and --classPath. " +
-                  "Optionally supply --jvmOptions.";
+    "Generates an executable script for use in " +
+      "invoking the tools provided by the " +
+      "samplecode package. ScriptTool requires " +
+      "--writeableDirectory, --className, and --classPath. " +
+      "Optionally supply --jvmOptions.";
+
 
   /**
    * The name of this tool; this is used for help and diagnostic output,
@@ -256,12 +253,34 @@ public final class ScriptTool extends AbstractTool {
 
 
 
+  @Override
+  public LinkedHashMap<String[],String> getExampleUsages() {
+    final LinkedHashMap<String[],String> examples =
+      new LinkedHashMap<String[],String>(1);
+
+    final String[] args = {
+      "--className","samplecode.vlv.VirtualListViewDemo",
+      "--classPath","target/classes",
+      "--writableDirectory","./bin",
+      "--jvmOptions","-Xmx512m",
+
+    };
+    final String description = "Creates an executable script " +
+      "which runs the VirtualListViewDemo using the " +
+      " classpath, directory, and JVM options provided.";
+    examples.put(args,description);
+    return examples;
+  }
+
+
+
   /**
    * {@inheritDoc}
    */
   @Override
-  public void addArguments(final ArgumentParser argumentParser) throws ArgumentException {
-    Validator.ensureNotNullWithMessage(argumentParser,"argument parser was null.");
+  public void addArguments(final ArgumentParser argumentParser)
+    throws ArgumentException {
+    ensureNotNullWithMessage(argumentParser,"argument parser was null.");
 
     classNameArgument = newClassNameArgument();
     classPathArgument = newClassPathArgument();
@@ -298,19 +317,18 @@ public final class ScriptTool extends AbstractTool {
     final String className = classNameArgument.getValue();
     final String classPath = classPathArgument.getValue();
     final String spaceSeparatedJVMOptions =
-            spaceSeparatedJVMOptionsArgument.getValue();
+      spaceSeparatedJVMOptionsArgument.getValue();
     final String directory = directoryArgument.getValue();
     final PropertiesBasedScriptGenerator gen =
-            new PropertiesBasedScriptGenerator(className,
-                    classPath,
-                    spaceSeparatedJVMOptions,
-                    directory);
+      new PropertiesBasedScriptGenerator(className,
+        classPath, spaceSeparatedJVMOptions,  directory);
     try {
       gen.generateScript();
-      final String helpfulMessage = String.format("Created %s/%s",directory,gen.getFilename());
+      final String helpfulMessage =
+        String.format("Created %s/%s",directory,gen.getFilename());
       final LogRecord record = new LogRecord(Level.INFO,helpfulMessage);
       out(new MinimalLogFormatter().format(record));
-    } catch (final IOException exception) {
+    } catch(final IOException exception) {
       getLogger().fatal(exception);
       return ResultCode.OPERATIONS_ERROR;
     }
@@ -325,34 +343,6 @@ public final class ScriptTool extends AbstractTool {
   @Override
   protected String classSpecificPropertiesResourceName() {
     return "ScriptTool.properties";
-  }
-
-
-
-  private StringArgument newClassNameArgument() throws ArgumentException {
-    return new StringArgument(null,"className",true,1,"{full-qualified classname}",
-            "The name of a class for which to generate an executable shell script.");
-  }
-
-
-
-  private StringArgument newClassPathArgument() throws ArgumentException {
-    return new StringArgument(null,"classPath",true,1,"{class-path}",
-            "the class path that ScriptTool inserts into a script");
-  }
-
-
-
-  private StringArgument newDirectoryArgument() throws ArgumentException {
-    return new StringArgument(null,"writableDirectory",true,1,"{folder-or-directory}",
-            "the directory in which ScriptTool creats a script");
-  }
-
-
-
-  private StringArgument newJvmOptionsArgument() throws ArgumentException {
-    return new StringArgument(null,"jvmOptions",false,1,"{jvm options}",
-            "JVM options for the shell script.","-Xms32m -Xmx32m -d64");
   }
 
 
@@ -405,6 +395,34 @@ public final class ScriptTool extends AbstractTool {
 
 
 
+  private StringArgument newClassNameArgument() throws ArgumentException {
+    return new StringArgument(null,"className",true,1,"{full-qualified classname}",
+      "The name of a class for which to generate an executable shell script.");
+  }
+
+
+
+  private StringArgument newClassPathArgument() throws ArgumentException {
+    return new StringArgument(null,"classPath",true,1,"{class-path}",
+      "the class path that ScriptTool inserts into a script");
+  }
+
+
+
+  private StringArgument newDirectoryArgument() throws ArgumentException {
+    return new StringArgument(null,"writableDirectory",true,1,"{folder-or-directory}",
+      "the directory in which ScriptTool creats a script");
+  }
+
+
+
+  private StringArgument newJvmOptionsArgument() throws ArgumentException {
+    return new StringArgument(null,"jvmOptions",false,1,"{jvm options}",
+      "JVM options for the shell script.","-Xms32m -Xmx32m -d64");
+  }
+
+
+
   /**
    * The string argument that is used to specify the fully-qualified
    * class name for which {@code ScriptTool} creates an executable
@@ -412,6 +430,7 @@ public final class ScriptTool extends AbstractTool {
    * exactly one time.
    */
   private StringArgument classNameArgument;
+
 
   /**
    * The string argument that is used to specify the class path that
@@ -421,6 +440,7 @@ public final class ScriptTool extends AbstractTool {
    */
   private StringArgument classPathArgument;
 
+
   /**
    * The string argument that is used to specify the directory where
    * {@code ScriptTool} creates an executable script.
@@ -428,6 +448,7 @@ public final class ScriptTool extends AbstractTool {
    * time.
    */
   private StringArgument directoryArgument;
+
 
   /**
    * The string argument that is used to specify the JVM Options yjsy

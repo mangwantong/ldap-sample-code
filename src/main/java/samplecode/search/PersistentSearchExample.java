@@ -19,197 +19,197 @@ package samplecode.search;
 import com.unboundid.ldap.sdk.*;
 import com.unboundid.ldap.sdk.controls.PersistentSearchChangeType;
 import com.unboundid.ldap.sdk.controls.PersistentSearchRequestControl;
-import samplecode.ldap.DefaultUnsolicitedNotificationHandler;
-import samplecode.ldap.SupportedFeature;
-import samplecode.ldap.SupportedFeatureException;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Launchable;
 import samplecode.annotation.Since;
+import samplecode.ldap.DefaultUnsolicitedNotificationHandler;
+import samplecode.ldap.SupportedFeature;
+import samplecode.ldap.SupportedFeatureException;
 import samplecode.tools.AbstractTool;
 
 import java.io.OutputStream;
+import java.util.List;
+
 
 /**
  * Provides services useful for demonstrating a persistent search. This
  * class can be launched from the command line.
  */
-@Author("terry.gardner@unboundid.com") @Since("Oct 13,2011") @CodeVersion("1.29") @Launchable
-public final class PersistentSearchExample extends AbstractTool
-{
+@Author("terry.gardner@unboundid.com")
+@Since("Oct 13,2011")
+@CodeVersion("1.30")
+@Launchable
+public final class PersistentSearchExample extends AbstractTool {
 
-  private PersistentSearchExample(final OutputStream outStream, final OutputStream errStream)
-  {
-    super(outStream, errStream);
+  /**
+   * @param args
+   *   Command line arguments as supported by
+   *   {@code LDAPCommandLineTool} with help from
+   *   {@code CommandLineOptions}.
+   */
+  public static void main(final String... args) {
+    final OutputStream outStream = System.out;
+    final OutputStream errStream = System.err;
+    final PersistentSearchExample persistentSearchExample =
+      new PersistentSearchExample(outStream,errStream);
+    final ResultCode resultCode = persistentSearchExample.runTool(args);
+    final int exitValue = resultCode.intValue();
+    if(exitValue != 0) {
+      System.exit(exitValue);
+    }
   }
+
+
+
+  public PersistentSearchExample(final OutputStream outStream,
+                                 final OutputStream errStream) {
+    super(outStream,errStream);
+  }
+
+
 
   /**
    * Prepares {@code PersistentSearchExample} for use by a client - the
    * {@code System.out} and {@code System.err OutputStreams} are used.
    */
-  public PersistentSearchExample()
-  {
-    this(System.out, System.err);
+  public PersistentSearchExample() {
+    this(System.out,System.err);
   }
+
+
+
+  @Override
+  protected UnsolicitedNotificationHandler getUnsolicitedNotificationHandler() {
+    return new DefaultUnsolicitedNotificationHandler(this);
+  }
+
+
 
   /**
    * {@inheritDoc}
    */
   @Override
-  protected ResultCode executeToolTasks()
-  {
-    introduction();
-    if(isVerbose())
-    {
-      displayArguments();
-    }
-    try
-    {
+  protected ResultCode executeToolTasks() {
+
+    try {
       demonstratePersistentSearch();
-    }
-    catch(final LDAPException ldapException)
-    {
+    } catch(final LDAPException ldapException) {
       getLogger().fatal(ldapException.getMessage());
       return ldapException.getResultCode();
     }
 
-    ldapConnection.close();
     return ResultCode.SUCCESS;
   }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  protected String classSpecificPropertiesResourceName() {
+    return "PersistentSearchExample.properties";
+  }
+
+
 
   /**
    * Issues a persistent search request and displays results as they are
    * returned from the server.
    */
-  private ResultCode demonstratePersistentSearch() throws LDAPException
-  {
-    /*
-     * Handles unsolicited notifications from the directory server.
-     */
-    final UnsolicitedNotificationHandler unsolicitedNotificationHandler =
-            new DefaultUnsolicitedNotificationHandler(this);
+  private ResultCode demonstratePersistentSearch() throws LDAPException {
 
-    /*
-     * Connect to the directory server:
-     */
-    ldapConnection = getConnection();
+    // Handles unsolicited notifications from the directory server.
+    final UnsolicitedNotificationHandler unsolicitedNotificationHandler =
+      new DefaultUnsolicitedNotificationHandler(this);
+
+
+    // Connect to the directory server
+    final LDAPConnection ldapConnection = getConnection();
     final LDAPConnectionOptions ldapConnectionOptions =
-            commandLineOptions.newLDAPConnectionOptions();
+      commandLineOptions.newLDAPConnectionOptions();
     ldapConnectionOptions.setUnsolicitedNotificationHandler(unsolicitedNotificationHandler);
     ldapConnection.setConnectionOptions(ldapConnectionOptions);
 
-    /*
-     * Check that the persistent search request control is supported by
-     * the server to which this client is connected.
-     */
+
+    // Check that the persistent search request control is supported by
+    // the server to which this client is connected.
     final String controlOID = PersistentSearchRequestControl.PERSISTENT_SEARCH_REQUEST_OID;
     final SupportedFeature supported = SupportedFeature.newSupportedFeature(ldapConnection);
-    try
-    {
+    try {
       supported.isControlSupported(controlOID);
-    }
-    catch(final SupportedFeatureException ex)
-    {
+    } catch(final SupportedFeatureException ex) {
+      ldapConnection.close();
       getLogger().fatal(ex.getMessage());
       return ResultCode.UNWILLING_TO_PERFORM;
     }
 
-    /*
-     * Create the search request:
-     */
+    // Create the search request
+    final List<String> attributeList =
+      commandLineOptions.getRequestedAttributes();
+    final String[] attributes = new String[attributeList.size()];
+    attributeList.toArray(attributes);
     final SearchRequest searchRequest =
-            new SearchRequest(asyncSearchListener, commandLineOptions.getBaseObject(),
-                    commandLineOptions.getSearchScope(), commandLineOptions.getFilter(),
-                    commandLineOptions.getRequestedAttributes().toArray(new String[0]));
+      new SearchRequest(asyncSearchListener,commandLineOptions.getBaseObject(),
+        commandLineOptions.getSearchScope(),commandLineOptions.getFilter(),
+        attributes);
     final int sizeLimit = commandLineOptions.getSizeLimit();
     searchRequest.setSizeLimit(sizeLimit);
     final int timeLimit = commandLineOptions.getTimeLimit();
     searchRequest.setTimeLimitSeconds(timeLimit);
 
-    /*
-     * Add the persistent search request control.
-     */
+
+    // Add the persistent search request control.
     final boolean changesOnly = true;
     final boolean returnECs = true;
     final boolean isCritical = true;
     final PersistentSearchRequestControl control =
-            new PersistentSearchRequestControl(PersistentSearchChangeType.allChangeTypes(),
-                    changesOnly, returnECs, isCritical);
+      new PersistentSearchRequestControl(
+        PersistentSearchChangeType.allChangeTypes(),changesOnly,returnECs,
+        isCritical);
     searchRequest.addControl(control);
 
-    /*
-     * Transmit the search request:
-     */
     final SearchResult searchResult = ldapConnection.search(searchRequest);
+    ldapConnection.close();
 
     return searchResult.getResultCode();
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  protected String classSpecificPropertiesResourceName()
-  {
-    return "PersistentSearchExample.properties";
-  }
 
-  @Override
-  protected UnsolicitedNotificationHandler getUnsolicitedNotificationHandler()
-  {
-    return new DefaultUnsolicitedNotificationHandler(this);
-  }
 
   @SuppressWarnings("serial")
-  private final AsyncSearchResultListener asyncSearchListener = new AsyncSearchResultListener()
-  {
+  private final AsyncSearchResultListener asyncSearchListener =
+    new AsyncSearchResultListener() {
 
-    @Override
-    public void searchEntryReturned(final SearchResultEntry searchResultEntry)
-    {
-      final StringBuilder builder = new StringBuilder(">>>>\nsearch entry returned\n");
-      builder.append(String.format("%-12s %s\n", "DN:", searchResultEntry.getDN()));
-      builder.append(String.format("%-12s %s\n", "searchResult:",
-              searchResultEntry.toLDIFString()));
-      System.out.println(builder.toString());
-    }
+      @Override
+      public void searchEntryReturned(final SearchResultEntry searchResultEntry) {
+        final StringBuilder builder = new StringBuilder(">>>>\nsearch entry returned\n");
+        builder.append(String.format("%-12s %s\n","DN:",searchResultEntry.getDN()));
+        builder.append(String.format("%-12s %s\n","searchResult:",
+          searchResultEntry.toLDIFString()));
+        System.out.println(builder.toString());
+      }
 
-    @Override
-    public void searchReferenceReturned(final SearchResultReference searchReferenceReturned)
-    {
-      final String msg = "searchReferenceReturned not yet supported.";
-      throw new UnsupportedOperationException(msg);
-    }
 
-    @Override
-    public void searchResultReceived(final AsyncRequestID requestId,
-            final SearchResult searchResult)
-    {
-      final StringBuilder builder = new StringBuilder("search result received\n");
-      builder.append(String.format("%-12s %s\n", "requestId:", requestId));
-      builder.append(String.format("%-12s %s\n", "searchResult:", searchResult));
-      out(builder.toString());
-    }
 
-  };
+      @Override
+      public void searchReferenceReturned(final SearchResultReference searchReferenceReturned) {
+        final String msg = "searchReferenceReturned not yet supported.";
+        throw new UnsupportedOperationException(msg);
+      }
 
-  /**
-   * The connection to the directory server.
-   */
-  private LDAPConnection ldapConnection;
 
-  /**
-   * @param args Command line arguments as supported by
-   *             {@code LDAPCommandLineTool} with help from
-   *             {@code CommandLineOptions}.
-   */
-  public static void main(final String... args)
-  {
-    final OutputStream outStream = System.out;
-    final OutputStream errStream = System.err;
-    final PersistentSearchExample persistentSearchExample =
-            new PersistentSearchExample(outStream, errStream);
-    persistentSearchExample.runTool(args);
-  }
+
+      @Override
+      public void searchResultReceived(final AsyncRequestID requestId,
+                                       final SearchResult searchResult) {
+        final StringBuilder builder = new StringBuilder("search result received\n");
+        builder.append(String.format("%-12s %s\n","requestId:",requestId));
+        builder.append(String.format("%-12s %s\n","searchResult:",searchResult));
+        out(builder.toString());
+      }
+
+    };
 
 }
