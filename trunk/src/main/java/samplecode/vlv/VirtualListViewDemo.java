@@ -234,12 +234,15 @@ public final class VirtualListViewDemo extends AbstractTool
        * ServerSideSortRequestControl are supported by the server to
        * which this LDAP client is connected.
        */
-      final SupportedFeature supportedFeature =
-              SupportedFeature.newSupportedFeature(ldapConnection);
-      String controlOID = ServerSideSortRequestControl.SERVER_SIDE_SORT_REQUEST_OID;
-      supportedFeature.isControlSupported(controlOID);
+      String controlOID =
+        ServerSideSortRequestControl.SERVER_SIDE_SORT_REQUEST_OID;
+      if(SupportedFeature.isControlSupported(ldapConnection,controlOID)) {
+        return ResultCode.UNWILLING_TO_PERFORM;
+      }
       controlOID = VirtualListViewRequestControl.VIRTUAL_LIST_VIEW_REQUEST_OID;
-      supportedFeature.isControlSupported(controlOID);
+      if(SupportedFeature.isControlSupported(ldapConnection,controlOID)) {
+        return ResultCode.UNWILLING_TO_PERFORM;
+      }
 
       /*
        * Use the attribute specified by the --attribute command line
@@ -332,11 +335,6 @@ public final class VirtualListViewDemo extends AbstractTool
     } catch(final LDAPException ldapException) {
       fireLdapExceptionListener(ldapConnection,ldapException);
       resultCode = ldapException.getResultCode();
-    } catch(final SupportedFeatureException supportedFeatureException) {
-      // a request control is not supported by this server.
-      final String msg = supportedFeatureException.getMessage();
-      getLogger().fatal(msg);
-      resultCode = ResultCode.UNWILLING_TO_PERFORM;
     } catch(final AttributeNotSupportedException attributeNotSupportedException) {
       // An attribute was not defined
       final String msg = String.format("attribute '%s' is not supported, " +

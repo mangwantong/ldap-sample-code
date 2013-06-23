@@ -20,8 +20,6 @@ import samplecode.annotation.Since;
 import samplecode.cli.CommandLineOptions;
 import samplecode.ldap.DefaultUnsolicitedNotificationHandler;
 import samplecode.ldap.SupportedFeature;
-import samplecode.ldap.SupportedFeatureException;
-import samplecode.listener.ExceptionListener;
 import samplecode.tools.AbstractTool;
 
 import java.io.OutputStream;
@@ -257,9 +255,7 @@ public final class SimplePagedResultsRequestControlDemo extends AbstractTool {
 
 
 
-    private ResultCode demo(
-      final ExceptionListener<SupportedFeatureException>
-        supportedFeatureExceptionListener)
+    private ResultCode demo()
       throws LDAPException {
       /*
        * Get connection to the server. When the connection is
@@ -275,16 +271,9 @@ public final class SimplePagedResultsRequestControlDemo extends AbstractTool {
        * Check that the simple paged results control is supported by
        * server to which the client is connected.
        */
-      final SupportedFeature supportedFeature =
-        SupportedFeature.newSupportedFeature(ldapConnection);
       final String controlOID = SimplePagedResultsControl.PAGED_RESULTS_OID;
-      try {
-        supportedFeature.isControlSupported(controlOID);
-      } catch(final SupportedFeatureException exception) {
-        if(supportedFeatureExceptionListener.invoke()) {
-          supportedFeatureExceptionListener.processException(exception);
-        }
-        return ResultCode.OPERATIONS_ERROR;
+      if(!SupportedFeature.isControlSupported(ldapConnection,controlOID)) {
+        return ResultCode.UNWILLING_TO_PERFORM;
       }
 
       /*
@@ -440,37 +429,10 @@ public final class SimplePagedResultsRequestControlDemo extends AbstractTool {
 
     ResultCode resultCode;
 
-    final ExceptionListener<SupportedFeatureException> supportedFeatureExceptionListener =
-      new ExceptionListener<SupportedFeatureException>() {
-
-        /*
-         * {@inheritDoc} <p> Always returns an indication that
-         * {@code processException} is safe to invoke.
-         */
-        @Override
-        public boolean invoke() {
-          return true;
-        }
-
-
-
-        /*
-         * {@inheritDoc}
-         */
-        @Override
-        public void processException(final SupportedFeatureException exception) {
-          final String msg =
-            String.format("%s is not supported by this server.",
-              SimplePagedResultsControl.PAGED_RESULTS_OID);
-          getLogger().fatal(msg);
-        }
-
-      };
-
     final SimplePagedResultsDemo simplePagedResultsDemo =
       new SimplePagedResultsDemo(this,commandLineOptions);
     try {
-      resultCode = simplePagedResultsDemo.demo(supportedFeatureExceptionListener);
+      resultCode = simplePagedResultsDemo.demo();
     } catch(final LDAPException ldapException) {
       final String msg =
         String.format("LDAP Exception: %s",ldapException.getExceptionMessage());
@@ -488,7 +450,7 @@ public final class SimplePagedResultsRequestControlDemo extends AbstractTool {
    */
   @Override
   protected String classSpecificPropertiesResourceName() {
-    return "SimplePagedResultsrequestControlDemo.properties";
+    return "SimplePagedResultsRequestControlDemo.properties";
   }
 
 }

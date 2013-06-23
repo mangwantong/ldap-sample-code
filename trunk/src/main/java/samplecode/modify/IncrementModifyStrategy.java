@@ -1,6 +1,7 @@
 /*
  * Copyright 2008-2012 UnboundID Corp. All Rights Reserved.
  */
+
 package samplecode.modify;
 
 import com.unboundid.ldap.sdk.*;
@@ -9,27 +10,38 @@ import com.unboundid.ldap.sdk.controls.PostReadResponseControl;
 import com.unboundid.ldap.sdk.controls.PreReadRequestControl;
 import com.unboundid.ldap.sdk.controls.PreReadResponseControl;
 import samplecode.ldap.SupportedFeature;
-import samplecode.ldap.SupportedFeatureException;
 
 import java.util.ArrayList;
 import java.util.List;
 
-class IncrementModifyStrategy extends AbstractModifyStrategy
-{
+
+class IncrementModifyStrategy extends AbstractModifyStrategy {
+
+  IncrementModifyStrategy(final LDAPConnection ldapConnection, final SearchScope scope,
+                          final Filter filter) {
+    super(ldapConnection);
+    this.scope = scope;
+    this.filter = filter;
+  }
+
+
 
   /**
-   * increments the value of the attribute in {@code dn} specified by {@code attributeName}
+   * increments the value of the attribute in {@code dn} specified by {@code
+   * attributeName}
    * by the specified {@code incrementValue}.
    *
-   * @param dn             the distinguished name of the entry to modify
-   * @param attributeName  the name of the attribute to modify; the attribute must be
-   *                       incrementable
-   * @param incrementValue the increment
+   * @param dn
+   *   the distinguished name of the entry to modify
+   * @param attributeName
+   *   the name of the attribute to modify; the attribute must be
+   *   incrementable
+   * @param incrementValue
+   *   the increment
    */
   @Override
   public void modify(final DN dn, final String attributeName, final long incrementValue)
-          throws ModifyException
-  {
+    throws ModifyException {
     /*
     * Create the search request. The base object is the DN 'entryDn',
     * the scope and filter are taken from the command line arguments,
@@ -39,24 +51,20 @@ class IncrementModifyStrategy extends AbstractModifyStrategy
     final String baseObject = dn.toString();
     final String[] requestedAttributes = new String[]{SearchRequest.NO_ATTRIBUTES};
     final SearchRequest searchRequest =
-            new SearchRequest(baseObject, scope, filter, requestedAttributes);
+      new SearchRequest(baseObject,scope,filter,requestedAttributes);
 
     // Search for the entry specified by the entryDn.
     LDAPConnection ldapConnection = getLDAPConnection();
-    try
-    {
+    try {
       final SearchResult searchResult = ldapConnection.search(searchRequest);
-      if(searchResult.getEntryCount() == 0)
-      {
+      if(searchResult.getEntryCount() == 0) {
         /*
         * NB: This will not be reached if the base object did not
         * exist.
         */
         return;
       }
-    }
-    catch(final LDAPException ldapException)
-    {
+    } catch(final LDAPException ldapException) {
       throw new ModifyException(ldapException);
     }
 
@@ -67,28 +75,17 @@ class IncrementModifyStrategy extends AbstractModifyStrategy
     */
     final List<Modification> modifications = new ArrayList<Modification>();
     final Modification modification =
-            new Modification(ModificationType.INCREMENT, attributeName,
-                    String.valueOf(incrementValue));
+      new Modification(ModificationType.INCREMENT,attributeName,
+        String.valueOf(incrementValue));
     modifications.add(modification);
-    final ModifyRequest modifyRequest = new ModifyRequest(dn, modifications);
-    SupportedFeature supportedControl;
-    try
-    {
-      supportedControl = SupportedFeature.newSupportedFeature(ldapConnection);
-    }
-    catch(final LDAPException ldapException)
-    {
-      throw new ModifyException(ldapException);
-    }
+    final ModifyRequest modifyRequest = new ModifyRequest(dn,modifications);
 
     /*
     * If the pre-read request control is supported by the server, add
     * the control to the modify request.
     */
-    try
-    {
-      final String controlOID = PreReadRequestControl.PRE_READ_REQUEST_OID;
-      supportedControl.isControlSupported(controlOID);
+    String controlOID = PreReadRequestControl.PRE_READ_REQUEST_OID;
+    if(SupportedFeature.isControlSupported(ldapConnection,controlOID)) {
 
       /*
       * Create a pre-read request control to get the value of the
@@ -97,22 +94,16 @@ class IncrementModifyStrategy extends AbstractModifyStrategy
       */
       final boolean isCritical = true;
       final PreReadRequestControl control =
-              new PreReadRequestControl(isCritical, attributeName);
+        new PreReadRequestControl(isCritical,attributeName);
       modifyRequest.addControl(control);
-    }
-    catch(final SupportedFeatureException ex)
-    {
-      // The request control is not supported.
     }
 
     /*
     * If the post-read request control is supported by the server,
     * add the control to the modify request.
     */
-    try
-    {
-      final String controlOID = PostReadRequestControl.POST_READ_REQUEST_OID;
-      supportedControl.isControlSupported(controlOID);
+    controlOID = PostReadRequestControl.POST_READ_REQUEST_OID;
+    if(SupportedFeature.isControlSupported(ldapConnection,controlOID)) {
 
       /*
       * Create a post-read request control to get the value of the
@@ -121,24 +112,17 @@ class IncrementModifyStrategy extends AbstractModifyStrategy
       */
       final boolean isCritical = true;
       final PostReadRequestControl control =
-              new PostReadRequestControl(isCritical, attributeName);
+        new PostReadRequestControl(isCritical,attributeName);
       modifyRequest.addControl(control);
-    }
-    catch(final SupportedFeatureException ex)
-    {
-      getLogger().error(ex);
     }
 
     /*
     * Transmit the modify request.
     */
     LDAPResult ldapResult;
-    try
-    {
+    try {
       ldapResult = ldapConnection.modify(modifyRequest);
-    }
-    catch(LDAPException ldapException)
-    {
+    } catch(LDAPException ldapException) {
       throw new ModifyException(ldapException);
     }
 
@@ -147,20 +131,15 @@ class IncrementModifyStrategy extends AbstractModifyStrategy
     * of the attribute before the modification occurred.
     */
     PreReadResponseControl preReadResponseControl;
-    try
-    {
+    try {
       preReadResponseControl = PreReadResponseControl.get(ldapResult);
-    }
-    catch(final LDAPException e)
-    {
+    } catch(final LDAPException e) {
       throw new ModifyException(e);
     }
 
-    if((preReadResponseControl != null) && preReadResponseControl.hasValue())
-    {
+    if((preReadResponseControl != null) && preReadResponseControl.hasValue()) {
       final Entry entry = preReadResponseControl.getEntry();
-      if(entry != null)
-      {
+      if(entry != null) {
         final Attribute attr = entry.getAttribute(attributeName);
         final StringBuilder builder = new StringBuilder();
         builder.append("Before modification the value of ");
@@ -180,19 +159,14 @@ class IncrementModifyStrategy extends AbstractModifyStrategy
     * of the attribute before the modification occurred.
     */
     PostReadResponseControl postReadResponseControl;
-    try
-    {
+    try {
       postReadResponseControl = PostReadResponseControl.get(ldapResult);
-    }
-    catch(final LDAPException e)
-    {
+    } catch(final LDAPException e) {
       throw new ModifyException(e);
     }
-    if((postReadResponseControl != null) && postReadResponseControl.hasValue())
-    {
+    if((postReadResponseControl != null) && postReadResponseControl.hasValue()) {
       final Entry entry = postReadResponseControl.getEntry();
-      if(entry != null)
-      {
+      if(entry != null) {
         final Attribute attr = entry.getAttribute(attributeName);
         final StringBuilder builder = new StringBuilder();
         builder.append("After modification the value of ");
@@ -208,15 +182,10 @@ class IncrementModifyStrategy extends AbstractModifyStrategy
     }
   }
 
-  IncrementModifyStrategy(final LDAPConnection ldapConnection, final SearchScope scope,
-          final Filter filter)
-  {
-    super(ldapConnection);
-    this.scope = scope;
-    this.filter = filter;
-  }
+
 
   private final Filter filter;
+
 
   private final SearchScope scope;
 

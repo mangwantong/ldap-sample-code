@@ -13,29 +13,33 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
+
 package samplecode.controls;
 
 import com.unboundid.ldap.sdk.*;
 import com.unboundid.ldap.sdk.controls.AssertionRequestControl;
 import com.unboundid.util.Validator;
-import com.unboundid.util.args.*;
+import com.unboundid.util.args.Argument;
+import com.unboundid.util.args.ArgumentException;
+import com.unboundid.util.args.ArgumentParser;
+import com.unboundid.util.args.StringArgument;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import samplecode.cli.CommandLineOptions;
-import samplecode.util.SampleCodeCollectionUtils;
-import samplecode.ldap.SupportedFeature;
-import samplecode.ldap.SupportedFeatureException;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Launchable;
 import samplecode.annotation.Since;
+import samplecode.cli.CommandLineOptions;
+import samplecode.ldap.SupportedFeature;
 import samplecode.tools.AbstractTool;
 import samplecode.tools.BasicToolCompletedProcessing;
 import samplecode.tools.ToolCompletedProcessing;
+import samplecode.util.SampleCodeCollectionUtils;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.List;
+
 
 /**
  * Provides a demonstration of the assertion request control described
@@ -43,226 +47,11 @@ import java.util.List;
  * attribute name (--attribute), a filter (--filter) and a new value for
  * that attribute (--newAttributeValue).
  */
-@Author("terry.gardner@unboundid.com") @Since("Dec 4, 2011") @CodeVersion("1.25") @Launchable
-public final class AssertionRequestControlDemo extends AbstractTool
-{
-
-  /**
-   * The short identifier of the command line argument whose parameter
-   * is the new value of the attribute specified by the --attribute
-   * command line argument.
-   */
-  public static final Character SHORT_ID_NEW_ATTRIBUTE_VALUE;
-
-  /**
-   * The long identifier of the command line argument whose parameter is
-   * the new value of the attribute specified by the --attribute command
-   * line argument.
-   */
-  public static final String ARG_NAME_NEW_ATTRIBUTE_VALUE;
-
-  static
-  {
-    ARG_NAME_NEW_ATTRIBUTE_VALUE = "newAttributeValue";
-    SHORT_ID_NEW_ATTRIBUTE_VALUE = Character.valueOf('v');
-  }
-
-  /**
-   * Prepares a new AssertionRequestControlDemo object using the
-   * provided {@code outStream} for the output stream, {@code errStream}
-   * as the error stream, and a {@code loggingFormatter}.
-   */
-  private AssertionRequestControlDemo(final OutputStream outStream,
-          final OutputStream errStream)
-  {
-    super(outStream, errStream);
-    className = getClass().getName();
-  }
-
-  /**
-   * Prepares a new AssertionRequestControlDemo object using
-   * {@code System.out} for the output stream, {@code System.err} as the
-   * error stream, and a {@code MinimalLogFormatter}.
-   */
-  private AssertionRequestControlDemo()
-  {
-    this(System.out, System.err);
-  }
-
-  @Override
-  protected ResultCode executeToolTasks()
-  {
-    introduction();
-    if(isVerbose())
-    {
-      displayArguments();
-    }
-    ResultCode resultCode = null;
-    try
-    {
-      /*
-       * Obtain a pool of connections to the LDAP server from the
-       * LDAPCommandLineTool services,this requires specifying a
-       * connection to the LDAP server,a number of initial connections
-       * (--initialConnections) in the pool,and the maximum number of
-       * connections (--maxConnections) that the pool should create.
-       */
-      try
-      {
-        ldapConnection = connectToServer();
-        ldapConnectionPool = getLdapConnectionPool(ldapConnection);
-      }
-      catch(final LDAPException ldapException)
-      {
-        if(ldapConnection != null)
-        {
-          fireLdapExceptionListener(ldapConnection, ldapException);
-        }
-        return ldapException.getResultCode();
-      }
-
-      /*
-      * Check whether the assertion request control is supported by the
-      * server to which this LDAP client is connected.
-      */
-      final SupportedFeature supportedFeature =
-              SupportedFeature.newSupportedFeature(ldapConnection);
-      final String controlOID = AssertionRequestControl.ASSERTION_REQUEST_OID;
-      supportedFeature.isControlSupported(controlOID);
-      msg = String.format("OID %s is supported by this server.", controlOID);
-      getLogger().info(msg);
-
-      /*
-      * Create the assertion request control using the filter specified
-      * by the --filter command line argument.
-      */
-      final Filter filter = commandLineOptions.getFilter();
-      if(filter == null)
-      {
-        final ArgumentParser argumentParser = getArgumentParser();
-        final String msg = getRequiredArgumentsMessage(argumentParser);
-        getLogger().fatal(msg);
-        return ResultCode.UNWILLING_TO_PERFORM;
-      }
-      final AssertionRequestControl assertionRequestControl =
-              new AssertionRequestControl(filter.toString());
-
-      /*
-      * Attempt to modify the entry specified by the --bindDn command
-      * line argument. The attribute specified by the --attribute
-      * command line argument will be set to the value provided as an
-      * parameter to the --newAttributeValue command line argument. The
-      * modification will only succeed if the bindDN has permission to
-      * modify the entry and the assertion specified in the --filter
-      * parameter evaluates to true. The bind DN is required by this
-      * demonstration program but not by the LDAPCommandLineTool,
-      * therefore, check for it before using it.
-      */
-      final DN dn = commandLineOptions.getBindDn();
-      if(dn == null)
-      {
-        msg = "A valid distinguished name must be supplied using the --bindDN " + "command " +
-                "line argument. This demonstration cannot use the root DSE.";
-        getLogger().fatal(msg);
-        return ResultCode.PARAM_ERROR;
-      }
-      final String bindDn = dn.toString();
-      msg = String.format("Using bind DN '%s'", bindDn);
-      getLogger().info(msg);
-
-      /*
-      * Use only the first --attributes parameter
-      */
-      final String attributeName =
-              commandLineOptions.getRequestedAttributes().toArray(new String[0])[0];
-      msg = String.format("Using attribute '%s'", attributeName);
-      getLogger().info(msg);
-
-      /*
-       * Retrieve the new value for the attribute from the parameter to
-       * the --newAttributeValue command line argument.
-       */
-      final String newAttributeValue = newAttributeValueArgument.getValue();
-
-      /*
-       * Construct the modification and transmit the modify request to
-       * the server. Set a maximum response timeout (taken from the
-       * command line argument).
-       */
-      final Modification modification =
-              new Modification(ModificationType.ADD, attributeName, newAttributeValue);
-      final ModifyRequest modifyRequest = new ModifyRequest(bindDn, modification);
-      modifyRequest.addControl(assertionRequestControl);
-      final int responseTimeout = commandLineOptions.getMaxResponseTimeMillis();
-      modifyRequest.setResponseTimeoutMillis(responseTimeout);
-      ldapConnection.modify(modifyRequest);
-    }
-    catch(final LDAPException ldapException)
-    {
-      getLogger().fatal(ldapException.getExceptionMessage());
-      resultCode = ldapException.getResultCode();
-    }
-    catch(final SupportedFeatureException e)
-    {
-      // The assertion request control is not supported.
-      resultCode = ResultCode.UNWILLING_TO_PERFORM;
-    }
-
-    return resultCode;
-  }
-
-  @Override
-  protected String classSpecificPropertiesResourceName()
-  {
-    return "AssertionRequestControlDemo.properties";
-  }
-
-  @Override
-  protected void addArguments(final ArgumentParser argumentParser) throws ArgumentException
-  {
-    if(argumentParser == null)
-    {
-      throw new IllegalArgumentException("argumentParser must not be null.");
-    }
-
-    /*
-     * Add to the command line argument parser the command line argument
-     * that specifies a new value the attribute that is named by the
-     * --attribute command line argument.
-     */
-    final Character shortIdentifier = AssertionRequestControlDemo.SHORT_ID_NEW_ATTRIBUTE_VALUE;
-    final String longIdentifier = AssertionRequestControlDemo.ARG_NAME_NEW_ATTRIBUTE_VALUE;
-    final boolean isRequired = true;
-    final int maxOccurrences = 1;
-    final String valuePlaceholder = "{attribute-value}";
-    final String description =
-            "The value to which the attribute specified by " + "'--attribute' final command " +
-                    "line argument final is set.";
-    newAttributeValueArgument =
-            new StringArgument(shortIdentifier, longIdentifier, isRequired, maxOccurrences,
-                    valuePlaceholder, description);
-    argumentParser.addArgument(newAttributeValueArgument);
-
-    String argName = CommandLineOptions.ARG_NAME_FILTER;
-    final Argument filterArgument = argumentParser.getNamedArgument(argName);
-
-    argName = CommandLineOptions.ARG_NAME_BIND_DN;
-    final Argument dnArgument = argumentParser.getNamedArgument(argName);
-
-    final List<Argument> requiredArgumentSet = SampleCodeCollectionUtils.newArrayList();
-    requiredArgumentSet.add(dnArgument);
-    requiredArgumentSet.add(filterArgument);
-    requiredArgumentSet.add(newAttributeValueArgument);
-
-    argumentParser.addRequiredArgumentSet(requiredArgumentSet);
-  }
-
-  private StringArgument newAttributeValueArgument;
-
-  /**
-   * String representation of messages.
-   */
-  private String msg;
+@Author("terry.gardner@unboundid.com")
+@Since("Dec 4, 2011")
+@CodeVersion("1.25")
+@Launchable
+public final class AssertionRequestControlDemo extends AbstractTool {
 
   /**
    * Launch the AssertionRequestControlDemo application. <blockquote>
@@ -271,8 +60,10 @@ public final class AssertionRequestControlDemo extends AbstractTool
    * <pre>
    *
    * Provides a demonstration of the use of the assertion request control.The
-   * assertion request control allows an LDAP client to specify that a request be
-   * executed if an assertion evaluates to true.The assertion request control is
+   * assertion request control allows an LDAP client to specify that a request
+   * be
+   * executed if an assertion evaluates to true.The assertion request control
+   * is
    * described in RFC4528.
    *
    * Usage:  AssertionRequestControlDemo {options}
@@ -280,7 +71,8 @@ public final class AssertionRequestControlDemo extends AbstractTool
    * Available options include:
    * -h, --hostname {host}
    *     The IP address or resolvable name to use to connect to the directory
-   *     server.  If this is not provided, then a default value of 'localhost' will
+   *     server.  If this is not provided, then a default value of 'localhost'
+   * will
    *     be used.
    * -p, --port {port}
    *     The port to use to connect to the directory server.  If this is not
@@ -289,11 +81,13 @@ public final class AssertionRequestControlDemo extends AbstractTool
    *     The DN to use to bind to the directory server when performing simple
    *     authentication.
    * -w, --bindPassword {password}
-   *     The password to use to bind to the directory server when performing simple
+   *     The password to use to bind to the directory server when performing
+   * simple
    *     authentication or a password-based SASL mechanism.
    * -j, --bindPasswordFile {path}
    *     The path to the file containing the password to use to bind to the
-   *     directory server when performing simple authentication or a password-based
+   *     directory server when performing simple authentication or a
+   * password-based
    *     SASL mechanism.
    * -Z, --useSSL
    *     Use SSL when communicating with the directory server.
@@ -307,7 +101,8 @@ public final class AssertionRequestControlDemo extends AbstractTool
    * -W, --keyStorePassword {password}
    *     The password to use to access the key store contents.
    * -u, --keyStorePasswordFile {path}
-   *     The path to the file containing the password to use to access the key store
+   *     The path to the file containing the password to use to access the key
+   * store
    *     contents.
    * --keyStoreFormat {format}
    *     The format (e.g., jks, jceks, pkcs12, etc.) for the key store file.
@@ -317,12 +112,14 @@ public final class AssertionRequestControlDemo extends AbstractTool
    * -T, --trustStorePassword {password}
    *     The password to use to access the trust store contents.
    * -U, --trustStorePasswordFile {path}
-   *     The path to the file containing the password to use to access the trust
+   *     The path to the file containing the password to use to access the
+   * trust
    *     store contents.
    * --trustStoreFormat {format}
    *     The format (e.g., jks, jceks, pkcs12, etc.) for the trust store file.
    * -N, --certNickname {nickname}
-   *     The nickname (alias) of the client certificate in the key store to present
+   *     The nickname (alias) of the client certificate in the key store to
+   * present
    *     to the directory server for SSL client authentication.
    * -o, --saslOption {name=value}
    *     A name-value pair providing information to use when performing SASL
@@ -341,29 +138,36 @@ public final class AssertionRequestControlDemo extends AbstractTool
    *     repeated reports is specified by the --reportInterval command line
    *     argument.
    * -a, --attribute {attribute name or type}
-   *     The attribute used in the search request or other request. This command
-   *     line argument is not required, and can be specified multiple times. If this
+   *     The attribute used in the search request or other request. This
+   * command
+   *     line argument is not required, and can be specified multiple times. If
+   * this
    *     command line argument is not specified, the value '*' is used.
    * -f, --filter {filter}
    *     The search filter used in the search request.
    * -i, --initialConnections {positiveInteger}
-   *     The number of initial connections to establish to directory server when
+   *     The number of initial connections to establish to directory server
+   * when
    *     creating the connection pool.
    * -m, --maxConnections {positiveInteger}
-   *     The maximum number of connections to establish to directory server when
+   *     The maximum number of connections to establish to directory server
+   * when
    *     creating the connection pool.
    * -s, --scope {searchScope}
    *     The scope of the search request; allowed values are BASE, ONE, and SUB
    * --sizeLimit {positiveInteger}
    *     The client-request maximum number of results which are returned to the
    *     client. If the number of entries which match the search parameter is
-   *     greater than the client-requested size limit or the server-imposed size
+   *     greater than the client-requested size limit or the server-imposed
+   * size
    *     limit a SIZE_LIMIT_EXCEEDED code is returned in the result code in the
    *     search response.
    * --timeLimit {positiveInteger}
-   *     The client-request maximum time to search used by the server. If the time
+   *     The client-request maximum time to search used by the server. If the
+   * time
    *     of the search is greater than the client-requested time limit or the
-   *     server-imposed time limit a TIME_LIMIT_EXCEEDED code is returned in the
+   *     server-imposed time limit a TIME_LIMIT_EXCEEDED code is returned in
+   * the
    *     result code in the search response.
    * --pageSize {positiveInteger}
    *     The search page size
@@ -375,26 +179,239 @@ public final class AssertionRequestControlDemo extends AbstractTool
    * <p/>
    * </blockquote>
    *
-   * @param args command line arguments, less the JVM arguments.
+   * @param args
+   *   command line arguments, less the JVM arguments.
    */
-  public static void main(final String... args)
-  {
+  public static void main(final String... args) {
     final PrintStream outStream = System.out;
     final PrintStream errStream = System.err;
     final AssertionRequestControlDemo assertionRequestControlDemo =
-            AssertionRequestControlDemo.newAssertionRequestControlDemo(outStream, errStream);
+      AssertionRequestControlDemo.newAssertionRequestControlDemo(outStream,errStream);
     final ResultCode resultCode = assertionRequestControlDemo.runTool(args);
     final ToolCompletedProcessing completedProcessing =
-            new BasicToolCompletedProcessing(assertionRequestControlDemo, resultCode);
+      new BasicToolCompletedProcessing(assertionRequestControlDemo,resultCode);
     final Log logger = LogFactory.getLog(AssertionRequestControlDemo.class);
     completedProcessing.displayMessage(logger);
   }
 
+
+
   private static AssertionRequestControlDemo newAssertionRequestControlDemo(
-          final OutputStream outStream, final OutputStream errStream)
-  {
-    Validator.ensureNotNull(outStream, errStream);
-    return new AssertionRequestControlDemo(outStream, errStream);
+    final OutputStream outStream, final OutputStream errStream) {
+    Validator.ensureNotNull(outStream,errStream);
+    return new AssertionRequestControlDemo(outStream,errStream);
   }
+
+
+
+  /**
+   * The short identifier of the command line argument whose parameter
+   * is the new value of the attribute specified by the --attribute
+   * command line argument.
+   */
+  public static final Character SHORT_ID_NEW_ATTRIBUTE_VALUE;
+
+
+  /**
+   * The long identifier of the command line argument whose parameter is
+   * the new value of the attribute specified by the --attribute command
+   * line argument.
+   */
+  public static final String ARG_NAME_NEW_ATTRIBUTE_VALUE;
+
+
+
+  static {
+    ARG_NAME_NEW_ATTRIBUTE_VALUE = "newAttributeValue";
+    SHORT_ID_NEW_ATTRIBUTE_VALUE = Character.valueOf('v');
+  }
+
+
+
+  /**
+   * Prepares a new AssertionRequestControlDemo object using the
+   * provided {@code outStream} for the output stream, {@code errStream}
+   * as the error stream, and a {@code loggingFormatter}.
+   */
+  private AssertionRequestControlDemo(final OutputStream outStream,
+                                      final OutputStream errStream) {
+    super(outStream,errStream);
+    className = getClass().getName();
+  }
+
+
+
+  /**
+   * Prepares a new AssertionRequestControlDemo object using
+   * {@code System.out} for the output stream, {@code System.err} as the
+   * error stream, and a {@code MinimalLogFormatter}.
+   */
+  private AssertionRequestControlDemo() {
+    this(System.out,System.err);
+  }
+
+
+
+  @Override
+  protected void addArguments(final ArgumentParser argumentParser) throws ArgumentException {
+    if(argumentParser == null) {
+      throw new IllegalArgumentException("argumentParser must not be null.");
+    }
+
+    /*
+     * Add to the command line argument parser the command line argument
+     * that specifies a new value the attribute that is named by the
+     * --attribute command line argument.
+     */
+    final Character shortIdentifier = AssertionRequestControlDemo.SHORT_ID_NEW_ATTRIBUTE_VALUE;
+    final String longIdentifier = AssertionRequestControlDemo.ARG_NAME_NEW_ATTRIBUTE_VALUE;
+    final boolean isRequired = true;
+    final int maxOccurrences = 1;
+    final String valuePlaceholder = "{attribute-value}";
+    final String description =
+      "The value to which the attribute specified by " + "'--attribute' final command " +
+        "line argument final is set.";
+    newAttributeValueArgument =
+      new StringArgument(shortIdentifier,longIdentifier,isRequired,maxOccurrences,
+        valuePlaceholder,description);
+    argumentParser.addArgument(newAttributeValueArgument);
+
+    String argName = CommandLineOptions.ARG_NAME_FILTER;
+    final Argument filterArgument = argumentParser.getNamedArgument(argName);
+
+    argName = CommandLineOptions.ARG_NAME_BIND_DN;
+    final Argument dnArgument = argumentParser.getNamedArgument(argName);
+
+    final List<Argument> requiredArgumentSet = SampleCodeCollectionUtils.newArrayList();
+    requiredArgumentSet.add(dnArgument);
+    requiredArgumentSet.add(filterArgument);
+    requiredArgumentSet.add(newAttributeValueArgument);
+
+    argumentParser.addRequiredArgumentSet(requiredArgumentSet);
+  }
+
+
+
+  @Override
+  protected ResultCode executeToolTasks() {
+    introduction();
+    if(isVerbose()) {
+      displayArguments();
+    }
+    ResultCode resultCode = null;
+    try {
+      /*
+       * Obtain a pool of connections to the LDAP server from the
+       * LDAPCommandLineTool services,this requires specifying a
+       * connection to the LDAP server,a number of initial connections
+       * (--initialConnections) in the pool,and the maximum number of
+       * connections (--maxConnections) that the pool should create.
+       */
+      try {
+        ldapConnection = connectToServer();
+        ldapConnectionPool = getLdapConnectionPool(ldapConnection);
+      } catch(final LDAPException ldapException) {
+        if(ldapConnection != null) {
+          fireLdapExceptionListener(ldapConnection,ldapException);
+        }
+        return ldapException.getResultCode();
+      }
+
+      /*
+      * Check whether the assertion request control is supported by the
+      * server to which this LDAP client is connected.
+      */
+      final String controlOID = AssertionRequestControl.ASSERTION_REQUEST_OID;
+      if(!SupportedFeature.isControlSupported(ldapConnection,controlOID)) {
+        msg = String.format("OID %s is supported by this server.",controlOID);
+        getLogger().info(msg);
+      }
+
+      /*
+      * Create the assertion request control using the filter specified
+      * by the --filter command line argument.
+      */
+      final Filter filter = commandLineOptions.getFilter();
+      if(filter == null) {
+        final ArgumentParser argumentParser = getArgumentParser();
+        final String msg = getRequiredArgumentsMessage(argumentParser);
+        getLogger().fatal(msg);
+        return ResultCode.UNWILLING_TO_PERFORM;
+      }
+      final AssertionRequestControl assertionRequestControl =
+        new AssertionRequestControl(filter.toString());
+
+      /*
+      * Attempt to modify the entry specified by the --bindDn command
+      * line argument. The attribute specified by the --attribute
+      * command line argument will be set to the value provided as an
+      * parameter to the --newAttributeValue command line argument. The
+      * modification will only succeed if the bindDN has permission to
+      * modify the entry and the assertion specified in the --filter
+      * parameter evaluates to true. The bind DN is required by this
+      * demonstration program but not by the LDAPCommandLineTool,
+      * therefore, check for it before using it.
+      */
+      final DN dn = commandLineOptions.getBindDn();
+      if(dn == null) {
+        msg = "A valid distinguished name must be supplied using the --bindDN " + "command " +
+          "line argument. This demonstration cannot use the root DSE.";
+        getLogger().fatal(msg);
+        return ResultCode.PARAM_ERROR;
+      }
+      final String bindDn = dn.toString();
+      msg = String.format("Using bind DN '%s'",bindDn);
+      getLogger().info(msg);
+
+      /*
+      * Use only the first --attributes parameter
+      */
+      final String attributeName =
+        commandLineOptions.getRequestedAttributes().toArray(new String[0])[0];
+      msg = String.format("Using attribute '%s'",attributeName);
+      getLogger().info(msg);
+
+      /*
+       * Retrieve the new value for the attribute from the parameter to
+       * the --newAttributeValue command line argument.
+       */
+      final String newAttributeValue = newAttributeValueArgument.getValue();
+
+      /*
+       * Construct the modification and transmit the modify request to
+       * the server. Set a maximum response timeout (taken from the
+       * command line argument).
+       */
+      final Modification modification =
+        new Modification(ModificationType.ADD,attributeName,newAttributeValue);
+      final ModifyRequest modifyRequest = new ModifyRequest(bindDn,modification);
+      modifyRequest.addControl(assertionRequestControl);
+      final int responseTimeout = commandLineOptions.getMaxResponseTimeMillis();
+      modifyRequest.setResponseTimeoutMillis(responseTimeout);
+      ldapConnection.modify(modifyRequest);
+    } catch(final LDAPException ldapException) {
+      getLogger().fatal(ldapException.getExceptionMessage());
+      resultCode = ldapException.getResultCode();
+    }
+
+    return resultCode;
+  }
+
+
+
+  @Override
+  protected String classSpecificPropertiesResourceName() {
+    return "AssertionRequestControlDemo.properties";
+  }
+
+
+
+  /**
+   * String representation of messages.
+   */
+  private String msg;
+
+
+  private StringArgument newAttributeValueArgument;
 
 }

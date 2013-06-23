@@ -28,7 +28,6 @@ import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Launchable;
 import samplecode.annotation.Since;
-import samplecode.ldap.SupportedFeatureException;
 import samplecode.listener.DefaultLdapExceptionListener;
 import samplecode.listener.LdapExceptionListener;
 import samplecode.tools.AbstractTool;
@@ -53,16 +52,21 @@ import java.util.Collection;
  *
  * [18/Dec/2011:19:47:34 -0500] Connected to LDAP server.
  * [18/Dec/2011:19:47:34 -0500] Who Am I? extension is supported.
- * [18/Dec/2011:19:47:34 -0500] Authorization Identity Request Control is supported.
- * [18/Dec/2011:19:47:34 -0500] AuthorizationID from the Who am I? extended request:
+ * [18/Dec/2011:19:47:34 -0500] Authorization Identity Request Control is
+ * supported.
+ * [18/Dec/2011:19:47:34 -0500] AuthorizationID from the Who am I? extended
+ * request:
  * 'dn:uid=user.0,ou=People,dc=example,dc=com'
  * [18/Dec/2011:19:47:34 -0500] AuthorizationID from the
  * AuthorizationIdentityResponseControl: 'dn:uid=user.0,ou=People,dc=example,dc=com'
- * [18/Dec/2011:19:47:34 -0500] PasswordExpiredControl was not included in the bind
+ * [18/Dec/2011:19:47:34 -0500] PasswordExpiredControl was not included in the
+ * bind
  * response.
- * [18/Dec/2011:19:47:34 -0500] PasswordExpiringControl was not included in the bind
+ * [18/Dec/2011:19:47:34 -0500] PasswordExpiringControl was not included in the
+ * bind
  * response.
- * [18/Dec/2011:19:47:34 -0500] AuthDemo has completed processing. The result code was: 0
+ * [18/Dec/2011:19:47:34 -0500] AuthDemo has completed processing. The result
+ * code was: 0
  * (success)
  * </pre>
  * <p/>
@@ -85,16 +89,16 @@ public final class AuthDemo extends AbstractTool {
    * Launch the {@code AuthDemo} application.
    *
    * @param args
-   *         command line arguments, less the JVM arguments.
+   *   command line arguments, less the JVM arguments.
    */
   public static void main(final String... args) {
     final AuthDemo authDemo = new AuthDemo();
     final ResultCode resultCode = authDemo.runTool(args);
     final ToolCompletedProcessing completedProcessing =
-            new BasicToolCompletedProcessing(authDemo,resultCode);
+      new BasicToolCompletedProcessing(authDemo,resultCode);
     final Log logger = LogFactory.getLog(AuthDemo.class);
     completedProcessing.displayMessage(logger);
-    if (!resultCode.equals(ResultCode.SUCCESS)) {
+    if(!resultCode.equals(ResultCode.SUCCESS)) {
       System.exit(resultCode.intValue());
     }
   }
@@ -135,7 +139,7 @@ public final class AuthDemo extends AbstractTool {
     try {
       ldapConnection = connectToServer();
       ldapConnectionPool = getLdapConnectionPool(ldapConnection);
-    } catch (final LDAPException x) {
+    } catch(final LDAPException x) {
       fireLdapExceptionListener(ldapConnection,x);
       return x.getResultCode();
     }
@@ -145,13 +149,13 @@ public final class AuthDemo extends AbstractTool {
      * authorization identity. Add an instance of the default
      * LDAP Exception Listener to the authorized identity provider.
      */
-    if (isVerbose()) {
+    if(isVerbose()) {
       verbose("Creating the authorized identity object.");
     }
     final AuthorizedIdentity authorizedIdentity =
-            new AuthorizedIdentity(ldapConnection);
+      new AuthorizedIdentity(ldapConnection);
     final LdapExceptionListener listener =
-            new DefaultLdapExceptionListener(getLogger());
+      new DefaultLdapExceptionListener(getLogger());
     authorizedIdentity.addLdapExceptionListener(listener);
 
     /*
@@ -165,21 +169,16 @@ public final class AuthDemo extends AbstractTool {
      * procedure requires creating a WhoAmIExtendedRequest object and
      * using processExtendedOperation to transmit it.
      */
-    if (isVerbose()) {
+    if(isVerbose()) {
       verbose("Getting the authorization identity using the Who Am I? " +
-              "extended request.");
+        "extended request.");
     }
     String authId;
-    final long maxResponseTime = getResponseTimeMillis();
-    try {
-      authId =
-              authorizedIdentity.getAuthorizationIdentityWhoAmIExtendedOperation(maxResponseTime);
-    } catch (final SupportedFeatureException exception1) {
-      return ResultCode.UNWILLING_TO_PERFORM;
-    }
-    if (authId != null) {
+    authId = authorizedIdentity
+      .getAuthorizationIdentityWhoAmIExtendedOperation();
+    if(authId != null) {
       msg = String.format("AuthorizationID from the Who am I? extended request: " +
-              "'%s'",authId);
+        "'%s'",authId);
       getLogger().info(msg);
     }
 
@@ -187,28 +186,20 @@ public final class AuthDemo extends AbstractTool {
      * Demonstrate the use of the AuthorizationIdentityRequestControl.
      */
     final DN bindDnAsDn = commandLineOptions.getBindDn();
-    if (isVerbose()) {
+    if(isVerbose()) {
       verbose("Getting the authorization identity using the authorization identity " +
-              "request.");
+        "request.");
     }
     final String bindDn = bindDnAsDn.toString();
     final String bindPassword = commandLineOptions.getBindPassword();
-    try {
-      final long responseTimeMillis = getResponseTimeMillis();
-      authId =
-              authorizedIdentity.getAuthorizationIdentityFromBindRequest(bindDn,
-                      bindPassword,responseTimeMillis);
-    } catch (final SupportedFeatureException exception) {
-      if (getLogger().isWarnEnabled()) {
-        msg = "The AuthorizationIdentityRequestControl did not succeed.";
-        getLogger().warn(msg);
-      }
-      return ResultCode.UNWILLING_TO_PERFORM;
-    }
-    if (authId != null) {
+    final long responseTimeMillis = getResponseTimeMillis();
+    authId =
+      authorizedIdentity.getAuthorizationIdentityFromBindRequest(bindDn,
+        bindPassword,responseTimeMillis);
+    if(authId != null) {
       msg =
-              String.format("AuthorizationID from the " +
-                      "AuthorizationIdentityResponseControl: '%s'",authId);
+        String.format("AuthorizationID from the " +
+          "AuthorizationIdentityResponseControl: '%s'",authId);
       getLogger().info(msg);
     }
 
