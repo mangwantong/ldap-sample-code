@@ -11,10 +11,12 @@
     <version>3.0</version>
     <packaging>jar</packaging>
     <properties>
-        <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
+        <maven.build.timestamp.format>yyyyMMddHHmmss
+        </maven.build.timestamp.format>
         <commons.cfg.version>1.8</commons.cfg.version>
     </properties>
-    <description>A collection of sample code used in the blog at http://ff1959.wordpress.com.
+    <description>A collection of sample code used in the blog at
+        http://ff1959.wordpress.com.
         Notable are demonstrations of the UnboundID LDAP SDK.
     </description>
     <url>http://ldapMaven.org</url>
@@ -77,7 +79,7 @@
         <plugins>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
-                 <version>2.4</version>
+                <version>2.4</version>
                 <executions>
                     <execution>
                         <id>bundle-project-sources</id>
@@ -87,7 +89,8 @@
                         </goals>
                         <configuration>
                             <descriptorRefs>
-                                <descriptorRef>jar-with-dependencies</descriptorRef>
+                                <descriptorRef>jar-with-dependencies
+                                </descriptorRef>
                             </descriptorRefs>
                         </configuration>
                     </execution>
