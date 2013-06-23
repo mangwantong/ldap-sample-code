@@ -66,7 +66,12 @@ public final class AddExample {
         result = ldapResult == null ? 1 : ldapResult.getResultCode().intValue();
       }
     } catch(final LDAPException e) {
-      System.err.println(e);
+      System.err.println(String.valueOf(AddExample.class) + " is an example " +
+        "of how to add an entry to an LDAP Directory Server. The example is " +
+        "primitive and simple minded: it expects the LDAP Directory Server " +
+        "to be listening on ldap://localhost:389 and hosting 'dc=example," +
+        "dc=com'.");
+      e.printStackTrace();
       result = e.getResultCode().intValue();
     }
 
