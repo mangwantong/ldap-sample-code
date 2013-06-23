@@ -23,7 +23,6 @@ import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
 import samplecode.controls.ControlHandler;
-import samplecode.ldap.SupportedFeatureException;
 import samplecode.ldif.LdifLoadProgressEvent;
 import samplecode.ldif.ReadLdifFile;
 import samplecode.listener.ProgressListener;
@@ -381,10 +380,6 @@ public final class LdapTreeDelete extends AbstractTool {
       builder.append(ldifException.getExceptionMessage());
       wrapErr(indentation,width,builder.toString());
       return ResultCode.OPERATIONS_ERROR;
-    } catch(final SupportedFeatureException unsupportedException) {
-      wrapErr(indentation,width,"The tree delete control or operation purpose" +
-        " request control is not supported by this server.");
-      return ResultCode.UNWILLING_TO_PERFORM;
     }
 
     return ResultCode.SUCCESS;

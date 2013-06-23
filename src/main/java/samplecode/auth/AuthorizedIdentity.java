@@ -28,7 +28,6 @@ import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
 import samplecode.ldap.SupportedFeature;
-import samplecode.ldap.SupportedFeatureException;
 import samplecode.listener.LdapExceptionEvent;
 import samplecode.listener.LdapExceptionListener;
 import samplecode.listener.ObservedByLdapExceptionListener;
@@ -150,14 +149,10 @@ public final class AuthorizedIdentity
    * @return the authorization identity from the response control
    *         associated with the
    *         {@code AuthorizationIdentityRequestControl}.
-   *
-   * @throws SupportedFeatureException
-   *   if the request control is not supported.
    */
   public String getAuthorizationIdentityFromBindRequest(
     final String bindDn, final String bindPassword,
-    long responseTimeoutMillis)
-    throws SupportedFeatureException {
+    long responseTimeoutMillis) {
     ensureNotNull(bindDn,bindPassword);
     ensureTrue(responseTimeoutMillis > 0);
 
@@ -203,24 +198,17 @@ public final class AuthorizedIdentity
    * Retrieves the authorization identity from an existing ldap
    * connection.
    *
-   * @param responseTimeout
-   *   the number of milliseconds that the client will wait for a
-   *   response to the bind request before failing with a TIMEOUT
-   *   condition
-   *
    * @return the authorization identity from the response control
    *         associated with the
    *         {@code AuthorizationIdentityRequestControl}.
-   *
-   * @throws SupportedFeatureException
-   *   if the request control is not supported.
    */
   public String
-  getAuthorizationIdentityWhoAmIExtendedOperation(final long responseTimeout)
-    throws SupportedFeatureException {
+  getAuthorizationIdentityWhoAmIExtendedOperation() {
 
-    checkSupportedFeature(ldapConnection,
-      WhoAmIExtendedRequest.WHO_AM_I_REQUEST_OID);
+    if(!checkSupportedFeature(ldapConnection,
+      WhoAmIExtendedRequest.WHO_AM_I_REQUEST_OID)) {
+      return null;
+    }
 
     /*
      * Demonstrate the user of the Who Am I? extended operation. This
@@ -259,16 +247,10 @@ public final class AuthorizedIdentity
 
 
 
-  private void checkSupportedFeature(final LDAPConnection ldapConnection,
-                                     final String controlOID) throws SupportedFeatureException {
-    SupportedFeature supportedFeature;
-    try {
-      supportedFeature = SupportedFeature.newSupportedFeature(ldapConnection);
-    } catch(final LDAPException exception) {
-      fireLdapExceptionListener(ldapConnection,exception);
-      return;
-    }
-    supportedFeature.isExtendedOperationSupported(controlOID);
+  private boolean checkSupportedFeature(final LDAPConnection ldapConnection,
+                                     final String controlOID) {
+    return SupportedFeature.isExtendedOperationSupported
+      (ldapConnection,controlOID);
   }
 
 

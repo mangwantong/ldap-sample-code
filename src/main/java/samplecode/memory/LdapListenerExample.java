@@ -29,7 +29,6 @@ import samplecode.annotation.Launchable;
 import samplecode.annotation.Since;
 import samplecode.config.ConfigStrategy;
 import samplecode.ldap.SupportedFeature;
-import samplecode.ldap.SupportedFeatureException;
 import samplecode.tools.AbstractTool;
 import samplecode.tools.BasicToolCompletedProcessing;
 import samplecode.tools.ToolCompletedProcessing;
@@ -312,15 +311,9 @@ public final class LdapListenerExample extends AbstractTool {
    *   exception is not thrown if a designated request control
    *   is not supported.
    */
-  public void checkRequestControls(final List<String> requestControlOIDs) throws LDAPException {
+  public void checkRequestControls(final List<String> requestControlOIDs)
+    throws LDAPException {
     ensureNotNull(requestControlOIDs);
-
-    /*
-    * Create the object that provides the services related to
-    * checking whether a request control is supported.
-    */
-    final SupportedFeature supportedControl =
-      SupportedFeature.newSupportedFeature(ldapConnectionPool);
 
     /*
     * Validate that the server supports each response control in the
@@ -328,18 +321,10 @@ public final class LdapListenerExample extends AbstractTool {
     * print a helpful message and proceed.
     */
     for(final String oid : requestControlOIDs) {
-      try {
-        supportedControl.isControlSupported(oid);
+      if(SupportedFeature.isControlSupported(ldapConnection,oid)) {
         final StringBuilder builder = new StringBuilder("Request Control '");
         builder.append(oid);
         builder.append("' is supported by this server.");
-        out(builder.toString());
-      } catch(final SupportedFeatureException supportedControlException) {
-        final StringBuilder builder = new StringBuilder("Request Control ");
-        builder.append(oid);
-        builder.append(" is not supported by this server ");
-        builder.append(" (it might be a response control or just not " +
-          "supported at all).");
         out(builder.toString());
       }
     }
@@ -354,6 +339,8 @@ public final class LdapListenerExample extends AbstractTool {
    * @throws LDAPException
    *   If the search fails.
    */
+
+
   public void displayEntries() throws LDAPException {
     final String baseObject = commandLineOptions.getBaseObject();
     final SearchScope scope = SearchScope.SUB;

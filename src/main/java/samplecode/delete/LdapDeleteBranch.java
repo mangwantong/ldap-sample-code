@@ -20,14 +20,12 @@ package samplecode.delete;
 import com.unboundid.ldap.sdk.*;
 import com.unboundid.ldap.sdk.controls.SubtreeDeleteRequestControl;
 import com.unboundid.util.NotMutable;
-import com.unboundid.util.Validator;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
 import samplecode.annotation.Singleton;
 import samplecode.controls.ControlHandler;
 import samplecode.ldap.SupportedFeature;
-import samplecode.ldap.SupportedFeatureException;
 import samplecode.listener.LdapExceptionEvent;
 import samplecode.listener.LdapExceptionListener;
 import samplecode.listener.ObservedByLdapExceptionListener;
@@ -35,6 +33,8 @@ import samplecode.util.SampleCodeCollectionUtils;
 
 import java.util.List;
 import java.util.Vector;
+
+import static com.unboundid.util.Validator.ensureNotNull;
 
 
 /**
@@ -94,7 +94,7 @@ public final class LdapDeleteBranch
   @Override
   public void fireLdapExceptionListener(final LDAPConnection ldapConnection,
                                         final LDAPException ldapException) {
-    Validator.ensureNotNull(ldapConnection,ldapException);
+    ensureNotNull(ldapConnection,ldapException);
     final List<LdapExceptionListener> copy;
     synchronized(this) {
       copy = SampleCodeCollectionUtils.newArrayList(ldapExceptionListeners);
@@ -140,41 +140,22 @@ public final class LdapDeleteBranch
    *   milliseconds.
    * @param controlHandlers
    *   handles any response controls.
-   *
-   * @throws SupportedFeatureException
-   *   if the OID of the subtree delete request control is not
-   *   supported by this server.
    */
   public void deleteTree(LDAPConnection ldapConnection,
                          DN dnToDelete,
                          int responseTimeout,
-                         ControlHandler[] controlHandlers)
-    throws SupportedFeatureException {
+                         ControlHandler[] controlHandlers) {
 
-    Validator.ensureNotNull(ldapConnection,dnToDelete);
-
-    try {
-      validateControls(ldapConnection,
-        SubtreeDeleteRequestControl.SUBTREE_DELETE_REQUEST_OID);
-    } catch(final LDAPException exception) {
-      fireLdapExceptionListener(ldapConnection,exception);
-      return;
-    }
+    ensureNotNull(ldapConnection,dnToDelete);
 
     /*
      * Check that the server supports the subtree delete request control
      */
-    SupportedFeature supportedControlOrExtension;
-    try {
-      supportedControlOrExtension =
-        SupportedFeature.newSupportedFeature(ldapConnection);
-    } catch(final LDAPException exception) {
-      fireLdapExceptionListener(ldapConnection,exception);
-      return;
-    }
     final String controlOID =
       SubtreeDeleteRequestControl.SUBTREE_DELETE_REQUEST_OID;
-    supportedControlOrExtension.isControlSupported(controlOID);
+    if(!SupportedFeature.isControlSupported(ldapConnection,controlOID)) {
+      return;
+    }
 
     /*
      * Construct a delete request and add the subtree delete request
@@ -203,20 +184,6 @@ public final class LdapDeleteBranch
           h.handleResponseControl(this,responseControl);
         }
       }
-    }
-  }
-
-
-
-  private void validateControls(final LDAPConnection ldapConnection,
-                                final String... subtreeDeleteRequestOids)
-    throws LDAPException,
-    SupportedFeatureException {
-    Validator.ensureNotNull(ldapConnection,subtreeDeleteRequestOids);
-    for(final String controlOID : subtreeDeleteRequestOids) {
-      final SupportedFeature supportedFeature =
-        SupportedFeature.newSupportedFeature(ldapConnection);
-      supportedFeature.isControlSupported(controlOID);
     }
   }
 

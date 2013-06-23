@@ -25,7 +25,6 @@ import samplecode.annotation.Launchable;
 import samplecode.annotation.Since;
 import samplecode.ldap.DefaultUnsolicitedNotificationHandler;
 import samplecode.ldap.SupportedFeature;
-import samplecode.ldap.SupportedFeatureException;
 import samplecode.tools.AbstractTool;
 
 import java.io.OutputStream;
@@ -135,13 +134,9 @@ public final class PersistentSearchExample extends AbstractTool {
 
     // Check that the persistent search request control is supported by
     // the server to which this client is connected.
-    final String controlOID = PersistentSearchRequestControl.PERSISTENT_SEARCH_REQUEST_OID;
-    final SupportedFeature supported = SupportedFeature.newSupportedFeature(ldapConnection);
-    try {
-      supported.isControlSupported(controlOID);
-    } catch(final SupportedFeatureException ex) {
-      ldapConnection.close();
-      getLogger().fatal(ex.getMessage());
+    final String controlOID =
+      PersistentSearchRequestControl.PERSISTENT_SEARCH_REQUEST_OID;
+    if(!SupportedFeature.isControlSupported(ldapConnection,controlOID)) {
       return ResultCode.UNWILLING_TO_PERFORM;
     }
 

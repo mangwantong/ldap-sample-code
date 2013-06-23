@@ -13,13 +13,12 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
+
 package samplecode.password;
 
 
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Validator;
-
-
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
@@ -33,34 +32,31 @@ import samplecode.annotation.Since;
 @CodeVersion("1.1")
 @SuppressWarnings("serial")
 public class PasswordModifyExtendedOperationFailedException
-        extends Exception
-{
+  extends Exception {
 
   /**
-   * retrieves the result code associated with the exception.
-   * 
-   * @return result code from the exception.
+   * Constructs the object and sets its state with the
+   * {@code resultCode} parameter.
+   *
+   * @param resultCode
+   *   The result code from a failed password modify extended
+   *   operation failed exception.
    */
-  public ResultCode getResultCode()
-  {
-    return resultCode;
+  public PasswordModifyExtendedOperationFailedException(
+    final ResultCode resultCode) {
+    Validator.ensureNotNull(resultCode);
+    this.resultCode = resultCode;
   }
 
 
 
   /**
-   * Constructs the object and sets its state with the
-   * {@code resultCode} parameter.
-   * 
-   * @param resultCode
-   *          The result code from a failed password modify extended
-   *          operation failed exception.
+   * retrieves the result code associated with the exception.
+   *
+   * @return result code from the exception.
    */
-  public PasswordModifyExtendedOperationFailedException(
-          final ResultCode resultCode)
-  {
-    Validator.ensureNotNull(resultCode);
-    this.resultCode = resultCode;
+  public ResultCode getResultCode() {
+    return resultCode;
   }
 
 

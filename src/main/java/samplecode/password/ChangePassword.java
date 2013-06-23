@@ -13,6 +13,7 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
+
 package samplecode.password;
 
 
@@ -27,9 +28,7 @@ import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
 import samplecode.ldap.SupportedFeature;
-import samplecode.ldap.SupportedFeatureException;
 
-import static com.unboundid.util.Validator.ensureNotNull;
 import static com.unboundid.util.Validator.ensureNotNullWithMessage;
 
 
@@ -42,93 +41,104 @@ import static com.unboundid.util.Validator.ensureNotNullWithMessage;
 @NotMutable
 public class ChangePassword {
 
-    /**
-     * Gets a new and distinct instance of the {@code ChangePassword}
-     * object that will use the supplied {@code ldapConnection} for
-     * changing passwords.
-     *
-     * @param ldapConnection connection to LDAP server, {@code null} object not
-     *                       permitted.
-     * @return a new and distinct instance of the {@code ChangePassword}
-     *         object.
-     */
-    public static ChangePassword newChangePassword(final LDAPConnection ldapConnection) {
-        return new ChangePassword(ldapConnection);
-    }
+  /**
+   * Gets a new and distinct instance of the {@code ChangePassword}
+   * object that will use the supplied {@code ldapConnection} for
+   * changing passwords.
+   *
+   * @param ldapConnection
+   *   connection to LDAP server, {@code null} object not
+   *   permitted.
+   *
+   * @return a new and distinct instance of the {@code ChangePassword}
+   *         object.
+   */
+  public static ChangePassword
+  newChangePassword(LDAPConnection ldapConnection) {
+    return new ChangePassword(ldapConnection);
+  }
 
 
-    private ChangePassword(final LDAPConnection ldapConnection) {
-        ensureNotNullWithMessage(ldapConnection,"ldapConnection was null");
-        this.ldapConnection = ldapConnection;
-    }
+
+  private ChangePassword(final LDAPConnection ldapConnection) {
+    ensureNotNullWithMessage(ldapConnection,"ldapConnection was null");
+    this.ldapConnection = ldapConnection;
+  }
 
 
-    /**
-     * Changes the password of the entry. Requires the existing password
-     * and the new password.
-     *
-     * @param distinguishedName     the distinguished name of the entry whose password 
-     *                              will be
-     *                              changed.
-     * @param existingPassword      the existing password of the entry, {@code null} is not
-     *                              permitted.
-     * @param newPassword           the new password of the entry, if {@code null}, 
-     *                              the server
-     *                              will generate a new password and send it back to this
-     *                              client.
-     * @param responseTimeoutMillis maximum time (ms) to wait for a response from the 
-     *                              server.
-     * @throws LDAPException
-     * @throws SupportedFeatureException
-     * @throws PasswordModifyExtendedOperationFailedException
-     *
-     */
-    public void changePassword(final DN distinguishedName, final String existingPassword,
-                               final String newPassword, final int responseTimeoutMillis)
-            throws LDAPException,
-            SupportedFeatureException, PasswordModifyExtendedOperationFailedException {
-        ensureNotNullWithMessage(distinguishedName,"DN was null");
-        ensureNotNullWithMessage(existingPassword,"existingPassword was null");
-        ensureNotNullWithMessage(newPassword,"newPassword was null");
+
+  /**
+   * Changes the password of the entry. Requires the existing password
+   * and the new password.
+   *
+   * @param distinguishedName
+   *   the distinguished name of the entry whose password
+   *   will be
+   *   changed.
+   * @param existingPassword
+   *   the existing password of the entry, {@code null} is not
+   *   permitted.
+   * @param newPassword
+   *   the new password of the entry, if {@code null},
+   *   the server
+   *   will generate a new password and send it back to this
+   *   client.
+   * @param responseTimeoutMillis
+   *   maximum time (ms) to wait for a response from the
+   *   server.
+   *
+   * @throws LDAPException
+   * @throws PasswordModifyExtendedOperationFailedException
+   *
+   */
+  public void changePassword(final DN distinguishedName,
+                             final String existingPassword,
+                             final String newPassword,
+                             final int responseTimeoutMillis)
+    throws LDAPException, PasswordModifyExtendedOperationFailedException {
+    ensureNotNullWithMessage(distinguishedName,"DN was null");
+    ensureNotNullWithMessage(existingPassword,"existingPassword was null");
+    ensureNotNullWithMessage(newPassword,"newPassword was null");
 
     /*
      * Check the the server supports the password modify extended
      * request.
      */
-        final SupportedFeature supportedControl =
-                SupportedFeature.newSupportedFeature(ldapConnection);
-        final String oid = PasswordModifyExtendedRequest.PASSWORD_MODIFY_REQUEST_OID;
-        supportedControl.isExtendedOperationSupported(oid);
+    final String oid = PasswordModifyExtendedRequest.PASSWORD_MODIFY_REQUEST_OID;
+    if(!SupportedFeature.isExtendedOperationSupported(ldapConnection,oid)) {
+      return;
+    }
 
     /*
      * Create the password modify extended request. The extended request
      * will operate on the authentication identity of the existing
      * connection.
      */
-        final PasswordModifyExtendedRequest passwordModifyExtendedRequest =
-                new PasswordModifyExtendedRequest(existingPassword,newPassword);
-        passwordModifyExtendedRequest.setResponseTimeoutMillis(responseTimeoutMillis);
+    final PasswordModifyExtendedRequest passwordModifyExtendedRequest =
+      new PasswordModifyExtendedRequest(existingPassword,newPassword);
+    passwordModifyExtendedRequest.setResponseTimeoutMillis(responseTimeoutMillis);
 
     /*
      * Send the request to the server:
      */
-        final PasswordModifyExtendedResult extendedResult =
-                (PasswordModifyExtendedResult)ldapConnection
-                        .processExtendedOperation(passwordModifyExtendedRequest);
+    final PasswordModifyExtendedResult extendedResult =
+      (PasswordModifyExtendedResult) ldapConnection
+        .processExtendedOperation(passwordModifyExtendedRequest);
 
     /*
      * Examine the results:
      */
-        final ResultCode resultCode = extendedResult.getResultCode();
-        if(!resultCode.equals(ResultCode.SUCCESS)) {
-            throw new PasswordModifyExtendedOperationFailedException(resultCode);
-        }
+    final ResultCode resultCode = extendedResult.getResultCode();
+    if(!resultCode.equals(ResultCode.SUCCESS)) {
+      throw new PasswordModifyExtendedOperationFailedException(resultCode);
     }
+  }
 
 
-    /**
-     * The LDAP connection supplied by the client
-     */
-    private final LDAPConnection ldapConnection;
+
+  /**
+   * The LDAP connection supplied by the client
+   */
+  private final LDAPConnection ldapConnection;
 
 }
