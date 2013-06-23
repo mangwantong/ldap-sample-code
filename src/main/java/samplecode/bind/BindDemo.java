@@ -380,6 +380,7 @@ public final class BindDemo extends AbstractTool
    *   {@code responseControlHandler} is {@code null},no action
    *   is taken and no exception is thrown.
    */
+  @SuppressWarnings("unused")
   public void removeResponseControlHandler
   (final ResponseControlAware responseControlHandler) {
     if(responseControlHandler != null) {
