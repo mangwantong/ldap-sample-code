@@ -113,6 +113,7 @@ public final class AuthDemo extends AbstractTool {
     throws ArgumentException {
     Argument requiredArgument =
       commandLineOptions.getBindDnArgument();
+
     final Collection<Argument> requiredArgumentSet =
       SampleCodeCollectionUtils.newArrayList();
     requiredArgumentSet.add(requiredArgument);

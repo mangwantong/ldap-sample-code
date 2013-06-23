@@ -183,10 +183,10 @@ public final class AssertionRequestControlDemo extends AbstractTool {
    *   command line arguments, less the JVM arguments.
    */
   public static void main(final String... args) {
-    final PrintStream outStream = System.out;
-    final PrintStream errStream = System.err;
+    final PrintStream out = System.out;
+    final PrintStream err = System.err;
     final AssertionRequestControlDemo assertionRequestControlDemo =
-      AssertionRequestControlDemo.newAssertionRequestControlDemo(outStream,errStream);
+      AssertionRequestControlDemo.newAssertionRequestControlDemo(out,err);
     final ResultCode resultCode = assertionRequestControlDemo.runTool(args);
     final ToolCompletedProcessing completedProcessing =
       new BasicToolCompletedProcessing(assertionRequestControlDemo,resultCode);
@@ -209,7 +209,7 @@ public final class AssertionRequestControlDemo extends AbstractTool {
    * is the new value of the attribute specified by the --attribute
    * command line argument.
    */
-  public static final Character SHORT_ID_NEW_ATTRIBUTE_VALUE;
+  public static final Character SHORT_ID_NEW_ATTRIBUTE_VALUE = 'v';
 
 
   /**
@@ -217,14 +217,8 @@ public final class AssertionRequestControlDemo extends AbstractTool {
    * the new value of the attribute specified by the --attribute command
    * line argument.
    */
-  public static final String ARG_NAME_NEW_ATTRIBUTE_VALUE;
-
-
-
-  static {
-    ARG_NAME_NEW_ATTRIBUTE_VALUE = "newAttributeValue";
-    SHORT_ID_NEW_ATTRIBUTE_VALUE = Character.valueOf('v');
-  }
+  public static final String ARG_NAME_NEW_ATTRIBUTE_VALUE =
+    "newAttributeValue";
 
 
 
@@ -246,34 +240,33 @@ public final class AssertionRequestControlDemo extends AbstractTool {
    * {@code System.out} for the output stream, {@code System.err} as the
    * error stream, and a {@code MinimalLogFormatter}.
    */
-  private AssertionRequestControlDemo() {
+  @SuppressWarnings("unused")
+  public AssertionRequestControlDemo() {
     this(System.out,System.err);
   }
 
 
 
   @Override
-  protected void addArguments(final ArgumentParser argumentParser) throws ArgumentException {
-    if(argumentParser == null) {
-      throw new IllegalArgumentException("argumentParser must not be null.");
-    }
+  protected void addArguments(final ArgumentParser argumentParser)
+    throws ArgumentException {
 
     /*
      * Add to the command line argument parser the command line argument
      * that specifies a new value the attribute that is named by the
      * --attribute command line argument.
      */
-    final Character shortIdentifier = AssertionRequestControlDemo.SHORT_ID_NEW_ATTRIBUTE_VALUE;
-    final String longIdentifier = AssertionRequestControlDemo.ARG_NAME_NEW_ATTRIBUTE_VALUE;
+    final Character shortIdentifier = SHORT_ID_NEW_ATTRIBUTE_VALUE;
+    final String longIdentifier = ARG_NAME_NEW_ATTRIBUTE_VALUE;
     final boolean isRequired = true;
     final int maxOccurrences = 1;
     final String valuePlaceholder = "{attribute-value}";
     final String description =
-      "The value to which the attribute specified by " + "'--attribute' final command " +
-        "line argument final is set.";
+      "The value to which the attribute specified by '--attribute' final " +
+        "command line argument final is set.";
     newAttributeValueArgument =
-      new StringArgument(shortIdentifier,longIdentifier,isRequired,maxOccurrences,
-        valuePlaceholder,description);
+      new StringArgument(shortIdentifier,longIdentifier,isRequired,
+        maxOccurrences,valuePlaceholder,description);
     argumentParser.addArgument(newAttributeValueArgument);
 
     String argName = CommandLineOptions.ARG_NAME_FILTER;
@@ -282,7 +275,8 @@ public final class AssertionRequestControlDemo extends AbstractTool {
     argName = CommandLineOptions.ARG_NAME_BIND_DN;
     final Argument dnArgument = argumentParser.getNamedArgument(argName);
 
-    final List<Argument> requiredArgumentSet = SampleCodeCollectionUtils.newArrayList();
+    final List<Argument> requiredArgumentSet =
+      SampleCodeCollectionUtils.newArrayList();
     requiredArgumentSet.add(dnArgument);
     requiredArgumentSet.add(filterArgument);
     requiredArgumentSet.add(newAttributeValueArgument);
@@ -294,11 +288,10 @@ public final class AssertionRequestControlDemo extends AbstractTool {
 
   @Override
   protected ResultCode executeToolTasks() {
-    introduction();
-    if(isVerbose()) {
-      displayArguments();
-    }
+    String msg;
     ResultCode resultCode = null;
+
+
     try {
       /*
        * Obtain a pool of connections to the LDAP server from the
@@ -334,7 +327,7 @@ public final class AssertionRequestControlDemo extends AbstractTool {
       final Filter filter = commandLineOptions.getFilter();
       if(filter == null) {
         final ArgumentParser argumentParser = getArgumentParser();
-        final String msg = getRequiredArgumentsMessage(argumentParser);
+        msg = getRequiredArgumentsMessage(argumentParser);
         getLogger().fatal(msg);
         return ResultCode.UNWILLING_TO_PERFORM;
       }
@@ -353,12 +346,6 @@ public final class AssertionRequestControlDemo extends AbstractTool {
       * therefore, check for it before using it.
       */
       final DN dn = commandLineOptions.getBindDn();
-      if(dn == null) {
-        msg = "A valid distinguished name must be supplied using the --bindDN " + "command " +
-          "line argument. This demonstration cannot use the root DSE.";
-        getLogger().fatal(msg);
-        return ResultCode.PARAM_ERROR;
-      }
       final String bindDn = dn.toString();
       msg = String.format("Using bind DN '%s'",bindDn);
       getLogger().info(msg);
@@ -366,8 +353,11 @@ public final class AssertionRequestControlDemo extends AbstractTool {
       /*
       * Use only the first --attributes parameter
       */
-      final String attributeName =
-        commandLineOptions.getRequestedAttributes().toArray(new String[0])[0];
+      final List<String> attrList =
+        commandLineOptions.getRequestedAttributes();
+      final String[] attrs = new String[attrList.size()];
+      attrList.toArray(attrs);
+      final String attributeName = attrs[0];
       msg = String.format("Using attribute '%s'",attributeName);
       getLogger().info(msg);
 
@@ -403,13 +393,6 @@ public final class AssertionRequestControlDemo extends AbstractTool {
   protected String classSpecificPropertiesResourceName() {
     return "AssertionRequestControlDemo.properties";
   }
-
-
-
-  /**
-   * String representation of messages.
-   */
-  private String msg;
 
 
   private StringArgument newAttributeValueArgument;
