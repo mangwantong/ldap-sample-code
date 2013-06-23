@@ -225,18 +225,6 @@ public final class ScriptTool extends AbstractTool {
 
 
   /**
-   * The description of this tool; this is used for help and diagnostic
-   * output, and for other purposes.
-   */
-  public static final String TOOL_DESCRIPTION =
-    "Generates an executable script for use in " +
-      "invoking the tools provided by the " +
-      "samplecode package. ScriptTool requires " +
-      "--writeableDirectory, --className, and --classPath. " +
-      "Optionally supply --jvmOptions.";
-
-
-  /**
    * The name of this tool; this is used for help and diagnostic output,
    * and for other purposes.
    */
@@ -274,6 +262,13 @@ public final class ScriptTool extends AbstractTool {
 
 
 
+  @Override
+  public String getToolName() {
+    return ScriptTool.TOOL_NAME;
+  }
+
+
+
   /**
    * {@inheritDoc}
    */
@@ -290,6 +285,8 @@ public final class ScriptTool extends AbstractTool {
     argumentParser.addArgument(classPathArgument);
     argumentParser.addArgument(directoryArgument);
     argumentParser.addArgument(spaceSeparatedJVMOptionsArgument);
+    argumentParser.addRequiredArgumentSet(classNameArgument,
+      classPathArgument,directoryArgument);
   }
 
 
@@ -297,13 +294,6 @@ public final class ScriptTool extends AbstractTool {
   @Override
   protected UnsolicitedNotificationHandler getUnsolicitedNotificationHandler() {
     return new DefaultUnsolicitedNotificationHandler(this);
-  }
-
-
-
-  @Override
-  public String getToolName() {
-    return ScriptTool.TOOL_NAME;
   }
 
 
@@ -321,7 +311,7 @@ public final class ScriptTool extends AbstractTool {
     final String directory = directoryArgument.getValue();
     final PropertiesBasedScriptGenerator gen =
       new PropertiesBasedScriptGenerator(className,
-        classPath, spaceSeparatedJVMOptions,  directory);
+        classPath,spaceSeparatedJVMOptions,directory);
     try {
       gen.generateScript();
       final String helpfulMessage =
@@ -343,54 +333,6 @@ public final class ScriptTool extends AbstractTool {
   @Override
   protected String classSpecificPropertiesResourceName() {
     return "ScriptTool.properties";
-  }
-
-
-
-  public String getClassName() {
-    return getClassNameArgument().getValue();
-  }
-
-
-
-  public String getClassPath() {
-    return getClassPathArgument().getValue();
-  }
-
-
-
-  public String getDirectory() {
-    return getDirectoryArgument().getValue();
-  }
-
-
-
-  public String getJvmOptions() {
-    return getJvmOptionsArgument().getValue();
-  }
-
-
-
-  public StringArgument getJvmOptionsArgument() {
-    return spaceSeparatedJVMOptionsArgument;
-  }
-
-
-
-  public StringArgument getClassNameArgument() {
-    return classNameArgument;
-  }
-
-
-
-  public StringArgument getClassPathArgument() {
-    return classPathArgument;
-  }
-
-
-
-  public StringArgument getDirectoryArgument() {
-    return directoryArgument;
   }
 
 
