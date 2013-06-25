@@ -17,10 +17,12 @@
 package samplecode.bind;
 
 import com.unboundid.ldap.sdk.*;
-import com.unboundid.util.Validator;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
+
+import static com.unboundid.util.Validator.ensureNotNull;
+
 
 /**
  * Provides a method that changes the authentication state of an
@@ -28,26 +30,55 @@ import samplecode.annotation.Since;
  */
 @Author("terry.gardner@unboundid.com")
 @Since("Dec 11, 2011")
-@CodeVersion("1.2")
+@CodeVersion("1.3")
 public final class SimpleBindExample {
 
   /**
    * @param args
-   *         unused and ignored
+   *   unused and ignored
    */
   public static final void main(final String... args) {
     try {
       final SimpleBindExample simpleBindExample = new SimpleBindExample();
-      final LDAPConnection ldapConnection = new LDAPConnection("ldap.example.com",10389);
+      final LDAPConnection ldapConnection =
+        new LDAPConnection(HOSTNAME,PORT);
       final BindResult bindResult =
-              simpleBindExample.authenticateUser(ldapConnection,"dc=example,dc=com","uid",
-                      "user.0","password",10);
+        simpleBindExample.authenticateUser(ldapConnection,BASE_OBJECT,
+          NAMING_ATTRIBUTE,"user.0","password",10);
       ldapConnection.close();
       System.out.println(bindResult);
-    } catch (final LDAPException exception) {
+    } catch(final LDAPException exception) {
       exception.printStackTrace();
     }
   }
+
+
+
+  /**
+   * The name of the attribute use din the distinguished name.
+   */
+  public static final String NAMING_ATTRIBUTE = "uid";
+
+
+  /**
+   * The base object from which to perform the search.
+   */
+  public static final String BASE_OBJECT = "dc=example,dc=com";
+
+
+  /**
+   * The hostname of IP address where the server listens for client
+   * connections.
+   */
+  public static final String HOSTNAME = "ldap.example.com";
+
+
+  /**
+   * The port on which the server listens for client connections.
+   */
+  public static final int PORT = 389;
+
+
 
   /**
    * Changes the authentication state of the connection specified by
@@ -67,42 +98,50 @@ public final class SimpleBindExample {
    * </blockquote>
    *
    * @param ldapConnection
-   *         an existing connection to a server -
-   *         {@code ldapConnection} is not permitted to be {@code null}
+   *   an existing connection to a server -
+   *   {@code ldapConnection} is not permitted to be {@code null}
    * @param baseObject
-   *         the distinguished name at which the search should begin -
-   *         {@code baseObject} is not permitted to be {@code null}
+   *   the distinguished name at which the search should begin -
+   *   {@code baseObject} is not permitted to be {@code null}
    * @param namingAttribute
-   *         the attribute type
+   *   the attribute type
    * @param user
-   *         the user-name to which the authorization identity of the
-   *         connection will be set - {@code user} is not permitted to
-   *         be {@code null}
+   *   the user-name to which the authorization identity of the
+   *   connection will be set - {@code user} is not permitted to
+   *   be {@code null}
    * @param password
-   *         the password of the {@code user} - {@code password} is not
-   *         permitted to be {@code null}.
+   *   the password of the {@code user} - {@code password} is not
+   *   permitted to be {@code null}.
    * @param responseTimeoutMillis
-   *         the time in milliseconds before the authentication attempt
-   *         times out.
+   *   the time in milliseconds before the authentication attempt
+   *   times out.
    *
    * @return the result of the simple bind request or {@code null} if
    *         the user does not exist, or if multiple entries match the
    *         search.
    */
   public BindResult authenticateUser(final LDAPConnection ldapConnection,
-                                     final String baseObject, final String namingAttribute, final String user,
-                                     final String password, final int responseTimeoutMillis) throws LDAPException {
-    final String filter = String.format("(%s=%s)",namingAttribute,user);
+                                     final String baseObject,
+                                     final String namingAttribute,
+                                     final String user,
+                                     final String password,
+                                     final int responseTimeoutMillis)
+    throws LDAPException {
+    final Filter filter =
+      Filter.createEqualityFilter(namingAttribute,user);
     final SearchRequest searchRequest =
-            new SearchRequest(baseObject,SearchScope.SUB,filter,"1.1");
+      new SearchRequest(baseObject,SearchScope.SUB,filter,"1.1");
     final SearchResult searchResult = ldapConnection.search(searchRequest);
     BindResult bindResult = null;
-    if (searchResult.getSearchEntries().size() == 1) {
+    if(searchResult.getSearchEntries().size() == 1) {
       final DN dn = new DN(searchResult.getSearchEntries().get(0).getDN());
-      bindResult = authenticate(ldapConnection,dn,password,responseTimeoutMillis);
+      bindResult = authenticate(ldapConnection,dn,password,
+        responseTimeoutMillis);
     }
     return bindResult;
   }
+
+
 
   /**
    * Changes the authentication state of the connection specified by
@@ -110,24 +149,28 @@ public final class SimpleBindExample {
    * {@code dn} and {@code password}.
    *
    * @param ldapConnection
-   *         an existing connection to a server -
-   *         {@code ldapConnection} is not permitted to be {@code null}
+   *   an existing connection to a server -
+   *   {@code ldapConnection} is not permitted to be {@code null}
    * @param dn
-   *         the distinguished name to which the authorization identity
-   *         of the connection will be set - {@code dn} is not
-   *         permitted to be {@code null}
+   *   the distinguished name to which the authorization identity
+   *   of the connection will be set - {@code dn} is not
+   *   permitted to be {@code null}
    * @param password
-   *         the password of the {@code dn} - {@code password} is not
-   *         permitted to be {@code null}.
+   *   the password of the {@code dn} - {@code password} is not
+   *   permitted to be {@code null}.
    * @param responseTimeoutMillis
-   *         the time in milliseconds before the authentication attempt
-   *         times out.
+   *   the time in milliseconds before the authentication attempt
+   *   times out.
    *
    * @return the result of the simple bind request.
    */
-  public BindResult authenticate(final LDAPConnection ldapConnection, final DN dn,
-                                 final String password, final int responseTimeoutMillis) throws LDAPException {
-    Validator.ensureNotNull(ldapConnection,dn,password);
+  public BindResult authenticate(final LDAPConnection ldapConnection,
+                                 final DN dn,
+                                 final String password,
+                                 final int responseTimeoutMillis) throws LDAPException {
+    ensureNotNull(ldapConnection,dn,password);
+
+
     final LDAPConnectionOptions connectionOptions = new LDAPConnectionOptions();
     connectionOptions.setResponseTimeoutMillis(responseTimeoutMillis);
     ldapConnection.setConnectionOptions(connectionOptions);

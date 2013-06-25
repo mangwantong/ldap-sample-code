@@ -9,17 +9,11 @@ import java.util.ResourceBundle;
  */
 public final class StaticData {
 
-  private StaticData() {
-    // this block deliberately left empty
-  }
-
-
-
   /**
    * provides access to the project resource bundle
    */
   public static final ResourceBundle getResourceBundle() {
-    if (resourceBundle == null) {
+    if(resourceBundle == null) {
       final String baseName = getResourceBundleBaseName();
       final Locale locale = getDefaultLocale();
       resourceBundle = ResourceBundle.getBundle(baseName,locale);
@@ -51,9 +45,10 @@ public final class StaticData {
 
   /**
    * The default {@link Locale} when the Locale is not otherwise
-   * specified
+   * specified.
    */
   public static final Locale DEFAULT_LOCALE = Locale.ENGLISH;
+
 
   /**
    * The base name of the resource bundle that contains resource data
@@ -61,7 +56,14 @@ public final class StaticData {
    */
   public static final String RESOURCE_BUNDLE_BASE_NAME = "samplecode";
 
+
   // The resource bundle used by the sample code package
   private static ResourceBundle resourceBundle;
+
+
+
+  private StaticData() {
+    // this block deliberately left empty
+  }
 
 }
