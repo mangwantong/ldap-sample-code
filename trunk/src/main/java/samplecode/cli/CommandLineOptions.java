@@ -298,7 +298,7 @@ public class CommandLineOptions {
    * the name or type of an attribute to retrieve. This command line
    * argument is optional and can occur multiple times.
    */
-  private static final String ARG_NAME_ATTRIBUTE = "attribute";
+  public static final String ARG_NAME_ATTRIBUTE = "attribute";
 
 
   /**
@@ -306,21 +306,21 @@ public class CommandLineOptions {
    * the base object used in searches and other operations where a
    * distinguished name is required.
    */
-  private static final String ARG_NAME_BASE_OBJECT = "baseObject";
+  public static final String ARG_NAME_BASE_OBJECT = "baseObject";
 
 
   /**
    * The long identifier whose value is the pathname to a file
    * containing the BIND password.
    */
-  private static final String ARG_NAME_BIND_PASSWORD_FILE = "bindPasswordFile";
+  public static final String ARG_NAME_BIND_PASSWORD_FILE = "bindPasswordFile";
 
 
   /**
    * The long identifier of the command line argument which is present
    * indicates that simple bind requests using a DN require a password.
    */
-  private static final String ARG_NAME_BIND_WITH_DN_REQUIRES_PASSWORD =
+  public static final String ARG_NAME_BIND_WITH_DN_REQUIRES_PASSWORD =
     "bindWithDnRequiresPassword";
 
 
@@ -330,7 +330,8 @@ public class CommandLineOptions {
    * not required, has a default value of 60 seconds and can occur
    * exactly one time.
    */
-  private static final String ARG_NAME_CONNECT_TIMEOUT_MILLIS = "connectTimeoutMillis";
+  public static final String ARG_NAME_CONNECT_TIMEOUT_MILLIS =
+    "connectTimeoutMillis";
 
 
   /**
@@ -729,7 +730,8 @@ public class CommandLineOptions {
    * Retrieves the value of the {@code --hostname} command line option.
    *
    * @return The hostname or IP address where a directory server is
-   *         expected to be listening for connections. If the {@code --hostname}
+   *         expected to be listening for connections. If the {@code
+   *         --hostname}
    *         or {@code
    *         -h} command line option is not present, {@code "localhost"} is
    *         returned.

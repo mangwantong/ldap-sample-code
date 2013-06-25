@@ -32,7 +32,6 @@ import samplecode.annotation.Since;
 import samplecode.cli.CommandLineOptions;
 import samplecode.controls.ResponseControlAware;
 import samplecode.display.ControlDisplayValues;
-import samplecode.ldap.DefaultUnsolicitedNotificationHandler;
 import samplecode.listener.*;
 import samplecode.tools.AbstractTool;
 import samplecode.tools.BasicToolCompletedProcessing;
@@ -41,7 +40,7 @@ import samplecode.util.SampleCodeCollectionUtils;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -170,6 +169,18 @@ public final class BindDemo extends AbstractTool
 
 
   /**
+   * The names of each of the required arguments.
+   */
+  private static final String[] requiredArgumentNames = {
+    CommandLineOptions.ARG_NAME_BASE_OBJECT,
+    CommandLineOptions.ARG_NAME_BIND_DN,
+    CommandLineOptions.ARG_NAME_BIND_PASSWORD,
+    CommandLineOptions.ARG_NAME_FILTER,
+    CommandLineOptions.ARG_NAME_SCOPE,
+  };
+
+
+  /**
    * The response control handler is used to process any response
    * controls attached to the bind response.
    */
@@ -290,13 +301,13 @@ public final class BindDemo extends AbstractTool
 
 
   /**
-   * Fetches the list of response control handlers.
+   * Fetches a list of response control handlers.
    *
-   * @return the list of response control handlers.
+   * @return a list of response control handlers.
    */
   public List<ResponseControlAware> getResponseControlHandlers() {
     if(responseControlHandlers == null) {
-      responseControlHandlers = new ArrayList<ResponseControlAware>();
+      responseControlHandlers = SampleCodeCollectionUtils.newArrayList();
     }
     return responseControlHandlers;
   }
@@ -396,18 +407,13 @@ public final class BindDemo extends AbstractTool
   @Override
   protected void addArguments(final ArgumentParser argumentParser)
     throws ArgumentException {
-    String argName = CommandLineOptions.ARG_NAME_BIND_DN;
-    final Argument bindDNArg = argumentParser.getNamedArgument(argName);
-    argName = CommandLineOptions.ARG_NAME_BIND_PASSWORD;
-    final Argument bindPasswordArg = argumentParser.getNamedArgument(argName);
-    argumentParser.addRequiredArgumentSet(bindDNArg,bindPasswordArg);
-  }
-
-
-
-  @Override
-  public UnsolicitedNotificationHandler getUnsolicitedNotificationHandler() {
-    return new DefaultUnsolicitedNotificationHandler(this);
+    final Collection<Argument> requiredArguments =
+      SampleCodeCollectionUtils.newArrayList();
+    for(final String argName : requiredArgumentNames) {
+      final Argument arg = argumentParser.getNamedArgument(argName);
+      requiredArguments.add(arg);
+    }
+    argumentParser.addRequiredArgumentSet(requiredArguments);
   }
 
 
@@ -415,19 +421,11 @@ public final class BindDemo extends AbstractTool
   @Override
   public ResultCode executeToolTasks() {
 
-    if(getLogger().isInfoEnabled()) {
-      final DN dn = commandLineOptions.getBindDn();
-      final String msg = String.format("Using distinguished name '%s'",dn);
-      getLogger().info(msg);
-    }
-
-    /*
-     * Obtain a pool of connections to the LDAP server from the
-     * LDAPCommandLineTool services,this requires specifying a
-     * connection to the LDAP server,a number of initial connections
-     * (--initialConnections) in the pool,and the maximum number of
-     * connections (--maxConnections) that the pool should create.
-     */
+    // Obtain a pool of connections to the LDAP server from the
+    // LDAPCommandLineTool services,this requires specifying a
+    // connection to the LDAP server,a number of initial connections
+    // (--initialConnections) in the pool,and the maximum number of
+    // connections (--maxConnections) that the pool should create.
     try {
       if(getLogger().isInfoEnabled()) {
         final String hostname = commandLineOptions.getHostname();
@@ -445,11 +443,18 @@ public final class BindDemo extends AbstractTool
       return ldapException.getResultCode();
     }
 
-    /*
-     * Authenticate to directory server.
-     */
+
+    // Fetch the desired BIND DN from the command line options
+    final DN dn = commandLineOptions.getBindDn();
+    if(getLogger().isInfoEnabled()) {
+      final String msg = String.format("Using distinguished name '%s'",dn);
+      getLogger().info(msg);
+    }
+
+
+    // Authenticate the connection using a SimpleBindRequest
     final BindResult bindResult;
-    final String bindDN = commandLineOptions.getBindDn().toString();
+    final String bindDN = dn.toString();
     final String bindPassword = commandLineOptions.getBindPassword();
     try {
       final BindRequest bindRequest =
@@ -460,15 +465,14 @@ public final class BindDemo extends AbstractTool
       bindResult = ldapConnectionPool.bind(bindRequest);
     } catch(final LDAPException ldapException) {
       fireLdapExceptionListener(ldapConnection,ldapException);
-      ldapConnection.close();
+      ldapConnectionPool.close(true,4);
       return ldapException.getResultCode();
     }
 
-    /*
-     * Handle response controls that may be attached to the bind
-     * response. Response controls that might be attached are the
-     * PasswordExpiredControl and the PasswordExpiringControl.
-     */
+
+    // Handle response controls that may be attached to the bind
+    // response. Response controls that might be attached include the
+    // PasswordExpiredControl and the PasswordExpiringControl.
     final List<ResponseControlAware> handlers = getResponseControlHandlers();
     for(final ResponseControlAware responseControlHandler : handlers) {
       if(responseControlHandler.invoke()) {
@@ -476,18 +480,17 @@ public final class BindDemo extends AbstractTool
           responseControlHandler.processResponseControl(bindResult);
         } catch(final LDAPException ldapException) {
           fireLdapExceptionListener(ldapConnection,ldapException);
-          ldapConnection.close();
+          ldapConnectionPool.close(true,4);
           return ldapException.getResultCode();
         }
       }
     }
 
-    /*
-     * Construct a search request. Set a size limit with the value from
-     * the {@code --sizeLimit} command line argument and a time limit
-     * with the value from the {@code --timeLimit} command line
-     * argument.
-     */
+
+    // Construct a search request. Set a size limit with the value from
+    // the {@code --sizeLimit} command line argument and a time limit
+    // with the value from the {@code --timeLimit} command line
+    // argument.
     final SearchRequest searchRequest;
     try {
       final String baseObject = commandLineOptions.getBaseObject();
@@ -497,9 +500,10 @@ public final class BindDemo extends AbstractTool
         filter = Filter.createPresenceFilter("objectClass");
       }
       if(getLogger().isTraceEnabled()) {
-        getLogger().trace("Creating search request with filter "
-          + filter + ", base object " + baseObject + ", " +
-          "and scope " + searchScope);
+        final String msg = String.format("Creating a search request using " +
+          "filter %s, base object %s, and scope %s",filter,baseObject,
+          searchScope);
+        getLogger().trace(msg);
       }
       final List<String> requestedAttributes =
         commandLineOptions.getRequestedAttributes();
@@ -516,13 +520,11 @@ public final class BindDemo extends AbstractTool
 
     } catch(final LDAPException ldapException) {
       fireLdapExceptionListener(ldapConnection,ldapException);
-      ldapConnection.close();
+      ldapConnectionPool.close(true,4);
       return ldapException.getResultCode();
     }
 
-    /*
-     * Issue search request:
-     */
+    // Perform the seach
     final SearchResult searchResult;
     try {
       if(commandLineOptions.isVerbose()) {
@@ -533,7 +535,7 @@ public final class BindDemo extends AbstractTool
     } catch(final LDAPSearchException ldapSearchException) {
       fireLdapSearchExceptionListener(ldapConnection,
         ldapSearchException);
-      ldapConnection.close();
+      ldapConnectionPool.close(true,4);
       return ldapSearchException.getResultCode();
     }
 
@@ -561,7 +563,7 @@ public final class BindDemo extends AbstractTool
       }
     }
 
-    ldapConnectionPool.close();
+    ldapConnectionPool.close(true,4);
 
     return ResultCode.SUCCESS;
   }

@@ -64,6 +64,18 @@ public abstract class AbstractTool extends LDAPCommandLineTool
 
 
 
+  /**
+   * The key of the property who value is the name of the tool
+   */
+  public static final String PROP_NAME_TOOL_NAME = "toolName";
+
+
+  /**
+   * The key of the property who value is the description of the tool
+   */
+  public static final String PROP_NAME_TOOL_DESCRIPTION = "toolDescription";
+
+
   // The indentation in the event no preference has been expressed
   private static final int DEFAULT_ERROR_INDENTATION = 0;
 
@@ -644,17 +656,8 @@ public abstract class AbstractTool extends LDAPCommandLineTool
    * Retrieves the name of this tool.
    */
   protected String getToolName(final Properties properties) {
-    final String name = properties.getProperty(toolNamePropertyName());
+    final String name = properties.getProperty(PROP_NAME_TOOL_NAME);
     return name == null ? "no name available." : name;
-  }
-
-
-
-  /**
-   * @return the name/key of the property which specifies the tool name
-   */
-  protected String toolNamePropertyName() {
-    return "toolName";
   }
 
 
@@ -683,18 +686,9 @@ public abstract class AbstractTool extends LDAPCommandLineTool
    * @return the tool description text
    */
   protected String getToolDescription(final Properties properties) {
-    final String description = properties.getProperty(toolDescriptionPropertyName());
+    final String description =
+      properties.getProperty(PROP_NAME_TOOL_DESCRIPTION);
     return description == null ? "no description available." : description;
-  }
-
-
-
-  /**
-   * @return the name/key of the property which specifies the tool
-   *         description
-   */
-  protected String toolDescriptionPropertyName() {
-    return "toolDescription";
   }
 
 
@@ -822,7 +816,7 @@ public abstract class AbstractTool extends LDAPCommandLineTool
     }
     InputStream classSpecificPropertiesInputStream = null;
     if(classSpecificPropertiesResourceName != null) {
-      ClassLoader cl = getClassLoader();
+      final ClassLoader cl = getClassLoader();
       classSpecificPropertiesInputStream =
         cl.getResourceAsStream(classSpecificPropertiesResourceName);
     }
