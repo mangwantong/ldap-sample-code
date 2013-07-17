@@ -395,6 +395,7 @@ public final class AssertionRequestControlDemo extends AbstractTool {
   }
 
 
+
   private StringArgument newAttributeValueArgument;
 
 }

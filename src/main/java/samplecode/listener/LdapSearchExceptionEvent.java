@@ -13,6 +13,7 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
+
 package samplecode.listener;
 
 import com.unboundid.ldap.sdk.LDAPConnection;
@@ -23,55 +24,67 @@ import samplecode.annotation.Since;
 
 import java.util.EventObject;
 
+
 /**
  * An event reported to an object when an LDAP search request failed.
  */
-@Author("terry.gardner@unboundid.com") @Since("Dec 31, 2011") @CodeVersion("1.0")
-public class LdapSearchExceptionEvent extends EventObject
-{
+@Author("terry.gardner@unboundid.com")
+@Since("Dec 31, 2011")
+@CodeVersion("1.0")
+public class LdapSearchExceptionEvent extends EventObject {
 
   private static final long serialVersionUID = 1780571408804519985L;
 
+
+
   /**
-   * @param source              The object on which the Event initially occurred.
-   * @param ldapConnection      facility for interacting with an LDAPv3 directory server.
-   *                            It provides a means of establishing a connection to the
-   *                            server, sending requests, and reading responses. See RFC
-   *                            4511 for the LDAPv3 protocol specification and more
-   *                            information about the types of operations defined in LDAP.
-   * @param ldapSearchException the exception which caused this event.
+   * @param source
+   *   The object on which the Event initially occurred.
+   * @param ldapConnection
+   *   facility for interacting with an LDAPv3 directory server.
+   *   It provides a means of establishing a connection to the
+   *   server, sending requests, and reading responses. See RFC
+   *   4511 for the LDAPv3 protocol specification and more
+   *   information about the types of operations defined in LDAP.
+   * @param ldapSearchException
+   *   the exception which caused this event.
    */
   public LdapSearchExceptionEvent(final Object source, final LDAPConnection ldapConnection,
-          final LDAPSearchException ldapSearchException)
-  {
+                                  final LDAPSearchException ldapSearchException) {
     super(source);
     this.ldapConnection = ldapConnection;
     this.ldapSearchException = ldapSearchException;
   }
+
+
 
   /**
    * The connection associated with the event.
    */
   private final LDAPConnection ldapConnection;
 
+
+
   /**
    * @return the ldapConnection
    */
-  public final LDAPConnection getLdapConnection()
-  {
+  public final LDAPConnection getLdapConnection() {
     return ldapConnection;
   }
+
+
 
   /**
    * The exception that caused this event.
    */
   private final LDAPSearchException ldapSearchException;
 
+
+
   /**
    * @return the ldapException
    */
-  public final LDAPSearchException getLdapSearchException()
-  {
+  public final LDAPSearchException getLdapSearchException() {
     return ldapSearchException;
   }
 

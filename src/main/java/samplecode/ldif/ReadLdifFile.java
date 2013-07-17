@@ -13,6 +13,7 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
+
 package samplecode.ldif;
 
 
@@ -36,9 +37,9 @@ import java.util.Vector;
 /**
  * Provides support for adding entries to a directory server database
  * from a file containing entries in the form of LDIF.
- * <p>
+ * <p/>
  * <b>preconditions</b>
- * <p>
+ * <p/>
  * <ul>
  * <li>A valid connection to an LDAP server.</li>
  * <li>An authorization identity that is permitted to add the entries
@@ -48,36 +49,38 @@ import java.util.Vector;
  * <li>None of the entries in the file can already exist in the LDAP
  * server database</li>
  * </ul>
- * <p>
+ * <p/>
  * <b>postconditions</b>
- * <p>
+ * <p/>
  * <ul>
  * <li>All of the entries in the file are now present in the LDAP server
  * database.</li>
  * </ul>
- * <p>
+ * <p/>
  * <b>invariants</b>
- * <p>
+ * <p/>
  * <ul>
  * <li>The connection to the LDAP server is not closed</li>
  * </ul>
- * 
+ *
  * @see <a href="http://tools.ietf.org/html/rfc2849">LDIF</a>
  */
 @Author("terry.gardner@unboundid.com")
 @Since("Dec 25, 2011")
 @CodeVersion("1.0")
 public class ReadLdifFile
-        implements ObservedByLdapExceptionListener,ObservedByLdifEntryEventListener,
-        ObservedByIOExceptionListener
-{
+  implements ObservedByLdapExceptionListener, ObservedByLdifEntryEventListener,
+  ObservedByIOExceptionListener {
+
   /**
    * @return an unmodifiable list of event listeners
    */
-  @Override public List<LdifEntryEventListener> getLdifEventListeners()
-  {
+  @Override
+  public List<LdifEntryEventListener> getLdifEventListeners() {
     return this.ldifEventListeners;
   }
+
+
 
   // singleton instance
   private static ReadLdifFile instance = null;
@@ -86,13 +89,11 @@ public class ReadLdifFile
 
   /**
    * get an instance of {@code LdapAddEntriesFromResource}.
-   * 
+   *
    * @return an instance of {@code LdapAddEntriesFromResource}
    */
-  public static ReadLdifFile getInstance()
-  {
-    if(ReadLdifFile.instance == null)
-    {
+  public static ReadLdifFile getInstance() {
+    if(ReadLdifFile.instance == null) {
       ReadLdifFile.instance = new ReadLdifFile();
     }
     return ReadLdifFile.instance;
@@ -103,44 +104,44 @@ public class ReadLdifFile
   /**
    * Adds the entries from the specified resource. The resource must be
    * on the CLASSPATH.
-   * 
+   *
    * @param ldapConnection
-   *          a connection to the LDAP server.
+   *   a connection to the LDAP server.
    * @param resourceContainingLdif
-   *          a file containing entries in the form of LDIF to add to
-   *          the directory server database.
-   *          {@code resourceContainingLdif} is not permitted to be
-   *          {@code null}.
+   *   a file containing entries in the form of LDIF to add to
+   *   the directory server database.
+   *   {@code resourceContainingLdif} is not permitted to be
+   *   {@code null}.
    * @param controls
-   *          any controls to be added to the add requests.
-   *          {@code controls} is permitted to be {@code null}.
+   *   any controls to be added to the add requests.
+   *   {@code controls} is permitted to be {@code null}.
+   *
    * @return number of entries read from the resource file.
+   *
    * @throws IOException
-   *           if the file cannot be read.
+   *   if the file cannot be read.
    * @throws LDIFException
-   *           if the LDIF in the file is invalid.
+   *   if the LDIF in the file is invalid.
    * @throws LDAPException
-   *           if the current entry already exists or the connection
-   *           fails
+   *   if the current entry already exists or the connection
+   *   fails
    */
   public int addEntriesInFile(final LDAPConnection ldapConnection,
-          final String resourceContainingLdif,final Control[] controls) throws LDIFException,
-          IOException,LDAPException
-  {
+                              final String resourceContainingLdif, final Control[] controls) throws LDIFException,
+    IOException, LDAPException {
     Validator.ensureNotNull(ldapConnection,resourceContainingLdif);
 
     final InputStream inputStreamConnectionToResourceContainingLdif =
-            getClass().getClassLoader().getResourceAsStream(resourceContainingLdif);
-    if(inputStreamConnectionToResourceContainingLdif == null)
-    {
+      getClass().getClassLoader().getResourceAsStream(resourceContainingLdif);
+    if(inputStreamConnectionToResourceContainingLdif == null) {
       final String exceptionMsg =
-              String.format("An error has occurred because the "
-                      + "specified resource '%s' was not found on the CLASSPATH.",
-                      resourceContainingLdif);
+        String.format("An error has occurred because the "
+          + "specified resource '%s' was not found on the CLASSPATH.",
+          resourceContainingLdif);
       throw new FileNotFoundException(exceptionMsg);
     }
     return addEntriesFromInputStream(ldapConnection,
-            inputStreamConnectionToResourceContainingLdif,controls);
+      inputStreamConnectionToResourceContainingLdif,controls);
   }
 
 
@@ -150,10 +151,8 @@ public class ReadLdifFile
    */
   @Override
   public synchronized void
-          addIOExceptionListener(final IOExceptionListener ioExceptionListener)
-  {
-    if(ioExceptionListener != null)
-    {
+  addIOExceptionListener(final IOExceptionListener ioExceptionListener) {
+    if(ioExceptionListener != null) {
       ioExceptionListeners.add(ioExceptionListener);
     }
   }
@@ -165,10 +164,8 @@ public class ReadLdifFile
    */
   @Override
   public synchronized void addLdapExceptionListener(
-          final LdapExceptionListener ldapExceptionListener)
-  {
-    if(ldapExceptionListener != null)
-    {
+    final LdapExceptionListener ldapExceptionListener) {
+    if(ldapExceptionListener != null) {
       ldapExceptionListeners.add(ldapExceptionListener);
     }
   }
@@ -179,10 +176,8 @@ public class ReadLdifFile
    * {@inheritDoc}
    */
   @Override
-  public synchronized void addLdifEventListener(final LdifEntryEventListener ldifEventListener)
-  {
-    if(ldifEventListener != null)
-    {
+  public synchronized void addLdifEventListener(final LdifEntryEventListener ldifEventListener) {
+    if(ldifEventListener != null) {
       ldifEventListeners.add(ldifEventListener);
     }
   }
@@ -193,51 +188,47 @@ public class ReadLdifFile
    * Apply changes that arrive in LDIF format via the
    * {@code ldifInputStream}. Changes are processed in a single-threaded
    * fashion (like the {@code ldapmodify} tool).
-   * <p>
+   * <p/>
    * <b>example LDIF</b><blockquote>
-   * 
+   * <p/>
    * <pre>
    * dn: uid=user.0,ou=people,dc=example,dc=com
    * changetype: modify
    * replace: userPassword
    * userPassword: new-password-value
    * </pre>
-   * 
+   * <p/>
    * </blockquote>
-   * 
+   *
    * @param ldapConnection
-   *          a connection to the LDAP server that will receive the
-   *          changes
+   *   a connection to the LDAP server that will receive the
+   *   changes
    * @param ldifInputStream
-   *          the stream from which LDIF entries are read
+   *   the stream from which LDIF entries are read
    * @param millisBetweenChanges
-   *          the number of milliseconds between changes
+   *   the number of milliseconds between changes
+   *
    * @return the number of entries read from the stream.
    */
   public int applyChangesFromLdifInputStream(final LDAPConnection ldapConnection,
-          final InputStream ldifInputStream,final long millisBetweenChanges)
-  {
+                                             final InputStream ldifInputStream, final long millisBetweenChanges) {
     Validator.ensureNotNull(ldapConnection,ldifInputStream);
 
     final LDIFReader reader = new LDIFReader(ldifInputStream);
     numberOfEntriesRead = 0;
-    while(true)
-    {
+    while(true) {
       LDIFChangeRecord ldifChangeRecord = null;
-      try
-      {
+      try {
 
         /*
          * read a change record and update the number of entries that
          * have been read.
          */
         ldifChangeRecord = reader.readChangeRecord();
-        if(ldifChangeRecord == null)
-        {
+        if(ldifChangeRecord == null) {
           break;
         }
-        synchronized(this)
-        {
+        synchronized(this) {
           ++numberOfEntriesRead;
         }
 
@@ -249,41 +240,28 @@ public class ReadLdifFile
         /*
          * pause if desired.
          */
-        if(millisBetweenChanges > 0)
-        {
+        if(millisBetweenChanges > 0) {
           Thread.sleep(millisBetweenChanges);
         }
-      }
-      catch(final LDIFException ldifException)
-      {
-        if(ldifException.mayContinueReading())
-        {
+      } catch(final LDIFException ldifException) {
+        if(ldifException.mayContinueReading()) {
           continue;
         }
         ldifException.printStackTrace();
         break;
-      }
-      catch(final IOException iox)
-      {
+      } catch(final IOException iox) {
         fireIOExceptionListener(iox);
         break;
-      }
-      catch(final LDAPException ldapException)
-      {
+      } catch(final LDAPException ldapException) {
         fireLdapExceptionListener(ldapConnection,ldapException);
         break;
-      }
-      catch(final InterruptedException exception)
-      {
+      } catch(final InterruptedException exception) {
         // this block deliberately left empty.
       }
     }
-    try
-    {
+    try {
       reader.close();
-    }
-    catch(final IOException exception)
-    {
+    } catch(final IOException exception) {
       // TODO Auto-generated catch block
       exception.printStackTrace();
     }
@@ -297,21 +275,17 @@ public class ReadLdifFile
    */
   @Override
   @SuppressWarnings("unchecked")
-  public void fireIOExceptionListener(final IOException ioException)
-  {
+  public void fireIOExceptionListener(final IOException ioException) {
     Validator.ensureNotNull(ioException);
     Vector<IOExceptionListener> copy;
-    synchronized(this)
-    {
-      copy = (Vector<IOExceptionListener>)ioExceptionListeners.clone();
+    synchronized(this) {
+      copy = (Vector<IOExceptionListener>) ioExceptionListeners.clone();
     }
-    if(copy.size() == 0)
-    {
+    if(copy.size() == 0) {
       return;
     }
     final IOExceptionEvent ev = new IOExceptionEvent(this,ioException);
-    for(final IOExceptionListener l : copy)
-    {
+    for(final IOExceptionListener l : copy) {
       l.ioExceptionOccurred(ev);
     }
   }
@@ -324,21 +298,17 @@ public class ReadLdifFile
   @SuppressWarnings("unchecked")
   @Override
   public void fireLdapExceptionListener(final LDAPConnection ldapConnection,
-          final LDAPException ldapException)
-  {
+                                        final LDAPException ldapException) {
     Validator.ensureNotNull(ldapConnection,ldapException);
     Vector<LdapExceptionListener> copy;
-    synchronized(this)
-    {
-      copy = (Vector<LdapExceptionListener>)ldapExceptionListeners.clone();
+    synchronized(this) {
+      copy = (Vector<LdapExceptionListener>) ldapExceptionListeners.clone();
     }
-    if(copy.size() == 0)
-    {
+    if(copy.size() == 0) {
       return;
     }
     final LdapExceptionEvent ev = new LdapExceptionEvent(this,ldapConnection,ldapException);
-    for(final LdapExceptionListener l : copy)
-    {
+    for(final LdapExceptionListener l : copy) {
       l.ldapRequestFailed(ev);
     }
   }
@@ -350,21 +320,17 @@ public class ReadLdifFile
    */
   @SuppressWarnings("unchecked")
   @Override
-  public void fireLdifEventListener(final Entry entry)
-  {
+  public void fireLdifEventListener(final Entry entry) {
     Validator.ensureNotNull(entry);
     Vector<LdifEntryEventListener> copy;
-    synchronized(this)
-    {
-      copy = (Vector<LdifEntryEventListener>)ldifEventListeners.clone();
+    synchronized(this) {
+      copy = (Vector<LdifEntryEventListener>) ldifEventListeners.clone();
     }
-    if(copy.size() == 0)
-    {
+    if(copy.size() == 0) {
       return;
     }
     final LdifEntryEvent ev = new LdifEntryEvent(this,entry);
-    for(final LdifEntryEventListener l : copy)
-    {
+    for(final LdifEntryEventListener l : copy) {
       l.entryReadFromLdifFile(ev);
     }
   }
@@ -374,8 +340,7 @@ public class ReadLdifFile
   /**
    * @return the numberOfEntriesRead
    */
-  public synchronized int getNumberOfEntriesRead()
-  {
+  public synchronized int getNumberOfEntriesRead() {
     return numberOfEntriesRead;
   }
 
@@ -386,10 +351,8 @@ public class ReadLdifFile
    */
   @Override
   public synchronized void removeIOExceptionListener(
-          final IOExceptionListener ioExceptionListener)
-  {
-    if(ioExceptionListener != null)
-    {
+    final IOExceptionListener ioExceptionListener) {
+    if(ioExceptionListener != null) {
       ioExceptionListeners.remove(ioExceptionListener);
     }
   }
@@ -401,10 +364,8 @@ public class ReadLdifFile
    */
   @Override
   public synchronized void removeLdapExceptionListener(
-          final LdapExceptionListener ldapExceptionListener)
-  {
-    if(ldapExceptionListener != null)
-    {
+    final LdapExceptionListener ldapExceptionListener) {
+    if(ldapExceptionListener != null) {
       ldapExceptionListeners.remove(ldapExceptionListener);
     }
   }
@@ -416,10 +377,8 @@ public class ReadLdifFile
    */
   @Override
   public synchronized void removeLdifEventListener(
-          final LdifEntryEventListener ldifEventListener)
-  {
-    if(ldifEventListener != null)
-    {
+    final LdifEntryEventListener ldifEventListener) {
+    if(ldifEventListener != null) {
       ldifEventListeners.remove(ldifEventListener);
     }
   }
@@ -428,9 +387,8 @@ public class ReadLdifFile
 
   // TODO: fire the ldap exception listener.
   private int addEntriesFromInputStream(final LDAPConnection ldapConnection,
-          final InputStream inputStreamConnectionToResourceContainingLdif,
-          final Control[] controls) throws LDIFException,IOException,LDAPException
-  {
+                                        final InputStream inputStreamConnectionToResourceContainingLdif,
+                                        final Control[] controls) throws LDIFException, IOException, LDAPException {
     Validator.ensureNotNull(inputStreamConnectionToResourceContainingLdif);
 
     /*
@@ -446,18 +404,15 @@ public class ReadLdifFile
      */
     final LDIFReader reader = new LDIFReader(inputStreamConnectionToResourceContainingLdif);
     numberOfEntriesRead = 0;
-    while(true)
-    {
+    while(true) {
       final Entry entry = reader.readEntry();
-      if(entry == null)
-      {
+      if(entry == null) {
         break;
       }
       fireLdifEventListener(entry);
       final AddRequest addRequest = new AddRequest(entry,controls);
       ldapConnection.add(addRequest);
-      synchronized(this)
-      {
+      synchronized(this) {
         ++numberOfEntriesRead;
       }
     }
@@ -471,24 +426,21 @@ public class ReadLdifFile
    * The list of io exception listeners.
    */
   private volatile Vector<IOExceptionListener> ioExceptionListeners =
-          new Vector<IOExceptionListener>();
-
+    new Vector<IOExceptionListener>();
 
 
   /**
    * interested parties to {@code LdapExceptionEvents}
    */
   private volatile Vector<LdapExceptionListener> ldapExceptionListeners =
-          new Vector<LdapExceptionListener>();
-
+    new Vector<LdapExceptionListener>();
 
 
   /**
    * The list of event listeners.
    */
   private volatile Vector<LdifEntryEventListener> ldifEventListeners =
-          new Vector<LdifEntryEventListener>();
-
+    new Vector<LdifEntryEventListener>();
 
 
   private int numberOfEntriesRead = 0;

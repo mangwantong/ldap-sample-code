@@ -13,6 +13,7 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
+
 package samplecode.annotation;
 
 
@@ -24,9 +25,9 @@ import java.lang.annotation.RetentionPolicy;
  * Provides an annotation of a component indicating when the component
  * was first created, or first appeared in a particular version.
  */
-@Author("terry.gardner@unboundid.com") @Retention(RetentionPolicy.RUNTIME)
-public @interface Since
-{
+@Author("terry.gardner@unboundid.com")
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Since {
 
   /**
    * The first appearance of the component.

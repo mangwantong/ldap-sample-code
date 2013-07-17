@@ -13,6 +13,7 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
+
 package samplecode.annotation;
 
 
@@ -25,9 +26,9 @@ import java.lang.annotation.Target;
 /**
  * Associates an author with a type.
  */
-@Retention(RetentionPolicy.RUNTIME) @Target(ElementType.TYPE)
-public @interface Author
-{
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface Author {
 
   /**
    * The author's name

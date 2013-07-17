@@ -29,11 +29,11 @@ public final class CompareDemo extends AbstractTool {
    * Runs the CompareDemo program.
    *
    * @param args
-   *         command-line arguments excluding JVM-specific arguments.
+   *   command-line arguments excluding JVM-specific arguments.
    */
   public static void main(final String... args) {
     ResultCode resultCode = new CompareDemo().runTool(args);
-    if (resultCode != null && !resultCode.equals(ResultCode.SUCCESS)) {
+    if(resultCode != null && !resultCode.equals(ResultCode.SUCCESS)) {
       System.exit(resultCode.intValue());
     }
   }
@@ -43,17 +43,17 @@ public final class CompareDemo extends AbstractTool {
   @Override()
   public LinkedHashMap<String[],String> getExampleUsages() {
     final LinkedHashMap<String[],String> examples =
-            new LinkedHashMap<String[],String>(1);
+      new LinkedHashMap<String[],String>(1);
     final String[] args = {
-            "--hostname","server.example.com",
-            "--port","389",
-            "--bindDN","uid=admin,dc=example,dc=com",
-            "--bindPassword","password",
-            "--assertion","cn",
-            "--attribute","attribute-name"
+      "--hostname","server.example.com",
+      "--port","389",
+      "--bindDN","uid=admin,dc=example,dc=com",
+      "--bindPassword","password",
+      "--assertion","cn",
+      "--attribute","attribute-name"
     };
     final String description =
-            "Demonstrates the use of the COMPARE request.";
+      "Demonstrates the use of the COMPARE request.";
     examples.put(args,description);
 
     return examples;
@@ -86,11 +86,11 @@ public final class CompareDemo extends AbstractTool {
     String dn;
     try {
       dn = commandLineOptions.getBaseObject();
-      if (dn == null) {
+      if(dn == null) {
         getLogger().fatal("The --baseObject argument is required.");
         return ResultCode.PARAM_ERROR;
       }
-    } catch (final LDAPException ldapException) {
+    } catch(final LDAPException ldapException) {
       ldapException.printStackTrace();
       return ldapException.getResultCode();
     }
@@ -98,9 +98,9 @@ public final class CompareDemo extends AbstractTool {
     // The --attribute command line argument
     final ArgumentParser argumentParser = commandLineOptions.getArgumentParser();
     final StringArgument attributeArgument =
-            (StringArgument) argumentParser.getNamedArgument("attribute");
+      (StringArgument) argumentParser.getNamedArgument("attribute");
     final String attributeName = attributeArgument.getValue();
-    if ((attributeName == null) || (attributeName.length() == 0)) {
+    if((attributeName == null) || (attributeName.length() == 0)) {
       getLogger().fatal("The --attribute argument is required.");
       return ResultCode.PARAM_ERROR;
     }
@@ -108,9 +108,9 @@ public final class CompareDemo extends AbstractTool {
     // Get the value to use for the assertion in the compare request
     // from the --assertion command line argument
     final StringArgument assertionArgument =
-            (StringArgument) argumentParser.getNamedArgument("assertion");
+      (StringArgument) argumentParser.getNamedArgument("assertion");
     final String assertionValue = assertionArgument.getValue();
-    if ((assertionValue == null) || (assertionValue.length() == 0)) {
+    if((assertionValue == null) || (assertionValue.length() == 0)) {
       getLogger().fatal("The --assertion argument is required.");
       return ResultCode.PARAM_ERROR;
     }
@@ -121,7 +121,7 @@ public final class CompareDemo extends AbstractTool {
     try {
       final CompareResult compareResult = getConnection().compare(req);
       getLogger().info(compareResult.compareMatched() ? "matched" : "did not match");
-    } catch (final LDAPException exception) {
+    } catch(final LDAPException exception) {
       getLogger().fatal(exception.getExceptionMessage());
       return exception.getResultCode();
     }

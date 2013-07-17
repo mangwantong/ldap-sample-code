@@ -16,8 +16,13 @@
 
 package samplecode.password;
 
-import com.unboundid.ldap.sdk.*;
+import com.unboundid.ldap.sdk.DN;
+import com.unboundid.ldap.sdk.LDAPConnection;
+import com.unboundid.ldap.sdk.LDAPConnectionOptions;
+import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.CommandLineTool;
+import com.unboundid.util.args.Argument;
 import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
 import com.unboundid.util.args.StringArgument;
@@ -52,7 +57,8 @@ public final class PasswordModifyExtendedOperationDemo extends AbstractTool
 
 {
 
-  private static void main(final PrintStream outStream, final PrintStream errStream,
+  private static void main(final PrintStream outStream,
+                           final PrintStream errStream,
                            final String... args) {
     final CommandLineTool tool =
       new PasswordModifyExtendedOperationDemo(outStream,errStream);
@@ -245,7 +251,7 @@ public final class PasswordModifyExtendedOperationDemo extends AbstractTool
    * @param errStream
    *   the stream to which error messages are transmitted.
    */
-  private PasswordModifyExtendedOperationDemo(final OutputStream outStream,
+  public PasswordModifyExtendedOperationDemo(final OutputStream outStream,
                                               final OutputStream errStream) {
     super(outStream,errStream);
   }
@@ -276,6 +282,12 @@ public final class PasswordModifyExtendedOperationDemo extends AbstractTool
         " must generate a new password and return the new password in the " +
         "response.");
     argumentParser.addArgument(stringArgument);
+
+
+    Argument bindDNArgument = commandLineOptions.getBindDnArgument();
+    Argument bindPasswordArgument =
+      commandLineOptions.getBindPasswordArgument();
+    argumentParser.addRequiredArgumentSet(bindDNArgument,bindPasswordArgument);
   }
 
 
@@ -295,8 +307,10 @@ public final class PasswordModifyExtendedOperationDemo extends AbstractTool
     if(distinguishedName == null) {
       final StringBuilder builder = new StringBuilder();
       builder.append("No bindDn was specified on the command line. ");
-      builder.append(String.format(" %s requires a valid bindDn.",getToolName()));
-      builder.append(" Use '--bindDn DN' to specify the bind DN or use '--help'.");
+      builder.append(String.format(" %s requires a valid bindDn.",
+        getToolName()));
+      builder.append(" Use '--bindDn DN' to specify the bind DN or use " +
+        "'--help'.");
       final String msg = builder.toString();
       getLogger().fatal(msg);
       return ResultCode.PARAM_ERROR;

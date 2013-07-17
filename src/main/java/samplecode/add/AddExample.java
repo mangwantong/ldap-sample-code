@@ -23,7 +23,7 @@ import com.unboundid.util.LDAPTestUtils;
 /**
  * Demonstrates the {@link AddRequest}; this example uses a hard coded
  * hostname of {@code ldap-server.ldap.com} and port {@code 389} and
- * attempts to add {@code uid=user,dc=example,dc=com}.
+ * uses the test utilities class to generate an entry to add.
  */
 public final class AddExample {
 

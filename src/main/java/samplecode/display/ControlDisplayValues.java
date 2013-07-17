@@ -26,7 +26,7 @@ public class ControlDisplayValues {
   @Override
   public String toString() {
     return "ControlDisplayValues [" + (control != null ?
-            "control=" + control : "") + "]";
+      "control=" + control : "") + "]";
   }
 
 
@@ -38,15 +38,15 @@ public class ControlDisplayValues {
    */
   public Object msg() {
     final StringBuilder builder = new StringBuilder(control
-            .getClass().getCanonicalName());
+      .getClass().getCanonicalName());
     builder.append(" ");
     builder.append(control.getControlName());
     builder.append(" ");
     builder.append(control.getOID());
     builder.append(" ");
-    if (control instanceof PasswordExpiredControl) {
+    if(control instanceof PasswordExpiredControl) {
       control.toString(builder);
-    } else if (control instanceof PasswordExpiringControl) {
+    } else if(control instanceof PasswordExpiringControl) {
       control.toString(builder);
     }
     return builder.toString();

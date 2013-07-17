@@ -13,6 +13,7 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
+
 package samplecode.ldap;
 
 
@@ -20,12 +21,11 @@ import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.util.Validator;
-
-import samplecode.exception.AttributeNotSupportedException;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
 import samplecode.annotation.Singleton;
+import samplecode.exception.AttributeNotSupportedException;
 
 
 /**
@@ -37,8 +37,7 @@ import samplecode.annotation.Singleton;
 @CodeVersion("1.2")
 @Singleton
 public final class SupportedUserAttribute
-        extends AbstractSupportedAttribute
-{
+  extends AbstractSupportedAttribute {
 
   // the singleton instance of SupportedAttribute
   private static SupportedUserAttribute instance = null;
@@ -47,13 +46,11 @@ public final class SupportedUserAttribute
 
   /**
    * Get an instance of the SupportedAttribute class.
-   * 
+   *
    * @return an instance of SupportedAttribute
    */
-  public static SupportedUserAttribute getInstance()
-  {
-    if(SupportedUserAttribute.instance == null)
-    {
+  public static SupportedUserAttribute getInstance() {
+    if(SupportedUserAttribute.instance == null) {
       SupportedUserAttribute.instance = new SupportedUserAttribute();
     }
     return SupportedUserAttribute.instance;
@@ -65,14 +62,13 @@ public final class SupportedUserAttribute
    * {@inheritDoc}
    */
   @Override
-  public void supported(final LDAPConnection ldapConnection,final String attributeName)
-          throws AttributeNotSupportedException,LDAPException
-  {
+  public void supported(final LDAPConnection ldapConnection, final String attributeName)
+    throws AttributeNotSupportedException, LDAPException {
     Validator.ensureNotNullWithMessage(ldapConnection,
-            "SupportedAttribute requires a valid connection to an LDAP server.");
+      "SupportedAttribute requires a valid connection to an LDAP server.");
 
     Validator.ensureNotNullWithMessage(attributeName,
-            "The attributeName to be checked cannot be null.");
+      "The attributeName to be checked cannot be null.");
 
     /**
      * Directory server subschema sub-entry. This includes information
@@ -81,8 +77,7 @@ public final class SupportedUserAttribute
      * rules, and matching rule uses defined in the server schema.
      */
     final Schema schema = Schema.getSchema(ldapConnection);
-    if(schema.getAttributeType(attributeName) == null)
-    {
+    if(schema.getAttributeType(attributeName) == null) {
       throw new AttributeNotSupportedException(attributeName);
     }
   }

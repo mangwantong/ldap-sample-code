@@ -43,7 +43,7 @@ public abstract class SampleCodeCollectionUtils {
    * delimited by a comma in the original string.
    *
    * @param csv
-   *         A comma-separated list of strings.
+   *   A comma-separated list of strings.
    *
    * @return Never returns {@code null}, that is, a list is always
    *         returned (but it might be empty.)
@@ -52,10 +52,10 @@ public abstract class SampleCodeCollectionUtils {
   public static List<String> csvToList(final String csv) {
 
     List<String> result;
-    if (csv != null) {
+    if(csv != null) {
       result = SampleCodeCollectionUtils.newArrayList();
       final StringTokenizer t = new StringTokenizer(csv,",");
-      while (t.hasMoreTokens()) {
+      while(t.hasMoreTokens()) {
         result.add(t.nextToken());
       }
     } else {
@@ -70,7 +70,7 @@ public abstract class SampleCodeCollectionUtils {
    * Returns a new {@link ArrayList} in a type-safe way.
    *
    * @param <T>
-   *         The type of each element of the list.
+   *   The type of each element of the list.
    *
    * @return A new ArrayList.
    */
@@ -84,9 +84,9 @@ public abstract class SampleCodeCollectionUtils {
    * Returns a new {@link ArrayList} in a type-safe way.
    *
    * @param <T>
-   *         The type of each element of the list.
+   *   The type of each element of the list.
    * @param size
-   *         The initial size of the list.
+   *   The initial size of the list.
    *
    * @return A new ArrayList.
    */
@@ -100,9 +100,9 @@ public abstract class SampleCodeCollectionUtils {
    * Returns a new {@link ConcurrentHashMap} in a type-safe way.
    *
    * @param <K>
-   *         The type of the keys in the map.
+   *   The type of the keys in the map.
    * @param <V>
-   *         The type of values in the map.
+   *   The type of values in the map.
    *
    * @return A new ConcurrentHashMap.
    */
@@ -117,11 +117,11 @@ public abstract class SampleCodeCollectionUtils {
    * Returns a new {@link EnumMap} in a type-safe way.
    *
    * @param <K>
-   *         The type of the keys in the map.
+   *   The type of the keys in the map.
    * @param <V>
-   *         The type of values in the map.
+   *   The type of values in the map.
    * @param keyClass
-   *         the class object of the key type for this enum map.
+   *   the class object of the key type for this enum map.
    *
    * @return A new enum map.
    */
@@ -137,9 +137,9 @@ public abstract class SampleCodeCollectionUtils {
    * Returns a new {@link HashMap} in a type-safe way.
    *
    * @param <K>
-   *         The type of the keys in the map.
+   *   The type of the keys in the map.
    * @param <V>
-   *         The type of values in the map.
+   *   The type of values in the map.
    *
    * @return A new HashMap.
    */
@@ -154,7 +154,7 @@ public abstract class SampleCodeCollectionUtils {
    * Returns a new {@link HashSet} in a type-safe way.
    *
    * @param <E>
-   *         The type of the objects in the set.
+   *   The type of the objects in the set.
    *
    * @return A new HashSet.
    */
@@ -169,10 +169,10 @@ public abstract class SampleCodeCollectionUtils {
    * Returns a new {@link HashSet} in a type-safe way.
    *
    * @param <E>
-   *         The type of the objects in the set.
+   *   The type of the objects in the set.
    * @param c
-   *         a collection of objects that will be used to create the
-   *         set.
+   *   a collection of objects that will be used to create the
+   *   set.
    *
    * @return A new HashSet.
    */
@@ -187,7 +187,7 @@ public abstract class SampleCodeCollectionUtils {
    * Returns a new {@link HashSet} in a type-safe way.
    *
    * @param <E>
-   *         The type of the objects in the set.
+   *   The type of the objects in the set.
    *
    * @return A new HashSet.
    */

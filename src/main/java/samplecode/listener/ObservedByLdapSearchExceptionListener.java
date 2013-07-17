@@ -13,6 +13,7 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
+
 package samplecode.listener;
 
 import com.unboundid.ldap.sdk.LDAPConnection;
@@ -23,21 +24,24 @@ import samplecode.annotation.Since;
 
 import java.util.EventListener;
 
+
 /**
  * defines services for classes that are observed by another class which is
  * interested in LDAP search exceptions that occur.
  */
-@Author("terry.gardner@unboundid.com") @Since("Dec 31, 2011") @CodeVersion("1.0")
-public interface ObservedByLdapSearchExceptionListener extends EventListener
-{
+@Author("terry.gardner@unboundid.com")
+@Since("Dec 31, 2011")
+@CodeVersion("1.0")
+public interface ObservedByLdapSearchExceptionListener extends EventListener {
 
   /**
    * adds the specified {@code ldapExceptionListener} to receive LDAP
    * exception events from this class.
    *
-   * @param ldapSearchExceptionListener the LDAP exception listener. If
-   *                                    {@code ldapExceptionListener} is {@code null}, no action
-   *                                    is taken and no exception is thrown.
+   * @param ldapSearchExceptionListener
+   *   the LDAP exception listener. If
+   *   {@code ldapExceptionListener} is {@code null}, no action
+   *   is taken and no exception is thrown.
    */
   void addLdapSearchExceptionListener(LdapSearchExceptionListener ldapSearchExceptionListener);
 
@@ -45,21 +49,24 @@ public interface ObservedByLdapSearchExceptionListener extends EventListener
    * notifies the listener that an {@code LdapExceptionEvent} has
    * occurred.
    *
-   * @param ldapConnection      connection to an LDAP server
-   * @param ldapSearchException the exception that caused the notification
+   * @param ldapConnection
+   *   connection to an LDAP server
+   * @param ldapSearchException
+   *   the exception that caused the notification
    */
   void fireLdapSearchExceptionListener(LDAPConnection ldapConnection,
-          LDAPSearchException ldapSearchException);
+                                       LDAPSearchException ldapSearchException);
 
   /**
    * removes the specified {@code ldapExceptionListener} to receive LDAP
    * exception events from this class.
    *
-   * @param ldapSearchExceptionListener the LDAP exception listener. If
-   *                                    {@code ldapExceptionListener} is {@code null}, no action
-   *                                    is taken and no exception is thrown.
+   * @param ldapSearchExceptionListener
+   *   the LDAP exception listener. If
+   *   {@code ldapExceptionListener} is {@code null}, no action
+   *   is taken and no exception is thrown.
    */
   void removeLdapSearchExceptionListener(
-          LdapSearchExceptionListener ldapSearchExceptionListener);
+    LdapSearchExceptionListener ldapSearchExceptionListener);
 
 }

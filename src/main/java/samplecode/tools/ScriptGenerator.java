@@ -19,11 +19,12 @@ package samplecode.tools;
 import java.io.File;
 import java.io.IOException;
 
+
 /**
  * root of the script generator hierarchy
  */
-public interface ScriptGenerator
-{
+public interface ScriptGenerator {
+
   /**
    * Generates a script which is used to execute one of the demo tools
    * and returns a {@code File} which refers to the generated script.

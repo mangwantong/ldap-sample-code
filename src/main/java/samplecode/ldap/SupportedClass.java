@@ -13,15 +13,15 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
+
 package samplecode.ldap;
-
-
-import java.lang.reflect.InvocationTargetException;
 
 
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
+
+import java.lang.reflect.InvocationTargetException;
 
 
 /**
@@ -30,13 +30,13 @@ import samplecode.annotation.Since;
 @Author("terry.gardner@unboundid.com")
 @Since("Dec 10, 2011")
 @CodeVersion("1.1")
-public interface SupportedClass
-{
+public interface SupportedClass {
 
   /**
    * Creates a new instance of a class.
-   * 
+   *
    * @return a new instance of a class.
+   *
    * @throws InstantiationException
    * @throws IllegalAccessException
    * @throws SecurityException
@@ -44,6 +44,6 @@ public interface SupportedClass
    * @throws IllegalArgumentException
    * @throws InvocationTargetException
    */
-  Object newInstance() throws InstantiationException,IllegalAccessException,SecurityException,
-          NoSuchMethodException,IllegalArgumentException,InvocationTargetException;
+  Object newInstance() throws InstantiationException, IllegalAccessException, SecurityException,
+    NoSuchMethodException, IllegalArgumentException, InvocationTargetException;
 }

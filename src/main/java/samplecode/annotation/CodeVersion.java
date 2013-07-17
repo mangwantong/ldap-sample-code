@@ -13,6 +13,7 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
+
 package samplecode.annotation;
 
 
@@ -25,9 +26,9 @@ import java.lang.annotation.Target;
 /**
  * Annotates the version of a type.
  */
-@Retention(RetentionPolicy.RUNTIME) @Target(ElementType.TYPE)
-public @interface CodeVersion
-{
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface CodeVersion {
 
   /**
    * @return The version

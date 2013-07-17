@@ -30,12 +30,11 @@ import static com.unboundid.util.Validator.ensureNotNull;
  * an {@link Boolean}.
  */
 public class BooleanPropertiesBackedArgument
-        extends PropertiesBackedArgument<BooleanArgument,Boolean> {
-
+  extends PropertiesBackedArgument<BooleanArgument,Boolean> {
 
 
   private BooleanPropertiesBackedArgument(
-          final ResourceBundle resourceBundle, final String basePropertyName) {
+    final ResourceBundle resourceBundle, final String basePropertyName) {
     super(resourceBundle,basePropertyName);
   }
 
@@ -43,16 +42,16 @@ public class BooleanPropertiesBackedArgument
 
   /**
    * @param resourceBundle
-   *         the resource bundle from which the command line argument
-   *         are taken
+   *   the resource bundle from which the command line argument
+   *   are taken
    * @param basePropertyName
-   *         the base property name
+   *   the base property name
    *
    * @return a new {@code StringPropertiesBackedArgument} object.
    */
   public static BooleanPropertiesBackedArgument
-    newBooleanPropertiesBackedArgument(
-          final ResourceBundle resourceBundle, final String basePropertyName) {
+  newBooleanPropertiesBackedArgument(
+    final ResourceBundle resourceBundle, final String basePropertyName) {
     return new BooleanPropertiesBackedArgument(resourceBundle,basePropertyName);
   }
 
@@ -70,16 +69,11 @@ public class BooleanPropertiesBackedArgument
 
 
 
-
-
-
-
   @Override
   public BooleanArgument getArgument() throws ArgumentException {
     return new BooleanArgument(getShortIdentifier(),getLongIdentifier(),
-                               getMaxOccurrences(),getDescription());
+      getMaxOccurrences(),getDescription());
   }
-
 
 
 }

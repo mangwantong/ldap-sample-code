@@ -13,20 +13,24 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
+
 package samplecode.listener;
 
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
 
+
 /**
  * Describes services offered by listeners for exception conditions.
  *
- * @param <T> The type of exception
+ * @param <T>
+ *   The type of exception
  */
-@Author("terry.gardner@unboundID.com") @Since("Oct 30, 2011") @CodeVersion("1.0")
-public interface ExceptionListener<T extends Exception>
-{
+@Author("terry.gardner@unboundID.com")
+@Since("Oct 30, 2011")
+@CodeVersion("1.0")
+public interface ExceptionListener<T extends Exception> {
 
   /**
    * Whether to invoke
@@ -39,7 +43,8 @@ public interface ExceptionListener<T extends Exception>
   /**
    * Process an exception.
    *
-   * @param exception The exception.
+   * @param exception
+   *   The exception.
    */
   void processException(T exception);
 

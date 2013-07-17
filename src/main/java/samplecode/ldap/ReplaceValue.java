@@ -13,6 +13,7 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
+
 package samplecode.ldap;
 
 import com.unboundid.ldap.sdk.*;
@@ -28,105 +29,105 @@ import samplecode.annotation.Since;
 import java.util.ArrayList;
 import java.util.List;
 
+
 /**
  * An example of how to replace values of multi-valued attributes.
  */
-@Author("terry.gardner@unboundid.com") @Since("01-Nov-2011") @CodeVersion("1.1")
-public final class ReplaceValue
-{
+@Author("terry.gardner@unboundid.com")
+@Since("01-Nov-2011")
+@CodeVersion("1.1")
+public final class ReplaceValue {
 
   /**
-   * @param ldapConnectionPool Provides services applicable to a pool of connections to a
-   *                           directory server. This object may not be {@code null}.
-   * @param entry              The entry that will be the target of modify requests.
+   * @param ldapConnectionPool
+   *   Provides services applicable to a pool of connections to a
+   *   directory server. This object may not be {@code null}.
+   * @param entry
+   *   The entry that will be the target of modify requests.
+   *
    * @return A new and distinct ReplaceValue object.
    */
   static ReplaceValue newReplaceValue(final LDAPConnectionPool ldapConnectionPool,
-          final String entry)
-  {
+                                      final String entry) {
     Validator.ensureNotNull(ldapConnectionPool);
-    return new ReplaceValue(ldapConnectionPool, entry);
+    return new ReplaceValue(ldapConnectionPool,entry);
   }
 
-  private ReplaceValue(final LDAPConnectionPool ldapConnectionPool, final String entry)
-  {
+
+
+  private ReplaceValue(final LDAPConnectionPool ldapConnectionPool, final String entry) {
     this.ldapConnectionPool = ldapConnectionPool;
     this.entry = entry;
   }
 
+
+
   /**
    * Adds a description attribute with two values.
    */
-  void addDescriptionValues()
-  {
+  void addDescriptionValues() {
     final List<Modification> mods = new ArrayList<Modification>();
-    mods.add(new Modification(ModificationType.ADD, "description", "description 1"));
-    mods.add(new Modification(ModificationType.ADD, "description", "description 2"));
-    final ModifyRequest modifyRequest = new ModifyRequest(entry, mods);
+    mods.add(new Modification(ModificationType.ADD,"description","description 1"));
+    mods.add(new Modification(ModificationType.ADD,"description","description 2"));
+    final ModifyRequest modifyRequest = new ModifyRequest(entry,mods);
     modifyRequest.addControl(new PreReadRequestControl("description"));
     modifyRequest.addControl(new PostReadRequestControl("description"));
 
-    try
-    {
+    try {
       final LDAPResult result = ldapConnectionPool.modify(modifyRequest);
-      if(result.hasResponseControl(PreReadResponseControl.PRE_READ_RESPONSE_OID))
-      {
+      if(result.hasResponseControl(PreReadResponseControl.PRE_READ_RESPONSE_OID)) {
         final Control c =
-                result.getResponseControl(PreReadResponseControl.PRE_READ_RESPONSE_OID);
+          result.getResponseControl(PreReadResponseControl.PRE_READ_RESPONSE_OID);
         final ReadOnlyEntry e = ((PreReadResponseControl) c).getEntry();
         System.out.println("the entry pre-modify:" + e);
       }
-      if(result.hasResponseControl(PostReadResponseControl.POST_READ_RESPONSE_OID))
-      {
+      if(result.hasResponseControl(PostReadResponseControl.POST_READ_RESPONSE_OID)) {
         final Control c =
-                result.getResponseControl(PostReadResponseControl.POST_READ_RESPONSE_OID);
+          result.getResponseControl(PostReadResponseControl.POST_READ_RESPONSE_OID);
         final ReadOnlyEntry e = ((PostReadResponseControl) c).getEntry();
         System.out.println("the entry post-modify:" + e);
       }
-    }
-    catch(final LDAPException lex)
-    {
+    } catch(final LDAPException lex) {
       lex.printStackTrace();
     }
   }
+
+
 
   /**
    * Replace 'description 1' with 'description 3'.
    */
-  void replaceDescriptionValues()
-  {
+  void replaceDescriptionValues() {
     final List<Modification> mods = new ArrayList<Modification>();
-    mods.add(new Modification(ModificationType.REPLACE, "description", "description 1",
-            "description 3"));
-    final ModifyRequest modifyRequest = new ModifyRequest(entry, mods);
+    mods.add(new Modification(ModificationType.REPLACE,"description","description 1",
+      "description 3"));
+    final ModifyRequest modifyRequest = new ModifyRequest(entry,mods);
     modifyRequest.addControl(new PreReadRequestControl("description"));
     modifyRequest.addControl(new PostReadRequestControl("description"));
 
-    try
-    {
+    try {
       final LDAPResult result = ldapConnectionPool.modify(modifyRequest);
-      if(result.hasResponseControl(PreReadResponseControl.PRE_READ_RESPONSE_OID))
-      {
+      if(result.hasResponseControl(PreReadResponseControl.PRE_READ_RESPONSE_OID)) {
         final Control c =
-                result.getResponseControl(PreReadResponseControl.PRE_READ_RESPONSE_OID);
+          result.getResponseControl(PreReadResponseControl.PRE_READ_RESPONSE_OID);
         final ReadOnlyEntry e = ((PreReadResponseControl) c).getEntry();
         System.out.println("the entry pre-modify:" + e);
       }
-      if(result.hasResponseControl(PostReadResponseControl.POST_READ_RESPONSE_OID))
-      {
+      if(result.hasResponseControl(PostReadResponseControl.POST_READ_RESPONSE_OID)) {
         final Control c =
-                result.getResponseControl(PostReadResponseControl.POST_READ_RESPONSE_OID);
+          result.getResponseControl(PostReadResponseControl.POST_READ_RESPONSE_OID);
         final ReadOnlyEntry e = ((PostReadResponseControl) c).getEntry();
         System.out.println("the entry post-modify:" + e);
       }
-    }
-    catch(final LDAPException lex)
-    {
+    } catch(final LDAPException lex) {
       lex.printStackTrace();
     }
   }
 
+
+
   private final LDAPConnectionPool ldapConnectionPool;
+
 
   private final String entry;
 

@@ -13,12 +13,11 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
+
 package samplecode.ldap;
 
 
 import com.unboundid.ldap.sdk.Entry;
-
-
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
@@ -32,20 +31,17 @@ import samplecode.annotation.Since;
 @Since("Nov 29, 2011")
 @CodeVersion("1.3")
 public class BasicLdapEntryDisplay
-        implements LdapEntryDisplay
-{
+  implements LdapEntryDisplay {
 
   @Override
-  public void display()
-  {
+  public void display() {
     System.out.println(toString());
   }
 
 
 
   @Override
-  public String toString()
-  {
+  public String toString() {
     return "BasicLdapEntryDisplay [" + (entry != null ? "entry=" + entry : "") + "]";
   }
 
@@ -54,15 +50,13 @@ public class BasicLdapEntryDisplay
   /**
    * Creates a {@code BasicLdapEntryDisplay} with default state. using
    * the specified {@code entry}.
-   * 
+   *
    * @param entry
-   *          the entry, which cannot be {@code null}.
+   *   the entry, which cannot be {@code null}.
    */
   public BasicLdapEntryDisplay(
-          final Entry entry)
-  {
-    if(entry == null)
-    {
+    final Entry entry) {
+    if(entry == null) {
       throw new NullPointerException("Entry cannot be null.");
     }
     this.entry = entry;

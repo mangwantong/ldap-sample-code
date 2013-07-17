@@ -13,6 +13,7 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
+
 package samplecode.matchingrule;
 
 import com.unboundid.asn1.ASN1OctetString;
@@ -23,14 +24,14 @@ import com.unboundid.util.args.Argument;
 import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
 import com.unboundid.util.args.DNArgument;
-import samplecode.exception.AttributeNotSupportedException;
-import samplecode.cli.CommandLineOptions;
-import samplecode.ldap.SupportedUserAttribute;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Launchable;
 import samplecode.annotation.Since;
+import samplecode.cli.CommandLineOptions;
+import samplecode.exception.AttributeNotSupportedException;
 import samplecode.ldap.DefaultUnsolicitedNotificationHandler;
+import samplecode.ldap.SupportedUserAttribute;
 import samplecode.listener.LdapExceptionListener;
 import samplecode.listener.ObservedByLdapExceptionListener;
 import samplecode.tools.AbstractTool;
@@ -41,6 +42,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.List;
 
+
 /**
  * Demonstrates the use of matching rules for attribute value
  * comparisons by comparing an attribute from two entries. NB: the
@@ -50,50 +52,55 @@ import java.util.List;
  *
  * @see CommandLineOptions
  */
-@Author("terry.gardner@unboundid.com") @Since("Nov 22, 2011") @CodeVersion("1.11") @Launchable
+@Author("terry.gardner@unboundid.com")
+@Since("Nov 22, 2011")
+@CodeVersion("1.11")
+@Launchable
 public final class MatchingRuleDemo extends AbstractTool
-        implements LdapExceptionListener, ObservedByLdapExceptionListener
-{
+  implements LdapExceptionListener, ObservedByLdapExceptionListener {
 
   /**
    * An exception which is thrown when two attributes values do not
    * match.
    */
   @SuppressWarnings("serial")
-  private class AttributeValueMatchException extends Exception
-  {
+  private class AttributeValueMatchException extends Exception {
 
     private AttributeValueMatchException(final Attribute attributeEntry1,
-            final Attribute attributeEntry2)
-    {
-      Validator.ensureNotNull(attributeEntry1, attributeEntry2);
+                                         final Attribute attributeEntry2) {
+      Validator.ensureNotNull(attributeEntry1,attributeEntry2);
       this.attributeEntry1 = attributeEntry1;
       this.attributeEntry2 = attributeEntry2;
     }
+
+
 
     /**
      * @return The attribute from entry 1 to be compared with the
      *         attribute of the same name/type from entry 2.
      */
-    private Attribute getAttribute1()
-    {
+    private Attribute getAttribute1() {
       return attributeEntry1;
     }
+
+
 
     /**
      * @return The attribute from entry 2 to be compared with the
      *         attribute of the same name/type from entry 1.
      */
-    private Attribute getAttribute2()
-    {
+    private Attribute getAttribute2() {
       return attributeEntry2;
     }
+
+
 
     /**
      * The attribute from entry 1 to be compared with the attribute of
      * the same name/type from entry 2.
      */
     private final Attribute attributeEntry1;
+
 
     /**
      * The attribute from entry 2 to be compared with the attribute of
@@ -103,30 +110,32 @@ public final class MatchingRuleDemo extends AbstractTool
 
   }
 
+
   /**
    * Provides a service useful demonstrating the technique for comparing
    * the values of attributes using matching rules.
    */
-  private class AttributeMatcher
-  {
+  private class AttributeMatcher {
 
     /**
      * Provides a service that will use matching rules to match the two
      * attributes specified as {@code attributeEntry1} and
      * {@code attributeEntry2}.
      *
-     * @param attributeEntry1 An attribute from entry1.
-     * @param attributeEntry2 An attribute from entry2.
+     * @param attributeEntry1
+     *   An attribute from entry1.
+     * @param attributeEntry2
+     *   An attribute from entry2.
      */
-    private AttributeMatcher(final Attribute attributeEntry1, final Attribute attributeEntry2)
-    {
-      Validator.ensureNotNull(attributeEntry1, attributeEntry2);
+    private AttributeMatcher(final Attribute attributeEntry1, final Attribute attributeEntry2) {
+      Validator.ensureNotNull(attributeEntry1,attributeEntry2);
       this.attributeEntry1 = attributeEntry1;
       this.attributeEntry2 = attributeEntry2;
     }
 
-    private void match() throws LDAPException, AttributeValueMatchException
-    {
+
+
+    private void match() throws LDAPException, AttributeValueMatchException {
       // Get the raw values of the attributes:
       final ASN1OctetString[] strs1 = attributeEntry1.getRawValues();
       final ASN1OctetString[] strs2 = attributeEntry2.getRawValues();
@@ -135,17 +144,19 @@ public final class MatchingRuleDemo extends AbstractTool
       final ASN1OctetString asnOctetString2 = strs2[0];
       // Get the matching rule and check for value match:
       final MatchingRule matchingRule = attributeEntry1.getMatchingRule();
-      if(!matchingRule.valuesMatch(asnOctetString1, asnOctetString2))
-      {
-        throw new AttributeValueMatchException(attributeEntry1, attributeEntry2);
+      if(!matchingRule.valuesMatch(asnOctetString1,asnOctetString2)) {
+        throw new AttributeValueMatchException(attributeEntry1,attributeEntry2);
       }
     }
+
+
 
     /**
      * The attribute from entry 1 to be compared with the attribute of
      * the same name/type from entry 2.
      */
     private final Attribute attributeEntry1;
+
 
     /**
      * The attribute from entry 2 to be compared with the attribute of
@@ -155,11 +166,13 @@ public final class MatchingRuleDemo extends AbstractTool
 
   }
 
+
   /**
    * The long identifier of the argument whose parameter is the name of
    * entry number 1.
    */
   private static final String ARG_NAME_ENTRY_DN_1 = "entryDn1";
+
 
   /**
    * The long identifier of the argument whose parameter is the name of
@@ -167,46 +180,51 @@ public final class MatchingRuleDemo extends AbstractTool
    */
   private static final String ARG_NAME_ENTRY_DN_2 = "entryDn2";
 
+
+
   /**
    * Prepares {@code MatchingRuleDemo} for use by a client - the
    * {@code System.out} and {@code System.err OutputStreams} are used.
    */
   @SuppressWarnings("unused")
-  public MatchingRuleDemo()
-  {
-    this(System.out, System.err);
+  public MatchingRuleDemo() {
+    this(System.out,System.err);
   }
+
+
 
   /**
    * Prepares {@code MatchingRuleDemo} for use by a client - the
    * specified output streams are used.
    */
-  private MatchingRuleDemo(final OutputStream outStream, final OutputStream errStream)
-  {
-    super(outStream, errStream);
+  private MatchingRuleDemo(final OutputStream outStream, final OutputStream errStream) {
+    super(outStream,errStream);
   }
+
+
 
   /**
    * {@inheritDoc}
    */
   @Override
-  protected String classSpecificPropertiesResourceName()
-  {
+  protected String classSpecificPropertiesResourceName() {
     return "MatchingRuleDemo.properties";
   }
 
+
+
   @Override
-  protected UnsolicitedNotificationHandler getUnsolicitedNotificationHandler()
-  {
+  protected UnsolicitedNotificationHandler getUnsolicitedNotificationHandler() {
     return new DefaultUnsolicitedNotificationHandler(this);
   }
+
+
 
   /**
    * /** {@inheritDoc}
    */
   @Override
-  public ResultCode executeToolTasks()
-  {
+  public ResultCode executeToolTasks() {
     introduction();
 
     /*
@@ -220,8 +238,8 @@ public final class MatchingRuleDemo extends AbstractTool
     final String[] ary = new String[size];
     final String[] attributeNames = list.toArray(ary);
     final String attributeName = attributeNames[0];
-    Validator.ensureFalse(attributeName.length() == 0, "This tool requires that the attribute" +
-            " name " + "have a length greater than zero.");
+    Validator.ensureFalse(attributeName.length() == 0,"This tool requires that the attribute" +
+      " name " + "have a length greater than zero.");
 
     /*
      * Obtain a pool of connections to the LDAP server from the
@@ -230,14 +248,11 @@ public final class MatchingRuleDemo extends AbstractTool
      * (--initialConnections) in the pool,and the maximum number of
      * connections (--maxConnections) that the pool should create.
      */
-    try
-    {
+    try {
       ldapConnection = connectToServer();
       ldapConnectionPool = getLdapConnectionPool(ldapConnection);
-    }
-    catch(final LDAPException ldapException)
-    {
-      fireLdapExceptionListener(ldapConnection, ldapException);
+    } catch(final LDAPException ldapException) {
+      fireLdapExceptionListener(ldapConnection,ldapException);
       return ldapException.getResultCode();
     }
 
@@ -245,20 +260,15 @@ public final class MatchingRuleDemo extends AbstractTool
      * Check that supported attribute is supported by the directory
      * server to which this LDAP client is connected.
      */
-    try
-    {
-      SupportedUserAttribute.getInstance().supported(ldapConnection, attributeName);
-    }
-    catch(final LDAPException ldapException)
-    {
-      fireLdapExceptionListener(ldapConnection, ldapException);
+    try {
+      SupportedUserAttribute.getInstance().supported(ldapConnection,attributeName);
+    } catch(final LDAPException ldapException) {
+      fireLdapExceptionListener(ldapConnection,ldapException);
       return ldapException.getResultCode();
-    }
-    catch(final AttributeNotSupportedException e)
-    {
+    } catch(final AttributeNotSupportedException e) {
       final StringBuilder builder = new StringBuilder();
       builder.append(String.format("attribute '%s' is not supported " + "by this directory " +
-              "server.", e.getAttributeName()));
+        "server.",e.getAttributeName()));
       err(builder.toString());
       return ResultCode.PARAM_ERROR;
     }
@@ -268,16 +278,14 @@ public final class MatchingRuleDemo extends AbstractTool
      */
     final Entry entry1;
     final Entry entry2;
-    try
-    {
+    try {
       /*
        * Create the search request
        */
       String baseObject = entryDN1.toString();
       final SearchScope scope = commandLineOptions.getSearchScope();
       final Filter filter = commandLineOptions.getFilter();
-      if(filter == null)
-      {
+      if(filter == null) {
         final ArgumentParser argumentParser = getArgumentParser();
         final String msg = getRequiredArgumentsMessage(argumentParser);
         getLogger().fatal(msg);
@@ -285,7 +293,7 @@ public final class MatchingRuleDemo extends AbstractTool
       }
       final String[] requestedAttributes = new String[]{attributeName};
       SearchRequest searchRequest =
-              new SearchRequest(baseObject, scope, filter, requestedAttributes);
+        new SearchRequest(baseObject,scope,filter,requestedAttributes);
       searchRequest.setSizeLimit(commandLineOptions.getSizeLimit());
       searchRequest.setTimeLimitSeconds(commandLineOptions.getTimeLimit());
       entry1 = ldapConnectionPool.searchForEntry(searchRequest);
@@ -294,7 +302,7 @@ public final class MatchingRuleDemo extends AbstractTool
        * Repeat for entryDn2
        */
       baseObject = entryDN2.toString();
-      searchRequest = new SearchRequest(baseObject, scope, filter, requestedAttributes);
+      searchRequest = new SearchRequest(baseObject,scope,filter,requestedAttributes);
       searchRequest.setSizeLimit(commandLineOptions.getSizeLimit());
       searchRequest.setTimeLimitSeconds(commandLineOptions.getTimeLimit());
       entry2 = ldapConnectionPool.searchForEntry(searchRequest);
@@ -303,47 +311,37 @@ public final class MatchingRuleDemo extends AbstractTool
        * Retrieve the attribute specified by the --attribute command
        * line argument from each entry and compare one to the other.
        */
-      if((entry1 != null) && (entry2 != null))
-      {
+      if((entry1 != null) && (entry2 != null)) {
         final Attribute attributeEntry1 = entry1.getAttribute(attributeName);
         final Attribute attributeEntry2 = entry2.getAttribute(attributeName);
-        if(attributeEntry1 == null)
-        {
+        if(attributeEntry1 == null) {
           final StringBuilder builder = new StringBuilder();
-          builder.append(String.format("attribute '%s' was not present in %s", attributeName,
-                  entryDN1));
+          builder.append(String.format("attribute '%s' was not present in %s",attributeName,
+            entryDN1));
           final String msg = builder.toString();
           err(msg);
           return ResultCode.PARAM_ERROR;
         }
-        if(attributeEntry2 == null)
-        {
+        if(attributeEntry2 == null) {
           final StringBuilder builder = new StringBuilder();
-          builder.append(String.format("attribute '%s' was not present in %s", attributeName,
-                  entryDN2));
+          builder.append(String.format("attribute '%s' was not present in %s",attributeName,
+            entryDN2));
           final String msg = builder.toString();
           err(msg);
           return ResultCode.PARAM_ERROR;
         }
         final AttributeMatcher attributeMatcher =
-                new AttributeMatcher(attributeEntry1, attributeEntry2);
+          new AttributeMatcher(attributeEntry1,attributeEntry2);
         attributeMatcher.match();
-      }
-      else
-      {
-        if(getLogger().isInfoEnabled())
-        {
+      } else {
+        if(getLogger().isInfoEnabled()) {
           getLogger().info("no entries were returned.");
         }
       }
-    }
-    catch(final LDAPException ldapException)
-    {
-      fireLdapExceptionListener(ldapConnection, ldapException);
+    } catch(final LDAPException ldapException) {
+      fireLdapExceptionListener(ldapConnection,ldapException);
       return ldapException.getResultCode();
-    }
-    catch(final AttributeValueMatchException attributeValueMatchException)
-    {
+    } catch(final AttributeValueMatchException attributeValueMatchException) {
       final StringBuilder builder = new StringBuilder();
       builder.append("Attribute values did not match.\n");
       builder.append("entry1:\n");
@@ -358,6 +356,8 @@ public final class MatchingRuleDemo extends AbstractTool
     return ResultCode.SUCCESS;
   }
 
+
+
   /**
    * {@inheritDoc}
    * <p/>
@@ -366,8 +366,7 @@ public final class MatchingRuleDemo extends AbstractTool
    * arguments.
    */
   @Override
-  public void addArguments(final ArgumentParser argumentParser) throws ArgumentException
-  {
+  public void addArguments(final ArgumentParser argumentParser) throws ArgumentException {
     /**
      * Add the argument whose parameter is the DN of an entry to be
      * compared with entry 2
@@ -378,8 +377,8 @@ public final class MatchingRuleDemo extends AbstractTool
     final String valuePlaceholder = "{distinguishedName}";
     String description = "The distinguished name to be compared with entry-2";
     entryDN1 =
-            new DNArgument(null, longIdentifier, isRequired, maxOccurrences,
-                    valuePlaceholder, description);
+      new DNArgument(null,longIdentifier,isRequired,maxOccurrences,
+        valuePlaceholder,description);
     argumentParser.addArgument(entryDN1);
 
     /**
@@ -391,18 +390,24 @@ public final class MatchingRuleDemo extends AbstractTool
     isRequired = true;
     description = "The distinguished name to be compared with entry-1";
     entryDN2 =
-            new DNArgument(null, longIdentifier, isRequired, maxOccurrences,
-                    valuePlaceholder, description);
+      new DNArgument(null,longIdentifier,isRequired,maxOccurrences,
+        valuePlaceholder,description);
     argumentParser.addArgument(entryDN2);
 
     final String argName = CommandLineOptions.ARG_NAME_FILTER;
     final Argument filterArgument = argumentParser.getNamedArgument(argName);
 
-    addRequiredArgumentSet(argumentParser, entryDN1, entryDN2, filterArgument);
+    addRequiredArgumentSet(argumentParser,entryDN1,entryDN2,filterArgument);
   }
 
+
+
   private DNArgument entryDN1;
+
+
   private DNArgument entryDN2;
+
+
 
   /**
    * Launch the Matching Rules Demonstration application.
@@ -432,8 +437,10 @@ public final class MatchingRuleDemo extends AbstractTool
    * arguments is reproduced below:<blockquote>
    * <p/>
    * <pre>
-   * Provides a demonstration of the use of matching rules by comparing a specified
-   * attribute between two entries. The attribute to be compared is specified by
+   * Provides a demonstration of the use of matching rules by comparing a
+   * specified
+   * attribute between two entries. The attribute to be compared is specified
+   * by
    * --attribute, and the entries are specified by --entryDn1 and --entryDn2
    *
    * Usage:  MatchingRuleDemo {options}
@@ -441,7 +448,8 @@ public final class MatchingRuleDemo extends AbstractTool
    * Available options include:
    * -h, --hostname {host}
    *     The IP address or resolvable name to use to connect to the directory
-   *     server.  If this is not provided, then a default value of 'localhost' will
+   *     server.  If this is not provided, then a default value of 'localhost'
+   * will
    *     be used.
    * -p, --port {port}
    *     The port to use to connect to the directory server.  If this is not
@@ -450,11 +458,13 @@ public final class MatchingRuleDemo extends AbstractTool
    *     The DN to use to bind to the directory server when performing simple
    *     authentication.
    * -w, --bindPassword {password}
-   *     The password to use to bind to the directory server when performing simple
+   *     The password to use to bind to the directory server when performing
+   * simple
    *     authentication or a password-based SASL mechanism.
    * -j, --bindPasswordFile {path}
    *     The path to the file containing the password to use to bind to the
-   *     directory server when performing simple authentication or a password-based
+   *     directory server when performing simple authentication or a
+   * password-based
    *     SASL mechanism.
    * -Z, --useSSL
    *     Use SSL when communicating with the directory server.
@@ -468,7 +478,8 @@ public final class MatchingRuleDemo extends AbstractTool
    * -W, --keyStorePassword {password}
    *     The password to use to access the key store contents.
    * -u, --keyStorePasswordFile {path}
-   *     The path to the file containing the password to use to access the key store
+   *     The path to the file containing the password to use to access the key
+   * store
    *     contents.
    * --keyStoreFormat {format}
    *     The format (e.g., jks, jceks, pkcs12, etc.) for the key store file.
@@ -478,12 +489,14 @@ public final class MatchingRuleDemo extends AbstractTool
    * -T, --trustStorePassword {password}
    *     The password to use to access the trust store contents.
    * -U, --trustStorePasswordFile {path}
-   *     The path to the file containing the password to use to access the trust
+   *     The path to the file containing the password to use to access the
+   * trust
    *     store contents.
    * --trustStoreFormat {format}
    *     The format (e.g., jks, jceks, pkcs12, etc.) for the trust store file.
    * -N, --certNickname {nickname}
-   *     The nickname (alias) of the client certificate in the key store to present
+   *     The nickname (alias) of the client certificate in the key store to
+   * present
    *     to the directory server for SSL client authentication.
    * -o, --saslOption {name=value}
    *     A name-value pair providing information to use when performing SASL
@@ -498,16 +511,20 @@ public final class MatchingRuleDemo extends AbstractTool
    *     repeated reports is specified by the --reportInterval command line
    *     argument.
    * -a, --attribute {attribute name or type}
-   *     The attribute used in the search request or other request. This command
-   *     line argument is not required, and can be specified multiple times. If this
+   *     The attribute used in the search request or other request. This
+   * command
+   *     line argument is not required, and can be specified multiple times. If
+   * this
    *     command line argument is not specified, the value '*' is used.
    * -f, --filter {filter}
    *     The search filter used in the search request.
    * -i, --initialConnections {positiveInteger}
-   *     The number of initial connections to establish to directory server when
+   *     The number of initial connections to establish to directory server
+   * when
    *     creating the connection pool.
    * -m, --maxConnections {positiveInteger}
-   *     The maximum number of connections to establish to directory server when
+   *     The maximum number of connections to establish to directory server
+   * when
    *     creating the connection pool.
    * -s, --scope {searchScope}
    *     The scope of the search request; allowed values are BASE, ONE, and SUB
@@ -527,18 +544,18 @@ public final class MatchingRuleDemo extends AbstractTool
    * <p/>
    * </blockquote>
    *
-   * @param args The list of command line arguments (less the JVM-specific
-   *             arguments).
+   * @param args
+   *   The list of command line arguments (less the JVM-specific
+   *   arguments).
    */
-  public static void main(final String... args)
-  {
+  public static void main(final String... args) {
     final PrintStream outStream = System.out;
     final PrintStream errStream = System.err;
-    final MatchingRuleDemo matchingRuleDemo = new MatchingRuleDemo(outStream, errStream);
+    final MatchingRuleDemo matchingRuleDemo = new MatchingRuleDemo(outStream,errStream);
     final ResultCode resultCode = matchingRuleDemo.runTool(args);
     final ToolCompletedProcessing completedProcessing =
-            new BasicToolCompletedProcessing(matchingRuleDemo, resultCode);
-    completedProcessing.displayMessage(outStream, errStream);
+      new BasicToolCompletedProcessing(matchingRuleDemo,resultCode);
+    completedProcessing.displayMessage(outStream,errStream);
   }
 
 }

@@ -13,12 +13,11 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
+
 package samplecode.exception;
 
 
 import com.unboundid.ldap.sdk.LDAPException;
-
-
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
@@ -31,19 +30,20 @@ import samplecode.annotation.Since;
  * <p>
  * example usage:
  * </p>
- * 
+ * <p/>
  * <pre>
- * 
- * 
- * 
+ *
+ *
+ *
  * public final class NumberFormatExceptionMsg
  *         implements ExceptionMsg
  * {
- * 
+ *
  *   &#064;Override
  *   public String msg()
  *   {
- *     return String.format(&quot;There was an error trying to convert a string into an integer.&quot;);
+ *     return String.format(&quot;There was an error trying to convert a string
+ * into an integer.&quot;);
  *   }
  * }
  * </pre>
@@ -51,8 +51,7 @@ import samplecode.annotation.Since;
 @Author("terry.gardner@unboundid.com")
 @Since("Dec 5, 2011")
 @CodeVersion("2.0")
-public interface ExceptionMsg
-{
+public interface ExceptionMsg {
 
   /**
    * @return the {@link LDAPException} associated with this exception
@@ -61,10 +60,9 @@ public interface ExceptionMsg
   LDAPException getLdapException();
 
 
-
   /**
    * Retrieve the message associated with the error.
-   * 
+   *
    * @return a helpful message.
    */
   String msg();

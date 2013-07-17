@@ -13,6 +13,7 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
+
 package samplecode.listener;
 
 
@@ -24,21 +25,20 @@ import samplecode.annotation.Since;
 /**
  * Provides notifications as to progress at the discretion of the
  * client.
- * 
+ *
  * @param <T>
- *          The type of progress event.
+ *   The type of progress event.
  */
 @Author("terry.gardner@unboundid.com")
 @Since("Dec 24, 2011")
 @CodeVersion("1.0")
-public interface ProgressListener<T extends ProgressEvent<?>>
-{
+public interface ProgressListener<T extends ProgressEvent<?>> {
 
   /**
    * Invoked by methods when progress has been made.
-   * 
+   *
    * @param progressEvent
-   *          the event that has the progress details.
+   *   the event that has the progress details.
    */
   void progress(T progressEvent);
 }

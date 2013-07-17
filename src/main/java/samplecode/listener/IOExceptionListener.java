@@ -13,6 +13,7 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
+
 package samplecode.listener;
 
 import samplecode.annotation.Author;
@@ -21,17 +22,20 @@ import samplecode.annotation.Since;
 
 import java.util.EventListener;
 
+
 /**
  * Provided to support notification that an IO exception has occurred.
  */
-@Author("terry.gardner@unboundid.com") @Since("Dec 31, 2011") @CodeVersion("1.0")
-public interface IOExceptionListener extends EventListener
-{
+@Author("terry.gardner@unboundid.com")
+@Since("Dec 31, 2011")
+@CodeVersion("1.0")
+public interface IOExceptionListener extends EventListener {
 
   /**
    * An event has transpired that has resulted in an IOException.
    *
-   * @param ioExceptionEvent the event resulting from the exception.
+   * @param ioExceptionEvent
+   *   the event resulting from the exception.
    */
   void ioExceptionOccurred(IOExceptionEvent ioExceptionEvent);
 

@@ -13,6 +13,7 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
+
 package samplecode.ldap;
 
 
@@ -29,8 +30,7 @@ import samplecode.annotation.Since;
 @Author("terry.gardner@unboundid.com")
 @Since("Nov 29, 2011")
 @CodeVersion("1.1")
-public interface LdapEntryDisplay
-{
+public interface LdapEntryDisplay {
 
   /**
    * Display the entry.

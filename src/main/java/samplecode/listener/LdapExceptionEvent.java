@@ -13,6 +13,7 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
+
 package samplecode.listener;
 
 
@@ -33,8 +34,7 @@ import java.util.EventObject;
 @Since("Dec 31, 2011")
 @CodeVersion("1.0")
 public class LdapExceptionEvent
-        extends EventObject
-{
+  extends EventObject {
 
   private static final long serialVersionUID = -1429895347237817307L;
 
@@ -42,24 +42,25 @@ public class LdapExceptionEvent
 
   /**
    * @param source
-   *          The object on which the Event initially occurred.
+   *   The object on which the Event initially occurred.
    * @param ldapConnection
-   *          facility for interacting with an LDAPv3 directory server.
-   *          It provides a means of establishing a connection to the
-   *          server, sending requests, and reading responses. See RFC
-   *          4511 for the LDAPv3 protocol specification and more
-   *          information about the types of operations defined in LDAP.
+   *   facility for interacting with an LDAPv3 directory server.
+   *   It provides a means of establishing a connection to the
+   *   server, sending requests, and reading responses. See RFC
+   *   4511 for the LDAPv3 protocol specification and more
+   *   information about the types of operations defined in LDAP.
    * @param ldapException
-   *          the exception which caused this event.
+   *   the exception which caused this event.
    */
   public LdapExceptionEvent(
-          final Object source,final LDAPConnection ldapConnection,
-          final LDAPException ldapException)
-  {
+    final Object source, final LDAPConnection ldapConnection,
+    final LDAPException ldapException) {
     super(source);
     this.ldapConnection = ldapConnection;
     this.ldapException = ldapException;
   }
+
+
 
   /**
    * The connection associated with the event.
@@ -71,10 +72,11 @@ public class LdapExceptionEvent
   /**
    * @return the ldapConnection
    */
-  public final LDAPConnection getLdapConnection()
-  {
+  public final LDAPConnection getLdapConnection() {
     return ldapConnection;
   }
+
+
 
   /**
    * The exception that caused this event.
@@ -86,8 +88,7 @@ public class LdapExceptionEvent
   /**
    * @return the ldapException
    */
-  public final LDAPException getLdapException()
-  {
+  public final LDAPException getLdapException() {
     return ldapException;
   }
 

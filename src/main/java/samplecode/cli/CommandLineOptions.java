@@ -464,7 +464,8 @@ public class CommandLineOptions {
    *   parses command line arguments
    */
   protected CommandLineOptions(final Argument[] arguments,
-                               final ArgumentParser argumentParser) throws ArgumentException {
+                               final ArgumentParser argumentParser)
+    throws ArgumentException {
     ensureNotNull(argumentParser,arguments);
 
     this.argumentParser = argumentParser;
@@ -480,10 +481,11 @@ public class CommandLineOptions {
    * @param arguments
    *   A list of arguments to be added (cannot be {@code null}.
    */
-  public void addArguments(final Argument... arguments) throws ArgumentException {
+  public void addArguments(final Argument... arguments)
+    throws ArgumentException {
     ensureNotNull(arguments);
 
-    for(final Argument argument : arguments) {
+    for(Argument argument : arguments) {
       if(argument != null) {
         argumentParser.addArgument(argument);
       }
@@ -707,8 +709,7 @@ public class CommandLineOptions {
    * value is a search filter.
    */
   public FilterArgument getFilterArgument() {
-    final String argName = CommandLineOptions.ARG_NAME_FILTER;
-    return getNamedArgument(argName);
+    return getNamedArgument(CommandLineOptions.ARG_NAME_FILTER);
   }
 
 
@@ -720,7 +721,7 @@ public class CommandLineOptions {
    * @return The list of search filters.
    */
   public List<Filter> getFilters() {
-    final FilterArgument arg = getFilterArgument();
+    FilterArgument arg = getFilterArgument();
     return arg.getValues();
   }
 

@@ -50,71 +50,71 @@ final class InvokeToolByPropertyName {
    * </blockquote>
    *
    * @param args
-   *         Command line arguments, less the JVM-specific arguments.
-   *         One of these arguments should set the system property
-   *         {@code invokeableClassname}.
+   *   Command line arguments, less the JVM-specific arguments.
+   *   One of these arguments should set the system property
+   *   {@code invokeableClassname}.
    */
   public static void main(final String... args) {
     final String invokeableClassname =
-            System.getProperty(InvokeToolByPropertyName.INVOKABLE_CLASSNAME_PROP_NAME);
-    if (invokeableClassname == null) {
+      System.getProperty(InvokeToolByPropertyName.INVOKABLE_CLASSNAME_PROP_NAME);
+    if(invokeableClassname == null) {
       return;
     }
     final InvokeToolByPropertyName invokeToolByPropertyName =
-            new InvokeToolByPropertyName(invokeableClassname);
+      new InvokeToolByPropertyName(invokeableClassname);
     final OutputStream outStream = System.out;
     try {
       final ResultCode resultCode = invokeToolByPropertyName.runTool(args);
-      if (resultCode != null) {
+      if(resultCode != null) {
         final StringBuilder builder =
-                new StringBuilder(invokeToolByPropertyName.getClass().getCanonicalName());
+          new StringBuilder(invokeToolByPropertyName.getClass().getCanonicalName());
         builder.append(" has completed processing. The result code was: ");
         builder.append(resultCode);
         final LogRecord logRecord = new LogRecord(Level.INFO,builder.toString());
         final String msg = new MinimalLogFormatter().format(logRecord);
         outStream.write(msg.getBytes());
       }
-    } catch (final SecurityException e) {
+    } catch(final SecurityException e) {
       final String msg =
-              String.format("An SecurityException resulted from an " + "attempt to create the" +
-                      " class '%s'.\n" + "The class must have a zero-argument constructor" +
-                      ".\n\n%s",invokeableClassname,InvokeToolByPropertyName
-                      .HELPFUL_USAGE_MSG);
+        String.format("An SecurityException resulted from an " + "attempt to create the" +
+          " class '%s'.\n" + "The class must have a zero-argument constructor" +
+          ".\n\n%s",invokeableClassname,InvokeToolByPropertyName
+          .HELPFUL_USAGE_MSG);
       System.err.println(msg);
-    } catch (final IllegalArgumentException e) {
+    } catch(final IllegalArgumentException e) {
       final String msg =
-              String.format("An SecurityException resulted from an " + "attempt to create the" +
-                      " class '%s'.\n" + "The class must have a zero-argument constructor" +
-                      ".\n\n%s",invokeableClassname,InvokeToolByPropertyName
-                      .HELPFUL_USAGE_MSG);
+        String.format("An SecurityException resulted from an " + "attempt to create the" +
+          " class '%s'.\n" + "The class must have a zero-argument constructor" +
+          ".\n\n%s",invokeableClassname,InvokeToolByPropertyName
+          .HELPFUL_USAGE_MSG);
       System.err.println(msg);
-    } catch (final ClassNotFoundException e) {
+    } catch(final ClassNotFoundException e) {
       final String msg =
-              String.format("An SecurityException resulted from an " + "attempt to create the" +
-                      " class '%s'.\n" + "The class must have a zero-argument constructor" +
-                      ".\n\n%s",invokeableClassname,InvokeToolByPropertyName
-                      .HELPFUL_USAGE_MSG);
+        String.format("An SecurityException resulted from an " + "attempt to create the" +
+          " class '%s'.\n" + "The class must have a zero-argument constructor" +
+          ".\n\n%s",invokeableClassname,InvokeToolByPropertyName
+          .HELPFUL_USAGE_MSG);
       System.err.println(msg);
-    } catch (final InstantiationException instantiationException) {
+    } catch(final InstantiationException instantiationException) {
       final String msg =
-              String.format("An Instantiation exception resulted from an " + "attempt to " +
-                      "create the class '%s'.\n" + "The class must have a zero-argument " +
-                      "constructor.\n\n%s",invokeableClassname,
-                      InvokeToolByPropertyName.HELPFUL_USAGE_MSG);
+        String.format("An Instantiation exception resulted from an " + "attempt to " +
+          "create the class '%s'.\n" + "The class must have a zero-argument " +
+          "constructor.\n\n%s",invokeableClassname,
+          InvokeToolByPropertyName.HELPFUL_USAGE_MSG);
       System.err.println(msg);
-    } catch (final IllegalAccessException e) {
+    } catch(final IllegalAccessException e) {
       final String msg =
-              String.format("An SecurityException resulted from an " + "attempt to create the" +
-                      " class '%s'.\n" + "The class must have a zero-argument constructor" +
-                      ".\n\n%s",invokeableClassname,InvokeToolByPropertyName
-                      .HELPFUL_USAGE_MSG);
+        String.format("An SecurityException resulted from an " + "attempt to create the" +
+          " class '%s'.\n" + "The class must have a zero-argument constructor" +
+          ".\n\n%s",invokeableClassname,InvokeToolByPropertyName
+          .HELPFUL_USAGE_MSG);
       System.err.println(msg);
-    } catch (final IOException e) {
+    } catch(final IOException e) {
       final String msg =
-              String.format("An SecurityException resulted from an " + "attempt to create the" +
-                      " class '%s'.\n" + "The class must have a zero-argument constructor" +
-                      ".\n\n%s",invokeableClassname,InvokeToolByPropertyName
-                      .HELPFUL_USAGE_MSG);
+        String.format("An SecurityException resulted from an " + "attempt to create the" +
+          " class '%s'.\n" + "The class must have a zero-argument constructor" +
+          ".\n\n%s",invokeableClassname,InvokeToolByPropertyName
+          .HELPFUL_USAGE_MSG);
       System.err.println(msg);
     }
   }
@@ -123,18 +123,19 @@ final class InvokeToolByPropertyName {
 
   static {
     HELPFUL_USAGE_MSG =
-            "Creates a class, which  must exist and must extend the " + "LDAPCommandLineTool " +
-                    "class, and invokes the runTool(args) method.\n" + "You must provide the " +
-                    "classname by setting the 'invokableClassname' " + "system property. for " +
-                    "example,\n\n" + "java -cp your-classpath samplecode.tools" +
-                    ".InvokeToolByPropertyName " + "-DinvokeableClassname=samplecode" +
-                    ".Classname [args]\n\n";
+      "Creates a class, which  must exist and must extend the " + "LDAPCommandLineTool " +
+        "class, and invokes the runTool(args) method.\n" + "You must provide the " +
+        "classname by setting the 'invokableClassname' " + "system property. for " +
+        "example,\n\n" + "java -cp your-classpath samplecode.tools" +
+        ".InvokeToolByPropertyName " + "-DinvokeableClassname=samplecode" +
+        ".Classname [args]\n\n";
     INVOKABLE_CLASSNAME_PROP_NAME = "invokableClassname";
   }
 
 
 
   private static final String HELPFUL_USAGE_MSG;
+
 
   private static final String INVOKABLE_CLASSNAME_PROP_NAME;
 
@@ -148,14 +149,14 @@ final class InvokeToolByPropertyName {
 
 
   private ResultCode runTool(final String... args) throws
-          ClassNotFoundException,
-          SecurityException,
-          IllegalArgumentException,
-          InstantiationException,
-          IllegalAccessException {
+    ClassNotFoundException,
+    SecurityException,
+    IllegalArgumentException,
+    InstantiationException,
+    IllegalAccessException {
     @SuppressWarnings("unchecked")
     final Class<? extends LDAPCommandLineTool> cl =
-            (Class<? extends LDAPCommandLineTool>) Class.forName(invokeableClassname);
+      (Class<? extends LDAPCommandLineTool>) Class.forName(invokeableClassname);
     final LDAPCommandLineTool tool = cl.newInstance();
     return tool.runTool(args);
   }

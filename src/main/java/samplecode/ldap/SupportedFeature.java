@@ -16,7 +16,9 @@
 
 package samplecode.ldap;
 
-import com.unboundid.ldap.sdk.*;
+import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.LDAPInterface;
+import com.unboundid.ldap.sdk.RootDSE;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
@@ -48,7 +50,7 @@ public abstract class SupportedFeature {
    *   supports.
    */
   public static boolean isControlSupported(LDAPInterface conn,
-                                    String controlOID) {
+                                           String controlOID) {
     ensureNotNullWithMessage(conn,"conn was null.");
     ensureNotNullWithMessage(controlOID,"controlOID was null.");
 
@@ -73,7 +75,7 @@ public abstract class SupportedFeature {
    *   server supports.
    */
   public static boolean isExtendedOperationSupported(LDAPInterface conn,
-                                              String extensionOID) {
+                                                     String extensionOID) {
     ensureNotNullWithMessage(conn,"conn was null.");
     ensureNotNullWithMessage(extensionOID,"extensionOID was null.");
 

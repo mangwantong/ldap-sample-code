@@ -13,6 +13,7 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
+
 package samplecode.listener;
 
 import com.unboundid.ldap.sdk.LDAPConnection;
@@ -23,21 +24,24 @@ import samplecode.annotation.Since;
 
 import java.util.EventListener;
 
+
 /**
  * Indicates that a class is observed by another class which is
  * interested in LDAP exceptions that occur.
  */
-@Author("terry.gardner@unboundid.com") @Since("Dec 31, 2011") @CodeVersion("1.0")
-public interface ObservedByLdapExceptionListener extends EventListener
-{
+@Author("terry.gardner@unboundid.com")
+@Since("Dec 31, 2011")
+@CodeVersion("1.0")
+public interface ObservedByLdapExceptionListener extends EventListener {
 
   /**
    * adds the specified {@code ldapExceptionListener} to receive LDAP
    * exception events from this class.
    *
-   * @param ldapExceptionListener the LDAP exception listener. If
-   *                              {@code ldapExceptionListener} is {@code null}, no action
-   *                              is taken and no exception is thrown.
+   * @param ldapExceptionListener
+   *   the LDAP exception listener. If
+   *   {@code ldapExceptionListener} is {@code null}, no action
+   *   is taken and no exception is thrown.
    */
   void addLdapExceptionListener(LdapExceptionListener ldapExceptionListener);
 
@@ -45,8 +49,10 @@ public interface ObservedByLdapExceptionListener extends EventListener
    * notifies the listener that an {@code LdapExceptionEvent} has
    * occurred.
    *
-   * @param ldapConnection connection to an LDAP server
-   * @param ldapException  the exception which caused the notification
+   * @param ldapConnection
+   *   connection to an LDAP server
+   * @param ldapException
+   *   the exception which caused the notification
    */
   void fireLdapExceptionListener(LDAPConnection ldapConnection, LDAPException ldapException);
 
@@ -54,9 +60,10 @@ public interface ObservedByLdapExceptionListener extends EventListener
    * removes the specified {@code ldapExceptionListener} to receive LDAP
    * exception events from this class.
    *
-   * @param ldapExceptionListener the LDAP exception listener. If
-   *                              {@code ldapExceptionListener} is {@code null}, no action
-   *                              is taken and no exception is thrown.
+   * @param ldapExceptionListener
+   *   the LDAP exception listener. If
+   *   {@code ldapExceptionListener} is {@code null}, no action
+   *   is taken and no exception is thrown.
    */
   void removeLdapExceptionListener(LdapExceptionListener ldapExceptionListener);
 
