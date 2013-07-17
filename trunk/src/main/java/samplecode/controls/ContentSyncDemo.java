@@ -46,6 +46,8 @@ public final class ContentSyncDemo extends AbstractTool {
 
   //----------------------------------------------------------------------------
 
+
+
   public static void main(final String... args) {
     final AbstractTool tool = new ContentSyncDemo();
     final Log logger = LogFactory.getLog(ContentSyncDemo.class);
@@ -58,6 +60,7 @@ public final class ContentSyncDemo extends AbstractTool {
       System.exit(exitIntValue);
     }
   }
+
 
 
   static class PrintingIntermediateResponseListener
@@ -116,7 +119,7 @@ public final class ContentSyncDemo extends AbstractTool {
       attributes.toArray(requestedAttributes);
       final SearchRequest searchRequest =
         new SearchRequest(searchResultListener,baseObject,
-                          scope,filter,requestedAttributes);
+          scope,filter,requestedAttributes);
       searchRequest.setTimeLimitSeconds(0);
       searchRequest.setResponseTimeoutMillis(0);
       final IntermediateResponseListener irListener =

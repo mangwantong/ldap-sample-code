@@ -13,13 +13,12 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
+
 package samplecode.controls;
 
 
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPResult;
-
-
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
@@ -32,20 +31,18 @@ import samplecode.annotation.Since;
 @Author("terry.gardner@unboundid.com")
 @Since("Dec 6, 2011")
 @CodeVersion("1.2")
-public interface ResponseControlAware
-{
+public interface ResponseControlAware {
 
   /**
    * Whether to invoke the {@code processResponseControl} method. LDAP
    * clients must check the output of the {@code invoke} method before
    * invoking {@code processResponseControl}, otherwise
    * {@code processResponseControl} is not safe to invoke.
-   * 
+   *
    * @return An indication of whether to invoke the
    *         {@code processResponseControl} method.
    */
   boolean invoke();
-
 
 
   /**
@@ -54,16 +51,17 @@ public interface ResponseControlAware
    * output of the {@code invoke} method before invoking
    * {@code processResponseControl}, otherwise
    * {@code processResponseControl} is not safe to invoke.
-   * 
+   *
    * @param <T>
-   *          The type of result.
+   *   The type of result.
    * @param ldapResult
-   *          The result of an LDAP operation. If the {@code ldapResult}
-   *          object is {@code null}, no action is taken and no
-   *          exception is thrown.
+   *   The result of an LDAP operation. If the {@code ldapResult}
+   *   object is {@code null}, no action is taken and no
+   *   exception is thrown.
+   *
    * @throws LDAPException
-   *           When an exception occurs in the course of handling the
-   *           control.
+   *   When an exception occurs in the course of handling the
+   *   control.
    */
   <T extends LDAPResult> void processResponseControl(T ldapResult) throws LDAPException;
 }

@@ -13,6 +13,7 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
+
 package samplecode.listener;
 
 
@@ -25,19 +26,18 @@ import samplecode.annotation.Since;
  * A representation of a progress event. The implementor creates a
  * progress message at its discretion relating the progress of a process
  * or class.
- * 
+ *
  * @param <T>
- *          The type of the output message
+ *   The type of the output message
  */
 @Author("terry.gardner@unboundid.com")
 @Since("Dec 24, 2011")
 @CodeVersion("1.2")
-public interface ProgressEvent<T>
-{
+public interface ProgressEvent<T> {
 
   /**
    * Retrieve the message describing the progress of the process.
-   * 
+   *
    * @return the message.
    */
   T getProgressMessage();

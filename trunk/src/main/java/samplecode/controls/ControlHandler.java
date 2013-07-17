@@ -13,12 +13,11 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
+
 package samplecode.controls;
 
 
 import com.unboundid.ldap.sdk.Control;
-
-
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
@@ -31,19 +30,19 @@ import samplecode.annotation.Since;
 @Author("terry.gardner@unboundid.com")
 @Since("01-Jan-2008")
 @CodeVersion("1.4")
-public interface ControlHandler
-{
+public interface ControlHandler {
 
   /**
    * Do something with the specified control; if the {@code control}
    * parameter is {@code null}, no action is taken and no exception is
    * thrown.
-   * 
+   *
    * @param object
-   *          The client object.
+   *   The client object.
    * @param control
-   *          a response control.
+   *   a response control.
+   *
    * @return The resulting ControlHandler object.
    */
-  ControlHandler handleResponseControl(Object object,Control control);
+  ControlHandler handleResponseControl(Object object, Control control);
 }

@@ -13,6 +13,7 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
+
 package samplecode.listener;
 
 
@@ -31,8 +32,7 @@ import java.io.FileNotFoundException;
 @Since("Dec 31, 2011")
 @CodeVersion("1.1")
 public class FileNotFoundExceptionEvent
-        extends IOExceptionEvent
-{
+  extends IOExceptionEvent {
 
   private static final long serialVersionUID = -7869888523368680001L;
 
@@ -40,20 +40,21 @@ public class FileNotFoundExceptionEvent
 
   /**
    * @param source
-   *          The object on which the Event initially occurred.
+   *   The object on which the Event initially occurred.
    * @param filename
-   *          the name of the file that was not found.
+   *   the name of the file that was not found.
    * @param fileNotFoundException
-   *          the exception which caused this event.
+   *   the exception which caused this event.
    */
   public FileNotFoundExceptionEvent(
-          final Object source,final String filename,
-          final FileNotFoundException fileNotFoundException)
-  {
+    final Object source, final String filename,
+    final FileNotFoundException fileNotFoundException) {
     super(source);
     this.filename = filename;
     this.fileNotFoundException = fileNotFoundException;
   }
+
+
 
   /**
    * The exception that caused this event.
@@ -65,10 +66,11 @@ public class FileNotFoundExceptionEvent
   /**
    * @return the ioException
    */
-  public final FileNotFoundException getFileNotFoundException()
-  {
+  public final FileNotFoundException getFileNotFoundException() {
     return fileNotFoundException;
   }
+
+
 
   private final String filename;
 
@@ -77,8 +79,7 @@ public class FileNotFoundExceptionEvent
   /**
    * @return the filename
    */
-  public String getFilename()
-  {
+  public String getFilename() {
     return filename;
   }
 

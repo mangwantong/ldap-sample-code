@@ -48,9 +48,9 @@ public interface ToolCompletedProcessing {
    * class to the output stream or error stream (errors only).
    *
    * @param outStream
-   *         the output stream for normal messages
+   *   the output stream for normal messages
    * @param errStream
-   *         the output stream used for error messages
+   *   the output stream used for error messages
    */
   void displayMessage(PrintStream outStream, PrintStream errStream);
 
@@ -59,7 +59,7 @@ public interface ToolCompletedProcessing {
    * class to the output stream or error stream (errors only).
    *
    * @param logger
-   *         A logger created by the client
+   *   A logger created by the client
    */
   void displayMessage(Log logger);
 

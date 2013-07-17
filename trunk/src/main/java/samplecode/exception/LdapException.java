@@ -3,14 +3,11 @@ package samplecode.exception;
 
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.util.Validator;
-
-
-import java.util.ResourceBundle;
-
-
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
+
+import java.util.ResourceBundle;
 
 
 /**
@@ -21,38 +18,33 @@ import samplecode.annotation.Since;
 @Since("Jun 17, 2012")
 @CodeVersion("1.0")
 public class LdapException
-        implements ExceptionMsg
-{
+  implements ExceptionMsg {
 
   @Override
-  public LDAPException getLdapException()
-  {
+  public LDAPException getLdapException() {
     return ldapException;
   }
 
 
 
   @Override
-  public String msg()
-  {
+  public String msg() {
     final String msg =
-            String.format("An LDAP exception has occurred. The exception was %s",ldapException);
+      String.format("An LDAP exception has occurred. The exception was %s",ldapException);
     return msg;
   }
 
 
 
   @Override
-  public String toString()
-  {
+  public String toString() {
     return String.format("LdapException [resourceBundle=%s, ldapException=%s]",resourceBundle,
-            ldapException);
+      ldapException);
   }
 
 
 
-  protected ResourceBundle getResourceBundle()
-  {
+  protected ResourceBundle getResourceBundle() {
     return resourceBundle;
   }
 
@@ -62,12 +54,11 @@ public class LdapException
    * Creates an {@code LdapException} object from the provided
    * {@code ldapException} object - which is not permitted to be
    * {@code null}.
-   * 
+   *
    * @param resourceBundle
    */
   protected LdapException(
-          final ResourceBundle resourceBundle,final LDAPException ldapException)
-  {
+    final ResourceBundle resourceBundle, final LDAPException ldapException) {
     Validator.ensureNotNull(ldapException,resourceBundle);
     this.ldapException = ldapException;
     this.resourceBundle = resourceBundle;
@@ -75,9 +66,10 @@ public class LdapException
 
 
 
-  /** The {@link LDAPException} that was thrown. */
+  /**
+   * The {@link LDAPException} that was thrown.
+   */
   private final LDAPException ldapException;
-
 
 
   private final ResourceBundle resourceBundle;

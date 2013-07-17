@@ -13,6 +13,7 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
+
 package samplecode.listener;
 
 import samplecode.annotation.Author;
@@ -21,18 +22,21 @@ import samplecode.annotation.Since;
 
 import java.util.EventListener;
 
+
 /**
  * Provided to support notification that an LDAP exception has occurred.
  */
-@Author("terry.gardner@unboundid.com") @Since("Dec 31, 2011") @CodeVersion("1.0")
-public interface LdapSearchExceptionListener extends EventListener
-{
+@Author("terry.gardner@unboundid.com")
+@Since("Dec 31, 2011")
+@CodeVersion("1.0")
+public interface LdapSearchExceptionListener extends EventListener {
 
   /**
    * The server rejected the add request, or a problem occurred while
    * sending the request or reading the response.
    *
-   * @param ldapSearchExceptionEvent the event that caused the notification
+   * @param ldapSearchExceptionEvent
+   *   the event that caused the notification
    */
   void searchRequestFailed(LdapSearchExceptionEvent ldapSearchExceptionEvent);
 

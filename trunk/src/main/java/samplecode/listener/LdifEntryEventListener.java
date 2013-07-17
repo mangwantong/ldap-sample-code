@@ -13,6 +13,7 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
+
 package samplecode.listener;
 
 
@@ -30,14 +31,13 @@ import java.util.EventListener;
 @Author("terry.gardner@unboundid.com")
 @Since("Jan 5, 2012")
 @CodeVersion("1.0")
-public interface LdifEntryEventListener extends EventListener
-{
+public interface LdifEntryEventListener extends EventListener {
 
   /**
    * An entry has been read from an LDIF file.
-   * 
+   *
    * @param ldifEvent
-   *          the event that transpired
+   *   the event that transpired
    */
   void entryReadFromLdifFile(LdifEntryEvent ldifEvent);
 

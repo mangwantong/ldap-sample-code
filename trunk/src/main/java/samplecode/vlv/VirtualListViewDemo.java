@@ -32,7 +32,10 @@ import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Launchable;
 import samplecode.annotation.Since;
 import samplecode.exception.AttributeNotSupportedException;
-import samplecode.ldap.*;
+import samplecode.ldap.BasicLdapEntryDisplay;
+import samplecode.ldap.LdapEntryDisplay;
+import samplecode.ldap.SupportedFeature;
+import samplecode.ldap.SupportedUserAttribute;
 import samplecode.listener.DefaultLdapExceptionListener;
 import samplecode.listener.LdapExceptionListener;
 import samplecode.listener.ObservedByLdapExceptionListener;
@@ -53,7 +56,8 @@ import java.util.List;
  * <pre>
  * Provides a demonstration of the use of the virtual list view request and
  * response controls. The VLV request and response controls are similar to the
- * simple paged results request control except LDAP clients may access arbitrary
+ * simple paged results request control except LDAP clients may access
+ * arbitrary
  * pages of data.
  *
  * Usage:  VirtualListViewDemo {options}
@@ -61,7 +65,8 @@ import java.util.List;
  * Available options include:
  * -h, --hostname {host}
  *     The IP address or resolvable name to use to connect to the directory
- *     server.  If this is not provided, then a default value of 'localhost' will
+ *     server.  If this is not provided, then a default value of 'localhost'
+ * will
  *     be used.
  * -p, --port {port}
  *     The port to use to connect to the directory server.  If this is not
@@ -70,11 +75,13 @@ import java.util.List;
  *     The DN to use to bind to the directory server when performing simple
  *     authentication.
  * -w, --bindPassword {password}
- *     The password to use to bind to the directory server when performing simple
+ *     The password to use to bind to the directory server when performing
+ * simple
  *     authentication or a password-based SASL mechanism.
  * -j, --bindPasswordFile {path}
  *     The path to the file containing the password to use to bind to the
- *     directory server when performing simple authentication or a password-based
+ *     directory server when performing simple authentication or a
+ * password-based
  *     SASL mechanism.
  * -Z, --useSSL
  *     Use SSL when communicating with the directory server.
@@ -88,7 +95,8 @@ import java.util.List;
  * -W, --keyStorePassword {password}
  *     The password to use to access the key store contents.
  * -u, --keyStorePasswordFile {path}
- *     The path to the file containing the password to use to access the key store
+ *     The path to the file containing the password to use to access the key
+ * store
  *     contents.
  * --keyStoreFormat {format}
  *     The format (e.g., jks, jceks, pkcs12, etc.) for the key store file.
@@ -103,7 +111,8 @@ import java.util.List;
  * --trustStoreFormat {format}
  *     The format (e.g., jks, jceks, pkcs12, etc.) for the trust store file.
  * -N, --certNickname {nickname}
- *     The nickname (alias) of the client certificate in the key store to present
+ *     The nickname (alias) of the client certificate in the key store to
+ * present
  *     to the directory server for SSL client authentication.
  * -o, --saslOption {name=value}
  *     A name-value pair providing information to use when performing SASL
@@ -119,7 +128,8 @@ import java.util.List;
  *     argument.
  * -a, --attribute {attribute name or type}
  *     The attribute used in the search request or other request. This command
- *     line argument is not required, and can be specified multiple times. If this
+ *     line argument is not required, and can be specified multiple times. If
+ * this
  *     command line argument is not specified, the value '*' is used.
  * -f, --filter {filter}
  *     The search filter used in the search request.
@@ -149,7 +159,7 @@ import java.util.List;
 @CodeVersion("1.6")
 @Launchable
 public final class VirtualListViewDemo extends AbstractTool
-        implements LdapExceptionListener, ObservedByLdapExceptionListener {
+  implements LdapExceptionListener, ObservedByLdapExceptionListener {
 
   private static void main(final PrintStream outStream,
                            final PrintStream errStream,
@@ -158,7 +168,7 @@ public final class VirtualListViewDemo extends AbstractTool
     final ResultCode resultCode = demo.runTool(args);
     if(resultCode != null) {
       final ToolCompletedProcessing c =
-              new BasicToolCompletedProcessing(demo,resultCode);
+        new BasicToolCompletedProcessing(demo,resultCode);
       c.displayMessage(outStream,errStream);
     }
   }
@@ -180,13 +190,13 @@ public final class VirtualListViewDemo extends AbstractTool
 
   @Override
   protected void addArguments(final ArgumentParser argumentParser)
-          throws ArgumentException {
+    throws ArgumentException {
     this.argumentParser = argumentParser;
 
     final Argument critArgument =
-            new BooleanArgument(null,getCriticalityArgName(),1,
-                    "Whether the VLV request control should " +
-                            "be marked as critical.");
+      new BooleanArgument(null,getCriticalityArgName(),1,
+        "Whether the VLV request control should " +
+          "be marked as critical.");
 
     final List<? extends Argument> arguments = Arrays.asList(critArgument);
 
@@ -264,7 +274,7 @@ public final class VirtualListViewDemo extends AbstractTool
       }
 
       final ServerSideSortRequestControl sortRequest =
-              new ServerSideSortRequestControl(sortKeys);
+        new ServerSideSortRequestControl(sortKeys);
 
       /*
        * Construct a search request from the parameter to the
@@ -277,7 +287,7 @@ public final class VirtualListViewDemo extends AbstractTool
       final SearchScope scope = commandLineOptions.getSearchScope();
       final Filter filter = commandLineOptions.getFilter();
       final SearchRequest searchRequest =
-              new SearchRequest(baseObject,scope,filter,requestedAttributes);
+        new SearchRequest(baseObject,scope,filter,requestedAttributes);
       final int sizeLimit = commandLineOptions.getSizeLimit();
       searchRequest.setSizeLimit(sizeLimit);
       final int timeLimit = commandLineOptions.getTimeLimit();
@@ -292,7 +302,7 @@ public final class VirtualListViewDemo extends AbstractTool
       // Determine whether the control should be marked 'critical'
       final String name = this.getCriticalityArgName();
       final BooleanArgument arg =
-              (BooleanArgument) argumentParser.getNamedArgument(name);
+        (BooleanArgument) argumentParser.getNamedArgument(name);
       final boolean criticality = arg != null && arg.isPresent();
       if(this.getLogger().isTraceEnabled()) {
         this.getLogger().trace("criticality: " + criticality);
@@ -300,12 +310,12 @@ public final class VirtualListViewDemo extends AbstractTool
 
       do {
         final VirtualListViewRequestControl vlvRequest =
-                new VirtualListViewRequestControl(targetOffset,
-                                                  beforeCount,
-                                                  afterCount,
-                                                  contentCount,
-                                                  contextID,
-                                                  criticality);
+          new VirtualListViewRequestControl(targetOffset,
+            beforeCount,
+            afterCount,
+            contentCount,
+            contextID,
+            criticality);
         searchRequest.setControls(new Control[]{sortRequest,vlvRequest});
         final SearchResult searchResult = ldapConnection.search(searchRequest);
 
@@ -313,17 +323,17 @@ public final class VirtualListViewDemo extends AbstractTool
          * Display the results of the search.
          */
         if(searchResult.getResultCode().equals(ResultCode.SUCCESS) && (searchResult
-                .getEntryCount() > 0)) {
+          .getEntryCount() > 0)) {
           for(final SearchResultEntry entry : searchResult.getSearchEntries()) {
             final LdapEntryDisplay ldapEntryDisplay = new
-                    BasicLdapEntryDisplay(entry);
+              BasicLdapEntryDisplay(entry);
             ldapEntryDisplay.display();
           }
         }
 
         contentCount = -1;
         final VirtualListViewResponseControl c =
-                VirtualListViewResponseControl.get(searchResult);
+          VirtualListViewResponseControl.get(searchResult);
         if(c != null) {
           contentCount = c.getContentCount();
           contextID = c.getContextID();
@@ -338,9 +348,9 @@ public final class VirtualListViewDemo extends AbstractTool
     } catch(final AttributeNotSupportedException attributeNotSupportedException) {
       // An attribute was not defined
       final String msg = String.format("attribute '%s' is not supported, " +
-              "" + "that is, " +
-              "is not defined in the server schema.",attributeNotSupportedException
-              .getAttributeName());
+        "" + "that is, " +
+        "is not defined in the server schema.",attributeNotSupportedException
+        .getAttributeName());
       getLogger().fatal(msg);
       resultCode = ResultCode.PROTOCOL_ERROR;
     }

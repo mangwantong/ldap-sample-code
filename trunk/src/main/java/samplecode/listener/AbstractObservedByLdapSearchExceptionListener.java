@@ -13,6 +13,7 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
+
 package samplecode.listener;
 
 import com.unboundid.ldap.sdk.LDAPConnection;
@@ -23,70 +24,71 @@ import samplecode.annotation.Since;
 
 import java.util.Vector;
 
+
 /**
  * a minimal implementation of
  * {@code ObservedByLdapSearchExceptionListener} with support for add,
  * remove, and firing listeners.
  */
-@Author("terry.gardner@unboundid.com") @Since("Jan 7, 2012") @CodeVersion("1.0")
+@Author("terry.gardner@unboundid.com")
+@Since("Jan 7, 2012")
+@CodeVersion("1.0")
 public class AbstractObservedByLdapSearchExceptionListener
-        implements ObservedByLdapSearchExceptionListener
-{
+  implements ObservedByLdapSearchExceptionListener {
 
   /**
    * {@inheritDoc}
    */
   @Override
   public synchronized void addLdapSearchExceptionListener(
-          final LdapSearchExceptionListener ldapSearchExceptionListener)
-  {
-    if(ldapSearchExceptionListener != null)
-    {
+    final LdapSearchExceptionListener ldapSearchExceptionListener) {
+    if(ldapSearchExceptionListener != null) {
       ldapSearchExceptionListeners.add(ldapSearchExceptionListener);
     }
   }
+
+
 
   /**
    * {@inheritDoc}
    */
   @Override
   public synchronized void removeLdapSearchExceptionListener(
-          final LdapSearchExceptionListener ldapSearchExceptionListener)
-  {
-    if(ldapSearchExceptionListener != null)
-    {
+    final LdapSearchExceptionListener ldapSearchExceptionListener) {
+    if(ldapSearchExceptionListener != null) {
       ldapSearchExceptionListeners.remove(ldapSearchExceptionListener);
     }
   }
 
+
+
   /**
    * {@inheritDoc}
    */
-  @SuppressWarnings("unchecked") @Override
+  @SuppressWarnings("unchecked")
+  @Override
   public void fireLdapSearchExceptionListener(final LDAPConnection ldapConnection,
-          final LDAPSearchException ldapSearchException)
-  {
+                                              final LDAPSearchException ldapSearchException) {
     Vector<LdapSearchExceptionListener> copy;
-    synchronized(this)
-    {
+    synchronized(this) {
       copy = (Vector<LdapSearchExceptionListener>) ldapSearchExceptionListeners.clone();
     }
-    if(copy.size() == 0)
-    {
+    if(copy.size() == 0) {
       return;
     }
     final LdapSearchExceptionEvent ev =
-            new LdapSearchExceptionEvent(this, ldapConnection, ldapSearchException);
-    for(final LdapSearchExceptionListener l : copy)
-    {
+      new LdapSearchExceptionEvent(this,ldapConnection,ldapSearchException);
+    for(final LdapSearchExceptionListener l : copy) {
       l.searchRequestFailed(ev);
     }
   }
+
+
 
   /**
    * interested parties to {@code LdapExceptionEvents}
    */
   private volatile Vector<LdapSearchExceptionListener> ldapSearchExceptionListeners =
-          new Vector<LdapSearchExceptionListener>();
+    new Vector<LdapSearchExceptionListener>();
 
 }

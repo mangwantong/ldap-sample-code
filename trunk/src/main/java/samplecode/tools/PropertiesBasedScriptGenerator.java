@@ -35,7 +35,8 @@ import static com.unboundid.util.Validator.ensureNotNull;
 
 /**
  * Generates a bash script with which the demo examples can be invoked.
- * Uses a properties files which is expected to contain the following properties:
+ * Uses a properties files which is expected to contain the following
+ * properties:
  * <ul>
  * <li>ScriptTool.file-extension</li>
  * <li>ScriptTool.shell-script-first-line</li>
@@ -50,6 +51,7 @@ public final class PropertiesBasedScriptGenerator
   private static final String LINE_SEPARATOR =
     System.getProperty("line.separator");
 
+
   /**
    * the key to the property whose value is the extension added to
    * the end of a shell script filename.
@@ -57,26 +59,28 @@ public final class PropertiesBasedScriptGenerator
   private static final String PROP_NAME_FILE_EXTENSION =
     "ScriptTool.file-extension";
 
+
   /**
-   * the key to te property whose value is used for the firstline of a shell script
+   * the key to te property whose value is used for the firstline of a shell
+   * script
    */
   private static final String PROP_NAME_SHELL_SCRIPT_FIRST_LINE =
-          "ScriptTool.shell-script-first-line";
+    "ScriptTool.shell-script-first-line";
 
 
 
   /**
    * @param className
-   *         the name of the class to launch. {@code className} is not
-   *         permitted to be {@code null}.
+   *   the name of the class to launch. {@code className} is not
+   *   permitted to be {@code null}.
    * @param classpath
-   *         the classpath to use in the generated script.
+   *   the classpath to use in the generated script.
    * @param spaceSeparatedJVMOptions
-   *         JVM options; {@code spaceSeparatedJVMOptions} is not
-   *         permitted to be {@code null}.
+   *   JVM options; {@code spaceSeparatedJVMOptions} is not
+   *   permitted to be {@code null}.
    * @param directory
-   *         the directory in which the script is dropped.
-   *         {@code directory} is not permitted to be {@code null}.
+   *   the directory in which the script is dropped.
+   *   {@code directory} is not permitted to be {@code null}.
    */
   public PropertiesBasedScriptGenerator(final ResourceBundle resourceBundle,
                                         final String className,
@@ -96,16 +100,16 @@ public final class PropertiesBasedScriptGenerator
 
   /**
    * @param className
-   *         the name of the class to launch. {@code className} is not
-   *         permitted to be {@code null}.
+   *   the name of the class to launch. {@code className} is not
+   *   permitted to be {@code null}.
    * @param classpath
-   *         the classpath to use in the generated script.
+   *   the classpath to use in the generated script.
    * @param spaceSeparatedJVMOptions
-   *         JVM options; {@code spaceSeparatedJVMOptions} is not
-   *         permitted to be {@code null}.
+   *   JVM options; {@code spaceSeparatedJVMOptions} is not
+   *   permitted to be {@code null}.
    * @param directory
-   *         the directory in which the script is dropped.
-   *         {@code directory} is not permitted to be {@code null}.
+   *   the directory in which the script is dropped.
+   *   {@code directory} is not permitted to be {@code null}.
    */
   public PropertiesBasedScriptGenerator(final String className,
                                         final String classpath,
@@ -135,9 +139,9 @@ public final class PropertiesBasedScriptGenerator
     final String filename = createFilename(className,directory);
     final File script = new File(filename);
     script.createNewFile();
-    if (!script.setExecutable(true)) {
+    if(!script.setExecutable(true)) {
       final String msg =
-              String.format("The attempt to set the permissions of %s failed.",script);
+        String.format("The attempt to set the permissions of %s failed.",script);
       getLogger().error(msg);
     }
     final Writer writer = new FileWriter(script);
@@ -209,15 +213,15 @@ public final class PropertiesBasedScriptGenerator
 
   public Object getClasspath() {
     return terminatedWithNewLine("export CLASSPATH; CLASSPATH=\"${SCRIPT_CLASSPATH:=" +
-            classpath + "}\"");
+      classpath + "}\"");
   }
 
 
 
   public String getJVMOptions() {
     final String jvmOptionsString =
-            String.format("export JVM_OPTS; JVM_OPTS=\"${SCRIPT_JVM_OPTS:=%s}\"",
-                    spaceSeparatedJVMOptions);
+      String.format("export JVM_OPTS; JVM_OPTS=\"${SCRIPT_JVM_OPTS:=%s}\"",
+        spaceSeparatedJVMOptions);
     return terminatedWithNewLine(jvmOptionsString);
   }
 
@@ -238,7 +242,7 @@ public final class PropertiesBasedScriptGenerator
 
   @Override
   public Log getLogger() {
-    if (logger == null) {
+    if(logger == null) {
       logger = LogFactory.getLog(getClass());
     }
     return logger;
@@ -248,17 +252,22 @@ public final class PropertiesBasedScriptGenerator
 
   private final ResourceBundle resourceBundle;
 
+
   // a launchable class name.
   private final String className;
+
 
   // classpath to insert into finished script
   private final String classpath;
 
+
   // The directory in which the script is placed.
   private final String directory;
 
+
   // JVM options
   private final String spaceSeparatedJVMOptions;
+
 
   private Log logger;
 

@@ -248,7 +248,7 @@ public final class AuthorizedIdentity
 
 
   private boolean checkSupportedFeature(final LDAPConnection ldapConnection,
-                                     final String controlOID) {
+                                        final String controlOID) {
     return SupportedFeature.isExtendedOperationSupported
       (ldapConnection,controlOID);
   }

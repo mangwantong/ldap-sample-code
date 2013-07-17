@@ -79,10 +79,10 @@ public abstract class PropertiesBackedArgument<T extends Argument,E> {
 
   /**
    * @param resourceBundle
-   *         used to determine the values used for the command line
-   *         argument parameters.
+   *   used to determine the values used for the command line
+   *   argument parameters.
    * @param basePropertyName
-   *         the base name of keys associated with properties
+   *   the base name of keys associated with properties
    */
   protected PropertiesBackedArgument(final ResourceBundle resourceBundle,
                                      final String basePropertyName) {
@@ -103,14 +103,14 @@ public abstract class PropertiesBackedArgument<T extends Argument,E> {
     Character shortIdentifier;
     try {
       final String s = resourceBundle.getString(getShortIdentifierKey());
-      if (s.length() == 0) {
+      if(s.length() == 0) {
         shortIdentifier = null;
       } else {
         final String shortIdentifierKey =
           resourceBundle.getString(getShortIdentifierKey());
         shortIdentifier = shortIdentifierKey.charAt(0);
       }
-    } catch (final MissingResourceException x) {
+    } catch(final MissingResourceException x) {
       shortIdentifier = null;
     }
     return shortIdentifier;
@@ -136,7 +136,7 @@ public abstract class PropertiesBackedArgument<T extends Argument,E> {
     try {
       final String key = getDefaultValueKey();
       defaultValue = convertString(resourceBundle.getString(key));
-    } catch (final MissingResourceException x) {
+    } catch(final MissingResourceException x) {
       defaultValue = null;
     }
     return defaultValue;
@@ -165,7 +165,7 @@ public abstract class PropertiesBackedArgument<T extends Argument,E> {
     String description;
     try {
       description = resourceBundle.getString(getDescriptionKey());
-    } catch (final MissingResourceException x) {
+    } catch(final MissingResourceException x) {
       description = this.basePropertyName;
     }
     return description;
@@ -190,7 +190,7 @@ public abstract class PropertiesBackedArgument<T extends Argument,E> {
     String longIdentifier;
     try {
       longIdentifier = resourceBundle.getString(getLongIdentifierKey());
-    } catch (final MissingResourceException x) {
+    } catch(final MissingResourceException x) {
       longIdentifier = this.basePropertyName;
     }
     return longIdentifier;
@@ -216,7 +216,7 @@ public abstract class PropertiesBackedArgument<T extends Argument,E> {
     try {
       final String key = getValuePlaceholderKey();
       valuePlaceholder = resourceBundle.getString(key);
-    } catch (final MissingResourceException x) {
+    } catch(final MissingResourceException x) {
       valuePlaceholder = this.basePropertyName;
     }
     return valuePlaceholder;
@@ -245,9 +245,9 @@ public abstract class PropertiesBackedArgument<T extends Argument,E> {
     final String key = getMaxOccurrencesKey();
     try {
       maxOccurrences = Integer.parseInt(resourceBundle.getString(key));
-    } catch (final MissingResourceException x) {
+    } catch(final MissingResourceException x) {
       maxOccurrences = 0;
-    } catch (final NumberFormatException nex) {
+    } catch(final NumberFormatException nex) {
       maxOccurrences = 0;
     }
     return maxOccurrences;
@@ -315,7 +315,7 @@ public abstract class PropertiesBackedArgument<T extends Argument,E> {
     final String key = getIsRequiredKey();
     try {
       isRequired = resourceBundle.getString(key).equals("true");
-    } catch (final MissingResourceException x) {
+    } catch(final MissingResourceException x) {
       isRequired = false;
     }
     return isRequired;
@@ -349,6 +349,7 @@ public abstract class PropertiesBackedArgument<T extends Argument,E> {
 
 
   private final ResourceBundle resourceBundle;
+
 
   private final String basePropertyName;
 

@@ -5,7 +5,6 @@ import com.unboundid.util.Validator;
 import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.IntegerArgument;
 
-
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
@@ -15,52 +14,44 @@ import java.util.ResourceBundle;
  * an {@link Integer}.
  */
 public class IntegerPropertiesBackedArgument
-        extends PropertiesBackedArgument<IntegerArgument,Integer>
-{
-
+  extends PropertiesBackedArgument<IntegerArgument,Integer> {
 
 
   /**
    * @param resourceBundle
-   *          the resource bundle from which the command line argument
-   *          are taken
-   * 
+   *   the resource bundle from which the command line argument
+   *   are taken
    * @param basePropertyName
-   *          the base property name
-   * 
+   *   the base property name
+   *
    * @return a new {@code StringPropertiesBackedArgument} object.
    */
   public static IntegerPropertiesBackedArgument newIntegerPropertiesBackedArgument(
-          final ResourceBundle resourceBundle,final String basePropertyName)
-  {
+    final ResourceBundle resourceBundle, final String basePropertyName) {
     return new IntegerPropertiesBackedArgument(resourceBundle,basePropertyName);
   }
 
 
 
   @Override
-  public IntegerArgument getArgument() throws ArgumentException
-  {
+  public IntegerArgument getArgument() throws ArgumentException {
     /*
      * Construct an IntegerArgument using the provided information - and
      * use the upper bound and lower bound if provided.
      */
     IntegerArgument arg;
-    try
-    {
+    try {
       final int lowerBound = getLowerBound().intValue();
       final int upperBound = getUpperBound().intValue();
       arg =
-              new IntegerArgument(getShortIdentifier(),getLongIdentifier(),isRequired(),
-                      getMaxOccurrences(),getValuePlaceholder(),getDescription(),lowerBound,
-                      upperBound,getDefaultValue());
-    }
-    catch(final MissingResourceException ex)
-    {
+        new IntegerArgument(getShortIdentifier(),getLongIdentifier(),isRequired(),
+          getMaxOccurrences(),getValuePlaceholder(),getDescription(),lowerBound,
+          upperBound,getDefaultValue());
+    } catch(final MissingResourceException ex) {
       arg =
-              new IntegerArgument(getShortIdentifier(),getLongIdentifier(),isRequired(),
-                      getMaxOccurrences(),getValuePlaceholder(),getDescription(),
-                      getDefaultValue());
+        new IntegerArgument(getShortIdentifier(),getLongIdentifier(),isRequired(),
+          getMaxOccurrences(),getValuePlaceholder(),getDescription(),
+          getDefaultValue());
     }
 
     return arg;
@@ -68,36 +59,33 @@ public class IntegerPropertiesBackedArgument
 
 
 
-  /** @return the {@code value} as an {@link Integer}. */
+  /**
+   * @return the {@code value} as an {@link Integer}.
+   */
   @Override
-  protected Integer convertString(final String value)
-  {
+  protected Integer convertString(final String value) {
     Validator.ensureNotNull(value);
     return Integer.valueOf(value);
   }
 
 
 
-  private Integer getLowerBound() throws MissingResourceException
-  {
+  private Integer getLowerBound() throws MissingResourceException {
     return Integer.valueOf(getResourceBundle().getString(getBasePropertyName() + "LowerBound"));
   }
 
 
 
-  private Integer getUpperBound() throws MissingResourceException
-  {
+  private Integer getUpperBound() throws MissingResourceException {
     return Integer.valueOf(getResourceBundle().getString(getBasePropertyName() + "UpperBound"));
   }
 
 
 
   private IntegerPropertiesBackedArgument(
-          final ResourceBundle resourceBundle,final String basePropertyName)
-  {
+    final ResourceBundle resourceBundle, final String basePropertyName) {
     super(resourceBundle,basePropertyName);
   }
-
 
 
 }

@@ -4,14 +4,11 @@ package samplecode.exception;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.util.Validator;
-
-
-import java.util.ResourceBundle;
-
-
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
+
+import java.util.ResourceBundle;
 
 
 /**
@@ -22,8 +19,7 @@ import samplecode.annotation.Since;
 @Since("Jun 17, 2012")
 @CodeVersion("1.0")
 public class BindException
-        extends LdapException
-{
+  extends LdapException {
 
   private static final String PROP_NAME_BIND_EXCEPTION = "bindExceptionMessage";
 
@@ -33,7 +29,7 @@ public class BindException
    * Creates a new {@code BindException} object using the provided
    * {@code ldapException} object (which must not be null). Example
    * usage: <blockquote>
-   * 
+   * <p/>
    * <pre>
    * try
    * {
@@ -47,14 +43,13 @@ public class BindException
    *   return exception.getResultCode();
    * }
    * </pre>
-   * 
+   * <p/>
    * </blockquote>
-   * 
+   *
    * @param resourceBundle
    */
   public static LdapException newBindException(final ResourceBundle resourceBundle,
-          final LDAPException ldapException)
-  {
+                                               final LDAPException ldapException) {
     Validator.ensureNotNull(ldapException);
     return new BindException(resourceBundle,ldapException);
   }
@@ -62,18 +57,16 @@ public class BindException
 
 
   @Override
-  public String msg()
-  {
+  public String msg() {
     final LDAPResult result = getLdapException().toLDAPResult();
     return String.format(getResourceBundle().getString(BindException.PROP_NAME_BIND_EXCEPTION),
-            result.getResultCode());
+      result.getResultCode());
   }
 
 
 
   private BindException(
-          final ResourceBundle resourceBundle,final LDAPException ldapException)
-  {
+    final ResourceBundle resourceBundle, final LDAPException ldapException) {
     super(resourceBundle,ldapException);
   }
 

@@ -13,6 +13,7 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
+
 package samplecode.search;
 
 
@@ -21,18 +22,15 @@ import com.unboundid.ldap.sdk.SearchResultReference;
 import com.unboundid.util.MinimalLogFormatter;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.Validator;
-
+import samplecode.annotation.Author;
+import samplecode.annotation.CodeVersion;
+import samplecode.annotation.Since;
 
 import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.logging.Formatter;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
-
-
-import samplecode.annotation.Author;
-import samplecode.annotation.CodeVersion;
-import samplecode.annotation.Since;
 
 
 /**
@@ -45,19 +43,17 @@ import samplecode.annotation.Since;
 @CodeVersion("1.0")
 @NotMutable
 public class PrintEntrySearchResultListener
-        extends AbstractSearchResultListener
-{
+  extends AbstractSearchResultListener {
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public void searchEntryReturned(final SearchResultEntry searchResultEntry)
-  {
+  public void searchEntryReturned(final SearchResultEntry searchResultEntry) {
     Validator.ensureNotNull(searchResultEntry);
     final String msg =
-            String.format("dn: %s attributes: %s",searchResultEntry.getDN(),
-                    searchResultEntry.getAttributes());
+      String.format("dn: %s attributes: %s",searchResultEntry.getDN(),
+        searchResultEntry.getAttributes());
     final LogRecord record = new LogRecord(Level.INFO,msg);
     displayStream.println(formatter.format(record));
   }
@@ -68,12 +64,11 @@ public class PrintEntrySearchResultListener
    * {@inheritDoc}
    */
   @Override
-  public void searchReferenceReturned(final SearchResultReference searchResultReference)
-  {
+  public void searchReferenceReturned(final SearchResultReference searchResultReference) {
     Validator.ensureNotNull(searchResultReference);
     final String msg =
-            String.format("referral URLs: %s",
-                    Arrays.asList(searchResultReference.getReferralURLs()));
+      String.format("referral URLs: %s",
+        Arrays.asList(searchResultReference.getReferralURLs()));
     final LogRecord record = new LogRecord(Level.INFO,msg);
     displayStream.println(formatter.format(record));
   }
@@ -83,8 +78,7 @@ public class PrintEntrySearchResultListener
   /**
    * Create a {@code PrintEntrySearchResultListener} with default state.
    */
-  public PrintEntrySearchResultListener()
-  {
+  public PrintEntrySearchResultListener() {
     // This block deliberately left empty.
   }
 
@@ -92,7 +86,6 @@ public class PrintEntrySearchResultListener
 
   // text is transmitted via this stream
   private final PrintStream displayStream = System.out;
-
 
 
   // format text in a standardized format.

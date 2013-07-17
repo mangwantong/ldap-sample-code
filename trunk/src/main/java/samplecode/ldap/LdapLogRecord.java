@@ -13,16 +13,16 @@
  * should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
+
 package samplecode.ldap;
-
-
-import java.util.logging.Level;
-import java.util.logging.LogRecord;
 
 
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
+
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
 
 
 /**
@@ -32,15 +32,15 @@ import samplecode.annotation.Since;
 @Author("terry.gardner@unboundid.com")
 @Since("Dec 6, 2011")
 @CodeVersion("1.0")
-public interface LdapLogRecord
-{
+public interface LdapLogRecord {
 
   /**
    * Constructs a {@code LogRecord} suitable for use with the Java
    * logging framework.
-   * 
+   *
    * @param level
-   *          The severity of the message.
+   *   The severity of the message.
+   *
    * @return A LogRecord to use with the Java logging framework.
    */
   LogRecord getLogRecord(Level level);

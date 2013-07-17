@@ -14,12 +14,20 @@ import samplecode.ldap.SupportedFeature;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.unboundid.util.Validator.ensureNotNullWithMessage;
+
 
 class IncrementModifyStrategy extends AbstractModifyStrategy {
 
-  IncrementModifyStrategy(final LDAPConnection ldapConnection, final SearchScope scope,
+  IncrementModifyStrategy(final LDAPConnection ldapConnection,
+                          final SearchScope scope,
                           final Filter filter) {
     super(ldapConnection);
+
+
+    ensureNotNullWithMessage(scope,"scope was null.");
+    ensureNotNullWithMessage(filter,"filter was null.");
+
     this.scope = scope;
     this.filter = filter;
   }
@@ -40,7 +48,9 @@ class IncrementModifyStrategy extends AbstractModifyStrategy {
    *   the increment
    */
   @Override
-  public void modify(final DN dn, final String attributeName, final long incrementValue)
+  public void modify(final DN dn,
+                     final String attributeName,
+                     final long incrementValue)
     throws ModifyException {
     /*
     * Create the search request. The base object is the DN 'entryDn',
@@ -49,7 +59,8 @@ class IncrementModifyStrategy extends AbstractModifyStrategy {
     * match an attribute type, therefore no attributes are returned.
     */
     final String baseObject = dn.toString();
-    final String[] requestedAttributes = new String[]{SearchRequest.NO_ATTRIBUTES};
+    final String[] requestedAttributes =
+      new String[]{SearchRequest.NO_ATTRIBUTES};
     final SearchRequest searchRequest =
       new SearchRequest(baseObject,scope,filter,requestedAttributes);
 

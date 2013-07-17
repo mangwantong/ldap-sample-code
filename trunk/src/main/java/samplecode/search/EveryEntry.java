@@ -224,7 +224,8 @@ public final class EveryEntry extends LDAPCommandLineTool {
    * --pageSize {positiveInteger}
    *     The search page size
    * --searchResultListener {class-name}
-   *     The name of class which extends the AbstractSearchResultListener class.
+   *     The name of class which extends the AbstractSearchResultListener
+   * class.
    * The
    *     searchEntryReturned method of this class is invoked when an entry is
    *     returned from a search.
