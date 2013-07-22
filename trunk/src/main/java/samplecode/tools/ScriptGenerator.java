@@ -30,4 +30,9 @@ public interface ScriptGenerator {
    * and returns a {@code File} which refers to the generated script.
    */
   File generateScript() throws IOException;
+
+  /**
+   * Retrieves the name of the file produced.
+   */
+  String getFilename();
 }

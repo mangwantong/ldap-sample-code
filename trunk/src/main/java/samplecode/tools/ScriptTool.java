@@ -18,7 +18,6 @@ package samplecode.tools;
 
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.UnsolicitedNotificationHandler;
-import com.unboundid.util.MinimalLogFormatter;
 import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
 import com.unboundid.util.args.StringArgument;
@@ -28,11 +27,10 @@ import samplecode.annotation.Launchable;
 import samplecode.annotation.Since;
 import samplecode.ldap.DefaultUnsolicitedNotificationHandler;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.LinkedHashMap;
-import java.util.logging.Level;
-import java.util.logging.LogRecord;
 
 import static com.unboundid.util.Validator.ensureNotNullWithMessage;
 
@@ -303,21 +301,28 @@ public final class ScriptTool extends AbstractTool {
    */
   @Override
   public ResultCode executeToolTasks() {
-    introduction();
-    final String className = classNameArgument.getValue();
-    final String classPath = classPathArgument.getValue();
-    final String spaceSeparatedJVMOptions =
+
+    String className = classNameArgument.getValue();
+    String classPath = classPathArgument.getValue();
+    String spaceSeparatedJVMOptions =
       spaceSeparatedJVMOptionsArgument.getValue();
-    final String directory = directoryArgument.getValue();
-    final PropertiesBasedScriptGenerator gen =
+    String directory = directoryArgument.getValue();
+
+    ScriptGenerator gen =
       new PropertiesBasedScriptGenerator(className,
         classPath,spaceSeparatedJVMOptions,directory);
+
     try {
-      gen.generateScript();
-      final String helpfulMessage =
+      File script = gen.generateScript();
+      if(script == null) {
+        getLogger().fatal("Unable to generate script.");
+        return ResultCode.PARAM_ERROR;
+      }
+
+      String helpfulMessage =
         String.format("Created %s/%s",directory,gen.getFilename());
-      final LogRecord record = new LogRecord(Level.INFO,helpfulMessage);
-      out(new MinimalLogFormatter().format(record));
+      getLogger().info(helpfulMessage);
+
     } catch(final IOException exception) {
       getLogger().fatal(exception);
       return ResultCode.OPERATIONS_ERROR;
