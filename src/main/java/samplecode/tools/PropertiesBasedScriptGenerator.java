@@ -44,7 +44,7 @@ import static com.unboundid.util.Validator.ensureNotNull;
  */
 @Author("terry.gardner@unboundid.com")
 @Since("Dec 28, 2011")
-@CodeVersion("1.3")
+@CodeVersion("1.4")
 public final class PropertiesBasedScriptGenerator
   implements ScriptGenerator, LogAware {
 
@@ -53,7 +53,7 @@ public final class PropertiesBasedScriptGenerator
 
 
   /**
-   * the key to the property whose value is the extension added to
+   * The key to the property whose value is the extension added to
    * the end of a shell script filename.
    */
   private static final String PROP_NAME_FILE_EXTENSION =
@@ -61,8 +61,8 @@ public final class PropertiesBasedScriptGenerator
 
 
   /**
-   * the key to te property whose value is used for the firstline of a shell
-   * script
+   * The key to the property whose value is used for the first line of a shell
+   * script.
    */
   private static final String PROP_NAME_SHELL_SCRIPT_FIRST_LINE =
     "ScriptTool.shell-script-first-line";
@@ -135,105 +135,7 @@ public final class PropertiesBasedScriptGenerator
 
 
 
-  public File getFile() throws IOException {
-    final String filename = createFilename(className,directory);
-    final File script = new File(filename);
-    script.createNewFile();
-    if(!script.setExecutable(true)) {
-      final String msg =
-        String.format("The attempt to set the permissions of %s failed.",script);
-      getLogger().error(msg);
-    }
-    final Writer writer = new FileWriter(script);
-    writer.write(generateContents());
-    writer.close();
-    return script;
-  }
-
-
-
-  public String createFilename(final String className, final String directory) {
-    ensureNotNull(className,directory);
-
-    final String classFilename = transformClassToFilename(className);
-    final String filename = String.format("%s/%s",directory,classFilename);
-    return filename;
-  }
-
-
-
-  public String transformClassToFilename(final String className) {
-    final int begin = className.lastIndexOf('.') + 1;
-    final String extension = getScriptFileExtension();
-    final String filename =
-      String.format("%s%s",className.substring(begin),extension);
-    return filename;
-  }
-
-
-
-  public String getScriptFileExtension() {
-    return getExtension();
-  }
-
-
-
-  public String getExtension() {
-    return resourceBundle.getString(PROP_NAME_FILE_EXTENSION);
-  }
-
-
-
-  public String generateContents() {
-    final StringBuilder builder = new StringBuilder();
-    builder.append(getShellScriptFirstLine());
-    builder.append(getClasspath());
-    builder.append(getJVMOptions());
-    builder.append(getInvocation());
-    return builder.toString();
-  }
-
-
-
-  public String getShellScriptFirstLine() {
-    final String line = resourceBundle.getString(PROP_NAME_SHELL_SCRIPT_FIRST_LINE);
-    return terminatedWithNewLine(line);
-  }
-
-
-
-  public String terminatedWithNewLine(final String line) {
-    ensureNotNull(line);
-
-    final String terminated = String.format("%s%s",line,LINE_SEPARATOR);
-    return terminated;
-  }
-
-
-
-  public Object getClasspath() {
-    return terminatedWithNewLine("export CLASSPATH; CLASSPATH=\"${SCRIPT_CLASSPATH:=" +
-      classpath + "}\"");
-  }
-
-
-
-  public String getJVMOptions() {
-    final String jvmOptionsString =
-      String.format("export JVM_OPTS; JVM_OPTS=\"${SCRIPT_JVM_OPTS:=%s}\"",
-        spaceSeparatedJVMOptions);
-    return terminatedWithNewLine(jvmOptionsString);
-  }
-
-
-
-  public String getInvocation() {
-    final String line = String.format("java ${JVM_OPTS} %s \"$@\"",className);
-    return terminatedWithNewLine(line);
-  }
-
-
-
+  @Override
   public String getFilename() {
     return transformClassToFilename(className);
   }
@@ -250,7 +152,121 @@ public final class PropertiesBasedScriptGenerator
 
 
 
-  private final ResourceBundle resourceBundle;
+  private String createFilename(final String className,
+                                final String directory) {
+    ensureNotNull(className,directory);
+
+    final String classFilename = transformClassToFilename(className);
+    return String.format("%s/%s",directory,classFilename);
+  }
+
+
+
+  private String generateContents() {
+    final StringBuilder builder = new StringBuilder();
+    builder.append(getShellScriptFirstLine());
+    builder.append(getClasspath());
+    builder.append(getJVMOptions());
+    builder.append(getInvocation());
+    return builder.toString();
+  }
+
+
+
+  private Object getClasspath() {
+    return terminatedWithNewLine("export CLASSPATH; CLASSPATH=\"${SCRIPT_CLASSPATH:=" +
+      classpath + "}\"");
+  }
+
+
+
+  private String getExtension() {
+    return resourceBundle.getString(PROP_NAME_FILE_EXTENSION);
+  }
+
+
+
+  private File getFile() {
+    String filename = createFilename(className,directory);
+    File script = new File(filename);
+
+    try {
+      script.createNewFile();
+    } catch(IOException ioException) {
+      getLogger().error("Unable to create a new file from " + script + " " +
+        ioException);
+      return null;
+    }
+
+    if(!script.setExecutable(true)) {
+      String msg =
+        String.format("The attempt to set the permissions of %s failed. This " +
+          "means the script will not be executable and must be invoked with a" +
+          " shell command.",script);
+      getLogger().error(msg);
+      return null;
+    }
+
+    try {
+      Writer writer = new FileWriter(script);
+      writer.write(generateContents());
+      writer.close();
+    } catch(IOException e) {
+      getLogger().error("Unable to write script " + script);
+      return null;
+    }
+
+    return script;
+  }
+
+
+
+  private String getInvocation() {
+    final String line = String.format("java ${JVM_OPTS} %s \"$@\"",className);
+    return terminatedWithNewLine(line);
+  }
+
+
+
+  private String getJVMOptions() {
+    final String jvmOptionsString =
+      String.format("export JVM_OPTS; JVM_OPTS=\"${SCRIPT_JVM_OPTS:=%s}\"",
+        spaceSeparatedJVMOptions);
+    return terminatedWithNewLine(jvmOptionsString);
+  }
+
+
+
+  private String getScriptFileExtension() {
+    return getExtension();
+  }
+
+
+
+  private String getShellScriptFirstLine() {
+    final String line = resourceBundle.getString(PROP_NAME_SHELL_SCRIPT_FIRST_LINE);
+    return terminatedWithNewLine(line);
+  }
+
+
+
+  private String terminatedWithNewLine(final String line) {
+    ensureNotNull(line);
+
+    final String terminated = String.format("%s%s",line,LINE_SEPARATOR);
+    return terminated;
+  }
+
+
+
+  private String transformClassToFilename(final String className) {
+    final int begin = className.lastIndexOf('.') + 1;
+    final String extension = getScriptFileExtension();
+    final String filename =
+      String.format("%s%s",className.substring(begin),extension);
+    return filename;
+  }
+
 
 
   // a launchable class name.
@@ -265,10 +281,13 @@ public final class PropertiesBasedScriptGenerator
   private final String directory;
 
 
+  private Log logger;
+
+
+  private final ResourceBundle resourceBundle;
+
+
   // JVM options
   private final String spaceSeparatedJVMOptions;
-
-
-  private Log logger;
 
 }
