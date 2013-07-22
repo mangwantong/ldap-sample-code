@@ -16,12 +16,29 @@
 
 package samplecode.cli;
 
-import com.unboundid.ldap.sdk.*;
-import com.unboundid.util.args.*;
+import com.unboundid.ldap.sdk.DN;
+import com.unboundid.ldap.sdk.Filter;
+import com.unboundid.ldap.sdk.LDAPConnectionOptions;
+import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.SearchScope;
+import com.unboundid.util.args.Argument;
+import com.unboundid.util.args.ArgumentException;
+import com.unboundid.util.args.ArgumentParser;
+import com.unboundid.util.args.BooleanArgument;
+import com.unboundid.util.args.DNArgument;
+import com.unboundid.util.args.FileArgument;
+import com.unboundid.util.args.FilterArgument;
+import com.unboundid.util.args.IntegerArgument;
+import com.unboundid.util.args.ScopeArgument;
+import com.unboundid.util.args.StringArgument;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
-import samplecode.args.*;
+import samplecode.args.BooleanPropertiesBackedArgument;
+import samplecode.args.FilterPropertiesBackedArgument;
+import samplecode.args.IntegerPropertiesBackedArgument;
+import samplecode.args.SearchScopePropertiesBackedArgument;
+import samplecode.args.StringPropertiesBackedArgument;
 
 import java.io.File;
 import java.util.List;
@@ -78,111 +95,111 @@ public class CommandLineOptions {
    */
   public static Argument[] createDefaultArguments(final ResourceBundle resourceBundle)
     throws ArgumentException {
-    String argName = CommandLineOptions.ARG_NAME_BASE_OBJECT;
-    final Argument baseObjectArgument =
+    String argName = ARG_NAME_BASE_OBJECT;
+    Argument baseObjectArgument =
       StringPropertiesBackedArgument.newStringPropertiesBackedArgument
         (resourceBundle,argName).getArgument();
 
-    argName = CommandLineOptions.ARG_NAME_ABANDON_ON_TIMEOUT;
-    final Argument abandonOnTimeoutArgument =
+    argName = ARG_NAME_ABANDON_ON_TIMEOUT;
+    Argument abandonOnTimeoutArgument =
       BooleanPropertiesBackedArgument.newBooleanPropertiesBackedArgument
         (resourceBundle,argName).getArgument();
 
-    argName = CommandLineOptions.ARG_NAME_ATTRIBUTE;
-    final Argument attributeArgument =
+    argName = ARG_NAME_ATTRIBUTE;
+    Argument attributeArgument =
       StringPropertiesBackedArgument.newStringPropertiesBackedArgument
         (resourceBundle,
           argName).getArgument();
 
-    argName = CommandLineOptions.ARG_NAME_AUTO_RECONNECT;
-    final Argument autoReconnectArgument =
+    argName = ARG_NAME_AUTO_RECONNECT;
+    Argument autoReconnectArgument =
       BooleanPropertiesBackedArgument.newBooleanPropertiesBackedArgument
         (resourceBundle,argName).getArgument();
 
-    argName = CommandLineOptions.ARG_NAME_BIND_WITH_DN_REQUIRES_PASSWORD;
-    final Argument requiresPasswordArgument =
+    argName = ARG_NAME_BIND_WITH_DN_REQUIRES_PASSWORD;
+    Argument requiresPasswordArgument =
       BooleanPropertiesBackedArgument.newBooleanPropertiesBackedArgument
         (resourceBundle,argName).getArgument();
 
-    argName = CommandLineOptions.ARG_NAME_CONNECT_TIMEOUT_MILLIS;
-    final Argument connectTimeoutArgument =
+    argName = ARG_NAME_CONNECT_TIMEOUT_MILLIS;
+    Argument connectTimeoutArgument =
       IntegerPropertiesBackedArgument.newIntegerPropertiesBackedArgument
         (resourceBundle,argName).getArgument();
 
-    argName = CommandLineOptions.ARG_NAME_FILTER;
-    final Argument filterArgument =
+    argName = ARG_NAME_FILTER;
+    Argument filterArgument =
       FilterPropertiesBackedArgument.newFilterPropertiesBackedArgument
         (resourceBundle,
           argName).getArgument();
 
-    argName = CommandLineOptions.ARG_NAME_INITIAL_CONNECTIONS;
-    final Argument initialConnectionArgument =
+    argName = ARG_NAME_INITIAL_CONNECTIONS;
+    Argument initialConnectionArgument =
       IntegerPropertiesBackedArgument.newIntegerPropertiesBackedArgument
         (resourceBundle,argName).getArgument();
 
-    argName = CommandLineOptions.ARG_NAME_INTRODUCTION_COLUMN_WIDTH;
-    final Argument cwArgument =
+    argName = ARG_NAME_INTRODUCTION_COLUMN_WIDTH;
+    Argument cwArgument =
       IntegerPropertiesBackedArgument.newIntegerPropertiesBackedArgument
         (resourceBundle,argName).getArgument();
 
-    argName = CommandLineOptions.ARG_NAME_MAX_CONNECTIONS;
-    final Argument maxConnectionArgument =
+    argName = ARG_NAME_MAX_CONNECTIONS;
+    Argument maxConnectionArgument =
       IntegerPropertiesBackedArgument.newIntegerPropertiesBackedArgument
         (resourceBundle,argName).getArgument();
 
-    argName = CommandLineOptions.ARG_NAME_MAX_RESPONSE_TIME_MILLIS;
-    final Argument maxResponseTimeArgument =
+    argName = ARG_NAME_MAX_RESPONSE_TIME_MILLIS;
+    Argument maxResponseTimeArgument =
       IntegerPropertiesBackedArgument.newIntegerPropertiesBackedArgument
         (resourceBundle,argName).getArgument();
 
-    argName = CommandLineOptions.ARG_NAME_NUM_THREADS;
-    final Argument numThreadsArgument =
+    argName = ARG_NAME_NUM_THREADS;
+    Argument numThreadsArgument =
       IntegerPropertiesBackedArgument.newIntegerPropertiesBackedArgument
         (resourceBundle,argName).getArgument();
 
-    argName = CommandLineOptions.ARG_NAME_PAGE_SIZE;
-    final Argument pageSizeArgument =
+    argName = ARG_NAME_PAGE_SIZE;
+    Argument pageSizeArgument =
       IntegerPropertiesBackedArgument.newIntegerPropertiesBackedArgument
         (resourceBundle,argName).getArgument();
 
-    argName = CommandLineOptions.ARG_NAME_REPORT_COUNT;
-    final Argument reportCountArgument =
+    argName = ARG_NAME_REPORT_COUNT;
+    Argument reportCountArgument =
       IntegerPropertiesBackedArgument.newIntegerPropertiesBackedArgument
         (resourceBundle,argName).getArgument();
 
-    argName = CommandLineOptions.ARG_NAME_REPORT_INTERVAL;
-    final Argument reportIntervalArgument =
+    argName = ARG_NAME_REPORT_INTERVAL;
+    Argument reportIntervalArgument =
       IntegerPropertiesBackedArgument.newIntegerPropertiesBackedArgument
         (resourceBundle,argName).getArgument();
 
-    argName = CommandLineOptions.ARG_NAME_SCOPE;
-    final Argument scopeArgument =
+    argName = ARG_NAME_SCOPE;
+    Argument scopeArgument =
       SearchScopePropertiesBackedArgument.newSearchScopePropertiesBackedArgument
         (resourceBundle,argName).getArgument();
 
-    argName = CommandLineOptions.ARG_NAME_SIZE_LIMIT;
-    final Argument sizeLimitArgument =
+    argName = ARG_NAME_SIZE_LIMIT;
+    Argument sizeLimitArgument =
       IntegerPropertiesBackedArgument.newIntegerPropertiesBackedArgument
         (resourceBundle,argName).getArgument();
 
-    argName = CommandLineOptions.ARG_NAME_TIME_LIMIT;
-    final Argument timeLimitArgument =
+    argName = ARG_NAME_TIME_LIMIT;
+    Argument timeLimitArgument =
       IntegerPropertiesBackedArgument.newIntegerPropertiesBackedArgument
         (resourceBundle,argName).getArgument();
 
-    argName = CommandLineOptions.ARG_NAME_USE_PROPERTIES_FILE;
-    final Argument usePropertiesFileArgument =
+    argName = ARG_NAME_USE_PROPERTIES_FILE;
+    Argument usePropertiesFileArgument =
       StringPropertiesBackedArgument.newStringPropertiesBackedArgument
         (resourceBundle,
           argName).getArgument();
 
-    argName = CommandLineOptions.ARG_NAME_USE_SCHEMA;
-    final Argument useSchemaArgument =
+    argName = ARG_NAME_USE_SCHEMA;
+    Argument useSchemaArgument =
       BooleanPropertiesBackedArgument.newBooleanPropertiesBackedArgument
         (resourceBundle,argName).getArgument();
 
-    argName = CommandLineOptions.ARG_NAME_VERBOSE;
-    final Argument verboseArgument =
+    argName = ARG_NAME_VERBOSE;
+    Argument verboseArgument =
       BooleanPropertiesBackedArgument.newBooleanPropertiesBackedArgument
         (resourceBundle,argName).getArgument();
 
@@ -228,8 +245,8 @@ public class CommandLineOptions {
    *   line argument.
    */
   public static CommandLineOptions
-  newCommandLineOptions(final ArgumentParser argumentParser,
-                        final Argument[] arguments)
+  newCommandLineOptions(ArgumentParser argumentParser,
+                        Argument[] arguments)
     throws ArgumentException {
     ensureNotNull(argumentParser,arguments);
 
@@ -463,8 +480,8 @@ public class CommandLineOptions {
    * @param argumentParser
    *   parses command line arguments
    */
-  protected CommandLineOptions(final Argument[] arguments,
-                               final ArgumentParser argumentParser)
+  protected CommandLineOptions(Argument[] arguments,
+                               ArgumentParser argumentParser)
     throws ArgumentException {
     ensureNotNull(argumentParser,arguments);
 
@@ -481,7 +498,7 @@ public class CommandLineOptions {
    * @param arguments
    *   A list of arguments to be added (cannot be {@code null}.
    */
-  public void addArguments(final Argument... arguments)
+  public void addArguments(Argument... arguments)
     throws ArgumentException {
     ensureNotNull(arguments);
 
@@ -503,8 +520,8 @@ public class CommandLineOptions {
    *         considers it to be an unauthenticated connection.
    */
   public boolean bindDnRequiresPassword() {
-    final String argName = CommandLineOptions.ARG_NAME_BIND_WITH_DN_REQUIRES_PASSWORD;
-    final BooleanArgument booleanArgument = getNamedArgument(argName);
+    String argName = ARG_NAME_BIND_WITH_DN_REQUIRES_PASSWORD;
+    BooleanArgument booleanArgument = getNamedArgument(argName);
     return booleanArgument.isPresent();
   }
 
@@ -526,7 +543,7 @@ public class CommandLineOptions {
       throw new IllegalArgumentException("longIdentifier must not be null.");
     }
     Object get = null;
-    final Argument argument = getNamedArgument(longIdentifier);
+    Argument argument = getNamedArgument(longIdentifier);
     if(argument != null) {
       if(argument.getClass() == StringArgument.class) {
         get = ((StringArgument) argument).getValue();
@@ -539,7 +556,7 @@ public class CommandLineOptions {
       } else if(argument.getClass() == FilterArgument.class) {
         get = ((FilterArgument) argument).getValue();
       } else {
-        final StringBuilder builder = new StringBuilder(argument.getClass()
+        StringBuilder builder = new StringBuilder(argument.getClass()
           .toString());
         builder.append(" is not supported by the get() method.");
         throw new UnsupportedOperationException(builder.toString());
@@ -558,7 +575,7 @@ public class CommandLineOptions {
    *         is present.
    */
   public boolean getAbandonOnTimeout() {
-    final String argName = CommandLineOptions.ARG_NAME_ABANDON_ON_TIMEOUT;
+    String argName = ARG_NAME_ABANDON_ON_TIMEOUT;
     return getNamedArgument(argName).isPresent();
   }
 
@@ -586,8 +603,8 @@ public class CommandLineOptions {
    *         present.
    */
   public boolean getAutoReconnect() {
-    final String argName = CommandLineOptions.ARG_NAME_AUTO_RECONNECT;
-    final BooleanArgument arg = getNamedArgument(argName);
+    String argName = ARG_NAME_AUTO_RECONNECT;
+    BooleanArgument arg = getNamedArgument(argName);
     return arg.isPresent();
   }
 
@@ -603,8 +620,8 @@ public class CommandLineOptions {
    * @throws LDAPException
    */
   public String getBaseObject() throws LDAPException {
-    final String argName = CommandLineOptions.ARG_NAME_BASE_OBJECT;
-    final StringArgument arg = getNamedArgument(argName);
+    String argName = ARG_NAME_BASE_OBJECT;
+    StringArgument arg = getNamedArgument(argName);
     return arg.getValue();
   }
 
@@ -614,7 +631,7 @@ public class CommandLineOptions {
    * Retrieves the {@code --bindDN} argument
    */
   public DNArgument getBindDnArgument() {
-    final String argName = CommandLineOptions.ARG_NAME_BIND_DN;
+    String argName = ARG_NAME_BIND_DN;
     return getNamedArgument(argName);
   }
 
@@ -629,7 +646,7 @@ public class CommandLineOptions {
    */
   public final DN getBindDn() {
     DN bindDn = null;
-    final DNArgument arg = getBindDnArgument();
+    DNArgument arg = getBindDnArgument();
     if((arg != null) && arg.isPresent()) {
       bindDn = arg.getValue();
     }
@@ -647,7 +664,7 @@ public class CommandLineOptions {
    */
   public final String getBindPassword() {
     String bindPassword = "";
-    final StringArgument arg = getBindPasswordArgument();
+    StringArgument arg = getBindPasswordArgument();
     if((arg != null) && arg.isPresent()) {
       bindPassword = arg.getValue();
     }
@@ -660,7 +677,7 @@ public class CommandLineOptions {
    * Retrieves the {@code --bindPassword} argument.
    */
   public final StringArgument getBindPasswordArgument() {
-    final String argName = CommandLineOptions.ARG_NAME_BIND_PASSWORD;
+    String argName = ARG_NAME_BIND_PASSWORD;
     return getNamedArgument(argName);
   }
 
@@ -672,8 +689,8 @@ public class CommandLineOptions {
    *         argument was not supplied on the command line.
    */
   public final File getBindPasswordFile() {
-    final String argName = ARG_NAME_BIND_PASSWORD_FILE;
-    final FileArgument argument = getNamedArgument(argName);
+    String argName = ARG_NAME_BIND_PASSWORD_FILE;
+    FileArgument argument = getNamedArgument(argName);
     return argument == null ? null : argument.getValue();
   }
 
@@ -686,8 +703,8 @@ public class CommandLineOptions {
    * @return connect timeout in milliseconds.
    */
   public Object getConnectTimeoutMillis() {
-    final String argName = CommandLineOptions.ARG_NAME_CONNECT_TIMEOUT_MILLIS;
-    final IntegerArgument integerArgument = getNamedArgument(argName);
+    String argName = ARG_NAME_CONNECT_TIMEOUT_MILLIS;
+    IntegerArgument integerArgument = getNamedArgument(argName);
     return integerArgument.getValue();
   }
 
@@ -709,7 +726,7 @@ public class CommandLineOptions {
    * value is a search filter.
    */
   public FilterArgument getFilterArgument() {
-    return getNamedArgument(CommandLineOptions.ARG_NAME_FILTER);
+    return getNamedArgument(ARG_NAME_FILTER);
   }
 
 
@@ -739,8 +756,8 @@ public class CommandLineOptions {
    */
   public final String getHostname() {
     String hostname = "localhost";
-    final String argName = CommandLineOptions.ARG_NAME_HOSTNAME;
-    final StringArgument arg = getNamedArgument(argName);
+    String argName = ARG_NAME_HOSTNAME;
+    StringArgument arg = getNamedArgument(argName);
     if((arg != null) && arg.isPresent()) {
       hostname = arg.getValue();
     }
@@ -761,8 +778,8 @@ public class CommandLineOptions {
    */
   public int getInitialConnections() {
     int initialConnections = 1;
-    final String argName = CommandLineOptions.ARG_NAME_INITIAL_CONNECTIONS;
-    final IntegerArgument arg = getNamedArgument(argName);
+    String argName = ARG_NAME_INITIAL_CONNECTIONS;
+    IntegerArgument arg = getNamedArgument(argName);
     if((arg != null) && arg.isPresent()) {
       initialConnections = arg.getValue().intValue();
     }
@@ -780,8 +797,8 @@ public class CommandLineOptions {
    */
   public int getIntroductionColumnWidth() {
     int value = 0;
-    final String argName = CommandLineOptions.ARG_NAME_INTRODUCTION_COLUMN_WIDTH;
-    final IntegerArgument arg = getNamedArgument(argName);
+    String argName = ARG_NAME_INTRODUCTION_COLUMN_WIDTH;
+    IntegerArgument arg = getNamedArgument(argName);
     if((arg != null) && arg.isPresent()) {
       value = arg.getValue();
     }
@@ -801,8 +818,8 @@ public class CommandLineOptions {
    */
   public int getMaxConnections() {
     int maxConnections = 2;
-    final String argName = CommandLineOptions.ARG_NAME_MAX_CONNECTIONS;
-    final IntegerArgument arg = getNamedArgument(argName);
+    String argName = ARG_NAME_MAX_CONNECTIONS;
+    IntegerArgument arg = getNamedArgument(argName);
     if((arg != null) && arg.isPresent()) {
       maxConnections = arg.getValue().intValue();
     }
@@ -822,8 +839,8 @@ public class CommandLineOptions {
    * @return The maximum allowable response time in milliseconds.
    */
   public int getMaxResponseTimeMillis() {
-    final String argName = CommandLineOptions.ARG_NAME_MAX_RESPONSE_TIME_MILLIS;
-    final IntegerArgument arg = getNamedArgument(argName);
+    String argName = ARG_NAME_MAX_RESPONSE_TIME_MILLIS;
+    IntegerArgument arg = getNamedArgument(argName);
     return arg == null ? 0 : arg.getValue().intValue();
   }
 
@@ -837,15 +854,11 @@ public class CommandLineOptions {
    * Usage:
    * <p/>
    * <pre>
-   *
    * IntegerArgument portArg = getNamedArgument(&quot;port&quot;);
    * int port;
-   * if(portArg != null &amp;&amp; portArg.isPresent())
-   * {
+   * if(portArg != null &amp;&amp; portArg.isPresent()) {
    *   port = portArg.getValue();
-   * }
-   * else
-   * {
+   * } else {
    *   port = 389;
    * }
    * </pre>
@@ -856,7 +869,7 @@ public class CommandLineOptions {
    * @return the argument associated with the long identifier
    */
   @SuppressWarnings("unchecked")
-  public <T extends Argument> T getNamedArgument(final String longIdentifier) {
+  public <T extends Argument> T getNamedArgument(String longIdentifier) {
     ensureNotNull(longIdentifier);
     return (T) argumentParser.getNamedArgument(longIdentifier);
   }
@@ -871,8 +884,8 @@ public class CommandLineOptions {
    *         {@code --numThreads} command line option.
    */
   public int getNumThreads() {
-    final String argName = CommandLineOptions.ARG_NAME_NUM_THREADS;
-    final IntegerArgument arg = getNamedArgument(argName);
+    String argName = ARG_NAME_NUM_THREADS;
+    IntegerArgument arg = getNamedArgument(argName);
     return arg == null ? 0 : arg.getValue();
   }
 
@@ -887,8 +900,8 @@ public class CommandLineOptions {
    */
   public int getPageSize() {
     int pageSize = 10;
-    final String argName = CommandLineOptions.ARG_NAME_PAGE_SIZE;
-    final IntegerArgument arg = getNamedArgument(argName);
+    String argName = ARG_NAME_PAGE_SIZE;
+    IntegerArgument arg = getNamedArgument(argName);
     if((arg != null) && arg.isPresent()) {
       pageSize = arg.getValue().intValue();
     }
@@ -907,8 +920,8 @@ public class CommandLineOptions {
    */
   public int getPort() {
     int port = 10;
-    final String argName = CommandLineOptions.ARG_NAME_PORT;
-    final IntegerArgument arg = getNamedArgument(argName);
+    String argName = ARG_NAME_PORT;
+    IntegerArgument arg = getNamedArgument(argName);
     if((arg != null) && arg.isPresent()) {
       port = arg.getValue().intValue();
     }
@@ -925,8 +938,8 @@ public class CommandLineOptions {
    */
   public String getPropertiesFile() {
     String propertiesFile = null;
-    final String argName = CommandLineOptions.ARG_NAME_USE_PROPERTIES_FILE;
-    final StringArgument argument = getNamedArgument(argName);
+    String argName = ARG_NAME_USE_PROPERTIES_FILE;
+    StringArgument argument = getNamedArgument(argName);
     if(argument.isPresent()) {
       propertiesFile = argument.getValue();
     }
@@ -946,7 +959,7 @@ public class CommandLineOptions {
    */
   public int getReportCount() {
     int reportCount = Integer.MAX_VALUE;
-    final IntegerArgument arg = getNamedArgument(CommandLineOptions.ARG_NAME_REPORT_COUNT);
+    IntegerArgument arg = getNamedArgument(ARG_NAME_REPORT_COUNT);
     if((arg != null) && arg.isPresent()) {
       reportCount = arg.getValue().intValue();
     }
@@ -961,8 +974,8 @@ public class CommandLineOptions {
    * @return report interval in milliseconds.
    */
   public int getReportInterval() {
-    final String argName = CommandLineOptions.ARG_NAME_REPORT_INTERVAL;
-    final Argument arg = getNamedArgument(argName);
+    String argName = ARG_NAME_REPORT_INTERVAL;
+    Argument arg = getNamedArgument(argName);
     return arg == null ? 0 : ((IntegerArgument) arg).getValue().intValue();
   }
 
@@ -982,8 +995,8 @@ public class CommandLineOptions {
    *         {@code --attribute} command line option is not present.
    */
   public List<String> getRequestedAttributes() {
-    final String argName = CommandLineOptions.ARG_NAME_ATTRIBUTE;
-    final Argument arg = getNamedArgument(argName);
+    String argName = ARG_NAME_ATTRIBUTE;
+    Argument arg = getNamedArgument(argName);
     if(arg == null) {
       return emptyList();
     }
@@ -1000,8 +1013,8 @@ public class CommandLineOptions {
    */
   public SearchScope getSearchScope() {
     SearchScope searchScope = SearchScope.SUB;
-    final String argName = CommandLineOptions.ARG_NAME_SCOPE;
-    final ScopeArgument arg = getNamedArgument(argName);
+    String argName = ARG_NAME_SCOPE;
+    ScopeArgument arg = getNamedArgument(argName);
     if((arg != null) && arg.isPresent()) {
       searchScope = arg.getValue();
     }
@@ -1019,8 +1032,8 @@ public class CommandLineOptions {
    */
   public int getSizeLimit() {
     int sizeLimit = 1;
-    final String argName = CommandLineOptions.ARG_NAME_SIZE_LIMIT;
-    final IntegerArgument arg = getNamedArgument(argName);
+    String argName = ARG_NAME_SIZE_LIMIT;
+    IntegerArgument arg = getNamedArgument(argName);
     if((arg != null) && arg.isPresent()) {
       sizeLimit = arg.getValue().intValue();
     }
@@ -1037,8 +1050,8 @@ public class CommandLineOptions {
    *         {@code --timeLimit} command line option.
    */
   public int getTimeLimit() {
-    final String argName = CommandLineOptions.ARG_NAME_TIME_LIMIT;
-    final IntegerArgument arg = getNamedArgument(argName);
+    String argName = ARG_NAME_TIME_LIMIT;
+    IntegerArgument arg = getNamedArgument(argName);
     return arg == null ? 0 : arg.getValue().intValue();
   }
 
@@ -1051,8 +1064,8 @@ public class CommandLineOptions {
    *         present.
    */
   public boolean getUseSchema() {
-    final String argName = CommandLineOptions.ARG_NAME_USE_SCHEMA;
-    final BooleanArgument arg = getNamedArgument(argName);
+    String argName = ARG_NAME_USE_SCHEMA;
+    BooleanArgument arg = getNamedArgument(argName);
     return arg.isPresent();
   }
 
@@ -1126,8 +1139,8 @@ public class CommandLineOptions {
    *         present.
    */
   public boolean isVerbose() {
-    final String argName = CommandLineOptions.ARG_NAME_VERBOSE;
-    final BooleanArgument arg = getNamedArgument(argName);
+    String argName = ARG_NAME_VERBOSE;
+    BooleanArgument arg = getNamedArgument(argName);
     return arg.isPresent();
   }
 
@@ -1152,7 +1165,7 @@ public class CommandLineOptions {
    * @return a new {@code LDAPConnectionOptions} object.
    */
   public LDAPConnectionOptions newLDAPConnectionOptions() {
-    final LDAPConnectionOptions ldapConnectionOptions = new LDAPConnectionOptions();
+    LDAPConnectionOptions ldapConnectionOptions = new LDAPConnectionOptions();
 
     /*
      * Indicates whether the LDAP SDK should attempt to abandon any
@@ -1194,7 +1207,7 @@ public class CommandLineOptions {
      * from the server. A value of zero indicates that there should be
      * no timeout.
      */
-    final int responseTimeout = getMaxResponseTimeMillis();
+    int responseTimeout = getMaxResponseTimeMillis();
     ldapConnectionOptions.setResponseTimeoutMillis(responseTimeout);
 
     return ldapConnectionOptions;
