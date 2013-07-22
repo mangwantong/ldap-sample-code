@@ -10,20 +10,39 @@
     <name>Sample code</name>
     <version>3.0</version>
     <packaging>jar</packaging>
+
+
     <properties>
-        <maven.build.timestamp.format>yyyyMMddHHmmss
-        </maven.build.timestamp.format>
-        <commons.cfg.version>1.8</commons.cfg.version>
+        <commons-configuration.version>1.9</commons-configuration.version>
+        <commons-lang.version>2.6</commons-lang.version>
+        <commons-logging.version>1.1.3</commons-logging.version>
+        <junit.version>4.11</junit.version>
+        <log4j.version>1.2.17</log4j.version>
+        <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
+        <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <unboundid-ldapsdk.version>2.3.4</unboundid-ldapsdk.version>
     </properties>
+
+
     <description>A collection of sample code used in the blog at
         http://ff1959.wordpress.com.
         Notable are demonstrations of the UnboundID LDAP SDK.
     </description>
+
+
     <url>http://ldapMaven.org</url>
+
+
     <issueManagement>
         <url>https://code.google.com/p/ldap-sample-code/issues/list</url>
     </issueManagement>
+
+
     <inceptionYear>2010</inceptionYear>
+
+
     <developers>
         <developer>
             <name>Terry J. Gardner</name>
@@ -33,42 +52,53 @@
             <organizationUrl>http://unboundid.com</organizationUrl>
         </developer>
     </developers>
+
+
     <organization>
         <name>UnboundID Corp.</name>
         <url>http://www.unboundid.com</url>
     </organization>
+
+
     <dependencies>
         <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
-            <version>2.6</version>
+            <version>${commons-lang.version}</version>
         </dependency>
+
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
-            <version>1.1.3</version>
+            <version>${commons-logging.version}</version>
         </dependency>
+
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
-            <version>1.2.17</version>
+            <version>${log4j.version}</version>
         </dependency>
+
         <dependency>
             <groupId>com.unboundid</groupId>
             <artifactId>unboundid-ldapsdk</artifactId>
-            <version>2.3.4</version>
+            <version>${unboundid-ldapsdk.version}</version>
         </dependency>
+
         <dependency>
             <groupId>commons-configuration</groupId>
             <artifactId>commons-configuration</artifactId>
-            <version>1.9</version>
+            <version>${commons-configuration.version}</version>
         </dependency>
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.11</version>
+            <version>${junit.version}</version>
         </dependency>
     </dependencies>
+
+
     <build>
         <resources>
             <resource>
@@ -76,6 +106,7 @@
                 </directory>
             </resource>
         </resources>
+
         <plugins>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
@@ -96,6 +127,7 @@
                     </execution>
                 </executions>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
@@ -109,6 +141,7 @@
                     </execution>
                 </executions>
             </plugin>
+
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.15</version>
@@ -119,6 +152,7 @@
                     <skipTests>false</skipTests>
                 </configuration>
             </plugin>
+
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.1</version>
@@ -136,6 +170,7 @@
                     <verbose>true</verbose>
                 </configuration>
             </plugin>
+
             <plugin>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>2.9</version>
@@ -148,6 +183,8 @@
             </plugin>
         </plugins>
     </build>
+
+
     <reporting>
         <outputDirectory>target/site</outputDirectory>
         <plugins>
