@@ -16,7 +16,12 @@
 
 package samplecode.add;
 
-import com.unboundid.ldap.sdk.*;
+import com.unboundid.ldap.sdk.AddRequest;
+import com.unboundid.ldap.sdk.Entry;
+import com.unboundid.ldap.sdk.LDAPConnection;
+import com.unboundid.ldap.sdk.LDAPConnectionOptions;
+import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.util.LDAPTestUtils;
 
 
@@ -35,25 +40,25 @@ public final class AddExample {
     // Use connection options to specify that the connection attempt
     // should be 1 second and if the ADD request times out, the request
     // should be abandoned.
-    final LDAPConnectionOptions connectionOptions = new LDAPConnectionOptions();
+    LDAPConnectionOptions connectionOptions = new LDAPConnectionOptions();
     connectionOptions.setAbandonOnTimeout(true);
     connectionOptions.setConnectTimeoutMillis(AddExample.OP_TIMEOUT_MILLIS);
 
-    final String host = AddExample.HOSTNAME;
-    final int port = AddExample.PORT;
+    String host = AddExample.HOSTNAME;
+    int port = AddExample.PORT;
     int result;
     LDAPResult ldapResult = null;
     try {
 
       // Connect to the server.
-      final LDAPConnection ldapConnection =
+      LDAPConnection ldapConnection =
         new LDAPConnection(connectionOptions,host,port);
       try {
 
-        final Entry entry = LDAPTestUtils.generateUserEntry("test-user-id",
-          "ou=people,dc=example,dc=com","Barbara","Jensen","password");
+        Entry entry = LDAPTestUtils.generateUserEntry(GIVEN_NAME,
+          BASE_OBJECT,GIVEN_NAME,SURNAME,PASSWORD);
 
-        final AddRequest addRequest = new AddRequest(entry);
+        AddRequest addRequest = new AddRequest(entry);
 
         // Transmit the AddRequest to the server.
         ldapResult = ldapConnection.add(addRequest);
@@ -81,6 +86,18 @@ public final class AddExample {
 
 
   /**
+   * The object that is immediately superior to the user objects.
+   */
+  private static final String BASE_OBJECT = "ou=people,c=us";
+
+
+  /**
+   * Bab's given name.
+   */
+  private final static String GIVEN_NAME = "Babs";
+
+
+  /**
    * The host where the LDAP Directory Server listens for client connections
    */
   private static final String HOSTNAME = "ldap-server.ldap.com";
@@ -94,10 +111,22 @@ public final class AddExample {
 
 
   /**
+   * Bab's password
+   */
+  private static final String PASSWORD = "password";
+
+
+  /**
    * The port on which the server at {@code HOSTNAME} listens for client
    * connections
    */
   private static final int PORT = 389;
+
+
+  /**
+   * Bab's last name
+   */
+  private static final String SURNAME = "Jensen";
 
 
 }
