@@ -68,9 +68,11 @@ public final class CompareDemo extends AbstractTool {
    * @throws ArgumentException
    */
   @Override
-  public void addArguments(final ArgumentParser argumentParser) throws ArgumentException {
+  public void addArguments(final ArgumentParser argumentParser)
+    throws ArgumentException {
     final String description = "The assertion to use in the compare request.";
-    argumentParser.addArgument(new StringArgument('n',"assertion",true,1,"{assertion}",description));
+    argumentParser.addArgument(new StringArgument('n',"assertion",true,1,
+      "{assertion}",description));
   }
 
 
@@ -120,7 +122,8 @@ public final class CompareDemo extends AbstractTool {
     final CompareRequest req = new CompareRequest(dn,attributeName,assertionValue);
     try {
       final CompareResult compareResult = getConnection().compare(req);
-      getLogger().info(compareResult.compareMatched() ? "matched" : "did not match");
+      System.out.println(compareResult.compareMatched() ? "matched" : "did " +
+        "not match");
     } catch(final LDAPException exception) {
       getLogger().fatal(exception.getExceptionMessage());
       return exception.getResultCode();
