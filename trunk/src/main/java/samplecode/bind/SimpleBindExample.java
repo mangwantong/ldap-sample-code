@@ -16,21 +16,31 @@
 
 package samplecode.bind;
 
-import com.unboundid.ldap.sdk.*;
+import com.unboundid.ldap.sdk.BindRequest;
+import com.unboundid.ldap.sdk.BindResult;
+import com.unboundid.ldap.sdk.LDAPConnection;
+import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.SimpleBindRequest;
+import com.unboundid.util.ssl.SSLUtil;
+import com.unboundid.util.ssl.TrustAllTrustManager;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
 
-import static com.unboundid.util.Validator.ensureNotNull;
+import javax.net.SocketFactory;
+import java.security.GeneralSecurityException;
 
 
 /**
- * Provides a method that changes the authentication state of an
- * existing connection to a server.
+ * Provides a method that changes the authentication state of an existing
+ * connection to a server. Assumes there is a directory server running on a
+ * host {@code centos.example.com} which accepts SSL connections on port 1636.
+ * The examples to BIND using {@code uid=user.1,ou=people,dc=example,dc=com}
+ * as the DN and {@code password} as the password.
  */
 @Author("terry.gardner@unboundid.com")
 @Since("Dec 11, 2011")
-@CodeVersion("1.3")
+@CodeVersion("1.4")
 public final class SimpleBindExample {
 
   /**
@@ -38,143 +48,65 @@ public final class SimpleBindExample {
    *   unused and ignored
    */
   public static final void main(final String... args) {
+
+    // Use no key manager, and trust all certificates. This would not be used
+    // in a non-trivial example.
+    SSLUtil sslUtil = new SSLUtil(null,new TrustAllTrustManager());
+
+    SocketFactory socketFactory;
+    LDAPConnection ldapConnection = null;
     try {
-      final SimpleBindExample simpleBindExample = new SimpleBindExample();
-      final LDAPConnection ldapConnection =
-        new LDAPConnection(HOSTNAME,PORT);
-      final BindResult bindResult =
-        simpleBindExample.authenticateUser(ldapConnection,BASE_OBJECT,
-          NAMING_ATTRIBUTE,"user.0","password",10);
+
+      /// Create the socket factory that will be used to make a secure
+      // connection to the server.
+      socketFactory = sslUtil.createSSLSocketFactory();
+      ldapConnection = new LDAPConnection(socketFactory,HOSTNAME,PORT);
+
+    } catch(LDAPException ldapException) {
+
+      System.err.println(ldapException);
+      System.exit(ldapException.getResultCode().intValue());
+
+    } catch(GeneralSecurityException exception) {
+
+      System.err.println(exception);
+      System.exit(1);
+
+    }
+
+    try {
+
+      String dn = "uid=user.1,ou=people,dc=example,dc=com";
+      String password = "password";
+      long maxResponseTimeMillis = 1000;
+
+      BindRequest bindRequest = new SimpleBindRequest(dn,password);
+      bindRequest.setResponseTimeoutMillis(maxResponseTimeMillis);
+      BindResult bindResult = ldapConnection.bind(bindRequest);
+
       ldapConnection.close();
       System.out.println(bindResult);
-    } catch(final LDAPException exception) {
-      exception.printStackTrace();
+
+    } catch(LDAPException ldapException) {
+
+      ldapConnection.close();
+      System.err.println(ldapException);
+      System.exit(ldapException.getResultCode().intValue());
+
     }
   }
-
-
-
-  /**
-   * The name of the attribute use din the distinguished name.
-   */
-  public static final String NAMING_ATTRIBUTE = "uid";
-
-
-  /**
-   * The base object from which to perform the search.
-   */
-  public static final String BASE_OBJECT = "dc=example,dc=com";
 
 
   /**
    * The hostname of IP address where the server listens for client
    * connections.
    */
-  public static final String HOSTNAME = "ldap.example.com";
+  public static final String HOSTNAME = "centos.example.com";
 
 
   /**
    * The port on which the server listens for client connections.
    */
-  public static final int PORT = 389;
-
-
-
-  /**
-   * Changes the authentication state of the connection specified by
-   * {@code ldapConnection} to the authorization ID specified by the
-   * {@code user} and {@code password}. Use this method when the
-   * distinguished name is not known.
-   * <p/>
-   * Usage example:<blockquote>
-   * <p/>
-   * <pre>
-   *  final SimpleBindExample simpleBindExample = new SimpleBindExample();
-   *  final LDAPConnection ldapConnection = new LDAPConnection("ldap.example.com",10389);
-   *  final BindResult bindResult =
-   *          simpleBindExample.authenticateUser(ldapConnection,"dc=example,dc=com","uid",
-   *                  "user.0","password",10);
-   * </pre>
-   * </blockquote>
-   *
-   * @param ldapConnection
-   *   an existing connection to a server -
-   *   {@code ldapConnection} is not permitted to be {@code null}
-   * @param baseObject
-   *   the distinguished name at which the search should begin -
-   *   {@code baseObject} is not permitted to be {@code null}
-   * @param namingAttribute
-   *   the attribute type
-   * @param user
-   *   the user-name to which the authorization identity of the
-   *   connection will be set - {@code user} is not permitted to
-   *   be {@code null}
-   * @param password
-   *   the password of the {@code user} - {@code password} is not
-   *   permitted to be {@code null}.
-   * @param responseTimeoutMillis
-   *   the time in milliseconds before the authentication attempt
-   *   times out.
-   *
-   * @return the result of the simple bind request or {@code null} if
-   *         the user does not exist, or if multiple entries match the
-   *         search.
-   */
-  public BindResult authenticateUser(final LDAPConnection ldapConnection,
-                                     final String baseObject,
-                                     final String namingAttribute,
-                                     final String user,
-                                     final String password,
-                                     final int responseTimeoutMillis)
-    throws LDAPException {
-    final Filter filter =
-      Filter.createEqualityFilter(namingAttribute,user);
-    final SearchRequest searchRequest =
-      new SearchRequest(baseObject,SearchScope.SUB,filter,"1.1");
-    final SearchResult searchResult = ldapConnection.search(searchRequest);
-    BindResult bindResult = null;
-    if(searchResult.getSearchEntries().size() == 1) {
-      final DN dn = new DN(searchResult.getSearchEntries().get(0).getDN());
-      bindResult = authenticate(ldapConnection,dn,password,
-        responseTimeoutMillis);
-    }
-    return bindResult;
-  }
-
-
-
-  /**
-   * Changes the authentication state of the connection specified by
-   * {@code ldapConnection} to the authorization ID specified by the
-   * {@code dn} and {@code password}.
-   *
-   * @param ldapConnection
-   *   an existing connection to a server -
-   *   {@code ldapConnection} is not permitted to be {@code null}
-   * @param dn
-   *   the distinguished name to which the authorization identity
-   *   of the connection will be set - {@code dn} is not
-   *   permitted to be {@code null}
-   * @param password
-   *   the password of the {@code dn} - {@code password} is not
-   *   permitted to be {@code null}.
-   * @param responseTimeoutMillis
-   *   the time in milliseconds before the authentication attempt
-   *   times out.
-   *
-   * @return the result of the simple bind request.
-   */
-  public BindResult authenticate(final LDAPConnection ldapConnection,
-                                 final DN dn,
-                                 final String password,
-                                 final int responseTimeoutMillis) throws LDAPException {
-    ensureNotNull(ldapConnection,dn,password);
-
-
-    final LDAPConnectionOptions connectionOptions = new LDAPConnectionOptions();
-    connectionOptions.setResponseTimeoutMillis(responseTimeoutMillis);
-    ldapConnection.setConnectionOptions(connectionOptions);
-    return ldapConnection.bind(new SimpleBindRequest(dn,password));
-  }
+  public static final int PORT = 1636;
 
 }
