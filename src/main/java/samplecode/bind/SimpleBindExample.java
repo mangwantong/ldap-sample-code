@@ -50,7 +50,7 @@ public final class SimpleBindExample {
   public static final void main(final String... args) {
 
     // Use no key manager, and trust all certificates. This would not be used
-    // in a non-trivial example.
+    // in non-trivial code.
     SSLUtil sslUtil = new SSLUtil(null,new TrustAllTrustManager());
 
     SocketFactory socketFactory;
