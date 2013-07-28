@@ -59,7 +59,7 @@ public final class SimpleBindExample {
     LDAPConnection ldapConnection = null;
     try {
 
-      /// Create the socket factory that will be used to make a secure
+      // Create the socket factory that will be used to make a secure
       // connection to the server.
       socketFactory = sslUtil.createSSLSocketFactory();
       ldapConnection = new LDAPConnection(socketFactory,HOSTNAME,PORT);
