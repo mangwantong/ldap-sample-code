@@ -21,6 +21,8 @@ import com.unboundid.ldap.sdk.BindResult;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.SimpleBindRequest;
+import com.unboundid.ldap.sdk.controls.PasswordExpiredControl;
+import com.unboundid.ldap.sdk.controls.PasswordExpiringControl;
 import com.unboundid.util.ssl.SSLUtil;
 import com.unboundid.util.ssl.TrustAllTrustManager;
 import samplecode.annotation.Author;
@@ -83,6 +85,28 @@ public final class SimpleBindExample {
       BindRequest bindRequest = new SimpleBindRequest(dn,password);
       bindRequest.setResponseTimeoutMillis(maxResponseTimeMillis);
       BindResult bindResult = ldapConnection.bind(bindRequest);
+
+      // Check for the password expiring or password expired
+      // response controls
+      PasswordExpiredControl pwdExpired =
+        PasswordExpiredControl.get(bindResult);
+      if(pwdExpired == null) {
+        System.out.println("The password expired control was not included in " +
+          "the BIND response.");
+      } else {
+        System.err.println("WARNING:  You must change your password " +
+          "before you will be allowed to perform any other operations.");
+      }
+
+      PasswordExpiringControl pwdExpiring =
+        PasswordExpiringControl.get(bindResult);
+      if(pwdExpiring == null) {
+        System.out.println("The password expiring control was not included in" +
+          " the BIND response.");
+      } else {
+        System.err.println("WARNING:  Your password will expire in " +
+          pwdExpiring.getSecondsUntilExpiration() + " seconds.");
+      }
 
       ldapConnection.close();
       System.out.println(bindResult);
