@@ -7,12 +7,17 @@
 package samplecode.search;
 
 import com.unboundid.asn1.ASN1OctetString;
-import com.unboundid.ldap.sdk.*;
+import com.unboundid.ldap.sdk.Filter;
+import com.unboundid.ldap.sdk.LDAPConnection;
+import com.unboundid.ldap.sdk.LDAPConnectionOptions;
+import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.SearchRequest;
+import com.unboundid.ldap.sdk.SearchResult;
+import com.unboundid.ldap.sdk.SearchScope;
+import com.unboundid.ldap.sdk.UnsolicitedNotificationHandler;
 import com.unboundid.ldap.sdk.controls.SimplePagedResultsControl;
 import com.unboundid.util.LDAPCommandLineTool;
-import com.unboundid.util.Validator;
-import com.unboundid.util.args.ArgumentException;
-import com.unboundid.util.args.ArgumentParser;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Launchable;
@@ -25,6 +30,8 @@ import samplecode.tools.AbstractTool;
 import java.io.OutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static com.unboundid.util.Validator.ensureNotNull;
 
 
 /**
@@ -222,23 +229,25 @@ public final class SimplePagedResultsRequestControlDemo extends AbstractTool {
    * @param args
    */
   public static void main(final String... args) {
-    final SimplePagedResultsRequestControlDemo demo =
+
+    LDAPCommandLineTool demo =
       SimplePagedResultsRequestControlDemo.getSimplePagedResultsRequestControlDemo();
-    final ResultCode resultCode = demo.runTool(args);
+
+    ResultCode resultCode = demo.runTool(args);
     if(resultCode != null) {
-      final StringBuilder builder = new StringBuilder(demo.getToolName());
-      builder.append(" has completed processing. The result code was: ");
-      builder.append(resultCode);
-      Logger.getAnonymousLogger().log(Level.INFO,builder.toString());
+
+      if(!resultCode.equals(ResultCode.SUCCESS)) {
+        System.exit(resultCode.intValue());
+      }
+
     }
   }
 
 
-
-  private static SimplePagedResultsRequestControlDemo getSimplePagedResultsRequestControlDemo() {
+  private static SimplePagedResultsRequestControlDemo
+  getSimplePagedResultsRequestControlDemo() {
     return new SimplePagedResultsRequestControlDemo(System.out,System.err);
   }
-
 
 
   /**
@@ -246,24 +255,24 @@ public final class SimplePagedResultsRequestControlDemo extends AbstractTool {
    */
   private static class SimplePagedResultsDemo {
 
-    private SimplePagedResultsDemo(final LDAPCommandLineTool ldapCommandLineTool,
-                                   final CommandLineOptions commandLineOptions) {
-      Validator.ensureNotNull(ldapCommandLineTool,commandLineOptions);
+    private SimplePagedResultsDemo(LDAPCommandLineTool ldapCommandLineTool,
+                                   CommandLineOptions commandLineOptions) {
+      ensureNotNull(ldapCommandLineTool,commandLineOptions);
       this.ldapCommandLineTool = ldapCommandLineTool;
       this.commandLineOptions = commandLineOptions;
     }
 
 
-
     private ResultCode demo()
       throws LDAPException {
+
       /*
        * Get connection to the server. When the connection is
        * established, set the connection options using the values from
        * the standard command line arguments.
        */
-      final LDAPConnection ldapConnection = ldapCommandLineTool.getConnection();
-      final LDAPConnectionOptions connectionOptions =
+      LDAPConnection ldapConnection = ldapCommandLineTool.getConnection();
+      LDAPConnectionOptions connectionOptions =
         commandLineOptions.newLDAPConnectionOptions();
       ldapConnection.setConnectionOptions(connectionOptions);
 
@@ -271,7 +280,7 @@ public final class SimplePagedResultsRequestControlDemo extends AbstractTool {
        * Check that the simple paged results control is supported by
        * server to which the client is connected.
        */
-      final String controlOID = SimplePagedResultsControl.PAGED_RESULTS_OID;
+      String controlOID = SimplePagedResultsControl.PAGED_RESULTS_OID;
       if(!SupportedFeature.isControlSupported(ldapConnection,controlOID)) {
         return ResultCode.UNWILLING_TO_PERFORM;
       }
@@ -280,15 +289,15 @@ public final class SimplePagedResultsRequestControlDemo extends AbstractTool {
        * Create a search request, set a size limit and a time limit, and
        * add a simple paged results request control to it:
        */
-      final String baseObject = commandLineOptions.getBaseObject();
-      final SearchScope scope = commandLineOptions.getSearchScope();
-      final Filter filter = commandLineOptions.getFilter();
-      final String[] requestedAttributes =
+      String baseObject = commandLineOptions.getBaseObject();
+      SearchScope scope = commandLineOptions.getSearchScope();
+      Filter filter = commandLineOptions.getFilter();
+      String[] requestedAttributes =
         commandLineOptions.getRequestedAttributes().toArray(new String[0]);
       SearchRequest searchRequest;
       searchRequest = new SearchRequest(baseObject,scope,filter,requestedAttributes);
-      final int sizeLimit = commandLineOptions.getSizeLimit();
-      final int timeLimit = commandLineOptions.getTimeLimit();
+      int sizeLimit = commandLineOptions.getSizeLimit();
+      int timeLimit = commandLineOptions.getTimeLimit();
       searchRequest.setSizeLimit(sizeLimit);
       searchRequest.setTimeLimitSeconds(timeLimit);
 
@@ -313,7 +322,7 @@ public final class SimplePagedResultsRequestControlDemo extends AbstractTool {
          */
         SearchResult searchResult;
         searchResult = ldapConnection.search(searchRequest);
-        final String msg =
+        String msg =
           String.format("searchRequest transmitted, pageSize: %d, " +
             "entries returned: %d",Integer.valueOf(pageSize),
             Integer.valueOf(searchResult.getEntryCount()));
@@ -331,12 +340,12 @@ public final class SimplePagedResultsRequestControlDemo extends AbstractTool {
 
       ldapConnection.close();
 
-      final String msg = String.format("total entries returned: %d",Integer.valueOf(total));
+      String msg =
+        String.format("total entries returned: %d",Integer.valueOf(total));
       logger.log(Level.INFO,msg);
 
       return ResultCode.SUCCESS;
     }
-
 
 
     /**
@@ -356,16 +365,14 @@ public final class SimplePagedResultsRequestControlDemo extends AbstractTool {
   }
 
 
-
   /**
    * Prepares {@code SimplePagedResultsRequestControlDemo} for use by a
    * client using the specified {@code OutStream} and {@code errStream}.
    */
-  private SimplePagedResultsRequestControlDemo(final OutputStream outStream,
-                                               final OutputStream errStream) {
+  public SimplePagedResultsRequestControlDemo(OutputStream outStream,
+                                              OutputStream errStream) {
     super(outStream,errStream);
   }
-
 
 
   /**
@@ -378,15 +385,16 @@ public final class SimplePagedResultsRequestControlDemo extends AbstractTool {
   }
 
 
-
-  /*
-   * {@inheritDoc}
-   */
   @Override
-  public void addArguments(final ArgumentParser argumentParser) throws ArgumentException {
-    Validator.ensureNotNull(argumentParser);
+  public String getToolName() {
+    return "SimplePagedResultsRequestControlDemo";
   }
 
+
+  @Override
+  public String getToolDescription() {
+    return "Demonstrates the simple paged results request control.";
+  }
 
 
   @Override
@@ -395,30 +403,6 @@ public final class SimplePagedResultsRequestControlDemo extends AbstractTool {
   }
 
 
-
-  /*
-   * {@inheritDoc}
-   */
-  @Override
-  public String getToolName() {
-    return "SimplePagedResultsRequestControlDemo";
-  }
-
-
-
-  /*
-   * {@inheritDoc}
-   */
-  @Override
-  public String getToolDescription() {
-    return "Demonstrates the simple paged results request control.";
-  }
-
-
-
-  /*
-   * {@inheritDoc}
-   */
   @Override
   public ResultCode executeToolTasks() {
     introduction();
@@ -444,10 +428,6 @@ public final class SimplePagedResultsRequestControlDemo extends AbstractTool {
   }
 
 
-
-  /**
-   * {@inheritDoc}
-   */
   @Override
   protected String classSpecificPropertiesResourceName() {
     return "SimplePagedResultsRequestControlDemo.properties";
