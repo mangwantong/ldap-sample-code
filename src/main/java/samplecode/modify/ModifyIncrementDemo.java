@@ -26,7 +26,6 @@ import samplecode.tools.AbstractTool;
 import java.io.OutputStream;
 import java.util.List;
 
-
 /**
  * Provides a demonstration of the use of the modify-increment extension
  * defined in RFC4525. This extension lets LDAP clients increment an
@@ -164,32 +163,8 @@ import java.util.List;
 @Since("Dec 1, 2011")
 @CodeVersion("2.12")
 @Launchable
-public final class ModifyIncrementDemo extends AbstractTool {
-
-  /**
-   * Execute the modify-increment demonstration.
-   *
-   * @param args
-   *   The command line arguments, less the JVM specific
-   *   arguments.
-   */
-  public static void main(final String... args) {
-    OutputStream outStream = System.out;
-    OutputStream errStream = System.err;
-    ModifyIncrementDemo modifyIncrementDemo =
-      new ModifyIncrementDemo(outStream,errStream);
-    String msg = modifyIncrementDemo.getToolDescription();
-    modifyIncrementDemo.out(msg);
-    ResultCode resultCode = modifyIncrementDemo.runTool(args);
-    if(resultCode != null) {
-      StringBuilder builder =
-        new StringBuilder(modifyIncrementDemo.getToolName());
-      builder.append(" has completed processing. The result code was: ");
-      builder.append(resultCode);
-      modifyIncrementDemo.out(builder.toString());
-    }
-  }
-
+public final class ModifyIncrementDemo extends AbstractTool
+{
 
 
   /**
@@ -233,18 +208,64 @@ public final class ModifyIncrementDemo extends AbstractTool {
   public static final String ARG_NAME_INCREMENT_VALUE = "incrementValue";
 
 
+  private String[] requestedAttributes;
+
+
+  private SearchScope scope;
+
+
+  private Filter filter;
+
+
+  private DN entryDn;
+
+
+  private DNArgument dnArgument;
+
+
+  private IntegerArgument integerArgument;
+
+
+  private int incrementValue;
+
 
   private ModifyIncrementDemo(final OutputStream outStream,
-                              final OutputStream errStream) {
-    super(outStream,errStream);
+                              final OutputStream errStream)
+  {
+    super(outStream, errStream);
   }
 
+
+  /**
+   * Execute the modify-increment demonstration.
+   *
+   * @param args The command line arguments, less the JVM specific
+   *             arguments.
+   */
+  public static void main(final String... args)
+  {
+    OutputStream outStream = System.out;
+    OutputStream errStream = System.err;
+    ModifyIncrementDemo modifyIncrementDemo =
+      new ModifyIncrementDemo(outStream, errStream);
+    String msg = modifyIncrementDemo.getToolDescription();
+    modifyIncrementDemo.out(msg);
+    ResultCode resultCode = modifyIncrementDemo.runTool(args);
+    if (resultCode != null)
+    {
+      StringBuilder builder =
+        new StringBuilder(modifyIncrementDemo.getToolName());
+      builder.append(" has completed processing. The result code was: ");
+      builder.append(resultCode);
+      modifyIncrementDemo.out(builder.toString());
+    }
+  }
 
 
   @Override
   public void addArguments(final ArgumentParser argumentParser)
-    throws ArgumentException {
-
+    throws ArgumentException
+  {
     /*
      * Add the command line argument whose parameter is the increment
      * value (which can be positive or negative) by which to increment
@@ -266,8 +287,8 @@ public final class ModifyIncrementDemo extends AbstractTool {
     final Integer defaultValue = ModifyIncrementDemo.DEFAULT_INCREMENT_VALUE;
     String description = builder.toString();
     integerArgument =
-      new IntegerArgument(shortIdentifier,longIdentifier,isRequired,maxOccurrences,
-        valuePlaceholder,description,defaultValue);
+      new IntegerArgument(shortIdentifier, longIdentifier, isRequired, maxOccurrences,
+        valuePlaceholder, description, defaultValue);
     argumentParser.addArgument(integerArgument);
 
     /*
@@ -280,98 +301,117 @@ public final class ModifyIncrementDemo extends AbstractTool {
     isRequired = true;
     maxOccurrences = 0;
     valuePlaceholder = "{distinguishedName}";
-    builder.delete(0,builder.capacity());
+    builder.delete(0, builder.capacity());
     builder.append("Specifies the distinguished name of the entry ");
     builder.append("(which must exist) whose attributes are to be incremented. ");
     builder.append("This command line argument is required, has no default value, ");
     builder.append("and may be specified exactly once.");
     description = builder.toString();
     dnArgument =
-      new DNArgument(shortIdentifier,longIdentifier,isRequired,maxOccurrences,
-        valuePlaceholder,description);
+      new DNArgument(shortIdentifier, longIdentifier, isRequired, maxOccurrences,
+        valuePlaceholder, description);
     argumentParser.addArgument(dnArgument);
 
     Argument filterArgument = commandLineOptions.getFilterArgument();
     filterArgument.setMaxOccurrences(1);
 
-    addRequiredArgumentSet(argumentParser,dnArgument,filterArgument);
+    addRequiredArgumentSet(argumentParser, dnArgument, filterArgument);
   }
-
 
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public ResultCode executeToolTasks() {
-
-
-    String argName = CommandLineOptions.ARG_NAME_SCOPE;
-    Argument argument = commandLineOptions.getNamedArgument(argName);
-    SearchScope scope = ((ScopeArgument) argument).getValue();
-
-    argName = CommandLineOptions.ARG_NAME_FILTER;
-    argument = commandLineOptions.getNamedArgument(argName);
-    Filter filter = ((FilterArgument) argument).getValue();
-    if(filter == null) {
-      err("--filter is a required argument.");
-      return ResultCode.PARAM_ERROR;
-    }
-
-
-    final DN entryDn = dnArgument.getValue();
-
-    /*
-     * Retrieve the array of requested attributes from the parameter of
-     * the command line argument(s).
-     */
-    List<String> requestedAttributesList =
-      commandLineOptions.getRequestedAttributes();
-    int size = requestedAttributesList.size();
-    String[] requestedAttributes =
-      requestedAttributesList.toArray(new String[size]);
-
-    int incrementValue = integerArgument.getValue();
-    ResultCode resultCode = null;
-    try {
-
-      LDAPConnection ldapConnection = getConnection();
-      ModifyStrategy modifyEntry =
-        new IncrementModifyStrategy(ldapConnection,scope,filter);
-
-      for(final String attribute : requestedAttributes) {
-        try {
-          modifyEntry.modify(entryDn,attribute,incrementValue);
-        } finally {
-          ldapConnection.close();
-        }
-      }
-
-    } catch(final ModifyException e) {
-      getLogger().fatal(e);
-      resultCode = e.getResultCode();
-    } catch(final LDAPException e) {
-      getLogger().fatal(e);
-      resultCode = e.getResultCode();
-    }
-
-    return resultCode;
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  protected String classSpecificPropertiesResourceName() {
+  protected String classSpecificPropertiesResourceName()
+  {
     return "ModifyIncrementDemo.properties";
   }
 
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public ResultCode executeToolTasks()
+  {
 
-  private DNArgument dnArgument;
+    ResultCode resultCode = ResultCode.SUCCESS;
+    try
+    {
+      modifyIncrementAttributes();
+    }
+    catch(LDAPException e)
+    {
+      getLogger().fatal(e);
+      resultCode = e.getResultCode();
+    }
+    return resultCode;
+
+  }
 
 
-  private IntegerArgument integerArgument;
+  SearchScope getSearchScope()
+  {
+    String argName = CommandLineOptions.ARG_NAME_SCOPE;
+    Argument argument = commandLineOptions.getNamedArgument(argName);
+    return ((ScopeArgument) argument).getValue();
+  }
+
+
+  Filter getFilter()
+  {
+    String argName = CommandLineOptions.ARG_NAME_FILTER;
+    Argument argument = commandLineOptions.getNamedArgument(argName);
+    return ((FilterArgument) argument).getValue();
+  }
+
+
+  String[] getRequestedAttributes()
+  {
+    List<String> requestedAttributesList =
+      commandLineOptions.getRequestedAttributes();
+    int size = requestedAttributesList.size();
+    return requestedAttributesList.toArray(new String[size]);
+  }
+
+
+  void initializeDemo()
+  {
+    scope = getSearchScope();
+    filter = getFilter();
+    if (filter == null)
+    {
+      err("--filter is a required argument.");
+      return;
+    }
+    entryDn = dnArgument.getValue();
+    requestedAttributes = getRequestedAttributes();
+    incrementValue = integerArgument.getValue();
+  }
+
+
+  void modifyIncrementAttributes() throws LDAPException
+  {
+
+    initializeDemo();
+    LDAPConnection ldapConnection = getConnection();
+    ModifyStrategy modifyEntry =
+      new IncrementModifyStrategy(ldapConnection, scope, filter);
+
+    for(final String attribute : requestedAttributes)
+    {
+      try
+      {
+        modifyEntry.modify(entryDn, attribute, incrementValue);
+      }
+      finally
+      {
+        ldapConnection.close();
+      }
+    }
+
+  }
+
+
 }
