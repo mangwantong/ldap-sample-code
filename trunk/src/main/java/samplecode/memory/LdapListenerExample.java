@@ -520,10 +520,7 @@ public final class LdapListenerExample extends AbstractTool {
 
     // a listener that adds the entry
     final InMemoryDirectoryServerListener addEntryListener =
-      new
-
-
-        InMemoryDirectoryServerListener() {
+      new InMemoryDirectoryServerListener() {
 
           @Override
           public ResultCode entryAction(final LDAPConnectionPool ldapConnectionPool,

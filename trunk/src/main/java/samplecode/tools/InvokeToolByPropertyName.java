@@ -18,16 +18,11 @@ package samplecode.tools;
 
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.LDAPCommandLineTool;
-import com.unboundid.util.MinimalLogFormatter;
-import com.unboundid.util.Validator;
 import samplecode.annotation.Author;
 import samplecode.annotation.CodeVersion;
 import samplecode.annotation.Since;
 
-import java.io.IOException;
 import java.io.OutputStream;
-import java.util.logging.Level;
-import java.util.logging.LogRecord;
 
 /**
  * Invokes a class that extends the {@code LDAPCommandLineTool} class
@@ -36,47 +31,38 @@ import java.util.logging.LogRecord;
 @Author("terry.gardner@unboundid.com")
 @Since("Dec 11, 2011")
 @CodeVersion("1.0")
-final class InvokeToolByPropertyName
+public final class InvokeToolByPropertyName
 {
 
 
-  private static final String HELPFUL_USAGE_MSG;
+  private static final String HELPFUL_USAGE_MSG =
+    "Creates a class, which  must exist and must extend the " +
+      "LDAPCommandLineTool  class, and invokes the runTool(args) method. " +
+      "You must provide the  classname by setting the 'classname' system " +
+      "property. For  example, java -cp your-classpath samplecode.tools " +
+      ".InvokeToolByPropertyName -Dclassname=samplecode.Classname [args]";
 
 
-  private static final String INVOKABLE_CLASSNAME_PROP_NAME;
+  private static final String INVOKABLE_CLASSNAME_PROP_NAME = "classname";
 
 
   private final String classname;
 
 
-  static
-  {
-    HELPFUL_USAGE_MSG =
-      "Creates a class, which  must exist and must extend the " +
-        "LDAPCommandLineTool  class, and invokes the runTool(args) method. " +
-        "You must provide the  classname by setting the 'classname' system " +
-        "property. For  example, java -cp your-classpath samplecode.tools " +
-        ".InvokeToolByPropertyName -Dclassname=samplecode.Classname [args]";
-    INVOKABLE_CLASSNAME_PROP_NAME = "classname";
-  }
-
-
   InvokeToolByPropertyName(final String invokeableClassname)
   {
-    Validator.ensureNotNull(invokeableClassname);
+    if(invokeableClassname == null)
+    {
+      final String msg =
+        "invokeableClassname violates the contract of this method (it was null).";
+      throw new NullPointerException(msg);
+    }
     this.classname = invokeableClassname;
   }
 
 
   /**
-   * usage: <blockquote>
-   * <p/>
-   * <pre>
-   * java -cp your-classpath samplecode.tools.InvokeToolByPropertyName \
-   *   -classname=samplecode.Classname [args]
-   * </pre>
-   * <p/>
-   * </blockquote>
+   * Given a system property "classname" creates that class and invokes the runTool method.
    *
    * @param args Command line arguments, less the JVM-specific arguments.
    *             One of these arguments should set the system property
@@ -84,10 +70,10 @@ final class InvokeToolByPropertyName
    */
   public static void main(final String... args)
   {
-    String classname =
-      System.getProperty(InvokeToolByPropertyName.INVOKABLE_CLASSNAME_PROP_NAME);
-    if (classname == null)
+    String classname = System.getProperty(INVOKABLE_CLASSNAME_PROP_NAME);
+    if(classname == null)
     {
+      System.err.printf("No classname was found in system properties.\n");
       return;
     }
     InvokeToolByPropertyName invokeToolByPropertyName =
@@ -96,70 +82,14 @@ final class InvokeToolByPropertyName
     try
     {
       ResultCode resultCode = invokeToolByPropertyName.runTool(args);
-      if (resultCode != null)
+      if(resultCode != null && !resultCode.equals(ResultCode.SUCCESS))
       {
-        StringBuilder builder =
-          new StringBuilder(invokeToolByPropertyName.getClass().getCanonicalName());
-        builder.append(" has completed processing. The result code was: ");
-        builder.append(resultCode);
-        LogRecord logRecord = new LogRecord(Level.INFO, builder.toString());
-        String msg = new MinimalLogFormatter().format(logRecord);
-        outStream.write(msg.getBytes());
+        System.exit(resultCode.intValue());
       }
     }
-    catch(SecurityException e)
+    catch(Exception e)
     {
-      String msg =
-        String.format("An SecurityException resulted from an " + "attempt to create the" +
-          " class '%s'.\n" + "The class must have a zero-argument constructor" +
-          ".\n\n%s", classname, InvokeToolByPropertyName
-          .HELPFUL_USAGE_MSG);
-      System.err.println(msg);
-    }
-    catch(IllegalArgumentException e)
-    {
-      String msg =
-        String.format("An SecurityException resulted from an " + "attempt to create the" +
-          " class '%s'.\n" + "The class must have a zero-argument constructor" +
-          ".\n\n%s", classname, InvokeToolByPropertyName
-          .HELPFUL_USAGE_MSG);
-      System.err.println(msg);
-    }
-    catch(ClassNotFoundException e)
-    {
-      String msg =
-        String.format("An SecurityException resulted from an " + "attempt to create the" +
-          " class '%s'.\n" + "The class must have a zero-argument constructor" +
-          ".\n\n%s", classname, InvokeToolByPropertyName
-          .HELPFUL_USAGE_MSG);
-      System.err.println(msg);
-    }
-    catch(InstantiationException instantiationException)
-    {
-      String msg =
-        String.format("An Instantiation exception resulted from an " + "attempt to " +
-          "create the class '%s'.\n" + "The class must have a zero-argument " +
-          "constructor.\n\n%s", classname,
-          InvokeToolByPropertyName.HELPFUL_USAGE_MSG);
-      System.err.println(msg);
-    }
-    catch(IllegalAccessException e)
-    {
-      String msg =
-        String.format("An SecurityException resulted from an " + "attempt to create the" +
-          " class '%s'.\n" + "The class must have a zero-argument constructor" +
-          ".\n\n%s", classname, InvokeToolByPropertyName
-          .HELPFUL_USAGE_MSG);
-      System.err.println(msg);
-    }
-    catch(IOException e)
-    {
-      String msg =
-        String.format("An SecurityException resulted from an " + "attempt to create the" +
-          " class '%s'.\n" + "The class must have a zero-argument constructor" +
-          ".\n\n%s", classname, InvokeToolByPropertyName
-          .HELPFUL_USAGE_MSG);
-      System.err.println(msg);
+      System.err.println(e.getMessage());
     }
   }
 
@@ -173,7 +103,7 @@ final class InvokeToolByPropertyName
   {
     @SuppressWarnings("unchecked")
     Class<? extends LDAPCommandLineTool> cl =
-      (Class<? extends LDAPCommandLineTool>) Class.forName(classname);
+      (Class<? extends LDAPCommandLineTool>)Class.forName(classname);
     LDAPCommandLineTool tool = cl.newInstance();
     return tool.runTool(args);
   }

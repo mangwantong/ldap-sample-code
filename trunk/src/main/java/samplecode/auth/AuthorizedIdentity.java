@@ -60,64 +60,80 @@ import static com.unboundid.util.Validator.ensureTrue;
 @Since("Dec 25, 2011")
 @CodeVersion("1.3")
 public final class AuthorizedIdentity
-  implements ObservedByLdapExceptionListener {
+  implements ObservedByLdapExceptionListener
+{
+
+  // a valid connection to a directory server.
+  private final LDAPConnection ldapConnection;
+
+
+  /**
+   * interested parties to {@code LdapExceptionEvents}
+   */
+  private volatile List<LdapExceptionListener> ldapExceptionListeners =
+    SampleCodeCollectionUtils.newArrayList();
+
 
   /**
    * Creates a new instance of {@code AuthorizedIdentity} that will use
    * the specified connection to a directory server.
    *
-   * @param ldapConnection
-   *   a connection to a directory server. {@code ldapConnection}
-   *   is not permitted to be {@code null}.
+   * @param ldapConnection a connection to a directory server. {@code ldapConnection}
+   *                       is not permitted to be {@code null}.
    */
-  public AuthorizedIdentity(final LDAPConnection ldapConnection) {
+  public AuthorizedIdentity(final LDAPConnection ldapConnection)
+  {
     ensureNotNull(ldapConnection);
 
     this.ldapConnection = ldapConnection;
   }
 
 
-
   @Override
   public synchronized void addLdapExceptionListener(
-    final LdapExceptionListener ldapExceptionListener) {
-    if(ldapExceptionListener != null) {
+    final LdapExceptionListener ldapExceptionListener)
+  {
+    if(ldapExceptionListener != null)
+    {
       ldapExceptionListeners.add(ldapExceptionListener);
     }
   }
 
 
-
   @SuppressWarnings("unchecked")
   @Override
   public void fireLdapExceptionListener(final LDAPConnection ldapConnection,
-                                        final LDAPException ldapException) {
+                                        final LDAPException ldapException)
+  {
     ensureNotNull(ldapConnection,ldapException);
 
     final List<LdapExceptionListener> copy;
-    synchronized(this) {
+    synchronized(this)
+    {
       copy = SampleCodeCollectionUtils.newArrayList(ldapExceptionListeners);
     }
-    if(copy.size() == 0) {
+    if(copy.size() == 0)
+    {
       return;
     }
     final LdapExceptionEvent ev =
       new LdapExceptionEvent(this,ldapConnection,ldapException);
-    for(final LdapExceptionListener l : copy) {
+    for(final LdapExceptionListener l : copy)
+    {
       l.ldapRequestFailed(ev);
     }
   }
 
 
-
   @Override
   public synchronized void removeLdapExceptionListener(
-    final LdapExceptionListener ldapExceptionListener) {
-    if(ldapExceptionListener != null) {
+    final LdapExceptionListener ldapExceptionListener)
+  {
+    if(ldapExceptionListener != null)
+    {
       ldapExceptionListeners.remove(ldapExceptionListener);
     }
   }
-
 
 
   /**
@@ -137,22 +153,19 @@ public final class AuthorizedIdentity
    * request control can be included only with a bind request but does
    * not require a separate operation.
    *
-   * @param bindDn
-   *   the distinguished name with which to bind
-   * @param bindPassword
-   *   the password of the {@code bindDn}
-   * @param responseTimeoutMillis
-   *   the number of milliseconds that the client will wait for a
-   *   response to the bind request before failing with a TIMEOUT
-   *   condition. If a negative value is provided, 0 is used.
-   *
+   * @param bindDn                the distinguished name with which to bind
+   * @param bindPassword          the password of the {@code bindDn}
+   * @param responseTimeoutMillis the number of milliseconds that the client will wait for a
+   *                              response to the bind request before failing with a TIMEOUT
+   *                              condition. If a negative value is provided, 0 is used.
    * @return the authorization identity from the response control
    *         associated with the
    *         {@code AuthorizationIdentityRequestControl}.
    */
   public String getAuthorizationIdentityFromBindRequest(
     final String bindDn, final String bindPassword,
-    long responseTimeoutMillis) {
+    long responseTimeoutMillis)
+  {
     ensureNotNull(bindDn,bindPassword);
     ensureTrue(responseTimeoutMillis > 0);
 
@@ -171,9 +184,12 @@ public final class AuthorizedIdentity
      * Transmit the bind request to the server
      */
     BindResult bindResult;
-    try {
+    try
+    {
       bindResult = ldapConnection.bind(bindRequest);
-    } catch(final LDAPException ldapException) {
+    }
+    catch(final LDAPException ldapException)
+    {
       fireLdapExceptionListener(ldapConnection,ldapException);
       return null;
     }
@@ -182,10 +198,13 @@ public final class AuthorizedIdentity
      * Extract the response control from the bind response.
      */
     AuthorizationIdentityResponseControl authorizationIdentityResponseControl;
-    try {
+    try
+    {
       authorizationIdentityResponseControl =
         AuthorizationIdentityResponseControl.get(bindResult);
-    } catch(final LDAPException ldapException) {
+    }
+    catch(final LDAPException ldapException)
+    {
       fireLdapExceptionListener(ldapConnection,ldapException);
       return null;
     }
@@ -193,50 +212,36 @@ public final class AuthorizedIdentity
   }
 
 
-
   /**
-   * Retrieves the authorization identity from an existing ldap
-   * connection.
+   * Retrieves the authorization identity from an existing ldap connection. Demonstrate
+   * the user of the Who Am I? extended operation. This procedure requires creating a
+   * WhoAmIExtendedRequest object and using processExtendedOperation to transmit it.
    *
    * @return the authorization identity from the response control
    *         associated with the
    *         {@code AuthorizationIdentityRequestControl}.
    */
   public String
-  getAuthorizationIdentityWhoAmIExtendedOperation() {
-
-    if(!checkSupportedFeature(ldapConnection,
-      WhoAmIExtendedRequest.WHO_AM_I_REQUEST_OID)) {
-      return null;
+  getAuthorizationIdentityWhoAmIExtendedOperation() throws LDAPException
+  {
+    if(!checkSupportedFeature(ldapConnection,WhoAmIExtendedRequest.WHO_AM_I_REQUEST_OID))
+    {
+      return "";
     }
-
-    /*
-     * Demonstrate the user of the Who Am I? extended operation. This
-     * procedure requires creating a WhoAmIExtendedRequest object and
-     * using processExtendedOperation to transmit it.
-     */
-    final WhoAmIExtendedRequest whoAmIExtendedRequest =
-      new WhoAmIExtendedRequest();
-    WhoAmIExtendedResult whoAmIExtendedResult;
-    try {
-      whoAmIExtendedResult =
-        (WhoAmIExtendedResult) ldapConnection.processExtendedOperation
-          (whoAmIExtendedRequest);
-    } catch(final LDAPException exception) {
-      fireLdapExceptionListener(ldapConnection,exception);
-      return null;
-    }
+    WhoAmIExtendedRequest whoAmIExtendedRequest = new WhoAmIExtendedRequest();
+    WhoAmIExtendedResult whoAmIExtendedResult =
+      (WhoAmIExtendedResult)ldapConnection.processExtendedOperation(whoAmIExtendedRequest);
     return whoAmIExtendedResult.getAuthorizationID();
 
   }
-
 
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public String toString() {
+  public String toString()
+  {
     final StringBuilder sb =
       new StringBuilder("samplecode.auth.AuthorizedIdentity{");
     sb.append("ldapConnection=").append(ldapConnection);
@@ -246,23 +251,11 @@ public final class AuthorizedIdentity
   }
 
 
-
   private boolean checkSupportedFeature(final LDAPConnection ldapConnection,
-                                        final String controlOID) {
+                                        final String controlOID)
+  {
     return SupportedFeature.isExtendedOperationSupported
       (ldapConnection,controlOID);
   }
-
-
-
-  // a valid connection to a directory server.
-  private final LDAPConnection ldapConnection;
-
-
-  /**
-   * interested parties to {@code LdapExceptionEvents}
-   */
-  private volatile List<LdapExceptionListener> ldapExceptionListeners =
-    SampleCodeCollectionUtils.newArrayList();
 
 }

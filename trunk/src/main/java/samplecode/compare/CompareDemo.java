@@ -19,6 +19,8 @@ import java.util.LinkedHashMap;
 /**
  * Provides a demonstration of the COMPARE request using the
  * UnboundID LDAP SDK.
+ *
+ * @author Terry J. Gardner
  */
 @Since("01-Jan-2012")
 @CodeVersion("1.2")
@@ -62,11 +64,6 @@ public final class CompareDemo extends AbstractTool {
 
 
 
-  /**
-   * {@inheritDoc}
-   *
-   * @throws ArgumentException
-   */
   @Override
   public void addArguments(final ArgumentParser argumentParser)
     throws ArgumentException {
@@ -76,10 +73,6 @@ public final class CompareDemo extends AbstractTool {
   }
 
 
-
-  /**
-   * {@inheritDoc}
-   */
   @Override
   protected ResultCode executeToolTasks() {
 
