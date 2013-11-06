@@ -4,30 +4,41 @@
 
 package samplecode.test;
 
-class TestDataPairing<T> implements DataPairing<T> {
+class TestDataPairing<T> implements DataPairing<T>
+{
 
-  TestDataPairing(String string, final T value) {
+  private final String string;
+
+  private final T value;
+
+
+
+
+
+
+  TestDataPairing(String string,  T value)
+  {
     this.string = string;
     this.value = value;
   }
 
 
 
-  final String string;
 
 
 
-  public String getString() {
+  public String getString()
+  {
     return this.string;
   }
 
 
 
-  final T value;
 
 
 
-  public T getValue() {
+  public T getValue()
+  {
     return this.value;
   }
 }
