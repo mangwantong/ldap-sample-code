@@ -17,36 +17,23 @@
 package samplecode.bind;
 
 import com.unboundid.ldap.sdk.*;
-import com.unboundid.ldap.sdk.controls.PasswordExpiredControl;
-import com.unboundid.ldap.sdk.controls.PasswordExpiringControl;
+import com.unboundid.ldap.sdk.Filter;
+import com.unboundid.ldap.sdk.controls.*;
 import com.unboundid.util.CommandLineTool;
-import com.unboundid.util.args.Argument;
-import com.unboundid.util.args.ArgumentException;
-import com.unboundid.util.args.ArgumentParser;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import samplecode.annotation.Author;
-import samplecode.annotation.CodeVersion;
-import samplecode.annotation.Launchable;
-import samplecode.annotation.Since;
+import com.unboundid.util.args.*;
+import java.io.*;
+import java.util.*;
+import java.util.logging.*;
+import org.apache.commons.logging.*;
+import samplecode.annotation.*;
 import samplecode.cli.CommandLineOptions;
 import samplecode.controls.ResponseControlAware;
 import samplecode.display.ControlDisplayValues;
 import samplecode.listener.*;
-import samplecode.tools.AbstractTool;
-import samplecode.tools.BasicToolCompletedProcessing;
-import samplecode.tools.ToolCompletedProcessing;
+import samplecode.tools.*;
 import samplecode.util.SampleCodeCollectionUtils;
 
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.util.Collection;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import static com.unboundid.util.Validator.ensureNotNull;
-
 
 /**
  * Provides a demonstration of authenticating to a directory server.
@@ -57,8 +44,8 @@ import static com.unboundid.util.Validator.ensureNotNull;
 @Launchable
 public final class BindDemo extends AbstractTool
   implements LdapExceptionListener, ObservedByLdapExceptionListener,
-  ObservedByLdapSearchExceptionListener, LdapSearchExceptionListener {
-
+  ObservedByLdapSearchExceptionListener, LdapSearchExceptionListener
+{
 
   /**
    * <blockquote>
@@ -150,21 +137,69 @@ public final class BindDemo extends AbstractTool
    *
    * @see CommandLineTool
    */
-  public static void main(final String... args) {
-    final PrintStream outStream = System.out;
-    final PrintStream errStream = System.err;
-    final BindDemo bindDemo = new BindDemo(outStream,errStream);
+  public static void main(String... args)
+  {
+    PrintStream outStream = System.out;
+    PrintStream errStream = System.err;
+    BindDemo bindDemo = new BindDemo(outStream,errStream);
     bindDemo.addLdapExceptionListener(bindDemo);
     bindDemo.addResponseControlHandler(BindDemo.responseControlHandler);
-    final ResultCode resultCode = bindDemo.runTool(args);
-    final ToolCompletedProcessing completedProcessing =
+    ResultCode resultCode = bindDemo.runTool(args);
+    ToolCompletedProcessing completedProcessing =
       new BasicToolCompletedProcessing(bindDemo,resultCode);
-    final Log logger = LogFactory.getLog(BindDemo.class);
+    Log logger = LogFactory.getLog(BindDemo.class);
     completedProcessing.displayMessage(logger);
-    if(!resultCode.equals(ResultCode.SUCCESS)) {
+    if(!resultCode.equals(ResultCode.SUCCESS))
+    {
       System.exit(resultCode.intValue());
     }
   }
+
+
+
+
+
+
+  /**
+   * Adds the specified {@code responseControlHandler} to the list of handlers to be invoked when
+   * response controls have been added to the response by the server. No {@code null} response
+   * controls handlers can be added to the list of response control handlers.
+   *
+   * @param responseControlHandler
+   *   A response control handler to be invoked when response controls have been added to the
+   *   response by the server. If {@code responseControlHandler} is {@code null},no action is taken
+   *   and no exception is thrown.
+   */
+  public void addResponseControlHandler
+  (final ResponseControlAware responseControlHandler)
+  {
+    if(responseControlHandler != null)
+    {
+      getResponseControlHandlers().add(responseControlHandler);
+    }
+  }
+
+
+
+
+
+
+  /**
+   * Fetches a list of response control handlers.
+   *
+   * @return a list of response control handlers.
+   */
+  public List<ResponseControlAware> getResponseControlHandlers()
+  {
+    if(responseControlHandlers == null)
+    {
+      responseControlHandlers = SampleCodeCollectionUtils.newArrayList();
+    }
+    return responseControlHandlers;
+  }
+
+
+
 
 
 
@@ -179,13 +214,20 @@ public final class BindDemo extends AbstractTool
     CommandLineOptions.ARG_NAME_SCOPE,
   };
 
-
   /**
-   * The response control handler is used to process any response
-   * controls attached to the bind response.
+   * The response control handler is used to process any response controls attached to the bind
+   * response.
    */
   private static final ResponseControlAware responseControlHandler =
-    new ResponseControlAware() {
+    new ResponseControlAware()
+    {
+
+      private String msg;
+
+
+
+
+
 
       /**
        * {@inheritDoc}
@@ -195,9 +237,13 @@ public final class BindDemo extends AbstractTool
        * invoke.
        */
       @Override
-      public boolean invoke() {
+      public boolean invoke()
+      {
         return true;
       }
+
+
+
 
 
 
@@ -211,8 +257,10 @@ public final class BindDemo extends AbstractTool
        */
       @Override
       public void processResponseControl(final LDAPResult ldapResult)
-        throws LDAPException {
-        if(ldapResult != null) {
+        throws LDAPException
+      {
+        if(ldapResult != null)
+        {
           /*
            * The server may have included the password expired response
            * control which may be included in the response for an
@@ -226,11 +274,14 @@ public final class BindDemo extends AbstractTool
            */
           final PasswordExpiredControl passwordExpiredControl =
             PasswordExpiredControl.get(ldapResult);
-          if(passwordExpiredControl == null) {
+          if(passwordExpiredControl == null)
+          {
             msg = "PasswordExpiredControl was not included in the" +
               " bind response";
             getLogger().log(Level.INFO,msg);
-          } else {
+          }
+          else
+          {
             msg = "PasswordExpiredControl included in the bind " +
               "response";
             getLogger().log(Level.INFO,msg);
@@ -245,11 +296,14 @@ public final class BindDemo extends AbstractTool
            */
           final PasswordExpiringControl passwordExpiringControl =
             PasswordExpiringControl.get(ldapResult);
-          if(passwordExpiringControl == null) {
+          if(passwordExpiringControl == null)
+          {
             msg = "PasswordExpiringControl not included in the " +
               "bind response";
             getLogger().log(Level.INFO,msg);
-          } else {
+          }
+          else
+          {
             msg = "PasswordExpiringControl included in the bind " +
               "response";
             getLogger().log(Level.INFO,msg);
@@ -259,96 +313,84 @@ public final class BindDemo extends AbstractTool
 
 
 
-      private String msg;
 
 
 
-      Logger getLogger() {
+      Logger getLogger()
+      {
         return Logger.getLogger(getClass().getName());
       }
 
     };
 
+  // A list of objects which perform tasks on response controls
+  private List<ResponseControlAware> responseControlHandlers;
 
 
-  public BindDemo(final OutputStream outStream,
-                  final OutputStream errStream) {
+
+
+
+
+  public BindDemo(OutputStream outStream,
+    OutputStream errStream)
+  {
     super(outStream,errStream);
-
   }
 
 
 
-  /**
-   * Adds the specified {@code responseControlHandler} to the list of
-   * handlers to be invoked when response controls have been added to
-   * the response by the server. No {@code null} response controls
-   * handlers can be added to the list of response control handlers.
-   *
-   * @param responseControlHandler
-   *   A response control handler to be invoked when response
-   *   controls have been added to the response by the server. If
-   *   {@code responseControlHandler} is {@code null},no action
-   *   is taken and no exception is thrown.
-   */
-  public void addResponseControlHandler
-  (final ResponseControlAware responseControlHandler) {
-    if(responseControlHandler != null) {
-      getResponseControlHandlers().add(responseControlHandler);
-    }
-  }
-
-
-
-  /**
-   * Fetches a list of response control handlers.
-   *
-   * @return a list of response control handlers.
-   */
-  public List<ResponseControlAware> getResponseControlHandlers() {
-    if(responseControlHandlers == null) {
-      responseControlHandlers = SampleCodeCollectionUtils.newArrayList();
-    }
-    return responseControlHandlers;
-  }
 
 
 
   @Override
   public synchronized void addLdapSearchExceptionListener
-    (final LdapSearchExceptionListener ldapSearchExceptionListener) {
-    if(ldapSearchExceptionListener != null) {
+    (LdapSearchExceptionListener ldapSearchExceptionListener)
+  {
+    if(ldapSearchExceptionListener != null)
+    {
       ldapSearchExceptionListeners.add(ldapSearchExceptionListener);
     }
   }
 
 
 
+
+
+
   @Override
   public void fireLdapSearchExceptionListener(final LDAPConnection ldapConnection,
-                                              final LDAPSearchException ldapSearchException) {
+    final LDAPSearchException ldapSearchException)
+  {
     ensureNotNull(ldapConnection,ldapSearchException);
 
     List<LdapSearchExceptionListener> copy;
-    synchronized(this) {
+    synchronized(this)
+    {
       copy = SampleCodeCollectionUtils.newArrayList(ldapSearchExceptionListeners);
     }
-    if(copy.size() == 0) {
+    if(copy.size() == 0)
+    {
       return;
     }
     final LdapSearchExceptionEvent ev =
       new LdapSearchExceptionEvent(this,ldapConnection,ldapSearchException);
-    for(final LdapSearchExceptionListener l : copy) {
+    for(final LdapSearchExceptionListener l : copy)
+    {
       l.searchRequestFailed(ev);
     }
   }
 
 
 
+
+
+
   @Override
   public synchronized void removeLdapSearchExceptionListener(
-    final LdapSearchExceptionListener ldapSearchExceptionListener) {
-    if(ldapSearchExceptionListener != null) {
+    final LdapSearchExceptionListener ldapSearchExceptionListener)
+  {
+    if(ldapSearchExceptionListener != null)
+    {
       ldapSearchExceptionListeners.remove
         (ldapSearchExceptionListener);
     }
@@ -356,22 +398,41 @@ public final class BindDemo extends AbstractTool
 
 
 
-  @Override
-  public String toString() {
-    return "BindDemo [" +
-      (commandLineOptions != null ? "commandLineOptions=" +
-        commandLineOptions : "") +
-      "]";
+
+
+
+  /**
+   * Removes the specified {@code responseControlHandler} from the list of handlers to be invoked
+   * when response controls have been added to the response by the server.
+   *
+   * @param responseControlHandler
+   *   A response control handler that must have been previously added to the list of response
+   *   control handlers. If {@code responseControlHandler} is {@code null},no action is taken and no
+   *   exception is thrown.
+   */
+  @SuppressWarnings("unused")
+  public void removeResponseControlHandler
+  (final ResponseControlAware responseControlHandler)
+  {
+    if(responseControlHandler != null)
+    {
+      getResponseControlHandlers().remove(responseControlHandler);
+    }
   }
+
+
+
 
 
 
   @Override
   public void searchRequestFailed
-    (final LdapSearchExceptionEvent ldapSearchExceptionEvent) {
+    (final LdapSearchExceptionEvent ldapSearchExceptionEvent)
+  {
     ensureNotNull(ldapSearchExceptionEvent);
 
-    if(getLogger().isInfoEnabled()) {
+    if(getLogger().isInfoEnabled())
+    {
       final String exceptionMessage =
         ldapSearchExceptionEvent.getLdapSearchException().getExceptionMessage();
       getLogger().info(exceptionMessage);
@@ -380,24 +441,20 @@ public final class BindDemo extends AbstractTool
 
 
 
-  /**
-   * Removes the specified {@code responseControlHandler} from the list
-   * of handlers to be invoked when response controls have been added to
-   * the response by the server.
-   *
-   * @param responseControlHandler
-   *   A response control handler that must have been previously
-   *   added to the list of response control handlers. If
-   *   {@code responseControlHandler} is {@code null},no action
-   *   is taken and no exception is thrown.
-   */
-  @SuppressWarnings("unused")
-  public void removeResponseControlHandler
-  (final ResponseControlAware responseControlHandler) {
-    if(responseControlHandler != null) {
-      getResponseControlHandlers().remove(responseControlHandler);
-    }
+
+
+
+  @Override
+  public String toString()
+  {
+    return "BindDemo [" +
+      (commandLineOptions != null ? "commandLineOptions=" +
+        commandLineOptions : "") +
+      "]";
   }
+
+
+
 
 
 
@@ -406,11 +463,12 @@ public final class BindDemo extends AbstractTool
    */
   @Override
   protected void addArguments(final ArgumentParser argumentParser)
-    throws ArgumentException {
-    final Collection<Argument> requiredArguments =
-      SampleCodeCollectionUtils.newArrayList();
-    for(final String argName : requiredArgumentNames) {
-      final Argument arg = argumentParser.getNamedArgument(argName);
+    throws ArgumentException
+  {
+    Collection<Argument> requiredArguments = SampleCodeCollectionUtils.newArrayList();
+    for(String argName : requiredArgumentNames)
+    {
+      Argument arg = argumentParser.getNamedArgument(argName);
       requiredArguments.add(arg);
     }
     argumentParser.addRequiredArgumentSet(requiredArguments);
@@ -418,16 +476,22 @@ public final class BindDemo extends AbstractTool
 
 
 
+
+
+
   @Override
-  public ResultCode executeToolTasks() {
+  public ResultCode executeToolTasks()
+  {
 
     // Obtain a pool of connections to the LDAP server from the
     // LDAPCommandLineTool services,this requires specifying a
     // connection to the LDAP server,a number of initial connections
     // (--initialConnections) in the pool,and the maximum number of
     // connections (--maxConnections) that the pool should create.
-    try {
-      if(getLogger().isInfoEnabled()) {
+    try
+    {
+      if(getLogger().isInfoEnabled())
+      {
         final String hostname = commandLineOptions.getHostname();
         final String msg =
           String.format("Establishing connections to %s.",hostname);
@@ -435,50 +499,60 @@ public final class BindDemo extends AbstractTool
       }
       ldapConnection = connectToServer();
       ldapConnectionPool = getLdapConnectionPool(ldapConnection);
-    } catch(final LDAPException ldapException) {
+    }
+    catch(final LDAPException ldapException)
+    {
       fireLdapExceptionListener(ldapConnection,ldapException);
-      if(ldapConnection != null) {
+      if(ldapConnection != null)
+      {
         ldapConnection.close();
       }
       return ldapException.getResultCode();
     }
 
-
     // Fetch the desired BIND DN from the command line options
     final DN dn = commandLineOptions.getBindDn();
-    if(getLogger().isInfoEnabled()) {
+    if(getLogger().isInfoEnabled())
+    {
       final String msg = String.format("Using distinguished name '%s'",dn);
       getLogger().info(msg);
     }
-
 
     // Authenticate the connection using a SimpleBindRequest
     final BindResult bindResult;
     final String bindDN = dn.toString();
     final String bindPassword = commandLineOptions.getBindPassword();
-    try {
+    try
+    {
       final BindRequest bindRequest =
         new SimpleBindRequest(bindDN,bindPassword);
-      if(getLogger().isInfoEnabled()) {
+      if(getLogger().isInfoEnabled())
+      {
         getLogger().info("transmitting bind request");
       }
       bindResult = ldapConnectionPool.bind(bindRequest);
-    } catch(final LDAPException ldapException) {
+    }
+    catch(final LDAPException ldapException)
+    {
       fireLdapExceptionListener(ldapConnection,ldapException);
       ldapConnectionPool.close(true,4);
       return ldapException.getResultCode();
     }
 
-
     // Handle response controls that may be attached to the bind
     // response. Response controls that might be attached include the
     // PasswordExpiredControl and the PasswordExpiringControl.
     final List<ResponseControlAware> handlers = getResponseControlHandlers();
-    for(final ResponseControlAware responseControlHandler : handlers) {
-      if(responseControlHandler.invoke()) {
-        try {
+    for(final ResponseControlAware responseControlHandler : handlers)
+    {
+      if(responseControlHandler.invoke())
+      {
+        try
+        {
           responseControlHandler.processResponseControl(bindResult);
-        } catch(final LDAPException ldapException) {
+        }
+        catch(final LDAPException ldapException)
+        {
           fireLdapExceptionListener(ldapConnection,ldapException);
           ldapConnectionPool.close(true,4);
           return ldapException.getResultCode();
@@ -486,20 +560,22 @@ public final class BindDemo extends AbstractTool
       }
     }
 
-
     // Construct a search request. Set a size limit with the value from
     // the {@code --sizeLimit} command line argument and a time limit
     // with the value from the {@code --timeLimit} command line
     // argument.
     final SearchRequest searchRequest;
-    try {
+    try
+    {
       final String baseObject = commandLineOptions.getBaseObject();
       final SearchScope searchScope = commandLineOptions.getSearchScope();
       Filter filter = commandLineOptions.getFilter();
-      if(filter == null) {
+      if(filter == null)
+      {
         filter = Filter.createPresenceFilter("objectClass");
       }
-      if(getLogger().isTraceEnabled()) {
+      if(getLogger().isTraceEnabled())
+      {
         final String msg = String.format("Creating a search request using " +
           "filter %s, base object %s, and scope %s",filter,baseObject,
           searchScope);
@@ -518,7 +594,9 @@ public final class BindDemo extends AbstractTool
       final int timeLimit = commandLineOptions.getTimeLimit();
       searchRequest.setTimeLimitSeconds(timeLimit);
 
-    } catch(final LDAPException ldapException) {
+    }
+    catch(final LDAPException ldapException)
+    {
       fireLdapExceptionListener(ldapConnection,ldapException);
       ldapConnectionPool.close(true,4);
       return ldapException.getResultCode();
@@ -526,13 +604,17 @@ public final class BindDemo extends AbstractTool
 
     // Perform the seach
     final SearchResult searchResult;
-    try {
-      if(commandLineOptions.isVerbose()) {
+    try
+    {
+      if(commandLineOptions.isVerbose())
+      {
         getLogger().trace("transmitting search request: " +
           searchRequest);
       }
       searchResult = ldapConnectionPool.search(searchRequest);
-    } catch(final LDAPSearchException ldapSearchException) {
+    }
+    catch(final LDAPSearchException ldapSearchException)
+    {
       fireLdapSearchExceptionListener(ldapConnection,
         ldapSearchException);
       ldapConnectionPool.close(true,4);
@@ -543,19 +625,26 @@ public final class BindDemo extends AbstractTool
      * Handle response controls that may be attached to the search
      * response.
      */
-    if(searchResult != null) {
+    if(searchResult != null)
+    {
       String msg;
-      if(searchResult.hasResponseControl()) {
-        for(final Control control : searchResult.getResponseControls()) {
+      if(searchResult.hasResponseControl())
+      {
+        for(final Control control : searchResult.getResponseControls())
+        {
           final ControlDisplayValues controlDisplayValues =
             new ControlDisplayValues(control);
-          msg = (String) controlDisplayValues.msg();
-          if(getLogger().isInfoEnabled()) {
+          msg = (String)controlDisplayValues.msg();
+          if(getLogger().isInfoEnabled())
+          {
             getLogger().info(msg);
           }
         }
-      } else {
-        if(getLogger().isInfoEnabled()) {
+      }
+      else
+      {
+        if(getLogger().isInfoEnabled())
+        {
           msg = "no response controls attached to search " +
             "response.";
           getLogger().info(msg);
@@ -570,13 +659,12 @@ public final class BindDemo extends AbstractTool
 
 
 
+
+
+
   @Override
-  protected String classSpecificPropertiesResourceName() {
+  protected String classSpecificPropertiesResourceName()
+  {
     return "BindDemo.properties";
   }
-
-
-
-  // A list of objects which perform tasks on response controls
-  private List<ResponseControlAware> responseControlHandlers;
 }

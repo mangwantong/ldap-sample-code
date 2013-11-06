@@ -17,7 +17,12 @@
 package samplecode.delete;
 
 
-import com.unboundid.ldap.sdk.*;
+import com.unboundid.ldap.sdk.Control;
+import com.unboundid.ldap.sdk.DN;
+import com.unboundid.ldap.sdk.DeleteRequest;
+import com.unboundid.ldap.sdk.LDAPConnection;
+import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.controls.SubtreeDeleteRequestControl;
 import com.unboundid.util.NotMutable;
 import samplecode.annotation.Author;
@@ -53,25 +58,33 @@ import static com.unboundid.util.Validator.ensureNotNull;
 @NotMutable
 @Singleton
 public final class LdapDeleteBranch
-  implements ObservedByLdapExceptionListener {
+  implements ObservedByLdapExceptionListener
+{
 
   /**
    * get an instance of {@code LdapDeleteBranch}.
    *
    * @return an instance of {@code LdapDeleteBranch}.
    */
-  public static LdapDeleteBranch getInstance() {
-    if(LdapDeleteBranch.instance == null) {
+  public static LdapDeleteBranch getInstance()
+  {
+    if(LdapDeleteBranch.instance == null)
+    {
       LdapDeleteBranch.instance = new LdapDeleteBranch();
     }
     return LdapDeleteBranch.instance;
   }
 
 
-
   // singleton instance
   private static LdapDeleteBranch instance = null;
 
+
+  /**
+   * interested parties to {@code LdapExceptionEvents}
+   */
+  private volatile Vector<LdapExceptionListener> ldapExceptionListeners =
+    new Vector<LdapExceptionListener>();
 
 
   /**
@@ -79,12 +92,13 @@ public final class LdapDeleteBranch
    */
   @Override
   public synchronized void addLdapExceptionListener(
-    final LdapExceptionListener ldapExceptionListener) {
-    if(ldapExceptionListener != null) {
+    final LdapExceptionListener ldapExceptionListener)
+  {
+    if(ldapExceptionListener != null)
+    {
       ldapExceptionListeners.add(ldapExceptionListener);
     }
   }
-
 
 
   /**
@@ -93,22 +107,25 @@ public final class LdapDeleteBranch
   @SuppressWarnings("unchecked")
   @Override
   public void fireLdapExceptionListener(final LDAPConnection ldapConnection,
-                                        final LDAPException ldapException) {
+                                        final LDAPException ldapException)
+  {
     ensureNotNull(ldapConnection,ldapException);
     final List<LdapExceptionListener> copy;
-    synchronized(this) {
+    synchronized(this)
+    {
       copy = SampleCodeCollectionUtils.newArrayList(ldapExceptionListeners);
     }
-    if(copy.size() == 0) {
+    if(copy.size() == 0)
+    {
       return;
     }
     final LdapExceptionEvent ev =
       new LdapExceptionEvent(this,ldapConnection,ldapException);
-    for(final LdapExceptionListener l : copy) {
+    for(final LdapExceptionListener l : copy)
+    {
       l.ldapRequestFailed(ev);
     }
   }
-
 
 
   /**
@@ -116,12 +133,13 @@ public final class LdapDeleteBranch
    */
   @Override
   public synchronized void removeLdapExceptionListener(
-    final LdapExceptionListener ldapExceptionListener) {
-    if(ldapExceptionListener != null) {
+    final LdapExceptionListener ldapExceptionListener)
+  {
+    if(ldapExceptionListener != null)
+    {
       ldapExceptionListeners.remove(ldapExceptionListener);
     }
   }
-
 
 
   /**
@@ -130,21 +148,18 @@ public final class LdapDeleteBranch
    * the {@code controlHandlers}. The {@code responseTimeout} specifies
    * the maximum time spent processing the delete.
    *
-   * @param ldapConnection
-   *   connection to the LDAP server.
-   * @param dnToDelete
-   *   the branch to delete. {@code dnToDelete} is not permitted
-   *   to be {@code null}.
-   * @param responseTimeout
-   *   the maximum time spent processing the request in
-   *   milliseconds.
-   * @param controlHandlers
-   *   handles any response controls.
+   * @param ldapConnection  connection to the LDAP server.
+   * @param dnToDelete      the branch to delete. {@code dnToDelete} is not permitted
+   *                        to be {@code null}.
+   * @param responseTimeout the maximum time spent processing the request in
+   *                        milliseconds.
+   * @param controlHandlers handles any response controls.
    */
   public void deleteTree(LDAPConnection ldapConnection,
                          DN dnToDelete,
                          int responseTimeout,
-                         ControlHandler[] controlHandlers) {
+                         ControlHandler[] controlHandlers)
+  {
 
     ensureNotNull(ldapConnection,dnToDelete);
 
@@ -153,7 +168,8 @@ public final class LdapDeleteBranch
      */
     final String controlOID =
       SubtreeDeleteRequestControl.SUBTREE_DELETE_REQUEST_OID;
-    if(!SupportedFeature.isControlSupported(ldapConnection,controlOID)) {
+    if(!SupportedFeature.isControlSupported(ldapConnection,controlOID))
+    {
       return;
     }
 
@@ -172,27 +188,25 @@ public final class LdapDeleteBranch
      * that were included by the server in the response.
      */
     LDAPResult ldapResult;
-    try {
+    try
+    {
       ldapResult = ldapConnection.delete(deleteRequest);
-    } catch(final LDAPException exception) {
+    }
+    catch(final LDAPException exception)
+    {
       fireLdapExceptionListener(ldapConnection,exception);
       return;
     }
-    if(controlHandlers != null) {
-      for(final Control responseControl : ldapResult.getResponseControls()) {
-        for(final ControlHandler h : controlHandlers) {
+    if(controlHandlers != null)
+    {
+      for(final Control responseControl : ldapResult.getResponseControls())
+      {
+        for(final ControlHandler h : controlHandlers)
+        {
           h.handleResponseControl(this,responseControl);
         }
       }
     }
   }
-
-
-
-  /**
-   * interested parties to {@code LdapExceptionEvents}
-   */
-  private volatile Vector<LdapExceptionListener> ldapExceptionListeners =
-    new Vector<LdapExceptionListener>();
 
 }
