@@ -20,7 +20,7 @@ import com.unboundid.ldap.sdk.*;
 import com.unboundid.util.args.*;
 import java.io.File;
 import java.util.*;
-import samplecode.annotation.*;
+import samplecode.annotation.CodeVersion;
 import samplecode.args.*;
 
 import static java.util.Collections.emptyList;
@@ -31,11 +31,10 @@ import static com.unboundid.util.Validator.ensureNotNull;
  * Provides services related to managing command line options for clients that use the {@code
  * LDAPCommandLineTool} class.
  *
+ * @author Terry J. Gardner
  * @see Argument
  */
-@Author("terry.gardner@unboundid.com")
-@Since("Nov 28, 2011")
-@CodeVersion("3.4")
+@CodeVersion("3.5")
 public class CommandLineOptions
 {
 
@@ -192,10 +191,6 @@ public class CommandLineOptions
   }
 
 
-
-
-
-
   /**
    * Obtain an instance of the {@code CommandLineOptions} class that will use the specified set of
    * arguments.
@@ -217,10 +212,6 @@ public class CommandLineOptions
 
     return new CommandLineOptions(arguments,argumentParser);
   }
-
-
-
-
 
 
   /**
@@ -400,10 +391,6 @@ public class CommandLineOptions
   private final ArgumentParser argumentParser;
 
 
-
-
-
-
   /**
    * initializes a {@code CommandLineOptions} object by adding all the arguments specified by the
    * {@code arguments} parameter to the specified {@code argumentParser}.
@@ -411,8 +398,7 @@ public class CommandLineOptions
    * @param argumentParser
    *   parses command line arguments
    */
-  protected CommandLineOptions(Argument[] arguments,
-    ArgumentParser argumentParser)
+  protected CommandLineOptions(Argument[] arguments, ArgumentParser argumentParser)
     throws ArgumentException
   {
     if(arguments == null)
@@ -433,19 +419,14 @@ public class CommandLineOptions
   }
 
 
-
-
-
-
   /**
    * Adds each of the specified arguments to the {@code argumentParser}, thereby making the
    * arguments available to command line clients.
    *
    * @param arguments
-   *   A list of arguments to be added (cannot be {@code null}.
+   *   A list of arguments to be added (cannot be {@code null}).
    */
-  public void addArguments(Argument... arguments)
-    throws ArgumentException
+  public void addArguments(Argument... arguments) throws ArgumentException
   {
     if(arguments == null)
     {
@@ -456,72 +437,47 @@ public class CommandLineOptions
 
     for(Argument argument : arguments)
     {
-      if(argument != null)
-      {
-        argumentParser.addArgument(argument);
-      }
+      if(argument != null) argumentParser.addArgument(argument);
     }
   }
 
 
-
-
-
-
   /**
-   * Retrieves the value of the command line argument named by the {@code longIdentifier}
-   * parameter.
+   * Retrieves the value of the command line argument named by the {@code longIdentifier} parameter.
+   * If no argument with the given {@code longIdentifier} has been registered with the argument
+   * parser, {@code get} returns {@code null}.
    *
    * @param longIdentifier
    *   The long identifier of a command line option.
    *
-   * @return The value of the command line argument named by the {@code longIdentifier}.
+   * @return The value of the command line argument named by the {@code longIdentifier} or {@code
+   *         null} if no such argument has been registered with the argument parser.
    */
-
   public Object get(String longIdentifier)
   {
     if(longIdentifier == null)
     {
-      throw new IllegalArgumentException("longIdentifier must not be null.");
+      throw new NullPointerException("longIdentifier must not be null.");
     }
     Object get = null;
     Argument argument = getNamedArgument(longIdentifier);
-    if(argument != null)
+    if(argument == null) return null;
+    if(argument.getClass() == StringArgument.class) get = ((StringArgument)argument).getValue();
+    else if(argument.getClass() == DNArgument.class) get = ((DNArgument)argument).getValue();
+    else if(argument.getClass() == IntegerArgument.class)
+      get = ((IntegerArgument)argument).getValue();
+    else if(argument.getClass() == BooleanArgument.class) get = argument.isPresent();
+    else if(argument.getClass() == FilterArgument.class)
+      get = ((FilterArgument)argument).getValue();
+    else
     {
-      if(argument.getClass() == StringArgument.class)
-      {
-        get = ((StringArgument)argument).getValue();
-      }
-      else if(argument.getClass() == DNArgument.class)
-      {
-        get = ((DNArgument)argument).getValue();
-      }
-      else if(argument.getClass() == IntegerArgument.class)
-      {
-        get = ((IntegerArgument)argument).getValue();
-      }
-      else if(argument.getClass() == BooleanArgument.class)
-      {
-        get = argument.isPresent();
-      }
-      else if(argument.getClass() == FilterArgument.class)
-      {
-        get = ((FilterArgument)argument).getValue();
-      }
-      else
-      {
-        StringBuilder builder = new StringBuilder(argument.getClass()
-          .toString());
-        builder.append(" is not supported by the get() method.");
-        throw new UnsupportedOperationException(builder.toString());
-      }
+      StringBuilder builder = new StringBuilder(argument.getClass().toString());
+      builder.append(" is not supported by the get() method.");
+      throw new UnsupportedOperationException(builder.toString());
     }
+
     return get;
   }
-
-
-
-
 
 
   /**
@@ -548,13 +504,8 @@ public class CommandLineOptions
   @SuppressWarnings("unchecked")
   public <T extends Argument> T getNamedArgument(String longIdentifier)
   {
-    ensureNotNull(longIdentifier);
     return (T)argumentParser.getNamedArgument(longIdentifier);
   }
-
-
-
-
 
 
   /**
@@ -566,10 +517,6 @@ public class CommandLineOptions
   {
     return argumentParser;
   }
-
-
-
-
 
 
   /**
@@ -585,10 +532,6 @@ public class CommandLineOptions
   {
     return ((StringArgument)getNamedArgument(ARG_NAME_BASE_OBJECT)).getValue();
   }
-
-
-
-
 
 
   /**
@@ -609,10 +552,6 @@ public class CommandLineOptions
   }
 
 
-
-
-
-
   /**
    * Retrieves the {@code --bindDN} argument
    */
@@ -620,10 +559,6 @@ public class CommandLineOptions
   {
     return getNamedArgument(ARG_NAME_BIND_DN);
   }
-
-
-
-
 
 
   /**
@@ -645,10 +580,6 @@ public class CommandLineOptions
   }
 
 
-
-
-
-
   /**
    * Retrieves the {@code --bindPassword} argument.
    */
@@ -656,10 +587,6 @@ public class CommandLineOptions
   {
     return getNamedArgument(ARG_NAME_BIND_PASSWORD);
   }
-
-
-
-
 
 
   /**
@@ -670,10 +597,6 @@ public class CommandLineOptions
   {
     return ((FileArgument)getNamedArgument(ARG_NAME_BIND_PASSWORD_FILE)).getValue();
   }
-
-
-
-
 
 
   /**
@@ -687,10 +610,6 @@ public class CommandLineOptions
   }
 
 
-
-
-
-
   /**
    * Retrieves the parameter to the {@code --filter} command line option.
    *
@@ -702,10 +621,6 @@ public class CommandLineOptions
   }
 
 
-
-
-
-
   /**
    * Retrieves the command line argument whose value is a search filter.
    */
@@ -713,10 +628,6 @@ public class CommandLineOptions
   {
     return getNamedArgument(ARG_NAME_FILTER);
   }
-
-
-
-
 
 
   /**
@@ -728,10 +639,6 @@ public class CommandLineOptions
   {
     return getFilterArgument().getValues();
   }
-
-
-
-
 
 
   /**
@@ -751,10 +658,6 @@ public class CommandLineOptions
     }
     return hostname;
   }
-
-
-
-
 
 
   /**
@@ -778,10 +681,6 @@ public class CommandLineOptions
   }
 
 
-
-
-
-
   /**
    * Provides access to the value of the introduction column width as specified by the {@code
    * --introductionColumnWidth} command line option.
@@ -799,10 +698,6 @@ public class CommandLineOptions
     }
     return value;
   }
-
-
-
-
 
 
   /**
@@ -826,10 +721,6 @@ public class CommandLineOptions
   }
 
 
-
-
-
-
   /**
    * Retrieves the number of threads as specified by the {@code --numThreads} command line option.
    *
@@ -838,14 +729,9 @@ public class CommandLineOptions
    */
   public int getNumThreads()
   {
-    String argName = ARG_NAME_NUM_THREADS;
-    IntegerArgument arg = getNamedArgument(argName);
+    IntegerArgument arg = getNamedArgument(ARG_NAME_NUM_THREADS);
     return arg == null ? 0 : arg.getValue();
   }
-
-
-
-
 
 
   /**
@@ -867,10 +753,6 @@ public class CommandLineOptions
   }
 
 
-
-
-
-
   /**
    * Retrieve the port from the {@code --port} or {@code -p} command line option. The port command
    * line option has a default value.
@@ -880,49 +762,50 @@ public class CommandLineOptions
    */
   public int getPort()
   {
-    int port = 10;
-    String argName = ARG_NAME_PORT;
-    IntegerArgument arg = getNamedArgument(argName);
-    if((arg != null) && arg.isPresent())
-    {
-      port = arg.getValue().intValue();
-    }
+    int port = 389;
+    IntegerArgument arg = getPortArgument();
+    if((arg != null) && arg.isPresent()) port = arg.getValue().intValue();
     return port;
   }
 
 
-
-
+  /**
+   * Gets the {@code IntegerArgument} with the long identifier of {@code "--port"}.
+   *
+   * @return the argument associated with {@code --port}.
+   */
+  public IntegerArgument getPortArgument()
+  {
+    return getNamedArgument(ARG_NAME_PORT);
+  }
 
 
   /**
-   * retrieves the value of the {@code --useProertiesFile} argument, if present, otherwise {@code
+   * Gets the value of the {@code --usePropertiesFile} argument, if present, otherwise {@code
    * null}.
    *
    * @return properties filename.
    */
   public String getPropertiesFile()
   {
-    String propertiesFile = null;
-    String argName = ARG_NAME_USE_PROPERTIES_FILE;
-    StringArgument argument = getNamedArgument(argName);
-    if(argument.isPresent())
-    {
-      propertiesFile = argument.getValue();
-    }
-    return propertiesFile;
+    StringArgument argument = getPropertiesFileArgument();
+    return argument.isPresent() ? argument.getValue() : null;
   }
 
 
-
-
+  /**
+   * Gets the {@code StringArgument} associated with the properties file
+   */
+  public StringArgument getPropertiesFileArgument()
+  {
+    return getNamedArgument(ARG_NAME_USE_PROPERTIES_FILE);
+  }
 
 
   /**
-   * Retrieve the parameter specified to the [@code --reporCount} command line argument. This
-   * parameter is the maximum number of reports, applicable to a tool that uses repeating reports.
-   * The time interval between reports is specified by the {@code --reportInterval} command line
-   * argument.
+   * Get the parameter specified to the [@code --reportCount} command line argument. This parameter
+   * is the maximum number of reports, applicable to a tool that uses repeating reports. The time
+   * interval between reports is specified by the {@code --reportInterval} command line argument.
    *
    * @return the maximum number of reports.
    */
@@ -938,10 +821,6 @@ public class CommandLineOptions
   }
 
 
-
-
-
-
   /**
    * Retrieve the report interval in milliseconds.
    *
@@ -953,10 +832,6 @@ public class CommandLineOptions
     Argument arg = getNamedArgument(argName);
     return arg == null ? 0 : ((IntegerArgument)arg).getValue().intValue();
   }
-
-
-
-
 
 
   /**
@@ -981,10 +856,6 @@ public class CommandLineOptions
   }
 
 
-
-
-
-
   /**
    * Retrieve the value of the parameter to the {@code --scope} command line option.
    *
@@ -1001,10 +872,6 @@ public class CommandLineOptions
     }
     return searchScope;
   }
-
-
-
-
 
 
   /**
@@ -1027,10 +894,6 @@ public class CommandLineOptions
   }
 
 
-
-
-
-
   /**
    * Retrieves the value of the search time limit as specified by the {@code --timeLimit} command
    * line option.
@@ -1044,10 +907,6 @@ public class CommandLineOptions
     IntegerArgument arg = getNamedArgument(argName);
     return arg == null ? 0 : arg.getValue().intValue();
   }
-
-
-
-
 
 
   /**
@@ -1110,10 +969,6 @@ public class CommandLineOptions
   }
 
 
-
-
-
-
   /**
    * Whether the {@code --verbose} command line option is present.
    *
@@ -1125,10 +980,6 @@ public class CommandLineOptions
     BooleanArgument arg = getNamedArgument(argName);
     return arg.isPresent();
   }
-
-
-
-
 
 
   /**
@@ -1198,56 +1049,17 @@ public class CommandLineOptions
   }
 
 
-
-
-
-
   /**
-   * @return Indicates whether the SDK should allow simple bind operations that contain a bind DN
-   *         but no password. Binds of this type may represent a security vulnerability in client
-   *         applications because they may cause the client to believe that the user is properly
-   *         authenticated when the server considers it to be an unauthenticated connection.
-   */
-  public boolean bindDnRequiresPassword()
-  {
-    return getNamedArgument(ARG_NAME_BIND_WITH_DN_REQUIRES_PASSWORD).isPresent();
-  }
-
-
-
-
-
-
-  /**
-   * Whether the {@code --abandonOnTimeout} command line option is present.
+   * Whether the {@code --useSchema} command line option is present.
    *
-   * @return Whether the {@code --abandonOnTimeout} command line option is present.
+   * @return Whether the {@code --useSchema} command line option is present.
    */
-  public boolean getAbandonOnTimeout()
+  public boolean getUseSchema()
   {
-    return getNamedArgument(ARG_NAME_ABANDON_ON_TIMEOUT).isPresent();
+    String argName = ARG_NAME_USE_SCHEMA;
+    BooleanArgument arg = getNamedArgument(argName);
+    return arg.isPresent();
   }
-
-
-
-
-
-
-  /**
-   * Whether the {@code --autoReconnect} command line option is present. The {@code --autoReconnect}
-   * command line option controls whether the LDAP SDK should reconnect automatically when a
-   * connection is lost.
-   *
-   * @return Whether the {@code --autoReconnect} command line option is present.
-   */
-  public boolean getAutoReconnect()
-  {
-    return getNamedArgument(ARG_NAME_AUTO_RECONNECT).isPresent();
-  }
-
-
-
-
 
 
   /**
@@ -1266,20 +1078,39 @@ public class CommandLineOptions
   }
 
 
-
-
+  /**
+   * Whether the {@code --autoReconnect} command line option is present. The {@code --autoReconnect}
+   * command line option controls whether the LDAP SDK should reconnect automatically when a
+   * connection is lost.
+   *
+   * @return Whether the {@code --autoReconnect} command line option is present.
+   */
+  public boolean getAutoReconnect()
+  {
+    return getNamedArgument(ARG_NAME_AUTO_RECONNECT).isPresent();
+  }
 
 
   /**
-   * Whether the {@code --useSchema} command line option is present.
+   * Whether the {@code --abandonOnTimeout} command line option is present.
    *
-   * @return Whether the {@code --useSchema} command line option is present.
+   * @return Whether the {@code --abandonOnTimeout} command line option is present.
    */
-  public boolean getUseSchema()
+  public boolean getAbandonOnTimeout()
   {
-    String argName = ARG_NAME_USE_SCHEMA;
-    BooleanArgument arg = getNamedArgument(argName);
-    return arg.isPresent();
+    return getNamedArgument(ARG_NAME_ABANDON_ON_TIMEOUT).isPresent();
+  }
+
+
+  /**
+   * @return Indicates whether the SDK should allow simple bind operations that contain a bind DN
+   *         but no password. Binds of this type may represent a security vulnerability in client
+   *         applications because they may cause the client to believe that the user is properly
+   *         authenticated when the server considers it to be an unauthenticated connection.
+   */
+  public boolean bindDnRequiresPassword()
+  {
+    return getNamedArgument(ARG_NAME_BIND_WITH_DN_REQUIRES_PASSWORD).isPresent();
   }
 
 }
