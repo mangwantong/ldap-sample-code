@@ -173,8 +173,9 @@ import static com.unboundid.util.Validator.ensureNotNull;
  * @see InMemoryDirectoryServer
  * @see LDAPCommandLineTool
  * @see <a href="http://su.pr/23n9ht">in-memory directory server</a>
+ *
+ * @author Terry J. Gardner
  */
-@Author("terry.gardner@unboundid.com")
 @Since("01-Nov-2011")
 @CodeVersion("1.10")
 @Launchable
