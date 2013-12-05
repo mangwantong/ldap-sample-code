@@ -16,31 +16,25 @@
 
 package samplecode.auth;
 
-import com.unboundid.ldap.sdk.DN;
-import com.unboundid.ldap.sdk.LDAPException;
-import com.unboundid.ldap.sdk.ResultCode;
-import com.unboundid.util.args.Argument;
-import com.unboundid.util.args.ArgumentException;
-import com.unboundid.util.args.ArgumentParser;
-import samplecode.annotation.Author;
-import samplecode.annotation.CodeVersion;
-import samplecode.annotation.Launchable;
-import samplecode.annotation.Since;
-import samplecode.listener.DefaultLdapExceptionListener;
-import samplecode.listener.LdapExceptionListener;
+
+import com.unboundid.ldap.sdk.*;
+import com.unboundid.util.args.*;
+import java.util.Collection;
+import samplecode.annotation.*;
+import samplecode.listener.*;
 import samplecode.tools.AbstractTool;
 import samplecode.util.SampleCodeCollectionUtils;
-
-import java.util.Collection;
 
 
 /**
  * Provides a demonstration of the Who Am I? extended operation and the
  * {@code AuthorizationIdentityRequestControl}.
+ *
+ * @author Terry Gardner
  */
 @Author("terry.gardner@unboundid.com")
 @Since("27-Nov-2011")
-@CodeVersion("4.0")
+@CodeVersion("4.1")
 @Launchable
 public final class AuthDemo extends AbstractTool
 {
@@ -64,10 +58,14 @@ public final class AuthDemo extends AbstractTool
   private String msg;
 
 
+
+
   public AuthDemo()
   {
     addLdapExceptionListener(new DefaultLdapExceptionListener(getLogger()));
   }
+
+
 
 
   @Override
@@ -82,79 +80,6 @@ public final class AuthDemo extends AbstractTool
   }
 
 
-  /**
-   * Demonstrate the use of the AuthorizationIdentityRequestControl.
-   */
-  private void demonstrateAuthorizationIdentityRequestControl()
-  {
-    DN bindDnAsDn = commandLineOptions.getBindDn();
-    String bindDn = bindDnAsDn.toString();
-    String bindPassword = commandLineOptions.getBindPassword();
-    long responseTimeMillis = getResponseTimeMillis();
-    authId =
-      authorizedIdentity.getAuthorizationIdentityFromBindRequest(bindDn,
-        bindPassword,responseTimeMillis);
-    if(authId != null)
-    {
-      msg =
-        String.format("AuthorizationID from the " +
-          "AuthorizationIdentityResponseControl: '%s'",authId);
-      getLogger().info(msg);
-    }
-  }
-
-
-  private void demonstrateWhoAmI() throws LDAPException
-  {
-    /*
-     * Demonstrate the user of the Who Am I? extended operation. This
-     * procedure requires creating a WhoAmIExtendedRequest object and
-     * using processExtendedOperation to transmit it.
-     */
-    if(isVerbose())
-    {
-      verbose("Getting the authorization identity using the Who Am I? " +
-        "extended request.");
-    }
-    authId = authorizedIdentity.getAuthorizationIdentityWhoAmIExtendedOperation();
-    if(authId != null && authId.length() > 0)
-    {
-      msg = String.format("AuthorizationID from the Who am I? extended request: " +
-        "'%s'",authId);
-      getLogger().info(msg);
-    }
-  }
-
-
-  private void getAuthorizedIdentity()
-  {
-    /*
-     * Instantiate the object which provides methods to get the
-     * authorization identity. Add an instance of the default
-     * LDAP Exception Listener to the authorized identity provider.
-     */
-    authorizedIdentity = new AuthorizedIdentity(ldapConnection);
-    LdapExceptionListener listener = new DefaultLdapExceptionListener(getLogger());
-    authorizedIdentity.addLdapExceptionListener(listener);
-    if(isVerbose())
-    {
-      verbose("Created the authorized identity object: " + authorizedIdentity);
-    }
-  }
-
-
-  /**
-   * Obtains a pool of connections to the LDAP server from the
-   * LDAPCommandLineTool services,this requires specifying a
-   * connection to the LDAP server,a number of initial connections
-   * (--initialConnections) in the pool,and the maximum number of
-   * connections (--maxConnections) that the pool should create.
-   */
-  private void getLDAPConnections() throws LDAPException
-  {
-    ldapConnection = connectToServer();
-    ldapConnectionPool = getLdapConnectionPool(ldapConnection);
-  }
 
 
   /**
@@ -171,6 +96,8 @@ public final class AuthDemo extends AbstractTool
     requiredArgumentSet.add(requiredArgument);
     argumentParser.addRequiredArgumentSet(requiredArgumentSet);
   }
+
+
 
 
   @Override
@@ -195,6 +122,8 @@ public final class AuthDemo extends AbstractTool
   }
 
 
+
+
   /**
    * {@inheritDoc}
    */
@@ -202,5 +131,86 @@ public final class AuthDemo extends AbstractTool
   protected String classSpecificPropertiesResourceName()
   {
     return "AuthDemo.properties";
+  }
+
+
+
+
+  /**
+   * Demonstrate the use of the {@code AuthorizationIdentityRequestControl}.
+   */
+  public void demonstrateAuthorizationIdentityRequestControl()
+  {
+    String bindDn = commandLineOptions.getBindDn().toString();
+    String bindPassword = commandLineOptions.getBindPassword();
+    long responseTimeMillis = getResponseTimeMillis();
+    authId =
+      authorizedIdentity.getAuthorizationIdentityFromBindRequest(bindDn,
+                                                                 bindPassword,responseTimeMillis);
+    if(authId != null)
+    {
+      msg = String.format("AuthorizationID from the " +
+                        "AuthorizationIdentityResponseControl: '%s'",authId);
+      getLogger().info(msg);
+    }
+  }
+
+
+
+
+  public void demonstrateWhoAmI() throws LDAPException
+  {
+    /*
+     * Demonstrate the user of the Who Am I? extended operation. This
+     * procedure requires creating a WhoAmIExtendedRequest object and
+     * using processExtendedOperation to transmit it.
+     */
+    if(isVerbose())
+    {
+      verbose("Getting the authorization identity using the Who Am I? " +
+                "extended request.");
+    }
+    authId = authorizedIdentity.getAuthorizationIdentityWhoAmIExtendedOperation();
+    if(authId != null && authId.length() > 0)
+    {
+      msg = String.format("AuthorizationID from the Who am I? extended request: " +
+                            "'%s'",authId);
+      getLogger().info(msg);
+    }
+  }
+
+
+
+
+  private void getAuthorizedIdentity()
+  {
+    /*
+     * Instantiate the object which provides methods to get the
+     * authorization identity. Add an instance of the default
+     * LDAP Exception Listener to the authorized identity provider.
+     */
+    authorizedIdentity = new AuthorizedIdentity(ldapConnection);
+    LdapExceptionListener listener = new DefaultLdapExceptionListener(getLogger());
+    authorizedIdentity.addLdapExceptionListener(listener);
+    if(isVerbose())
+    {
+      verbose("Created the authorized identity object: " + authorizedIdentity);
+    }
+  }
+
+
+
+
+  /**
+   * Obtains a pool of connections to the LDAP server from the
+   * LDAPCommandLineTool services,this requires specifying a
+   * connection to the LDAP server,a number of initial connections
+   * (--initialConnections) in the pool,and the maximum number of
+   * connections (--maxConnections) that the pool should create.
+   */
+  private void getLDAPConnections() throws LDAPException
+  {
+    ldapConnection = connectToServer();
+    ldapConnectionPool = getLdapConnectionPool(ldapConnection);
   }
 }

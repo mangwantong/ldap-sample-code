@@ -16,26 +16,16 @@
 
 package samplecode.auth;
 
-import com.unboundid.ldap.sdk.BindResult;
-import com.unboundid.ldap.sdk.LDAPConnection;
-import com.unboundid.ldap.sdk.LDAPException;
-import com.unboundid.ldap.sdk.SimpleBindRequest;
-import com.unboundid.ldap.sdk.controls.AuthorizationIdentityRequestControl;
-import com.unboundid.ldap.sdk.controls.AuthorizationIdentityResponseControl;
-import com.unboundid.ldap.sdk.extensions.WhoAmIExtendedRequest;
-import com.unboundid.ldap.sdk.extensions.WhoAmIExtendedResult;
-import samplecode.annotation.Author;
-import samplecode.annotation.CodeVersion;
-import samplecode.annotation.Since;
+
+import com.unboundid.ldap.sdk.*;
+import com.unboundid.ldap.sdk.controls.*;
+import com.unboundid.ldap.sdk.extensions.*;
+import java.util.List;
+import samplecode.annotation.*;
 import samplecode.ldap.SupportedFeature;
-import samplecode.listener.LdapExceptionEvent;
-import samplecode.listener.LdapExceptionListener;
-import samplecode.listener.ObservedByLdapExceptionListener;
+import samplecode.listener.*;
 import samplecode.util.SampleCodeCollectionUtils;
 
-import java.util.List;
-
-import static com.unboundid.util.Validator.ensureNotNull;
 import static com.unboundid.util.Validator.ensureTrue;
 
 
@@ -58,9 +48,8 @@ import static com.unboundid.util.Validator.ensureTrue;
  */
 @Author("terry.gardner@unboundid.com")
 @Since("Dec 25, 2011")
-@CodeVersion("1.3")
-public final class AuthorizedIdentity
-  implements ObservedByLdapExceptionListener
+@CodeVersion("1.4")
+public final class AuthorizedIdentity implements ObservedByLdapExceptionListener
 {
 
   // a valid connection to a directory server.
@@ -74,24 +63,27 @@ public final class AuthorizedIdentity
     SampleCodeCollectionUtils.newArrayList();
 
 
+
+
   /**
    * Creates a new instance of {@code AuthorizedIdentity} that will use
    * the specified connection to a directory server.
    *
-   * @param ldapConnection a connection to a directory server. {@code ldapConnection}
-   *                       is not permitted to be {@code null}.
+   * @param ldapConnection
+   *   a connection to a directory server. {@code ldapConnection}
+   *   is not permitted to be {@code null}.
    */
-  public AuthorizedIdentity(final LDAPConnection ldapConnection)
+  public AuthorizedIdentity(LDAPConnection ldapConnection)
   {
-    ensureNotNull(ldapConnection);
-
     this.ldapConnection = ldapConnection;
   }
 
 
+
+
   @Override
   public synchronized void addLdapExceptionListener(
-    final LdapExceptionListener ldapExceptionListener)
+    LdapExceptionListener ldapExceptionListener)
   {
     if(ldapExceptionListener != null)
     {
@@ -100,14 +92,14 @@ public final class AuthorizedIdentity
   }
 
 
+
+
   @SuppressWarnings("unchecked")
   @Override
   public void fireLdapExceptionListener(final LDAPConnection ldapConnection,
-                                        final LDAPException ldapException)
+    LDAPException ldapException)
   {
-    ensureNotNull(ldapConnection,ldapException);
-
-    final List<LdapExceptionListener> copy;
+    List<LdapExceptionListener> copy;
     synchronized(this)
     {
       copy = SampleCodeCollectionUtils.newArrayList(ldapExceptionListeners);
@@ -116,13 +108,14 @@ public final class AuthorizedIdentity
     {
       return;
     }
-    final LdapExceptionEvent ev =
-      new LdapExceptionEvent(this,ldapConnection,ldapException);
+    LdapExceptionEvent ev = new LdapExceptionEvent(this,ldapConnection,ldapException);
     for(final LdapExceptionListener l : copy)
     {
       l.ldapRequestFailed(ev);
     }
   }
+
+
 
 
   @Override
@@ -134,6 +127,8 @@ public final class AuthorizedIdentity
       ldapExceptionListeners.remove(ldapExceptionListener);
     }
   }
+
+
 
 
   /**
@@ -153,20 +148,23 @@ public final class AuthorizedIdentity
    * request control can be included only with a bind request but does
    * not require a separate operation.
    *
-   * @param bindDn                the distinguished name with which to bind
-   * @param bindPassword          the password of the {@code bindDn}
-   * @param responseTimeoutMillis the number of milliseconds that the client will wait for a
-   *                              response to the bind request before failing with a TIMEOUT
-   *                              condition. If a negative value is provided, 0 is used.
+   * @param bindDn
+   *   the distinguished name with which to bind
+   * @param bindPassword
+   *   the password of the {@code bindDn}
+   * @param responseTimeoutMillis
+   *   the number of milliseconds that the client will wait for a
+   *   response to the bind request before failing with a TIMEOUT
+   *   condition. If a negative value is provided, 0 is used.
+   *
    * @return the authorization identity from the response control
    *         associated with the
    *         {@code AuthorizationIdentityRequestControl}.
    */
   public String getAuthorizationIdentityFromBindRequest(
-    final String bindDn, final String bindPassword,
+    String bindDn, String bindPassword,
     long responseTimeoutMillis)
   {
-    ensureNotNull(bindDn,bindPassword);
     ensureTrue(responseTimeoutMillis > 0);
 
     /*
@@ -174,9 +172,9 @@ public final class AuthorizedIdentity
      * then set the maximum number of milliseconds the client will block
      * on the response to the bind request (response timeout).
      */
-    final AuthorizationIdentityRequestControl control =
+    AuthorizationIdentityRequestControl control =
       new AuthorizationIdentityRequestControl();
-    final SimpleBindRequest bindRequest =
+    SimpleBindRequest bindRequest =
       new SimpleBindRequest(bindDn,bindPassword,control);
     bindRequest.setResponseTimeoutMillis(responseTimeoutMillis);
 
@@ -188,7 +186,7 @@ public final class AuthorizedIdentity
     {
       bindResult = ldapConnection.bind(bindRequest);
     }
-    catch(final LDAPException ldapException)
+    catch(LDAPException ldapException)
     {
       fireLdapExceptionListener(ldapConnection,ldapException);
       return null;
@@ -203,13 +201,15 @@ public final class AuthorizedIdentity
       authorizationIdentityResponseControl =
         AuthorizationIdentityResponseControl.get(bindResult);
     }
-    catch(final LDAPException ldapException)
+    catch(LDAPException ldapException)
     {
       fireLdapExceptionListener(ldapConnection,ldapException);
       return null;
     }
     return authorizationIdentityResponseControl.getAuthorizationID();
   }
+
+
 
 
   /**
@@ -236,13 +236,15 @@ public final class AuthorizedIdentity
   }
 
 
+
+
   /**
    * {@inheritDoc}
    */
   @Override
   public String toString()
   {
-    final StringBuilder sb =
+    StringBuilder sb =
       new StringBuilder("samplecode.auth.AuthorizedIdentity{");
     sb.append("ldapConnection=").append(ldapConnection);
     sb.append(", ldapExceptionListeners=").append(ldapExceptionListeners);
@@ -251,8 +253,9 @@ public final class AuthorizedIdentity
   }
 
 
-  private boolean checkSupportedFeature(final LDAPConnection ldapConnection,
-                                        final String controlOID)
+
+
+  private boolean checkSupportedFeature(LDAPConnection ldapConnection, String controlOID)
   {
     return SupportedFeature.isExtendedOperationSupported
       (ldapConnection,controlOID);

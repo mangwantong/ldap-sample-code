@@ -18,19 +18,17 @@ package samplecode.tools;
 
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.LDAPCommandLineTool;
-import samplecode.annotation.Author;
-import samplecode.annotation.CodeVersion;
-import samplecode.annotation.Since;
-
 import java.io.OutputStream;
+import samplecode.annotation.*;
 
 /**
  * Invokes a class that extends the {@code LDAPCommandLineTool} class
  * where the class name is stored in system properties.
+ *
+ * @author Terry J. Gardner
  */
-@Author("terry.gardner@unboundid.com")
 @Since("Dec 11, 2011")
-@CodeVersion("1.0")
+@CodeVersion("1.1")
 public final class InvokeToolByPropertyName
 {
 
