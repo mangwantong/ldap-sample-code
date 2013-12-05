@@ -16,21 +16,12 @@
 
 package samplecode.bind;
 
-import com.unboundid.ldap.sdk.BindRequest;
-import com.unboundid.ldap.sdk.BindResult;
-import com.unboundid.ldap.sdk.LDAPConnection;
-import com.unboundid.ldap.sdk.LDAPException;
-import com.unboundid.ldap.sdk.SimpleBindRequest;
-import com.unboundid.ldap.sdk.controls.PasswordExpiredControl;
-import com.unboundid.ldap.sdk.controls.PasswordExpiringControl;
-import com.unboundid.util.ssl.SSLUtil;
-import com.unboundid.util.ssl.TrustAllTrustManager;
-import samplecode.annotation.Author;
-import samplecode.annotation.CodeVersion;
-import samplecode.annotation.Since;
-
-import javax.net.SocketFactory;
+import com.unboundid.ldap.sdk.*;
+import com.unboundid.ldap.sdk.controls.*;
+import com.unboundid.util.ssl.*;
 import java.security.GeneralSecurityException;
+import javax.net.SocketFactory;
+import samplecode.annotation.*;
 
 
 /**
@@ -39,8 +30,11 @@ import java.security.GeneralSecurityException;
  * host {@code centos.example.com} which accepts SSL connections on port 1636.
  * The examples to BIND using {@code uid=user.1,ou=people,dc=example,dc=com}
  * as the DN and {@code password} as the password.
+ *
+ *
+ *
+ * @author Terry J. Gardner
  */
-@Author("terry.gardner@unboundid.com")
 @Since("Dec 11, 2011")
 @CodeVersion("1.4")
 public final class SimpleBindExample {
