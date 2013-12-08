@@ -40,7 +40,7 @@ import samplecode.annotation.Since;
  * {
  *
  *   &#064;Override
- *   public String msg()
+ *   public String displayControl()
  *   {
  *     return String.format(&quot;There was an error trying to convert a string
  * into an integer.&quot;);
@@ -55,7 +55,7 @@ public interface ExceptionMsg {
 
   /**
    * @return the {@link LDAPException} associated with this exception
-   *         msg
+   *         displayControl
    */
   LDAPException getLdapException();
 

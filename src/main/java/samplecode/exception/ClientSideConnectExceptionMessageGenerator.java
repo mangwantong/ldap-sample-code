@@ -38,8 +38,8 @@ public class ClientSideConnectExceptionMessageGenerator
    * }
    * catch(final LDAPException exception)
    * {
-   *   final LdapException msg = ExceptionMsgFactory.getLdapExceptionMsg(exception);
-   *   getLogger().log(Level.SEVERE,msg.msg());
+   *   final LdapException displayControl = ExceptionMsgFactory.getLdapExceptionMsg(exception);
+   *   getLogger().log(Level.SEVERE,displayControl.displayControl());
    *   return exception.getResultCode();
    * }
    * </pre>
