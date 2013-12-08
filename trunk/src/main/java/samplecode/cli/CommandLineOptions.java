@@ -528,7 +528,7 @@ public class CommandLineOptions
    *
    * @throws LDAPException
    */
-  public String getBaseObject() throws LDAPException
+  public String getBaseObject()
   {
     return ((StringArgument)getNamedArgument(ARG_NAME_BASE_OBJECT)).getValue();
   }

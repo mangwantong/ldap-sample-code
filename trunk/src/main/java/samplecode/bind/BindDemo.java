@@ -16,12 +16,13 @@
 
 package samplecode.bind;
 
+
 import com.unboundid.ldap.sdk.*;
 import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.controls.*;
 import com.unboundid.util.CommandLineTool;
 import com.unboundid.util.args.*;
-import java.io.*;
+import java.io.OutputStream;
 import java.util.*;
 import java.util.logging.*;
 import org.apache.commons.logging.*;
@@ -35,232 +36,71 @@ import samplecode.util.SampleCodeCollectionUtils;
 
 import static com.unboundid.util.Validator.ensureNotNull;
 
+
 /**
  * Provides a demonstration of authenticating to a directory server.
+ *
+ * @author Terry Gardner
  */
-@Author("terry.gardner@unboundid.com")
 @Since("01-Sep-2011")
-@CodeVersion("1.25")
+@CodeVersion("1.26")
 @Launchable
 public final class BindDemo extends AbstractTool
-  implements LdapExceptionListener, ObservedByLdapExceptionListener,
-  ObservedByLdapSearchExceptionListener, LdapSearchExceptionListener
+   implements LdapExceptionListener, ObservedByLdapExceptionListener,
+   ObservedByLdapSearchExceptionListener, LdapSearchExceptionListener
 {
 
-  /**
-   * <blockquote>
-   * <p/>
-   * <pre>
-   * Demonstrate the use of the bind request
-   *
-   * Usage:  BindDemo {options}
-   *
-   * Available options include:
-   * -h,--hostname {host}
-   *     The IP address or resolvable name to use to connect to the directory
-   *     server.  If this is not provided,then a default value of 'localhost'
-   *     will  be used.
-   * -p,--port {port}
-   *     The port to use to connect to the directory server.  If this is not
-   *     provided,then a default value of 389 will be used.
-   * -D,--bindDN {dn}
-   *     The DN to use to bind to the directory server when performing simple
-   *     authentication.
-   * -w,--bindPassword {password}
-   *     The password to use to bind to the directory server when performing
-   *     simple authentication or a password-based SASL mechanism.
-   * -j,--bindPasswordFile {path}
-   *     The path to the file containing the password to use to bind to the
-   *     directory server when performing simple authentication or a
-   *     password-based SASL mechanism.
-   * -Z,--useSSL
-   *     Use SSL when communicating with the directory server.
-   * -q,--useStartTLS
-   *     Use StartTLS when communicating with the directory server.
-   * -X,--trustAll
-   *     Trust any certificate presented by the directory server.
-   * -K,--keyStorePath {path}
-   *     The path to the file to use as the key store for obtaining client
-   *     certificates when communicating securely with the directory server.
-   * -W,--keyStorePassword {password}
-   *     The password to use to access the key store contents.
-   * -u,--keyStorePasswordFile {path}
-   *     The path to the file containing the password to use to access the
-   *     key store contents.
-   * --keyStoreFormat {format}
-   *     The format (e.g.,jks,jceks,pkcs12,etc.) for the key store file.
-   * -P,--trustStorePath {path}
-   *     The path to the file to use as trust store when determining whether to
-   *     trust a certificate presented by the directory server.
-   * -T,--trustStorePassword {password}
-   *     The password to use to access the trust store contents.
-   * -U,--trustStorePasswordFile {path}
-   *     The path to the file containing the password to use to access the
-   * trust
-   *     store contents.
-   * --trustStoreFormat {format}
-   *     The format (e.g.,jks,jceks,pkcs12,etc.) for the trust store file.
-   * -N,--certNickname {nickname}
-   *     The nickname (alias) of the client certificate in the key store to
-   *     present to the directory server for SSL client authentication.
-   * -o,--saslOption {name=value}
-   *     A name-value pair providing information to use when performing SASL
-   *     authentication.
-   * -b,--baseObject {distinguishedName}
-   *     The base object used in the search request.
-   * -f,--filter {filter}
-   *     The search filter used in the search request.
-   * -i,--initialConnections {positiveInteger}
-   *     The number of initial connections to establish to directory server
-   * when
-   *     creating the connection pool.
-   * -m,--maxConnections {positiveInteger}
-   *     The maximum number of connections to establish to directory server
-   * when
-   *     creating the connection pool.
-   * -s,--scope {searchScope}
-   *     The scope of the search request
-   * --sizeLimit {positiveInteger}
-   *     The search size limit
-   * --timeLimit {positiveInteger}
-   *     The search time limit
-   * --pageSize {positiveInteger}
-   *     The search page size
-   * -H,-?,--help
-   *     Display usage information for this program.
-   * </pre>
-   * <p/>
-   * </blockquote>
-   *
-   * @param args
-   *   JVM command line options.
-   *
-   * @see CommandLineTool
-   */
-  public static void main(String... args)
-  {
-    PrintStream outStream = System.out;
-    PrintStream errStream = System.err;
-    BindDemo bindDemo = new BindDemo(outStream,errStream);
-    bindDemo.addLdapExceptionListener(bindDemo);
-    bindDemo.addResponseControlHandler(BindDemo.responseControlHandler);
-    ResultCode resultCode = bindDemo.runTool(args);
-    ToolCompletedProcessing completedProcessing =
-      new BasicToolCompletedProcessing(bindDemo,resultCode);
-    Log logger = LogFactory.getLog(BindDemo.class);
-    completedProcessing.displayMessage(logger);
-    if(!resultCode.equals(ResultCode.SUCCESS))
-    {
-      System.exit(resultCode.intValue());
-    }
-  }
+   /**
+    * The names of each of the required arguments.
+    */
+   private static final String[] requiredArgumentNames = {
+      CommandLineOptions.ARG_NAME_BASE_OBJECT,
+      CommandLineOptions.ARG_NAME_BIND_DN,
+      CommandLineOptions.ARG_NAME_BIND_PASSWORD,
+      CommandLineOptions.ARG_NAME_FILTER,
+      CommandLineOptions.ARG_NAME_SCOPE,
+   };
 
 
-
-
-
-
-  /**
-   * Adds the specified {@code responseControlHandler} to the list of handlers to be invoked when
-   * response controls have been added to the response by the server. No {@code null} response
-   * controls handlers can be added to the list of response control handlers.
-   *
-   * @param responseControlHandler
-   *   A response control handler to be invoked when response controls have been added to the
-   *   response by the server. If {@code responseControlHandler} is {@code null},no action is taken
-   *   and no exception is thrown.
-   */
-  public void addResponseControlHandler
-  (final ResponseControlAware responseControlHandler)
-  {
-    if(responseControlHandler != null)
-    {
-      getResponseControlHandlers().add(responseControlHandler);
-    }
-  }
-
-
-
-
-
-
-  /**
-   * Fetches a list of response control handlers.
-   *
-   * @return a list of response control handlers.
-   */
-  public List<ResponseControlAware> getResponseControlHandlers()
-  {
-    if(responseControlHandlers == null)
-    {
-      responseControlHandlers = SampleCodeCollectionUtils.newArrayList();
-    }
-    return responseControlHandlers;
-  }
-
-
-
-
-
-
-  /**
-   * The names of each of the required arguments.
-   */
-  private static final String[] requiredArgumentNames = {
-    CommandLineOptions.ARG_NAME_BASE_OBJECT,
-    CommandLineOptions.ARG_NAME_BIND_DN,
-    CommandLineOptions.ARG_NAME_BIND_PASSWORD,
-    CommandLineOptions.ARG_NAME_FILTER,
-    CommandLineOptions.ARG_NAME_SCOPE,
-  };
-
-  /**
-   * The response control handler is used to process any response controls attached to the bind
-   * response.
-   */
-  private static final ResponseControlAware responseControlHandler =
-    new ResponseControlAware()
-    {
-
-      private String msg;
-
-
-
-
-
-
-      /**
-       * {@inheritDoc}
-       * <p>
-       * For the purposes of the demonstration,this method returns an
-       * indication that {@code processResponseControl} is always safe to
-       * invoke.
-       */
-      @Override
-      public boolean invoke()
+   /**
+    * The response control handler is used to process any response controls attached to the bind
+    * response.
+    */
+   private static final ResponseControlAware responseControlHandler =
+      new ResponseControlAware()
       {
-        return true;
-      }
+
+         private String msg;
 
 
+         /**
+          * {@inheritDoc}
+          * <p>
+          * For the purposes of the demonstration,this method returns an
+          * indication that {@code processResponseControl} is always safe to
+          * invoke.
+          */
+         @Override
+         public boolean invoke()
+         {
+            return true;
+         }
 
 
-
-
-      /**
-       * {@inheritDoc}
-       * <p>
-       * Checks for the presence of the {@code PasswordExpiredControl} and
-       * the {@code PasswordExpiringControl} and appends text to the
-       * {@code builder} field that describes whether the controls are
-       * present.
-       */
-      @Override
-      public void processResponseControl(final LDAPResult ldapResult)
-        throws LDAPException
-      {
-        if(ldapResult != null)
-        {
+         /**
+          * {@inheritDoc}
+          * <p>
+          * Checks for the presence of the {@code PasswordExpiredControl} and
+          * the {@code PasswordExpiringControl} and appends text to the
+          * {@code builder} field that describes whether the controls are
+          * present.
+          */
+         @Override
+         public void processResponseControl(final LDAPResult ldapResult)
+            throws LDAPException
+         {
+            if(ldapResult != null)
+            {
           /*
            * The server may have included the password expired response
            * control which may be included in the response for an
@@ -272,20 +112,20 @@ public final class BindDemo extends AbstractTool
            * user must change his or her password before being allowed to
            * perform any other operation.
            */
-          final PasswordExpiredControl passwordExpiredControl =
-            PasswordExpiredControl.get(ldapResult);
-          if(passwordExpiredControl == null)
-          {
-            msg = "PasswordExpiredControl was not included in the" +
-              " bind response";
-            getLogger().log(Level.INFO,msg);
-          }
-          else
-          {
-            msg = "PasswordExpiredControl included in the bind " +
-              "response";
-            getLogger().log(Level.INFO,msg);
-          }
+               final PasswordExpiredControl passwordExpiredControl =
+                  PasswordExpiredControl.get(ldapResult);
+               if(passwordExpiredControl == null)
+               {
+                  msg = "PasswordExpiredControl was not included in the" +
+                     " bind response";
+                  getLogger().log(Level.INFO,msg);
+               }
+               else
+               {
+                  msg = "PasswordExpiredControl included in the bind " +
+                     "response";
+                  getLogger().log(Level.INFO,msg);
+               }
 
           /*
            * The server may have included the password expiring response
@@ -294,377 +134,439 @@ public final class BindDemo extends AbstractTool
            * this control includes the length of time in seconds until the
            * user's password actually expires.
            */
-          final PasswordExpiringControl passwordExpiringControl =
-            PasswordExpiringControl.get(ldapResult);
-          if(passwordExpiringControl == null)
-          {
-            msg = "PasswordExpiringControl not included in the " +
-              "bind response";
-            getLogger().log(Level.INFO,msg);
-          }
-          else
-          {
-            msg = "PasswordExpiringControl included in the bind " +
-              "response";
-            getLogger().log(Level.INFO,msg);
-          }
-        }
-      }
+               final PasswordExpiringControl passwordExpiringControl =
+                  PasswordExpiringControl.get(ldapResult);
+               if(passwordExpiringControl == null)
+               {
+                  msg = "PasswordExpiringControl not included in the " +
+                     "bind response";
+                  getLogger().log(Level.INFO,msg);
+               }
+               else
+               {
+                  msg = "PasswordExpiringControl included in the bind " +
+                     "response";
+                  getLogger().log(Level.INFO,msg);
+               }
+            }
+         }
 
 
+         Logger getLogger()
+         {
+            return Logger.getLogger(getClass().getName());
+         }
+
+      };
 
 
-
-
-      Logger getLogger()
+   /**
+    * <blockquote>
+    * <p/>
+    * <pre>
+    * Demonstrate the use of the bind request
+    *
+    * Usage:  BindDemo {options}
+    *
+    * Available options include:
+    * -h,--hostname {host}
+    *     The IP address or resolvable name to use to connect to the directory
+    *     server.  If this is not provided,then a default value of 'localhost'
+    *     will  be used.
+    * -p,--port {port}
+    *     The port to use to connect to the directory server.  If this is not
+    *     provided,then a default value of 389 will be used.
+    * -D,--bindDN {dn}
+    *     The DN to use to bind to the directory server when performing simple
+    *     authentication.
+    * -w,--bindPassword {password}
+    *     The password to use to bind to the directory server when performing
+    *     simple authentication or a password-based SASL mechanism.
+    * -j,--bindPasswordFile {path}
+    *     The path to the file containing the password to use to bind to the
+    *     directory server when performing simple authentication or a
+    *     password-based SASL mechanism.
+    * -Z,--useSSL
+    *     Use SSL when communicating with the directory server.
+    * -q,--useStartTLS
+    *     Use StartTLS when communicating with the directory server.
+    * -X,--trustAll
+    *     Trust any certificate presented by the directory server.
+    * -K,--keyStorePath {path}
+    *     The path to the file to use as the key store for obtaining client
+    *     certificates when communicating securely with the directory server.
+    * -W,--keyStorePassword {password}
+    *     The password to use to access the key store contents.
+    * -u,--keyStorePasswordFile {path}
+    *     The path to the file containing the password to use to access the
+    *     key store contents.
+    * --keyStoreFormat {format}
+    *     The format (e.g.,jks,jceks,pkcs12,etc.) for the key store file.
+    * -P,--trustStorePath {path}
+    *     The path to the file to use as trust store when determining whether to
+    *     trust a certificate presented by the directory server.
+    * -T,--trustStorePassword {password}
+    *     The password to use to access the trust store contents.
+    * -U,--trustStorePasswordFile {path}
+    *     The path to the file containing the password to use to access the
+    * trust
+    *     store contents.
+    * --trustStoreFormat {format}
+    *     The format (e.g.,jks,jceks,pkcs12,etc.) for the trust store file.
+    * -N,--certNickname {nickname}
+    *     The nickname (alias) of the client certificate in the key store to
+    *     present to the directory server for SSL client authentication.
+    * -o,--saslOption {name=value}
+    *     A name-value pair providing information to use when performing SASL
+    *     authentication.
+    * -b,--baseObject {distinguishedName}
+    *     The base object used in the search request.
+    * -f,--filter {filter}
+    *     The search filter used in the search request.
+    * -i,--initialConnections {positiveInteger}
+    *     The number of initial connections to establish to directory server
+    * when
+    *     creating the connection pool.
+    * -m,--maxConnections {positiveInteger}
+    *     The maximum number of connections to establish to directory server
+    * when
+    *     creating the connection pool.
+    * -s,--scope {searchScope}
+    *     The scope of the search request
+    * --sizeLimit {positiveInteger}
+    *     The search size limit
+    * --timeLimit {positiveInteger}
+    *     The search time limit
+    * --pageSize {positiveInteger}
+    *     The search page size
+    * -H,-?,--help
+    *     Display usage information for this program.
+    * </pre>
+    * <p/>
+    * </blockquote>
+    *
+    * @param args
+    *    JVM command line options.
+    *
+    * @see CommandLineTool
+    */
+   public static void main(String... args)
+   {
+      BindDemo bindDemo = new BindDemo(System.out,System.err);
+      bindDemo.addLdapExceptionListener(bindDemo);
+      bindDemo.addResponseControlHandler(BindDemo.responseControlHandler);
+      ResultCode resultCode = bindDemo.runTool(args);
+      ToolCompletedProcessing completedProcessing =
+         new BasicToolCompletedProcessing(bindDemo,resultCode);
+      Log logger = LogFactory.getLog(BindDemo.class);
+      completedProcessing.displayMessage(logger);
+      if(!resultCode.equals(ResultCode.SUCCESS))
       {
-        return Logger.getLogger(getClass().getName());
+         System.exit(resultCode.intValue());
       }
-
-    };
-
-  // A list of objects which perform tasks on response controls
-  private List<ResponseControlAware> responseControlHandlers;
+   }
 
 
+   // A list of objects which perform tasks on response controls
+   private List<ResponseControlAware> responseControlHandlers;
 
 
+   private DN dn;
 
 
-  public BindDemo(OutputStream outStream,
-    OutputStream errStream)
-  {
-    super(outStream,errStream);
-  }
+   /**
+    * Initializes this object using the provided outStream and errStream.
+    *
+    * @param outStream
+    *    regular output
+    * @param errStream
+    *    error output
+    */
+   public BindDemo(OutputStream outStream,OutputStream errStream)
+   {
+      super(outStream,errStream);
+   }
 
 
+   /**
+    * Adds the specified {@code responseControlHandler} to the list of handlers to be invoked when
+    * response controls have been added to the response by the server. No {@code null} response
+    * controls handlers can be added to the list of response control handlers.
+    *
+    * @param responseControlHandler
+    *    A response control handler to be invoked when response controls have been added to the
+    *    response by the server. If {@code responseControlHandler} is {@code null},no action is
+    *    taken
+    *    and no exception is thrown.
+    */
+   public void addResponseControlHandler
+   (ResponseControlAware responseControlHandler)
+   {
+      if(responseControlHandler != null)
+      {
+         getResponseControlHandlers().add(responseControlHandler);
+      }
+   }
 
 
+   /**
+    * Fetches a list of response control handlers.
+    *
+    * @return a list of response control handlers.
+    */
+   public List<ResponseControlAware> getResponseControlHandlers()
+   {
+      if(responseControlHandlers == null)
+      {
+         responseControlHandlers = SampleCodeCollectionUtils.newArrayList();
+      }
+      return responseControlHandlers;
+   }
 
 
-  @Override
-  public synchronized void addLdapSearchExceptionListener
-    (LdapSearchExceptionListener ldapSearchExceptionListener)
-  {
-    if(ldapSearchExceptionListener != null)
-    {
-      ldapSearchExceptionListeners.add(ldapSearchExceptionListener);
-    }
-  }
+   @Override
+   public synchronized void addLdapSearchExceptionListener
+      (LdapSearchExceptionListener ldapSearchExceptionListener)
+   {
+      if(ldapSearchExceptionListener != null)
+      {
+         ldapSearchExceptionListeners.add(ldapSearchExceptionListener);
+      }
+   }
 
 
+   @Override
+   public void fireLdapSearchExceptionListener(final LDAPConnection ldapConnection,
+      final LDAPSearchException ldapSearchException)
+   {
+      ensureNotNull(ldapConnection,ldapSearchException);
+
+      List<LdapSearchExceptionListener> copy;
+      synchronized(this)
+      {
+         copy = SampleCodeCollectionUtils.newArrayList(ldapSearchExceptionListeners);
+      }
+      if(copy.size() == 0)
+      {
+         return;
+      }
+      final LdapSearchExceptionEvent ev =
+         new LdapSearchExceptionEvent(this,ldapConnection,ldapSearchException);
+      for(final LdapSearchExceptionListener l : copy)
+      {
+         l.searchRequestFailed(ev);
+      }
+   }
 
 
+   @Override
+   public synchronized void removeLdapSearchExceptionListener(
+      final LdapSearchExceptionListener ldapSearchExceptionListener)
+   {
+      if(ldapSearchExceptionListener != null)
+      {
+         ldapSearchExceptionListeners.remove
+            (ldapSearchExceptionListener);
+      }
+   }
 
 
-  @Override
-  public void fireLdapSearchExceptionListener(final LDAPConnection ldapConnection,
-    final LDAPSearchException ldapSearchException)
-  {
-    ensureNotNull(ldapConnection,ldapSearchException);
-
-    List<LdapSearchExceptionListener> copy;
-    synchronized(this)
-    {
-      copy = SampleCodeCollectionUtils.newArrayList(ldapSearchExceptionListeners);
-    }
-    if(copy.size() == 0)
-    {
-      return;
-    }
-    final LdapSearchExceptionEvent ev =
-      new LdapSearchExceptionEvent(this,ldapConnection,ldapSearchException);
-    for(final LdapSearchExceptionListener l : copy)
-    {
-      l.searchRequestFailed(ev);
-    }
-  }
+   /**
+    * Removes the specified {@code responseControlHandler} from the list of handlers to be invoked
+    * when response controls have been added to the response by the server.
+    *
+    * @param responseControlHandler
+    *    A response control handler that must have been previously added to the list of response
+    *    control handlers. If {@code responseControlHandler} is {@code null},no action is taken and
+    *    no
+    *    exception is thrown.
+    */
+   @SuppressWarnings("unused")
+   public void removeResponseControlHandler
+   (ResponseControlAware responseControlHandler)
+   {
+      if(responseControlHandler != null)
+      {
+         getResponseControlHandlers().remove(responseControlHandler);
+      }
+   }
 
 
+   @Override
+   public void searchRequestFailed(LdapSearchExceptionEvent ldapSearchExceptionEvent)
+   {
+      ensureNotNull(ldapSearchExceptionEvent);
 
-
-
-
-  @Override
-  public synchronized void removeLdapSearchExceptionListener(
-    final LdapSearchExceptionListener ldapSearchExceptionListener)
-  {
-    if(ldapSearchExceptionListener != null)
-    {
-      ldapSearchExceptionListeners.remove
-        (ldapSearchExceptionListener);
-    }
-  }
-
-
-
-
-
-
-  /**
-   * Removes the specified {@code responseControlHandler} from the list of handlers to be invoked
-   * when response controls have been added to the response by the server.
-   *
-   * @param responseControlHandler
-   *   A response control handler that must have been previously added to the list of response
-   *   control handlers. If {@code responseControlHandler} is {@code null},no action is taken and no
-   *   exception is thrown.
-   */
-  @SuppressWarnings("unused")
-  public void removeResponseControlHandler
-  (final ResponseControlAware responseControlHandler)
-  {
-    if(responseControlHandler != null)
-    {
-      getResponseControlHandlers().remove(responseControlHandler);
-    }
-  }
-
-
-
-
-
-
-  @Override
-  public void searchRequestFailed
-    (final LdapSearchExceptionEvent ldapSearchExceptionEvent)
-  {
-    ensureNotNull(ldapSearchExceptionEvent);
-
-    if(getLogger().isInfoEnabled())
-    {
-      final String exceptionMessage =
-        ldapSearchExceptionEvent.getLdapSearchException().getExceptionMessage();
-      getLogger().info(exceptionMessage);
-    }
-  }
-
-
-
-
-
-
-  @Override
-  public String toString()
-  {
-    return "BindDemo [" +
-      (commandLineOptions != null ? "commandLineOptions=" +
-        commandLineOptions : "") +
-      "]";
-  }
-
-
-
-
-
-
-  /**
-   * Mark {@code --bindDN} and {@code --bindPassword} as required arguments.
-   */
-  @Override
-  protected void addArguments(final ArgumentParser argumentParser)
-    throws ArgumentException
-  {
-    Collection<Argument> requiredArguments = SampleCodeCollectionUtils.newArrayList();
-    for(String argName : requiredArgumentNames)
-    {
-      Argument arg = argumentParser.getNamedArgument(argName);
-      requiredArguments.add(arg);
-    }
-    argumentParser.addRequiredArgumentSet(requiredArguments);
-  }
-
-
-
-
-
-
-  @Override
-  public ResultCode executeToolTasks()
-  {
-
-    // Obtain a pool of connections to the LDAP server from the
-    // LDAPCommandLineTool services,this requires specifying a
-    // connection to the LDAP server,a number of initial connections
-    // (--initialConnections) in the pool,and the maximum number of
-    // connections (--maxConnections) that the pool should create.
-    try
-    {
       if(getLogger().isInfoEnabled())
       {
-        final String hostname = commandLineOptions.getHostname();
-        final String msg =
-          String.format("Establishing connections to %s.",hostname);
-        getLogger().info(msg);
+         final String exceptionMessage =
+            ldapSearchExceptionEvent.getLdapSearchException().getExceptionMessage();
+         getLogger().info(exceptionMessage);
       }
-      ldapConnection = connectToServer();
-      ldapConnectionPool = getLdapConnectionPool(ldapConnection);
-    }
-    catch(final LDAPException ldapException)
-    {
-      fireLdapExceptionListener(ldapConnection,ldapException);
-      if(ldapConnection != null)
+   }
+
+
+   @Override
+   public ResultCode executeToolTasks()
+   {
+      getCommandLineArguments();
+      try
       {
-        ldapConnection.close();
+         getLDAPConnections();
+         authenticate();
+         search();
       }
-      return ldapException.getResultCode();
-    }
-
-    // Fetch the desired BIND DN from the command line options
-    final DN dn = commandLineOptions.getBindDn();
-    if(getLogger().isInfoEnabled())
-    {
-      final String msg = String.format("Using distinguished name '%s'",dn);
-      getLogger().info(msg);
-    }
-
-    // Authenticate the connection using a SimpleBindRequest
-    final BindResult bindResult;
-    final String bindDN = dn.toString();
-    final String bindPassword = commandLineOptions.getBindPassword();
-    try
-    {
-      final BindRequest bindRequest =
-        new SimpleBindRequest(bindDN,bindPassword);
-      if(getLogger().isInfoEnabled())
+      catch(LDAPException e)
       {
-        getLogger().info("transmitting bind request");
+         err(e);
+         ldapConnectionPool.close(true,getNumCloseThreads());
+         return e.getResultCode();
       }
-      bindResult = ldapConnectionPool.bind(bindRequest);
-    }
-    catch(final LDAPException ldapException)
-    {
-      fireLdapExceptionListener(ldapConnection,ldapException);
-      ldapConnectionPool.close(true,4);
-      return ldapException.getResultCode();
-    }
 
-    // Handle response controls that may be attached to the bind
-    // response. Response controls that might be attached include the
-    // PasswordExpiredControl and the PasswordExpiringControl.
-    final List<ResponseControlAware> handlers = getResponseControlHandlers();
-    for(final ResponseControlAware responseControlHandler : handlers)
-    {
-      if(responseControlHandler.invoke())
+      ldapConnectionPool.close(true,getNumCloseThreads());
+
+      return ResultCode.SUCCESS;
+   }
+
+
+   @Override
+   protected String classSpecificPropertiesResourceName()
+   {
+      return "BindDemo.properties";
+   }
+
+
+   /**
+    * Marks {@code --bindDN} and {@code --bindPassword} as required arguments.
+    */
+   @Override
+   protected void addArguments(ArgumentParser argumentParser)
+      throws ArgumentException
+   {
+      Collection<Argument> requiredArguments = SampleCodeCollectionUtils.newArrayList();
+      for(String argName : requiredArgumentNames)
       {
-        try
-        {
-          responseControlHandler.processResponseControl(bindResult);
-        }
-        catch(final LDAPException ldapException)
-        {
-          fireLdapExceptionListener(ldapConnection,ldapException);
-          ldapConnectionPool.close(true,4);
-          return ldapException.getResultCode();
-        }
+         Argument arg = argumentParser.getNamedArgument(argName);
+         requiredArguments.add(arg);
       }
-    }
+      argumentParser.addRequiredArgumentSet(requiredArguments);
+   }
 
-    // Construct a search request. Set a size limit with the value from
-    // the {@code --sizeLimit} command line argument and a time limit
-    // with the value from the {@code --timeLimit} command line
-    // argument.
-    final SearchRequest searchRequest;
-    try
-    {
-      final String baseObject = commandLineOptions.getBaseObject();
-      final SearchScope searchScope = commandLineOptions.getSearchScope();
+
+   private void search() throws LDAPException
+   {
+
+      // Construct a search request. Set a size limit with the value from
+      // the {@code --sizeLimit} command line argument and a time limit
+      // with the value from the {@code --timeLimit} command line
+      // argument.
+      SearchRequest searchRequest;
+
       Filter filter = commandLineOptions.getFilter();
-      if(filter == null)
-      {
-        filter = Filter.createPresenceFilter("objectClass");
-      }
-      if(getLogger().isTraceEnabled())
-      {
-        final String msg = String.format("Creating a search request using " +
-          "filter %s, base object %s, and scope %s",filter,baseObject,
-          searchScope);
-        getLogger().trace(msg);
-      }
-      final List<String> requestedAttributes =
-        commandLineOptions.getRequestedAttributes();
-      final String[] attributes = new String[requestedAttributes.size()];
+      if(filter == null) filter = Filter.createPresenceFilter("objectClass");
+      List<String> requestedAttributes = commandLineOptions.getRequestedAttributes();
+      String[] attributes = new String[requestedAttributes.size()];
       requestedAttributes.toArray(attributes);
       searchRequest =
-        new SearchRequest(baseObject,searchScope,filter,attributes);
+         new SearchRequest(commandLineOptions.getBaseObject(),commandLineOptions.getSearchScope(),
+                           filter,attributes);
+      searchRequest.setSizeLimit(commandLineOptions.getSizeLimit());
+      searchRequest.setTimeLimitSeconds(commandLineOptions.getTimeLimit());
 
-      final int sizeLimit = commandLineOptions.getSizeLimit();
-      searchRequest.setSizeLimit(sizeLimit);
-
-      final int timeLimit = commandLineOptions.getTimeLimit();
-      searchRequest.setTimeLimitSeconds(timeLimit);
-
-    }
-    catch(final LDAPException ldapException)
-    {
-      fireLdapExceptionListener(ldapConnection,ldapException);
-      ldapConnectionPool.close(true,4);
-      return ldapException.getResultCode();
-    }
-
-    // Perform the seach
-    final SearchResult searchResult;
-    try
-    {
-      if(commandLineOptions.isVerbose())
-      {
-        getLogger().trace("transmitting search request: " +
-          searchRequest);
-      }
-      searchResult = ldapConnectionPool.search(searchRequest);
-    }
-    catch(final LDAPSearchException ldapSearchException)
-    {
-      fireLdapSearchExceptionListener(ldapConnection,
-        ldapSearchException);
-      ldapConnectionPool.close(true,4);
-      return ldapSearchException.getResultCode();
-    }
+      // Perform the search
+      SearchResult searchResult = ldapConnectionPool.search(searchRequest);
 
     /*
      * Handle response controls that may be attached to the search
      * response.
      */
-    if(searchResult != null)
-    {
-      String msg;
-      if(searchResult.hasResponseControl())
+      if(searchResult != null)
       {
-        for(final Control control : searchResult.getResponseControls())
-        {
-          final ControlDisplayValues controlDisplayValues =
-            new ControlDisplayValues(control);
-          msg = (String)controlDisplayValues.msg();
-          if(getLogger().isInfoEnabled())
-          {
-            getLogger().info(msg);
-          }
-        }
+         String msg;
+         if(searchResult.hasResponseControl())
+         {
+            for(Control control : searchResult.getResponseControls())
+            {
+               ControlDisplayValues controlDisplayValues = new ControlDisplayValues(control);
+               msg = (String)controlDisplayValues.displayControl();
+               if(getLogger().isInfoEnabled())
+               {
+                  getLogger().info(msg);
+               }
+            }
+         }
+         else
+         {
+            out("no response controls attached to response.");
+         }
       }
-      else
+   }
+
+
+   /**
+    * Retrieves the number of threads to use when closing pooled connections. TODO: This hsould be
+    * specified as a property or parameter somewhere.
+    */
+   private int getNumCloseThreads()
+   {
+      return 4;
+   }
+
+
+   /**
+    * Copies the value of the required command lines arguments
+    * to class fields.
+    */
+   private void getCommandLineArguments()
+   {
+      this.dn = commandLineOptions.getBindDn();
+      if(this.dn == null)
       {
-        if(getLogger().isInfoEnabled())
-        {
-          msg = "no response controls attached to search " +
-            "response.";
-          getLogger().info(msg);
-        }
+         err("The --bindDN command line argument is required.");
+         System.exit(1);
       }
-    }
-
-    ldapConnectionPool.close(true,4);
-
-    return ResultCode.SUCCESS;
-  }
+   }
 
 
+   private void authenticate() throws LDAPException
+   {
+      // Authenticate the connection using a SimpleBindRequest
+      BindResult bindResult;
+      BindRequest bindRequest = new SimpleBindRequest(dn.toString(),
+                                                      commandLineOptions.getBindPassword());
+      bindRequest.setResponseTimeoutMillis(getResponseTimeMillis());
+      bindResult = ldapConnectionPool.bind(bindRequest);
+
+      // Handle response controls that may be attached to the bind
+      // response. Response controls that might be attached include the
+      // PasswordExpiredControl and the PasswordExpiringControl.
+      for(ResponseControlAware responseControlHandler : getResponseControlHandlers())
+      {
+         if(responseControlHandler.invoke())
+         {
+            try
+            {
+               responseControlHandler.processResponseControl(bindResult);
+            }
+            catch(LDAPException ldapException)
+            {
+               fireLdapExceptionListener(ldapConnection,ldapException);
+            }
+         }
+      }
+   }
 
 
-
-
-  @Override
-  protected String classSpecificPropertiesResourceName()
-  {
-    return "BindDemo.properties";
-  }
+   /**
+    * Obtain a pool of connections to the LDAP server from the
+    * LDAPCommandLineTool services. This requires specifying a
+    * connection to the LDAP server,a number of initial connections
+    * (--initialConnections) in the pool,and the maximum number of
+    * connections (--maxConnections) that the pool should create.
+    */
+   private void getLDAPConnections() throws LDAPException
+   {
+      ldapConnection = connectToServer();
+      ldapConnectionPool = getLdapConnectionPool(ldapConnection);
+   }
 }

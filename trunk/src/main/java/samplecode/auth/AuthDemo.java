@@ -74,7 +74,7 @@ public final class AuthDemo extends AbstractTool
     StringBuilder sb = new StringBuilder("AuthDemo{");
     sb.append("authId='").append(authId).append('\'');
     sb.append(", authorizedIdentity=").append(authorizedIdentity);
-    sb.append(", msg='").append(msg).append('\'');
+    sb.append(", displayControl='").append(msg).append('\'');
     sb.append('}');
     return sb.toString();
   }
